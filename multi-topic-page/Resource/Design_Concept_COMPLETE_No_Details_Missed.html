@@ -1,0 +1,1750 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Design Concept — Complete Learning Flow</title>
+<style>
+:root{
+ --bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#64748b;
+ --border:#d8e0ea;--accent:#2563eb;--soft:#eff6ff;--dark:#111827;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);
+ font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.96);
+ border-bottom:1px solid var(--border);backdrop-filter:blur(12px)}
+.head{max-width:1280px;margin:auto;padding:16px;display:flex;align-items:center;
+ justify-content:space-between;gap:14px;flex-wrap:wrap}
+h1{font-size:24px;margin:0}.sub{color:var(--muted);font-size:13px}
+.controls{display:flex;gap:7px;flex-wrap:wrap}
+input{width:310px;max-width:75vw;padding:10px 12px;border:1px solid var(--border);
+ border-radius:9px;font-size:14px}
+button{padding:9px 12px;border:1px solid var(--border);background:#fff;
+ border-radius:9px;font-weight:700;cursor:pointer}
+main{max-width:1280px;margin:22px auto;padding:0 15px}
+.hero,.module,.source-page{background:var(--card);border:1px solid var(--border);border-radius:13px}
+.hero{padding:20px;margin-bottom:14px}
+.hero h2{margin:0 0 7px;font-size:21px}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:9px;margin-top:14px}
+.flow div{background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:11px}
+.note{background:var(--soft);border-left:4px solid var(--accent);padding:11px 13px;
+ border-radius:7px;margin-bottom:12px}
+.module{overflow:hidden;margin-bottom:12px}
+.module>summary{list-style:none;cursor:pointer;padding:16px 18px;font-weight:800;font-size:18px;
+ display:flex;align-items:center;gap:10px}
+.module>summary::-webkit-details-marker,.source-page>summary::-webkit-details-marker{display:none}
+.module>summary:before{content:"▶";font-size:10px;color:var(--accent)}
+.module[open]>summary:before{transform:rotate(90deg)}
+.num{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:#eaf1ff;
+ color:var(--accent);padding:3px 7px;border-radius:6px;font-size:12px}
+.module-body{border-top:1px solid var(--border);padding:14px}
+.source-page{margin:9px 0;overflow:hidden}
+.source-page summary{list-style:none;cursor:pointer;padding:11px 13px;font-weight:750;color:#334155}
+.source-page summary:before{content:"＋";margin-right:7px;color:var(--accent)}
+.source-page[open] summary:before{content:"−"}
+.source-page pre{margin:0;border-top:1px solid var(--border);background:var(--dark);color:#e5e7eb;
+ padding:14px;white-space:pre-wrap;overflow:auto;font:12px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace}
+#coverage{margin-top:18px}
+footer{max-width:1280px;margin:24px auto;padding:0 15px 45px;color:var(--muted);font-size:12px}
+.hidden{display:none!important}
+@media(max-width:700px){
+ input{width:100%;max-width:100%}.head{position:static}.hero{padding:15px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="head">
+    <div>
+      <h1>Design Concept — Complete Learning Flow</h1>
+      <div class="sub">Reorganized from the uploaded Design_concept.pdf • 24 source pages • source detail preserved</div>
+    </div>
+    <div class="controls">
+      <input id="q" type="search" placeholder="Search any topic...">
+      <button id="open">Open modules</button>
+      <button id="close">Close modules</button>
+    </div>
+  </div>
+</header>
+
+<main>
+<section class="hero">
+  <h2>Nothing intentionally removed</h2>
+  <p>
+    The document is arranged as a learning progression rather than simply following the PDF page order.
+    To protect against missing details, every extracted source page is also preserved below its relevant module,
+    and the complete 24-page source is reproduced again in the final coverage section.
+  </p>
+  <div class="flow">
+    <div><b>1. Programming</b><br>Java, collections, exceptions, multithreading.</div>
+    <div><b>2. OOP</b><br>Encapsulation, abstraction, inheritance, polymorphism.</div>
+    <div><b>3. Principles</b><br>SOLID, DRY, KISS, YAGNI.</div>
+    <div><b>4. Patterns</b><br>GoF: creational, structural, behavioral.</div>
+    <div><b>5. Application Design</b><br>MVC, layered, clean, hexagonal, monolith, microservices, event-driven.</div>
+    <div><b>6. System Design</b><br>Communication, scalability, data, distributed systems, security, monitoring, trade-offs.</div>
+    <div><b>7. Infrastructure</b><br>Docker, Kubernetes, cloud, CI/CD, monitoring, logging.</div>
+    <div><b>8. Deep Dives</b><br>NLB vs ALB, load balancing, indexing, architecture principles vs patterns.</div>
+  </div>
+</section>
+
+
+    <details class="module" id="m01" open>
+      <summary><span class="num">01</span>Software Engineering: The Complete Ladder</summary>
+      <div class="module-body">
+        <div class="note">
+          <strong>Coverage rule:</strong> This module reorganizes the source material for learning.
+          The source pages below are preserved in full so no detail from the uploaded document is silently removed.
+        </div>
+        
+    <details class="source-page">
+      <summary>Source page 6</summary>
+      <pre>│    └──  Proxy  │  ├──  Behavioral  (Object  Interaction)  │    ├──  Chain  of  Responsibility  │    ├──  Command  │    ├──  Interpreter  │    ├──  Iterator  │    ├──  Mediator  │    ├──  Memento  │    ├──  Observer  │    ├──  State  │    ├──  Strategy  │    ├──  Template  Method  │    └──  Visitor  │  └──  Goal      └──  Build  flexible,  reusable  and  maintainable  software.    
+Software  Enginneering:  Programming  -&gt;  Application  Design  -&gt;  
+system
+ 
+Design
+ 
+-&gt;
+ 
+Infra
+ 
+Software  Engineering  │  ├──  1.  Programming  (Writing  Code)  │    │  │    ├──  Language  │    │    ├──  Java  │    │    ├──  Python  │    │    └──  C#  │    │  │    ├──  OOP  (Foundation)  │    │    ├──  Encapsulation  │    │    ├──  Abstraction  │    │    ├──  Inheritance  │    │    └──  Polymorphism</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 7</summary>
+      <pre>│    │  │    ├──  Design  Principles  │    │    ├──  SOLID  │    │    ├──  DRY  │    │    ├──  KISS  │    │    └──  YAGNI  │    │  │    └──  Design  Patterns( Design  patterns  are  designed  to  solve  recurring  object-oriented  
+software
+ 
+design
+ 
+problems
+)
+ │        ├──  Creational  │        ├──  Structural  │        └──  Behavioral  │  ├──  2.  Application  Design  │    │  │    ├──  Goal  │    │    └──  Design  a  maintainable  application  │    │  │    ├──  Architecture  Patterns  │    │    ├──  Layered  │    │    ├──  MVC  │    │    ├──  Clean  Architecture   |      |      ├──  Monolithic  │    │    ├──  Hexagonal  │    │    ├──  Microservices  │    │    └──  Event  Driven  │    │  │    ├──  Frameworks  │    │    ├──  Spring  Boot  │    │    ├──  Spring  MVC  │    │    ├──  Spring  Security  │    │    └──  Hibernate  │    │  │    └──  Communication  │        ├──  REST  │        ├──  GraphQL</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 8</summary>
+      <pre>│        ├──  gRPC  │        └──  WebSocket  │  ├──  3.  System  Design  │    │  │    ├──  Goal  │    │    └──  Design  a  scalable,  reliable  distributed  system  │    │  │    ├──  Requirements  │    │    ├──  Functional  │    │    └──  Non-Functional  │    │  │    ├──  Architecture  Components  │    │    ├──  Load  Balancer  │    │    ├──  API  Gateway  │    │    ├──  Cache  │    │    ├──  CDN  │    │    ├──  Message  Queue  │    │    └──  Database  │    │  │    ├──  Data  Design  │    │    ├──  SQL  vs  NoSQL  │    │    ├──  Indexing  │    │    ├──  Replication  │    │    ├──  Sharding  │    │    └──  Partitioning  │    │  │    ├──  Distributed  System  Concepts  │    │    ├──  CAP  Theorem  │    │    ├──  Consistent  Hashing  │    │    ├──  Eventual  Consistency  │    │    ├──  Rate  Limiting  │    │    └──  Concurrency  │    │  │    └──  Trade-offs  │        ├──  Performance  vs  Consistency</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 9</summary>
+      <pre>│        ├──  Availability  vs  Consistency  │        ├──  Read  vs  Write  │        ├──  Scalability  vs  Cost  │        └──  ...  │  └──  4.  Infrastructure  &amp;  Operations      │      ├──  Docker      ├──  Kubernetes      ├──  Cloud  (AWS/Azure/GCP)      ├──  CI/CD      ├──  Monitoring      └──  Logging    
+Software  Enginnering  Ladder  
+I  know  Java          │          ▼  I  write  Object-Oriented  code          │          ▼  I  follow  good  coding  principles   (SOLID  for  oops,  (DRY,  KISS,  YAGNI  -  general  software  
+practice))
+         │          ▼  I  use  Design  Patterns  to  solve  common  coding  problems          │          ▼  Single  Application  -I  design  the  Application:  (MVC,  Layered,  Microservices)          │          ▼  Multiple  Application -I  design  how  multiple  applications  work  together  (System  Design)          │          ▼</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 10</summary>
+      <pre>I  deploy  and  run  them  (Docker,  Kubernetes,  Cloud)   -------------------  Programming  →  How  do  I  write  good  code?  OOP  →  How  do  I  model  real-world  objects?  Design  Principles  (SOLID,  DRY,  KISS)  →  How  do  I  keep  my  code  maintainable  and  loosely  
+coupled?
+ Design  Patterns  →  How  do  I  solve  common  coding/design  problems  using  proven  solutions?  Application  Architecture  →  How  do  I  organize  one  application?  System  Design  →  How  do  I  make  multiple  applications  work  together  at  scale?  Infrastructure  →  How  do  I  deploy,  run,  and  monitor  the  system?   ---------------------  OOP=  Bricks   SOLID  =  Rules  for  arranging  bricks   Design  Patterns  =  Standard  room  designs   Architecture  Patterns  =  House  blueprint   System  Design  =  Entire  colony/city  planning   Infrastructure  =  Roads,  electricity,  water    ------------------   Software  Engineering  Journey   Learn  Java  │  ├──  Learn  language  syntax</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 11</summary>
+      <pre>├──  Collections  ├──  Exception  Handling  ├──  Multithreading  └──  Goal:      Write  working  programs  │  ▼  Write  Object-Oriented  Code  (OOP)  │  ├──  Encapsulation  ├──  Abstraction  ├──  Inheritance  ├──  Polymorphism  └──  Goal:      Model  real-world  entities  using  classes  and  objects.  │  ▼  Apply  Design  Principles  │  ├──  SOLID  ├──  DRY  ├──  KISS  ├──  YAGNI  └──  Goal:      Keep  the  code  maintainable,      reusable  and  loosely  coupled.  │  ▼  Use  Design  Patterns  │  ├──  Factory  ├──  Singleton  ├──  Builder  ├──  Strategy  ├──  Observer  └──  Goal:</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 12</summary>
+      <pre>Solve  common  software  design      problems  using  proven  solutions.  │  ▼  Design  a  Single  Application  (Application  Architecture)  │  ├──  MVC  ├──  Layered  Architecture  ├──  Clean  Architecture  ├──  Hexagonal  Architecture  ├──  Monolith  └──  Goal:      Organize  one  application  into      modules/layers  that  are  easy      to  develop,  test  and  maintain.  │  ▼  Application  grows...  One  application  becomes  too  large  or  multiple  applications/services  need  to  communicate.  │  ▼  Design  Multiple  Applications  (System  Design  /  Distributed  Systems)  │  ├──  Communication  │    ├──  REST  │    ├──  GraphQL  │    ├──  gRPC  │    └──  Messaging  │  ├──  Scalability  │    ├──  Load  Balancer  │    ├──  Caching</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 13</summary>
+      <pre>│    ├──  CDN  │    ├──  Horizontal  Scaling  │    └──  Vertical  Scaling  │  ├──  Data  │    ├──  SQL  /  NoSQL  │    ├──  Indexing  │    ├──  Replication  │    ├──  Sharding  │    └──  Partitioning  │  ├──  Distributed  Systems  │    ├──  CAP  Theorem  │    ├──  Consistent  Hashing  │    ├──  Rate  Limiting  │    ├──  Eventual  Consistency  │    └──  Trade-offs  │  └──  Goal:      Design  systems  where  multiple      applications/services  work      together  reliably,  efficiently,      and  at  scale.  │  ▼  Deploy  &amp;  Operate  (Infrastructure  /  DevOps)  │  ├──  Docker  ├──  Kubernetes  ├──  Cloud  (AWS/Azure/GCP)  ├──  CI/CD  ├──  Monitoring  ├──  Logging  └──  Goal:      Deploy,  scale,  monitor  and</pre>
+    </details>
+    
+      </div>
+    </details>
+    
+    <details class="module" id="m02" open>
+      <summary><span class="num">02</span>Programming → OOP → Design Principles</summary>
+      <div class="module-body">
+        <div class="note">
+          <strong>Coverage rule:</strong> This module reorganizes the source material for learning.
+          The source pages below are preserved in full so no detail from the uploaded document is silently removed.
+        </div>
+        
+    <details class="source-page">
+      <summary>Source page 10</summary>
+      <pre>I  deploy  and  run  them  (Docker,  Kubernetes,  Cloud)   -------------------  Programming  →  How  do  I  write  good  code?  OOP  →  How  do  I  model  real-world  objects?  Design  Principles  (SOLID,  DRY,  KISS)  →  How  do  I  keep  my  code  maintainable  and  loosely  
+coupled?
+ Design  Patterns  →  How  do  I  solve  common  coding/design  problems  using  proven  solutions?  Application  Architecture  →  How  do  I  organize  one  application?  System  Design  →  How  do  I  make  multiple  applications  work  together  at  scale?  Infrastructure  →  How  do  I  deploy,  run,  and  monitor  the  system?   ---------------------  OOP=  Bricks   SOLID  =  Rules  for  arranging  bricks   Design  Patterns  =  Standard  room  designs   Architecture  Patterns  =  House  blueprint   System  Design  =  Entire  colony/city  planning   Infrastructure  =  Roads,  electricity,  water    ------------------   Software  Engineering  Journey   Learn  Java  │  ├──  Learn  language  syntax</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 11</summary>
+      <pre>├──  Collections  ├──  Exception  Handling  ├──  Multithreading  └──  Goal:      Write  working  programs  │  ▼  Write  Object-Oriented  Code  (OOP)  │  ├──  Encapsulation  ├──  Abstraction  ├──  Inheritance  ├──  Polymorphism  └──  Goal:      Model  real-world  entities  using  classes  and  objects.  │  ▼  Apply  Design  Principles  │  ├──  SOLID  ├──  DRY  ├──  KISS  ├──  YAGNI  └──  Goal:      Keep  the  code  maintainable,      reusable  and  loosely  coupled.  │  ▼  Use  Design  Patterns  │  ├──  Factory  ├──  Singleton  ├──  Builder  ├──  Strategy  ├──  Observer  └──  Goal:</pre>
+    </details>
+    
+      </div>
+    </details>
+    
+    <details class="module" id="m03" open>
+      <summary><span class="num">03</span>Design Patterns: Purpose, GoF and Full Taxonomy</summary>
+      <div class="module-body">
+        <div class="note">
+          <strong>Coverage rule:</strong> This module reorganizes the source material for learning.
+          The source pages below are preserved in full so no detail from the uploaded document is silently removed.
+        </div>
+        
+    <details class="source-page">
+      <summary>Source page 3</summary>
+      <pre>├──  Performance  vs  Cost      └──  Monolith  vs  Microservices    
+Level  1-  Design  Patterns  |  Programming  -&gt;  Design  pattern  |  
+Design
+ 
+patterns
+ 
+are
+ 
+designed
+ 
+to
+ 
+solve
+ 
+recurring
+ 
+object-oriented
+ 
+software
+ 
+design
+ 
+problems
+ 
+ Programming        │        ▼  Object-Oriented  Programming        │        ▼  Design  Principles  (SOLID)        │        ▼  Design  Patterns        │        ├──  How  to  create  objects?        ├──  How  to  organize  objects?        └──  How  should  objects  communicate?        │        ▼  Application  Architecture   ====================   Design  Patterns          │          ▼  Gang  of  Four  (GoF)          │          ▼  23  Design  Patterns</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 4</summary>
+      <pre>│          ├──  Creational          ├──  Structural          └──  Behavioral    They  solve  problems  like:  Creational  Patterns  Problem:  How  should  I  create  objects?  Need  only  one  object?      →  Singleton   Need  different  object  types?      →  Factory  Method   Need  complex  object  creation?      →  Builder   Need  to  clone  objects?      →  Prototype   Structural  Patterns  Problem:  How  should  classes  and  objects  be  connected?  Need  incompatible  classes  to  work  together?      →  Adapter   Need  to  add  functionality  without  modifying  code?      →  Decorator   Need  a  simplified  interface?      →  Facade   Need  to  control  access?      →  Proxy   Need  tree-like  structures?      →  Composite</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 5</summary>
+      <pre>Behavioral  Patterns  Problem:  How  should  objects  communicate  and  share  responsibilities?  Need  interchangeable  algorithms?      →  Strategy   Need  event  notifications?      →  Observer   Need  to  encapsulate  requests?      →  Command   Need  different  behavior  based  on  state?      →  State   Need  common  algorithm  skeleton?      →  Template  Method    2.  Design  Patterns  │  ├──  Purpose  │    └──  Reusable  solutions  to  common  software  design  problems  │  ├──  Creational  (Object  Creation)  │    ├──  Singleton  │    ├──  Factory  Method  │    ├──  Abstract  Factory  │    ├──  Builder  │    └──  Prototype  │  ├──  Structural  (Object  Composition)  │    ├──  Adapter  │    ├──  Bridge  │    ├──  Composite  │    ├──  Decorator  │    ├──  Facade  │    ├──  Flyweight</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 6</summary>
+      <pre>│    └──  Proxy  │  ├──  Behavioral  (Object  Interaction)  │    ├──  Chain  of  Responsibility  │    ├──  Command  │    ├──  Interpreter  │    ├──  Iterator  │    ├──  Mediator  │    ├──  Memento  │    ├──  Observer  │    ├──  State  │    ├──  Strategy  │    ├──  Template  Method  │    └──  Visitor  │  └──  Goal      └──  Build  flexible,  reusable  and  maintainable  software.    
+Software  Enginneering:  Programming  -&gt;  Application  Design  -&gt;  
+system
+ 
+Design
+ 
+-&gt;
+ 
+Infra
+ 
+Software  Engineering  │  ├──  1.  Programming  (Writing  Code)  │    │  │    ├──  Language  │    │    ├──  Java  │    │    ├──  Python  │    │    └──  C#  │    │  │    ├──  OOP  (Foundation)  │    │    ├──  Encapsulation  │    │    ├──  Abstraction  │    │    ├──  Inheritance  │    │    └──  Polymorphism</pre>
+    </details>
+    
+      </div>
+    </details>
+    
+    <details class="module" id="m04" open>
+      <summary><span class="num">04</span>Application Design / Architecture</summary>
+      <div class="module-body">
+        <div class="note">
+          <strong>Coverage rule:</strong> This module reorganizes the source material for learning.
+          The source pages below are preserved in full so no detail from the uploaded document is silently removed.
+        </div>
+        
+    <details class="source-page">
+      <summary>Source page 7</summary>
+      <pre>│    │  │    ├──  Design  Principles  │    │    ├──  SOLID  │    │    ├──  DRY  │    │    ├──  KISS  │    │    └──  YAGNI  │    │  │    └──  Design  Patterns( Design  patterns  are  designed  to  solve  recurring  object-oriented  
+software
+ 
+design
+ 
+problems
+)
+ │        ├──  Creational  │        ├──  Structural  │        └──  Behavioral  │  ├──  2.  Application  Design  │    │  │    ├──  Goal  │    │    └──  Design  a  maintainable  application  │    │  │    ├──  Architecture  Patterns  │    │    ├──  Layered  │    │    ├──  MVC  │    │    ├──  Clean  Architecture   |      |      ├──  Monolithic  │    │    ├──  Hexagonal  │    │    ├──  Microservices  │    │    └──  Event  Driven  │    │  │    ├──  Frameworks  │    │    ├──  Spring  Boot  │    │    ├──  Spring  MVC  │    │    ├──  Spring  Security  │    │    └──  Hibernate  │    │  │    └──  Communication  │        ├──  REST  │        ├──  GraphQL</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 8</summary>
+      <pre>│        ├──  gRPC  │        └──  WebSocket  │  ├──  3.  System  Design  │    │  │    ├──  Goal  │    │    └──  Design  a  scalable,  reliable  distributed  system  │    │  │    ├──  Requirements  │    │    ├──  Functional  │    │    └──  Non-Functional  │    │  │    ├──  Architecture  Components  │    │    ├──  Load  Balancer  │    │    ├──  API  Gateway  │    │    ├──  Cache  │    │    ├──  CDN  │    │    ├──  Message  Queue  │    │    └──  Database  │    │  │    ├──  Data  Design  │    │    ├──  SQL  vs  NoSQL  │    │    ├──  Indexing  │    │    ├──  Replication  │    │    ├──  Sharding  │    │    └──  Partitioning  │    │  │    ├──  Distributed  System  Concepts  │    │    ├──  CAP  Theorem  │    │    ├──  Consistent  Hashing  │    │    ├──  Eventual  Consistency  │    │    ├──  Rate  Limiting  │    │    └──  Concurrency  │    │  │    └──  Trade-offs  │        ├──  Performance  vs  Consistency</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 12</summary>
+      <pre>Solve  common  software  design      problems  using  proven  solutions.  │  ▼  Design  a  Single  Application  (Application  Architecture)  │  ├──  MVC  ├──  Layered  Architecture  ├──  Clean  Architecture  ├──  Hexagonal  Architecture  ├──  Monolith  └──  Goal:      Organize  one  application  into      modules/layers  that  are  easy      to  develop,  test  and  maintain.  │  ▼  Application  grows...  One  application  becomes  too  large  or  multiple  applications/services  need  to  communicate.  │  ▼  Design  Multiple  Applications  (System  Design  /  Distributed  Systems)  │  ├──  Communication  │    ├──  REST  │    ├──  GraphQL  │    ├──  gRPC  │    └──  Messaging  │  ├──  Scalability  │    ├──  Load  Balancer  │    ├──  Caching</pre>
+    </details>
+    
+      </div>
+    </details>
+    
+    <details class="module" id="m05" open>
+      <summary><span class="num">05</span>System Design Fundamentals</summary>
+      <div class="module-body">
+        <div class="note">
+          <strong>Coverage rule:</strong> This module reorganizes the source material for learning.
+          The source pages below are preserved in full so no detail from the uploaded document is silently removed.
+        </div>
+        
+    <details class="source-page">
+      <summary>Source page 1</summary>
+      <pre>Level  3  :System  Design  
+System  Design  │  ├──  Architecture  │    ├──  Monolith  │    ├──  Microservices  │    ├──  SOA  │    └──  Event-Driven  │  ├──  Communication  │    ├──  REST  │    ├──  GraphQL  │    ├──  gRPC  │    ├──  WebSocket  │    ├──  Webhook  │    └──  Message  Queues  │  ├──  Scalability  │    ├──  Vertical  Scaling  │    ├──  Horizontal  Scaling  │    ├──  Load  Balancer  │    ├──  CDN  │    └──  Caching  │  ├──  Data  Storage  │    ├──  SQL  vs  NoSQL  │    ├──  Indexing  │    ├──  Replication  │    ├──  Partitioning  │    └──  Sharding  │  ├──  Distributed  Systems  │    ├──  CAP  Theorem  │    ├──  Consistency  Models</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 2</summary>
+      <pre>│    ├──  Consistent  Hashing  │    ├──  Leader  Election  │    ├──  Consensus  │    ├──  Distributed  Locking  │    ├──  Fault  Tolerance  │    └──  Eventual  Consistency  │  ├──  Traffic  Management  │    ├──  API  Gateway  │    ├──  Rate  Limiting  │    │    ├──  Token  Bucket  │    │    ├──  Leaky  Bucket  │    │    ├──  Fixed  Window  │    │    ├──  Sliding  Window  Log  │    │    └──  Sliding  Window  Counter  │    └──  Throttling  │  ├──  Security  │    ├──  Authentication  │    ├──  Authorization  │    ├──  OAuth  │    ├──  JWT  │    └──  HTTPS/TLS  │  ├──  Monitoring  │    ├──  Logging  │    ├──  Metrics  │    ├──  Tracing  │    └──  Health  Checks  │  └──  Trade-offs      ├──  SQL  vs  NoSQL      ├──  REST  vs  gRPC      ├──  WebSocket  vs  Webhook      ├──  Strong  vs  Eventual  Consistency      ├──  Read  vs  Write</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 8</summary>
+      <pre>│        ├──  gRPC  │        └──  WebSocket  │  ├──  3.  System  Design  │    │  │    ├──  Goal  │    │    └──  Design  a  scalable,  reliable  distributed  system  │    │  │    ├──  Requirements  │    │    ├──  Functional  │    │    └──  Non-Functional  │    │  │    ├──  Architecture  Components  │    │    ├──  Load  Balancer  │    │    ├──  API  Gateway  │    │    ├──  Cache  │    │    ├──  CDN  │    │    ├──  Message  Queue  │    │    └──  Database  │    │  │    ├──  Data  Design  │    │    ├──  SQL  vs  NoSQL  │    │    ├──  Indexing  │    │    ├──  Replication  │    │    ├──  Sharding  │    │    └──  Partitioning  │    │  │    ├──  Distributed  System  Concepts  │    │    ├──  CAP  Theorem  │    │    ├──  Consistent  Hashing  │    │    ├──  Eventual  Consistency  │    │    ├──  Rate  Limiting  │    │    └──  Concurrency  │    │  │    └──  Trade-offs  │        ├──  Performance  vs  Consistency</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 9</summary>
+      <pre>│        ├──  Availability  vs  Consistency  │        ├──  Read  vs  Write  │        ├──  Scalability  vs  Cost  │        └──  ...  │  └──  4.  Infrastructure  &amp;  Operations      │      ├──  Docker      ├──  Kubernetes      ├──  Cloud  (AWS/Azure/GCP)      ├──  CI/CD      ├──  Monitoring      └──  Logging    
+Software  Enginnering  Ladder  
+I  know  Java          │          ▼  I  write  Object-Oriented  code          │          ▼  I  follow  good  coding  principles   (SOLID  for  oops,  (DRY,  KISS,  YAGNI  -  general  software  
+practice))
+         │          ▼  I  use  Design  Patterns  to  solve  common  coding  problems          │          ▼  Single  Application  -I  design  the  Application:  (MVC,  Layered,  Microservices)          │          ▼  Multiple  Application -I  design  how  multiple  applications  work  together  (System  Design)          │          ▼</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 12</summary>
+      <pre>Solve  common  software  design      problems  using  proven  solutions.  │  ▼  Design  a  Single  Application  (Application  Architecture)  │  ├──  MVC  ├──  Layered  Architecture  ├──  Clean  Architecture  ├──  Hexagonal  Architecture  ├──  Monolith  └──  Goal:      Organize  one  application  into      modules/layers  that  are  easy      to  develop,  test  and  maintain.  │  ▼  Application  grows...  One  application  becomes  too  large  or  multiple  applications/services  need  to  communicate.  │  ▼  Design  Multiple  Applications  (System  Design  /  Distributed  Systems)  │  ├──  Communication  │    ├──  REST  │    ├──  GraphQL  │    ├──  gRPC  │    └──  Messaging  │  ├──  Scalability  │    ├──  Load  Balancer  │    ├──  Caching</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 13</summary>
+      <pre>│    ├──  CDN  │    ├──  Horizontal  Scaling  │    └──  Vertical  Scaling  │  ├──  Data  │    ├──  SQL  /  NoSQL  │    ├──  Indexing  │    ├──  Replication  │    ├──  Sharding  │    └──  Partitioning  │  ├──  Distributed  Systems  │    ├──  CAP  Theorem  │    ├──  Consistent  Hashing  │    ├──  Rate  Limiting  │    ├──  Eventual  Consistency  │    └──  Trade-offs  │  └──  Goal:      Design  systems  where  multiple      applications/services  work      together  reliably,  efficiently,      and  at  scale.  │  ▼  Deploy  &amp;  Operate  (Infrastructure  /  DevOps)  │  ├──  Docker  ├──  Kubernetes  ├──  Cloud  (AWS/Azure/GCP)  ├──  CI/CD  ├──  Monitoring  ├──  Logging  └──  Goal:      Deploy,  scale,  monitor  and</pre>
+    </details>
+    
+      </div>
+    </details>
+    
+    <details class="module" id="m06" open>
+      <summary><span class="num">06</span>Scalability and Load Balancing</summary>
+      <div class="module-body">
+        <div class="note">
+          <strong>Coverage rule:</strong> This module reorganizes the source material for learning.
+          The source pages below are preserved in full so no detail from the uploaded document is silently removed.
+        </div>
+        
+    <details class="source-page">
+      <summary>Source page 14</summary>
+      <pre>maintain  applications  in      production.    
+Load  Balancer  |  Network  Load  balancer(demand  of  single  
+service)
+ 
+vs
+ 
+Application
+ 
+Load
+ 
+Balancer(distribute
+ 
+request
+ 
+based
+ 
+on
+ 
+request
+ 
+path)
+ 
+ A  Network  Load  Balancer  works  at  Layer  4  of  the  OSI  model.  It  distributes  traffic  based  on  
+network
+ 
+information
+ 
+such
+ 
+as
+ 
+IP
+ 
+addresses,
+ 
+ports,
+ 
+and
+ 
+TCP/UDP
+ 
+protocols
+ 
+without
+ 
+inspecting
+ 
+the
+ 
+HTTP
+ 
+request.
+ 
+Because
+ 
+it
+ 
+doesn&#x27;t
+ 
+process
+ 
+application-layer
+ 
+data,
+ 
+it
+ 
+provides
+ 
+very
+ 
+high
+ 
+performance
+ 
+and
+ 
+low
+ 
+latency.
+   It&#x27;s  commonly  used  for  TCP/UDP  services  like  databases,  Kafka,  and  Redis.  For  HTTP-based  
+microservices
+ 
+that
+ 
+require
+ 
+path-
+ 
+or
+ 
+host-based
+ 
+routing,
+ 
+an
+ 
+Application
+ 
+Load
+ 
+Balancer
+ 
+is
+ 
+typically
+ 
+the
+ 
+better
+ 
+choice.
+  A  Network  Load  Balancer  is  used  when  a  single  service  receives  too  much  traffic  for  one  server  
+to
+ 
+handle.
+ 
+We
+ 
+deploy
+ 
+multiple
+ 
+instances
+ 
+of
+ 
+the
+ 
+same
+ 
+service,
+ 
+and
+ 
+the
+ 
+NLB
+ 
+distributes
+ 
+incoming
+ 
+TCP
+ 
+or
+ 
+UDP
+ 
+connections
+ 
+across
+ 
+those
+ 
+instances.
+ 
+Since
+ 
+it
+ 
+operates
+ 
+at
+ 
+Layer
+ 
+4,
+ 
+it
+ 
+makes
+ 
+routing
+ 
+decisions
+ 
+based
+ 
+on
+ 
+IP
+ 
+addresses
+ 
+and
+ 
+port
+ 
+numbers
+ 
+rather
+ 
+than
+ 
+inspecting
+ 
+the
+ 
+HTTP
+ 
+request.
+  vs   An  Application  Load  Balancer  (ALB)  works  at  Layer  7  (Application  Layer)  and  routes  
+traffic
+ 
+based
+ 
+on
+ 
+HTTP/HTTPS
+ 
+request
+ 
+details
+ 
+such
+ 
+as
+ 
+the
+ 
+URL
+ 
+path,
+ 
+hostname,
+ 
+headers,
+ 
+or
+ 
+cookies.
+ 
+It
+ 
+is
+ 
+ideal
+ 
+for
+ 
+web
+ 
+applications
+ 
+and
+ 
+microservices.
+  
+When  to  Use  NLB  Use  an  NLB  when:  You  need  extremely  high  throughput.  You  are  handling  raw  TCP  or  UDP  traffic.  Low  latency  is  critical.  You  don&#x27;t  need  to  inspect  HTTP  requests.   Examples:</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 15</summary>
+      <pre>Database  connections  Redis  Kafka  Gaming  servers  MQTT  SMTP   
+When  to  Use  ALB  Use  an  ALB  when:  Building  REST  APIs.  Running  microservices.  Hosting  web  applications.  Routing  based  on  URLs  or  hostnames.  Performing  SSL  termination.  Supporting  authentication  integrations.    System  Design  │  └──  Non-Functional  Requirements      │      ├──  Scalability      │    ├──  Vertical  Scaling      │    ├──  Horizontal  Scaling      │    └──  Load  Balancer      │      ├──  Availability      ├──  Reliability      └──  Performance   Load  Balancer:  A  component  that  distributes  incoming  client  requests  across  multiple  servers  
+to
+ 
+improve
+ 
+scalability,
+ 
+availability,
+ 
+reliability,
+ 
+and
+ 
+performance.
+    Load  Balancer  │</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 16</summary>
+      <pre>├──  Purpose  │    └──  Distributes  incoming  requests  across  multiple  servers  │  ├──  Why  Needed  │    ├──  Prevents  one  server  from  overloading  │    ├──  Improves  Availability  │    ├──  Improves  Scalability  │    ├──  Improves  Reliability  │    └──  Enables  High  Availability  │  ├──  Works  With  │    └──  Horizontal  Scaling  │  ├──  Types  │    ├──  Layer  4  (Transport/NLB  -  TCP/UDP)  │    └──  Layer  7  (Application/ALB  -  HTTP/HTTPS)  │  ├──  Algorithms  │    ├──  Round  Robin  │    ├──  Least  Connections  │    ├──  Weighted  Round  Robin  │    ├──  IP  Hash  │    └──  Least  Response  Time  │  ├──  Health  Checks  │    ├──  Detect  unhealthy  servers  │    └──  Route  traffic  only  to  healthy  servers  │  └──  Examples      ├──  NGINX      ├──  HAProxy      ├──  AWS  Application  Load  Balancer  (ALB)      ├──  AWS  Network  Load  Balancer  (NLB)      ├──  Google  Cloud  Load  Balancer      └──  Azure  Load  Balancer</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 17</summary>
+      <pre>-------------  Scalability  │  ├──  Vertical  Scaling  (Scale  Up)  │    ├──  Increase  CPU  │    ├──  Increase  RAM  │    ├──  Increase  Storage  │    └──  Example:  Upgrade  server  from  8GB  →  32GB  RAM  │  └──  Horizontal  Scaling  (Scale  Out)      ├──  Add  more  servers      ├──  Load  Balancer      ├──  Distributed  system      └──  Example:  1  server  →  10  servers    
+Indexing  |  B+  Tree  |  Node:  -  Value+pointer  to  row  |  Search  is  
+improve
+ 
+|
+ 
+But
+ 
+extra
+ 
+storage
+ 
+needed
+ 
+to
+ 
+store
+ 
+indexed
+ 
+data
+ 
+An  index  is  a  separate  data  structure  (usually  a  B+  Tree)  that  stores  indexed  column  values  
+along
+ 
+with
+ 
+pointers
+ 
+to
+ 
+the
+ 
+corresponding
+ 
+table
+ 
+rows,
+ 
+allowing
+ 
+the
+ 
+database
+ 
+to
+ 
+find
+ 
+data
+ 
+quickly
+ 
+without
+ 
+scanning
+ 
+the
+ 
+entire
+ 
+table.
+  
+Trade-off   Advantages  Faster  SELECT  Faster  WHERE  Faster  JOIN  Faster  ORDER  BY   Disadvantages  Slower  INSERT  Slower  UPDATE  Slower  DELETE  Extra  storage  required</pre>
+    </details>
+    
+      </div>
+    </details>
+    
+    <details class="module" id="m07" open>
+      <summary><span class="num">07</span>Database Indexing: Deep Dive</summary>
+      <div class="module-body">
+        <div class="note">
+          <strong>Coverage rule:</strong> This module reorganizes the source material for learning.
+          The source pages below are preserved in full so no detail from the uploaded document is silently removed.
+        </div>
+        
+    <details class="source-page">
+      <summary>Source page 17</summary>
+      <pre>-------------  Scalability  │  ├──  Vertical  Scaling  (Scale  Up)  │    ├──  Increase  CPU  │    ├──  Increase  RAM  │    ├──  Increase  Storage  │    └──  Example:  Upgrade  server  from  8GB  →  32GB  RAM  │  └──  Horizontal  Scaling  (Scale  Out)      ├──  Add  more  servers      ├──  Load  Balancer      ├──  Distributed  system      └──  Example:  1  server  →  10  servers    
+Indexing  |  B+  Tree  |  Node:  -  Value+pointer  to  row  |  Search  is  
+improve
+ 
+|
+ 
+But
+ 
+extra
+ 
+storage
+ 
+needed
+ 
+to
+ 
+store
+ 
+indexed
+ 
+data
+ 
+An  index  is  a  separate  data  structure  (usually  a  B+  Tree)  that  stores  indexed  column  values  
+along
+ 
+with
+ 
+pointers
+ 
+to
+ 
+the
+ 
+corresponding
+ 
+table
+ 
+rows,
+ 
+allowing
+ 
+the
+ 
+database
+ 
+to
+ 
+find
+ 
+data
+ 
+quickly
+ 
+without
+ 
+scanning
+ 
+the
+ 
+entire
+ 
+table.
+  
+Trade-off   Advantages  Faster  SELECT  Faster  WHERE  Faster  JOIN  Faster  ORDER  BY   Disadvantages  Slower  INSERT  Slower  UPDATE  Slower  DELETE  Extra  storage  required</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 18</summary>
+      <pre>For  structured  data  (IDs,  dates,  salaries),  databases  use  B+  Tree  indexes.  For  searching  text  
+across
+ 
+many
+ 
+fields
+ 
+(like
+ 
+Google
+ 
+or
+ 
+product
+ 
+search),
+ 
+systems
+ 
+use
+ 
+search
+ 
+engines
+ 
+such
+ 
+as
+ 
+Solr
+ 
+or
+ 
+Elasticsearch,
+ 
+which
+ 
+use
+ 
+inverted
+ 
+indexes.
+  An  inverted  index  is  a  data  structure  used  by  search  engines  that  maps  each  word  (token)  to  
+the
+ 
+list
+ 
+of
+ 
+documents
+ 
+containing
+ 
+that
+ 
+word,
+ 
+enabling
+ 
+extremely
+ 
+fast
+ 
+full-text
+ 
+searches
+ 
+without
+ 
+scanning
+ 
+every
+ 
+document.
+ ---------------- Internal  working ----------------   How  it  actually  looks  Suppose  you  have  a  table:   Users  Table  Row  UserId  Name  1  101Amit  2  205John  3  150  Alice  4  300  Bob   Without  an  index,  if  you  run:   SELECT  *  FROM  Users  WHERE  UserId  =  205;   The  database  checks  every  row.  101  ❌  205  ✅  150  300   Time  complexity:  O(n)    
+After  creating  an  index  CREATE  INDEX  idx_userid  ON  Users(UserId);   The  database  creates  a  separate  structure.</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 19</summary>
+      <pre>205                /      \             150        300            /         101   Each  value  stores  a  pointer.   205   │   ▼  Row  #2   Now  the  database:   Search  Tree        ↓  Find  205        ↓  Follow  Pointer        ↓  Read  Row  #2   Time  complexity:  O(log  n)   
+Important  point  The  index  does  not  store  the  complete  row .    
+Interview  answer  (30  seconds)  &quot;An  index  is  a  separate  data  structure,  usually  a  B+  Tree,  created  on  one  or  more  columns.  It  
+stores
+ 
+the
+ 
+indexed
+ 
+values
+ 
+and
+ 
+pointers
+ 
+to
+ 
+the
+ 
+actual
+ 
+table
+ 
+rows.
+ 
+Instead
+ 
+of
+ 
+scanning
+ 
+the
+ 
+entire
+ 
+table,
+ 
+the
+ 
+database
+ 
+searches
+ 
+the
+ 
+index
+ 
+first
+ 
+and
+ 
+then
+ 
+directly
+ 
+accesses
+ 
+the
+ 
+matching
+ 
+row.
+ 
+This
+ 
+improves
+ 
+read
+ 
+performance
+ 
+from
+ 
+roughly
+ 
+O(n)
+ 
+to
+ 
+O(log
+ 
+n),
+ 
+at
+ 
+the
+ 
+cost
+ 
+of
+ 
+additional
+ 
+storage
+ 
+and
+ 
+slower
+ 
+insert,
+ 
+update,
+ 
+and
+ 
+delete
+ 
+operations.&quot;</pre>
+    </details>
+    
+      </div>
+    </details>
+    
+    <details class="module" id="m08" open>
+      <summary><span class="num">08</span>Architecture Principles vs Architecture Patterns</summary>
+      <div class="module-body">
+        <div class="note">
+          <strong>Coverage rule:</strong> This module reorganizes the source material for learning.
+          The source pages below are preserved in full so no detail from the uploaded document is silently removed.
+        </div>
+        
+    <details class="source-page">
+      <summary>Source page 20</summary>
+      <pre>Architecture  Principles  =  Rules  or  Guidelines(How  to  make  
+decisions)
+ 
+vs
+ 
+Architecture
+ 
+Patterns
+ 
+=
+ 
+Reusable
+ 
+Solutions
+ 
+Easy  Way  to  Remember  Principles  =  Why  Rules  for  making  decisions.   Examples:  Security  first  No  single  point  of  failure  Cloud  first  Reuse  before  build   Question  answered:  Why  did  we  choose  this  approach?   Patterns  =  How  Reusable  solutions  for  implementing  systems.  Examples:  MVC  Microservices  Event-Driven  Architecture  Infrastructure  as  Code   Question  answered:  How  are  we  going  to  build  it?   ==================================================  
+1.  Architecture  Principles  =  Rules  or  Guidelines  Principles  tell  architects  and  developers  how  to  make  decisions .  They  are  not  code.  They  are  high-level  rules.   Example  1:  &quot;No  Single  Point  of  Failure&quot;  Principle:  If  one  component  fails,  the  whole  system  should  not  stop.   In  Java:</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 21</summary>
+      <pre>Instead  of:  Application     |  Database  Server   Use:  Application     |  Primary  Database     |  Replica  Database  If  one  database  goes  down,  another  can  take  over.   Example  2:  &quot;SaaS  is  Preferred&quot;  like  AWS  services   Principle:  Use  existing  cloud  services  instead  of  building  everything  yourself.  Instead  of  writing  your  own  email  service  in  Java:  public  class  EmailService  {     //  thousands  of  lines  of  code  }  Use  a  SaaS  provider  like:  SendGrid  Mailchimp  Your  Java  code  simply  calls  their  API.   Example  3:  &quot;Best-of-Breed  Applications&quot;  Principle:  Choose  the  best  tool  for  each  job.   Example:  Java  Spring  Boot  for  backend  PostgreSQL  for  data  Redis  for  caching  Kafka  for  messaging  Each  tool  is  selected  because  it  excels  at  a  specific  task.   
+2.  Architecture  Patterns  =  Reusable  Solutions  Patterns  are  proven  ways  to  structure  software.</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 22</summary>
+      <pre>Think  of  them  as  &quot;design  templates.&quot;   
+Pattern:  MVC  (Model-View-Controller)  Very  common  in  Java  web  applications.  Structure  User   |  Controller   |  Service   |  Repository   |  Database   Spring  Boot  Example  Controller  @RestController  public  class  UserController  {      @GetMapping(&quot;/users&quot;)     public  List&lt;User&gt;  getUsers()  {         return  userService.getUsers();     }  }  Service  @Service  public  class  UserService  {      public  List&lt;User&gt;  getUsers()  {         return  repository.findAll();     }  }  Repository  @Repository  public  interface  UserRepository</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 23</summary>
+      <pre>extends  JpaRepository&lt;User,  Long&gt;  {  }  This  is  the  MVC  pattern  in  action.   
+Pattern:  Microservices  Instead  of  one  huge  application:  Big  Monolith  ├──  Users  ├──  Orders  ├──  Payments  ├──  Inventory   Split  into  multiple  Java  applications:  User  Service  Order  Service  Payment  Service  Inventory  Service   Each  service:  Has  its  own  Spring  Boot  application  Has  its  own  database  Can  be  deployed  independently   Example:  User  Service  http://users/api/users  Order  Service  http://orders/api/orders  
+Pattern:  Infrastructure  as  Code  (IaC)  Instead  of  manually  creating  servers:  Login  to  AWS  Click  buttons  Create  servers   Describe  infrastructure  in  code:</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 24</summary>
+      <pre>server:   cpu:  4   memory:  16GB  Now  infrastructure  can  be  versioned  like  Java  code.   
+Easy  Way  to  Remember  Principles  =  Why  Rules  for  making  decisions.  Examples:  Security  first  No  single  point  of  failure  Cloud  first  Reuse  before  build   Question  answered:  Why  did  we  choose  this  approach?   Patterns  =  How  Reusable  solutions  for  implementing  systems.   Examples:  MVC  Microservices  Event-Driven  Architecture  Infrastructure  as  Code   Question  answered:  How  are  we  going  to  build  it?</pre>
+    </details>
+    
+      </div>
+    </details>
+    
+
+<details id="coverage" class="module">
+  <summary><span class="num">ALL</span>Complete 24-Page Source Coverage — No Detail Omitted</summary>
+  <div class="module-body">
+    <div class="note">
+      <strong>Verification section:</strong> Every page of the uploaded PDF is included here in source order.
+      Use this section whenever you want to check that a specific detail was not lost during reorganization.
+    </div>
+    
+    <details class="source-page">
+      <summary>Source page 1</summary>
+      <pre>Level  3  :System  Design  
+System  Design  │  ├──  Architecture  │    ├──  Monolith  │    ├──  Microservices  │    ├──  SOA  │    └──  Event-Driven  │  ├──  Communication  │    ├──  REST  │    ├──  GraphQL  │    ├──  gRPC  │    ├──  WebSocket  │    ├──  Webhook  │    └──  Message  Queues  │  ├──  Scalability  │    ├──  Vertical  Scaling  │    ├──  Horizontal  Scaling  │    ├──  Load  Balancer  │    ├──  CDN  │    └──  Caching  │  ├──  Data  Storage  │    ├──  SQL  vs  NoSQL  │    ├──  Indexing  │    ├──  Replication  │    ├──  Partitioning  │    └──  Sharding  │  ├──  Distributed  Systems  │    ├──  CAP  Theorem  │    ├──  Consistency  Models</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 2</summary>
+      <pre>│    ├──  Consistent  Hashing  │    ├──  Leader  Election  │    ├──  Consensus  │    ├──  Distributed  Locking  │    ├──  Fault  Tolerance  │    └──  Eventual  Consistency  │  ├──  Traffic  Management  │    ├──  API  Gateway  │    ├──  Rate  Limiting  │    │    ├──  Token  Bucket  │    │    ├──  Leaky  Bucket  │    │    ├──  Fixed  Window  │    │    ├──  Sliding  Window  Log  │    │    └──  Sliding  Window  Counter  │    └──  Throttling  │  ├──  Security  │    ├──  Authentication  │    ├──  Authorization  │    ├──  OAuth  │    ├──  JWT  │    └──  HTTPS/TLS  │  ├──  Monitoring  │    ├──  Logging  │    ├──  Metrics  │    ├──  Tracing  │    └──  Health  Checks  │  └──  Trade-offs      ├──  SQL  vs  NoSQL      ├──  REST  vs  gRPC      ├──  WebSocket  vs  Webhook      ├──  Strong  vs  Eventual  Consistency      ├──  Read  vs  Write</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 3</summary>
+      <pre>├──  Performance  vs  Cost      └──  Monolith  vs  Microservices    
+Level  1-  Design  Patterns  |  Programming  -&gt;  Design  pattern  |  
+Design
+ 
+patterns
+ 
+are
+ 
+designed
+ 
+to
+ 
+solve
+ 
+recurring
+ 
+object-oriented
+ 
+software
+ 
+design
+ 
+problems
+ 
+ Programming        │        ▼  Object-Oriented  Programming        │        ▼  Design  Principles  (SOLID)        │        ▼  Design  Patterns        │        ├──  How  to  create  objects?        ├──  How  to  organize  objects?        └──  How  should  objects  communicate?        │        ▼  Application  Architecture   ====================   Design  Patterns          │          ▼  Gang  of  Four  (GoF)          │          ▼  23  Design  Patterns</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 4</summary>
+      <pre>│          ├──  Creational          ├──  Structural          └──  Behavioral    They  solve  problems  like:  Creational  Patterns  Problem:  How  should  I  create  objects?  Need  only  one  object?      →  Singleton   Need  different  object  types?      →  Factory  Method   Need  complex  object  creation?      →  Builder   Need  to  clone  objects?      →  Prototype   Structural  Patterns  Problem:  How  should  classes  and  objects  be  connected?  Need  incompatible  classes  to  work  together?      →  Adapter   Need  to  add  functionality  without  modifying  code?      →  Decorator   Need  a  simplified  interface?      →  Facade   Need  to  control  access?      →  Proxy   Need  tree-like  structures?      →  Composite</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 5</summary>
+      <pre>Behavioral  Patterns  Problem:  How  should  objects  communicate  and  share  responsibilities?  Need  interchangeable  algorithms?      →  Strategy   Need  event  notifications?      →  Observer   Need  to  encapsulate  requests?      →  Command   Need  different  behavior  based  on  state?      →  State   Need  common  algorithm  skeleton?      →  Template  Method    2.  Design  Patterns  │  ├──  Purpose  │    └──  Reusable  solutions  to  common  software  design  problems  │  ├──  Creational  (Object  Creation)  │    ├──  Singleton  │    ├──  Factory  Method  │    ├──  Abstract  Factory  │    ├──  Builder  │    └──  Prototype  │  ├──  Structural  (Object  Composition)  │    ├──  Adapter  │    ├──  Bridge  │    ├──  Composite  │    ├──  Decorator  │    ├──  Facade  │    ├──  Flyweight</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 6</summary>
+      <pre>│    └──  Proxy  │  ├──  Behavioral  (Object  Interaction)  │    ├──  Chain  of  Responsibility  │    ├──  Command  │    ├──  Interpreter  │    ├──  Iterator  │    ├──  Mediator  │    ├──  Memento  │    ├──  Observer  │    ├──  State  │    ├──  Strategy  │    ├──  Template  Method  │    └──  Visitor  │  └──  Goal      └──  Build  flexible,  reusable  and  maintainable  software.    
+Software  Enginneering:  Programming  -&gt;  Application  Design  -&gt;  
+system
+ 
+Design
+ 
+-&gt;
+ 
+Infra
+ 
+Software  Engineering  │  ├──  1.  Programming  (Writing  Code)  │    │  │    ├──  Language  │    │    ├──  Java  │    │    ├──  Python  │    │    └──  C#  │    │  │    ├──  OOP  (Foundation)  │    │    ├──  Encapsulation  │    │    ├──  Abstraction  │    │    ├──  Inheritance  │    │    └──  Polymorphism</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 7</summary>
+      <pre>│    │  │    ├──  Design  Principles  │    │    ├──  SOLID  │    │    ├──  DRY  │    │    ├──  KISS  │    │    └──  YAGNI  │    │  │    └──  Design  Patterns( Design  patterns  are  designed  to  solve  recurring  object-oriented  
+software
+ 
+design
+ 
+problems
+)
+ │        ├──  Creational  │        ├──  Structural  │        └──  Behavioral  │  ├──  2.  Application  Design  │    │  │    ├──  Goal  │    │    └──  Design  a  maintainable  application  │    │  │    ├──  Architecture  Patterns  │    │    ├──  Layered  │    │    ├──  MVC  │    │    ├──  Clean  Architecture   |      |      ├──  Monolithic  │    │    ├──  Hexagonal  │    │    ├──  Microservices  │    │    └──  Event  Driven  │    │  │    ├──  Frameworks  │    │    ├──  Spring  Boot  │    │    ├──  Spring  MVC  │    │    ├──  Spring  Security  │    │    └──  Hibernate  │    │  │    └──  Communication  │        ├──  REST  │        ├──  GraphQL</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 8</summary>
+      <pre>│        ├──  gRPC  │        └──  WebSocket  │  ├──  3.  System  Design  │    │  │    ├──  Goal  │    │    └──  Design  a  scalable,  reliable  distributed  system  │    │  │    ├──  Requirements  │    │    ├──  Functional  │    │    └──  Non-Functional  │    │  │    ├──  Architecture  Components  │    │    ├──  Load  Balancer  │    │    ├──  API  Gateway  │    │    ├──  Cache  │    │    ├──  CDN  │    │    ├──  Message  Queue  │    │    └──  Database  │    │  │    ├──  Data  Design  │    │    ├──  SQL  vs  NoSQL  │    │    ├──  Indexing  │    │    ├──  Replication  │    │    ├──  Sharding  │    │    └──  Partitioning  │    │  │    ├──  Distributed  System  Concepts  │    │    ├──  CAP  Theorem  │    │    ├──  Consistent  Hashing  │    │    ├──  Eventual  Consistency  │    │    ├──  Rate  Limiting  │    │    └──  Concurrency  │    │  │    └──  Trade-offs  │        ├──  Performance  vs  Consistency</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 9</summary>
+      <pre>│        ├──  Availability  vs  Consistency  │        ├──  Read  vs  Write  │        ├──  Scalability  vs  Cost  │        └──  ...  │  └──  4.  Infrastructure  &amp;  Operations      │      ├──  Docker      ├──  Kubernetes      ├──  Cloud  (AWS/Azure/GCP)      ├──  CI/CD      ├──  Monitoring      └──  Logging    
+Software  Enginnering  Ladder  
+I  know  Java          │          ▼  I  write  Object-Oriented  code          │          ▼  I  follow  good  coding  principles   (SOLID  for  oops,  (DRY,  KISS,  YAGNI  -  general  software  
+practice))
+         │          ▼  I  use  Design  Patterns  to  solve  common  coding  problems          │          ▼  Single  Application  -I  design  the  Application:  (MVC,  Layered,  Microservices)          │          ▼  Multiple  Application -I  design  how  multiple  applications  work  together  (System  Design)          │          ▼</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 10</summary>
+      <pre>I  deploy  and  run  them  (Docker,  Kubernetes,  Cloud)   -------------------  Programming  →  How  do  I  write  good  code?  OOP  →  How  do  I  model  real-world  objects?  Design  Principles  (SOLID,  DRY,  KISS)  →  How  do  I  keep  my  code  maintainable  and  loosely  
+coupled?
+ Design  Patterns  →  How  do  I  solve  common  coding/design  problems  using  proven  solutions?  Application  Architecture  →  How  do  I  organize  one  application?  System  Design  →  How  do  I  make  multiple  applications  work  together  at  scale?  Infrastructure  →  How  do  I  deploy,  run,  and  monitor  the  system?   ---------------------  OOP=  Bricks   SOLID  =  Rules  for  arranging  bricks   Design  Patterns  =  Standard  room  designs   Architecture  Patterns  =  House  blueprint   System  Design  =  Entire  colony/city  planning   Infrastructure  =  Roads,  electricity,  water    ------------------   Software  Engineering  Journey   Learn  Java  │  ├──  Learn  language  syntax</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 11</summary>
+      <pre>├──  Collections  ├──  Exception  Handling  ├──  Multithreading  └──  Goal:      Write  working  programs  │  ▼  Write  Object-Oriented  Code  (OOP)  │  ├──  Encapsulation  ├──  Abstraction  ├──  Inheritance  ├──  Polymorphism  └──  Goal:      Model  real-world  entities  using  classes  and  objects.  │  ▼  Apply  Design  Principles  │  ├──  SOLID  ├──  DRY  ├──  KISS  ├──  YAGNI  └──  Goal:      Keep  the  code  maintainable,      reusable  and  loosely  coupled.  │  ▼  Use  Design  Patterns  │  ├──  Factory  ├──  Singleton  ├──  Builder  ├──  Strategy  ├──  Observer  └──  Goal:</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 12</summary>
+      <pre>Solve  common  software  design      problems  using  proven  solutions.  │  ▼  Design  a  Single  Application  (Application  Architecture)  │  ├──  MVC  ├──  Layered  Architecture  ├──  Clean  Architecture  ├──  Hexagonal  Architecture  ├──  Monolith  └──  Goal:      Organize  one  application  into      modules/layers  that  are  easy      to  develop,  test  and  maintain.  │  ▼  Application  grows...  One  application  becomes  too  large  or  multiple  applications/services  need  to  communicate.  │  ▼  Design  Multiple  Applications  (System  Design  /  Distributed  Systems)  │  ├──  Communication  │    ├──  REST  │    ├──  GraphQL  │    ├──  gRPC  │    └──  Messaging  │  ├──  Scalability  │    ├──  Load  Balancer  │    ├──  Caching</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 13</summary>
+      <pre>│    ├──  CDN  │    ├──  Horizontal  Scaling  │    └──  Vertical  Scaling  │  ├──  Data  │    ├──  SQL  /  NoSQL  │    ├──  Indexing  │    ├──  Replication  │    ├──  Sharding  │    └──  Partitioning  │  ├──  Distributed  Systems  │    ├──  CAP  Theorem  │    ├──  Consistent  Hashing  │    ├──  Rate  Limiting  │    ├──  Eventual  Consistency  │    └──  Trade-offs  │  └──  Goal:      Design  systems  where  multiple      applications/services  work      together  reliably,  efficiently,      and  at  scale.  │  ▼  Deploy  &amp;  Operate  (Infrastructure  /  DevOps)  │  ├──  Docker  ├──  Kubernetes  ├──  Cloud  (AWS/Azure/GCP)  ├──  CI/CD  ├──  Monitoring  ├──  Logging  └──  Goal:      Deploy,  scale,  monitor  and</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 14</summary>
+      <pre>maintain  applications  in      production.    
+Load  Balancer  |  Network  Load  balancer(demand  of  single  
+service)
+ 
+vs
+ 
+Application
+ 
+Load
+ 
+Balancer(distribute
+ 
+request
+ 
+based
+ 
+on
+ 
+request
+ 
+path)
+ 
+ A  Network  Load  Balancer  works  at  Layer  4  of  the  OSI  model.  It  distributes  traffic  based  on  
+network
+ 
+information
+ 
+such
+ 
+as
+ 
+IP
+ 
+addresses,
+ 
+ports,
+ 
+and
+ 
+TCP/UDP
+ 
+protocols
+ 
+without
+ 
+inspecting
+ 
+the
+ 
+HTTP
+ 
+request.
+ 
+Because
+ 
+it
+ 
+doesn&#x27;t
+ 
+process
+ 
+application-layer
+ 
+data,
+ 
+it
+ 
+provides
+ 
+very
+ 
+high
+ 
+performance
+ 
+and
+ 
+low
+ 
+latency.
+   It&#x27;s  commonly  used  for  TCP/UDP  services  like  databases,  Kafka,  and  Redis.  For  HTTP-based  
+microservices
+ 
+that
+ 
+require
+ 
+path-
+ 
+or
+ 
+host-based
+ 
+routing,
+ 
+an
+ 
+Application
+ 
+Load
+ 
+Balancer
+ 
+is
+ 
+typically
+ 
+the
+ 
+better
+ 
+choice.
+  A  Network  Load  Balancer  is  used  when  a  single  service  receives  too  much  traffic  for  one  server  
+to
+ 
+handle.
+ 
+We
+ 
+deploy
+ 
+multiple
+ 
+instances
+ 
+of
+ 
+the
+ 
+same
+ 
+service,
+ 
+and
+ 
+the
+ 
+NLB
+ 
+distributes
+ 
+incoming
+ 
+TCP
+ 
+or
+ 
+UDP
+ 
+connections
+ 
+across
+ 
+those
+ 
+instances.
+ 
+Since
+ 
+it
+ 
+operates
+ 
+at
+ 
+Layer
+ 
+4,
+ 
+it
+ 
+makes
+ 
+routing
+ 
+decisions
+ 
+based
+ 
+on
+ 
+IP
+ 
+addresses
+ 
+and
+ 
+port
+ 
+numbers
+ 
+rather
+ 
+than
+ 
+inspecting
+ 
+the
+ 
+HTTP
+ 
+request.
+  vs   An  Application  Load  Balancer  (ALB)  works  at  Layer  7  (Application  Layer)  and  routes  
+traffic
+ 
+based
+ 
+on
+ 
+HTTP/HTTPS
+ 
+request
+ 
+details
+ 
+such
+ 
+as
+ 
+the
+ 
+URL
+ 
+path,
+ 
+hostname,
+ 
+headers,
+ 
+or
+ 
+cookies.
+ 
+It
+ 
+is
+ 
+ideal
+ 
+for
+ 
+web
+ 
+applications
+ 
+and
+ 
+microservices.
+  
+When  to  Use  NLB  Use  an  NLB  when:  You  need  extremely  high  throughput.  You  are  handling  raw  TCP  or  UDP  traffic.  Low  latency  is  critical.  You  don&#x27;t  need  to  inspect  HTTP  requests.   Examples:</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 15</summary>
+      <pre>Database  connections  Redis  Kafka  Gaming  servers  MQTT  SMTP   
+When  to  Use  ALB  Use  an  ALB  when:  Building  REST  APIs.  Running  microservices.  Hosting  web  applications.  Routing  based  on  URLs  or  hostnames.  Performing  SSL  termination.  Supporting  authentication  integrations.    System  Design  │  └──  Non-Functional  Requirements      │      ├──  Scalability      │    ├──  Vertical  Scaling      │    ├──  Horizontal  Scaling      │    └──  Load  Balancer      │      ├──  Availability      ├──  Reliability      └──  Performance   Load  Balancer:  A  component  that  distributes  incoming  client  requests  across  multiple  servers  
+to
+ 
+improve
+ 
+scalability,
+ 
+availability,
+ 
+reliability,
+ 
+and
+ 
+performance.
+    Load  Balancer  │</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 16</summary>
+      <pre>├──  Purpose  │    └──  Distributes  incoming  requests  across  multiple  servers  │  ├──  Why  Needed  │    ├──  Prevents  one  server  from  overloading  │    ├──  Improves  Availability  │    ├──  Improves  Scalability  │    ├──  Improves  Reliability  │    └──  Enables  High  Availability  │  ├──  Works  With  │    └──  Horizontal  Scaling  │  ├──  Types  │    ├──  Layer  4  (Transport/NLB  -  TCP/UDP)  │    └──  Layer  7  (Application/ALB  -  HTTP/HTTPS)  │  ├──  Algorithms  │    ├──  Round  Robin  │    ├──  Least  Connections  │    ├──  Weighted  Round  Robin  │    ├──  IP  Hash  │    └──  Least  Response  Time  │  ├──  Health  Checks  │    ├──  Detect  unhealthy  servers  │    └──  Route  traffic  only  to  healthy  servers  │  └──  Examples      ├──  NGINX      ├──  HAProxy      ├──  AWS  Application  Load  Balancer  (ALB)      ├──  AWS  Network  Load  Balancer  (NLB)      ├──  Google  Cloud  Load  Balancer      └──  Azure  Load  Balancer</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 17</summary>
+      <pre>-------------  Scalability  │  ├──  Vertical  Scaling  (Scale  Up)  │    ├──  Increase  CPU  │    ├──  Increase  RAM  │    ├──  Increase  Storage  │    └──  Example:  Upgrade  server  from  8GB  →  32GB  RAM  │  └──  Horizontal  Scaling  (Scale  Out)      ├──  Add  more  servers      ├──  Load  Balancer      ├──  Distributed  system      └──  Example:  1  server  →  10  servers    
+Indexing  |  B+  Tree  |  Node:  -  Value+pointer  to  row  |  Search  is  
+improve
+ 
+|
+ 
+But
+ 
+extra
+ 
+storage
+ 
+needed
+ 
+to
+ 
+store
+ 
+indexed
+ 
+data
+ 
+An  index  is  a  separate  data  structure  (usually  a  B+  Tree)  that  stores  indexed  column  values  
+along
+ 
+with
+ 
+pointers
+ 
+to
+ 
+the
+ 
+corresponding
+ 
+table
+ 
+rows,
+ 
+allowing
+ 
+the
+ 
+database
+ 
+to
+ 
+find
+ 
+data
+ 
+quickly
+ 
+without
+ 
+scanning
+ 
+the
+ 
+entire
+ 
+table.
+  
+Trade-off   Advantages  Faster  SELECT  Faster  WHERE  Faster  JOIN  Faster  ORDER  BY   Disadvantages  Slower  INSERT  Slower  UPDATE  Slower  DELETE  Extra  storage  required</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 18</summary>
+      <pre>For  structured  data  (IDs,  dates,  salaries),  databases  use  B+  Tree  indexes.  For  searching  text  
+across
+ 
+many
+ 
+fields
+ 
+(like
+ 
+Google
+ 
+or
+ 
+product
+ 
+search),
+ 
+systems
+ 
+use
+ 
+search
+ 
+engines
+ 
+such
+ 
+as
+ 
+Solr
+ 
+or
+ 
+Elasticsearch,
+ 
+which
+ 
+use
+ 
+inverted
+ 
+indexes.
+  An  inverted  index  is  a  data  structure  used  by  search  engines  that  maps  each  word  (token)  to  
+the
+ 
+list
+ 
+of
+ 
+documents
+ 
+containing
+ 
+that
+ 
+word,
+ 
+enabling
+ 
+extremely
+ 
+fast
+ 
+full-text
+ 
+searches
+ 
+without
+ 
+scanning
+ 
+every
+ 
+document.
+ ---------------- Internal  working ----------------   How  it  actually  looks  Suppose  you  have  a  table:   Users  Table  Row  UserId  Name  1  101Amit  2  205John  3  150  Alice  4  300  Bob   Without  an  index,  if  you  run:   SELECT  *  FROM  Users  WHERE  UserId  =  205;   The  database  checks  every  row.  101  ❌  205  ✅  150  300   Time  complexity:  O(n)    
+After  creating  an  index  CREATE  INDEX  idx_userid  ON  Users(UserId);   The  database  creates  a  separate  structure.</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 19</summary>
+      <pre>205                /      \             150        300            /         101   Each  value  stores  a  pointer.   205   │   ▼  Row  #2   Now  the  database:   Search  Tree        ↓  Find  205        ↓  Follow  Pointer        ↓  Read  Row  #2   Time  complexity:  O(log  n)   
+Important  point  The  index  does  not  store  the  complete  row .    
+Interview  answer  (30  seconds)  &quot;An  index  is  a  separate  data  structure,  usually  a  B+  Tree,  created  on  one  or  more  columns.  It  
+stores
+ 
+the
+ 
+indexed
+ 
+values
+ 
+and
+ 
+pointers
+ 
+to
+ 
+the
+ 
+actual
+ 
+table
+ 
+rows.
+ 
+Instead
+ 
+of
+ 
+scanning
+ 
+the
+ 
+entire
+ 
+table,
+ 
+the
+ 
+database
+ 
+searches
+ 
+the
+ 
+index
+ 
+first
+ 
+and
+ 
+then
+ 
+directly
+ 
+accesses
+ 
+the
+ 
+matching
+ 
+row.
+ 
+This
+ 
+improves
+ 
+read
+ 
+performance
+ 
+from
+ 
+roughly
+ 
+O(n)
+ 
+to
+ 
+O(log
+ 
+n),
+ 
+at
+ 
+the
+ 
+cost
+ 
+of
+ 
+additional
+ 
+storage
+ 
+and
+ 
+slower
+ 
+insert,
+ 
+update,
+ 
+and
+ 
+delete
+ 
+operations.&quot;</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 20</summary>
+      <pre>Architecture  Principles  =  Rules  or  Guidelines(How  to  make  
+decisions)
+ 
+vs
+ 
+Architecture
+ 
+Patterns
+ 
+=
+ 
+Reusable
+ 
+Solutions
+ 
+Easy  Way  to  Remember  Principles  =  Why  Rules  for  making  decisions.   Examples:  Security  first  No  single  point  of  failure  Cloud  first  Reuse  before  build   Question  answered:  Why  did  we  choose  this  approach?   Patterns  =  How  Reusable  solutions  for  implementing  systems.  Examples:  MVC  Microservices  Event-Driven  Architecture  Infrastructure  as  Code   Question  answered:  How  are  we  going  to  build  it?   ==================================================  
+1.  Architecture  Principles  =  Rules  or  Guidelines  Principles  tell  architects  and  developers  how  to  make  decisions .  They  are  not  code.  They  are  high-level  rules.   Example  1:  &quot;No  Single  Point  of  Failure&quot;  Principle:  If  one  component  fails,  the  whole  system  should  not  stop.   In  Java:</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 21</summary>
+      <pre>Instead  of:  Application     |  Database  Server   Use:  Application     |  Primary  Database     |  Replica  Database  If  one  database  goes  down,  another  can  take  over.   Example  2:  &quot;SaaS  is  Preferred&quot;  like  AWS  services   Principle:  Use  existing  cloud  services  instead  of  building  everything  yourself.  Instead  of  writing  your  own  email  service  in  Java:  public  class  EmailService  {     //  thousands  of  lines  of  code  }  Use  a  SaaS  provider  like:  SendGrid  Mailchimp  Your  Java  code  simply  calls  their  API.   Example  3:  &quot;Best-of-Breed  Applications&quot;  Principle:  Choose  the  best  tool  for  each  job.   Example:  Java  Spring  Boot  for  backend  PostgreSQL  for  data  Redis  for  caching  Kafka  for  messaging  Each  tool  is  selected  because  it  excels  at  a  specific  task.   
+2.  Architecture  Patterns  =  Reusable  Solutions  Patterns  are  proven  ways  to  structure  software.</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 22</summary>
+      <pre>Think  of  them  as  &quot;design  templates.&quot;   
+Pattern:  MVC  (Model-View-Controller)  Very  common  in  Java  web  applications.  Structure  User   |  Controller   |  Service   |  Repository   |  Database   Spring  Boot  Example  Controller  @RestController  public  class  UserController  {      @GetMapping(&quot;/users&quot;)     public  List&lt;User&gt;  getUsers()  {         return  userService.getUsers();     }  }  Service  @Service  public  class  UserService  {      public  List&lt;User&gt;  getUsers()  {         return  repository.findAll();     }  }  Repository  @Repository  public  interface  UserRepository</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 23</summary>
+      <pre>extends  JpaRepository&lt;User,  Long&gt;  {  }  This  is  the  MVC  pattern  in  action.   
+Pattern:  Microservices  Instead  of  one  huge  application:  Big  Monolith  ├──  Users  ├──  Orders  ├──  Payments  ├──  Inventory   Split  into  multiple  Java  applications:  User  Service  Order  Service  Payment  Service  Inventory  Service   Each  service:  Has  its  own  Spring  Boot  application  Has  its  own  database  Can  be  deployed  independently   Example:  User  Service  http://users/api/users  Order  Service  http://orders/api/orders  
+Pattern:  Infrastructure  as  Code  (IaC)  Instead  of  manually  creating  servers:  Login  to  AWS  Click  buttons  Create  servers   Describe  infrastructure  in  code:</pre>
+    </details>
+    
+    <details class="source-page">
+      <summary>Source page 24</summary>
+      <pre>server:   cpu:  4   memory:  16GB  Now  infrastructure  can  be  versioned  like  Java  code.   
+Easy  Way  to  Remember  Principles  =  Why  Rules  for  making  decisions.  Examples:  Security  first  No  single  point  of  failure  Cloud  first  Reuse  before  build   Question  answered:  Why  did  we  choose  this  approach?   Patterns  =  How  Reusable  solutions  for  implementing  systems.   Examples:  MVC  Microservices  Event-Driven  Architecture  Infrastructure  as  Code   Question  answered:  How  are  we  going  to  build  it?</pre>
+    </details>
+    
+  </div>
+</details>
+</main>
+
+<footer>
+  Source: uploaded Design_concept.pdf. This study guide preserves the source's terminology and claims;
+  it does not silently correct or replace them with outside information.
+</footer>
+<script>
+const mods=[...document.querySelectorAll('.module')];
+const q=document.getElementById('q');
+q.addEventListener('input',()=>{
+ const x=q.value.toLowerCase().trim();
+ mods.forEach(m=>{
+   const hit=!x || m.innerText.toLowerCase().includes(x);
+   m.classList.toggle('hidden',!hit);
+   if(x&&hit)m.open=true;
+ });
+});
+document.getElementById('open').onclick=()=>mods.forEach(m=>m.open=true);
+document.getElementById('close').onclick=()=>mods.forEach(m=>m.open=false);
+</script>
+</body>
+</html>

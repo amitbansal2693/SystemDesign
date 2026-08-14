@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Design Concepts — Complete Hierarchical Cheat Sheet</title>
+<style>
+:root{
+ --bg:#eef2f7;--card:#ffffff;--text:#172033;--muted:#5b687a;
+ --border:#d6dee9;--accent:#2563eb;--accent2:#0f766e;--soft:#f4f8ff;
+ --dark:#0b1220;--code:#111827;--shadow:0 2px 10px rgba(15,23,42,.06);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);
+font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+font-size:15px;line-height:1.6}
+header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.97);
+backdrop-filter:blur(10px);border-bottom:1px solid var(--border);box-shadow:0 1px 5px rgba(15,23,42,.04)}
+.head{max-width:1320px;margin:auto;padding:16px 20px;display:flex;align-items:center;
+justify-content:space-between;gap:18px;flex-wrap:wrap}
+h1{margin:0;font-size:25px;letter-spacing:-.02em}.subtitle{color:var(--muted);font-size:13px;margin-top:2px}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+input{width:310px;max-width:65vw;padding:10px 12px;border:1px solid var(--border);
+border-radius:9px;background:white;font-size:14px}
+button{border:1px solid var(--border);background:white;padding:9px 12px;border-radius:9px;
+font-weight:700;color:#334155;cursor:pointer}
+button:hover{border-color:#aebbd0;background:#f8fafc}
+main{max-width:1320px;margin:24px auto;padding:0 18px 45px}
+.intro{background:linear-gradient(180deg,#fff,#f8fbff);border:1px solid var(--border);
+border-radius:15px;padding:20px 22px;box-shadow:var(--shadow);margin-bottom:15px}
+.intro h2{margin:0 0 5px;font-size:21px}.intro p{margin:6px 0;color:#475569}
+.learning-flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin-top:14px}
+.learning-flow div{background:white;border:1px solid var(--border);border-radius:9px;padding:9px 11px}
+.learning-flow b{color:var(--accent)}
+.section{background:var(--card);border:1px solid var(--border);border-radius:14px;
+margin:12px 0;overflow:hidden;box-shadow:var(--shadow)}
+.section>summary{font-size:20px;font-weight:850;padding:17px 20px;background:#fff}
+details>summary{list-style:none;cursor:pointer}
+details>summary::-webkit-details-marker{display:none}
+details>summary:before{content:"▸";display:inline-block;color:var(--accent);font-size:17px;
+width:23px;transition:transform .12s ease}
+details[open]>summary:before{transform:rotate(90deg)}
+.section>.node-body{padding:2px 13px 18px;border-top:1px solid var(--border)}
+.node{border:1px solid #dce3ec;border-radius:10px;margin:9px 0;background:#fff;overflow:hidden}
+.node>summary{padding:11px 13px;font-weight:750;color:#263449}
+.node>.node-body{padding:10px 14px 13px;border-top:1px solid #e5eaf0}
+.level-2>summary{font-size:15px;background:#fafcff}.level-3>summary{font-size:14px;background:#fbfcfe}
+.level-4>summary{font-size:13px}
+h3,h4{color:#172033;margin:18px 0 7px}h3{font-size:18px}h4{font-size:15px}
+p{margin:7px 0}ul,ol{margin:7px 0 9px 22px}li{margin:3px 0}
+table{border-collapse:collapse;width:100%;margin:11px 0;background:white}
+th,td{border:1px solid var(--border);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:#eef4fb;color:#24344d}
+pre{white-space:pre-wrap;overflow:auto;margin:10px 0;border-radius:9px}
+.diagram{background:#f8fafc;border:1px solid #dce4ef;color:#1e293b;padding:12px 14px;
+font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.code{background:var(--code);color:#e5e7eb;padding:13px 14px;font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.answer{background:#effaf7;border-left:4px solid var(--accent2);padding:11px 13px;border-radius:7px}
+.callout{background:var(--soft);border-left:4px solid var(--accent);padding:10px 13px;border-radius:7px}
+.footer{color:var(--muted);font-size:12px;margin-top:25px}
+.hidden{display:none!important}
+@media(max-width:720px){
+ .head{position:static}.controls{width:100%}input{max-width:none;width:100%}
+ .section>summary{font-size:18px}.node>summary{font-size:14px}
+ main{padding:0 10px 35px}
+}
+</style>
+</head>
+<body>
+<header>
+<div class="head">
+<div>
+<h1>Design Concepts — Complete Hierarchical Cheat Sheet</h1>
+<div class="subtitle">Learning flow • nested collapsible hierarchy • Java/Spring/System Design • details preserved</div>
+</div>
+<div class="controls">
+<input id="search" type="search" placeholder="Search any concept…">
+<button id="expandSections">Open sections</button>
+<button id="expandAll">Expand all</button>
+<button id="collapseAll">Collapse all</button>
+</div>
+</div>
+</header>
+<main>
+<section class="intro">
+<h2>How to use this cheat sheet</h2>
+<p>Start at the top and open only the level you are learning. Every hierarchy level is independently collapsible, so you can move from the big picture to a specific concept without a wall of text.</p>
+<div class="learning-flow">
+<div><b>Programming</b><br>Write good code</div>
+<div><b>OOP</b><br>Model objects</div>
+<div><b>Principles</b><br>Make code maintainable</div>
+<div><b>Patterns</b><br>Solve recurring design problems</div>
+<div><b>Application Architecture</b><br>Organize one application</div>
+<div><b>System Design</b><br>Connect applications at scale</div>
+<div><b>Infrastructure</b><br>Deploy and operate</div>
+</div>
+</section>
+<details class="section level-0" open><summary>Level 3 — System Design</summary><div class="node-body"><p>System Design focuses on designing a scalable, reliable distributed system and making multiple applications/services work together.</p><details class="node level-1"><summary>Architecture</summary><div class="node-body"><details class="node level-2"><summary>Monolith</summary><div class="node-body"></div></details><details class="node level-2"><summary>Microservices</summary><div class="node-body"></div></details><details class="node level-2"><summary>SOA</summary><div class="node-body"></div></details><details class="node level-2"><summary>Event-Driven</summary><div class="node-body"></div></details></div></details><details class="node level-1"><summary>Communication</summary><div class="node-body"><details class="node level-2"><summary>REST</summary><div class="node-body"></div></details><details class="node level-2"><summary>GraphQL</summary><div class="node-body"></div></details><details class="node level-2"><summary>gRPC</summary><div class="node-body"></div></details><details class="node level-2"><summary>WebSocket</summary><div class="node-body"></div></details><details class="node level-2"><summary>Webhook</summary><div class="node-body"></div></details><details class="node level-2"><summary>Message Queues</summary><div class="node-body"></div></details></div></details><details class="node level-1"><summary>Scalability</summary><div class="node-body"><details class="node level-2"><summary>Vertical Scaling</summary><div class="node-body"></div></details><details class="node level-2"><summary>Horizontal Scaling</summary><div class="node-body"></div></details><details class="node level-2"><summary>Load Balancer</summary><div class="node-body"></div></details><details class="node level-2"><summary>CDN</summary><div class="node-body"></div></details><details class="node level-2"><summary>Caching</summary><div class="node-body"></div></details></div></details><details class="node level-1"><summary>Data Storage</summary><div class="node-body"><details class="node level-2"><summary>SQL vs NoSQL</summary><div class="node-body"></div></details><details class="node level-2"><summary>Indexing</summary><div class="node-body"></div></details><details class="node level-2"><summary>Replication</summary><div class="node-body"></div></details><details class="node level-2"><summary>Partitioning</summary><div class="node-body"></div></details><details class="node level-2"><summary>Sharding</summary><div class="node-body"></div></details></div></details><details class="node level-1"><summary>Distributed Systems</summary><div class="node-body"><details class="node level-2"><summary>CAP Theorem</summary><div class="node-body"></div></details><details class="node level-2"><summary>Consistency Models</summary><div class="node-body"></div></details><details class="node level-2"><summary>Consistent Hashing</summary><div class="node-body"></div></details><details class="node level-2"><summary>Leader Election</summary><div class="node-body"></div></details><details class="node level-2"><summary>Consensus</summary><div class="node-body"></div></details><details class="node level-2"><summary>Distributed Locking</summary><div class="node-body"></div></details><details class="node level-2"><summary>Fault Tolerance</summary><div class="node-body"></div></details><details class="node level-2"><summary>Eventual Consistency</summary><div class="node-body"></div></details></div></details><details class="node level-1"><summary>Traffic Management</summary><div class="node-body"><details class="node level-2"><summary>API Gateway</summary><div class="node-body"></div></details><details class="node level-2"><summary>Rate Limiting</summary><div class="node-body"><details class="node level-3"><summary>Token Bucket</summary><div class="node-body"></div></details><details class="node level-3"><summary>Leaky Bucket</summary><div class="node-body"></div></details><details class="node level-3"><summary>Fixed Window</summary><div class="node-body"></div></details><details class="node level-3"><summary>Sliding Window Log</summary><div class="node-body"></div></details><details class="node level-3"><summary>Sliding Window Counter</summary><div class="node-body"></div></details></div></details><details class="node level-2"><summary>Throttling</summary><div class="node-body"></div></details></div></details><details class="node level-1"><summary>Security</summary><div class="node-body"><details class="node level-2"><summary>Authentication</summary><div class="node-body"></div></details><details class="node level-2"><summary>Authorization</summary><div class="node-body"></div></details><details class="node level-2"><summary>OAuth</summary><div class="node-body"></div></details><details class="node level-2"><summary>JWT</summary><div class="node-body"></div></details><details class="node level-2"><summary>HTTPS/TLS</summary><div class="node-body"></div></details></div></details><details class="node level-1"><summary>Monitoring</summary><div class="node-body"><details class="node level-2"><summary>Logging</summary><div class="node-body"></div></details><details class="node level-2"><summary>Metrics</summary><div class="node-body"></div></details><details class="node level-2"><summary>Tracing</summary><div class="node-body"></div></details><details class="node level-2"><summary>Health Checks</summary><div class="node-body"></div></details></div></details><details class="node level-1"><summary>Trade-offs</summary><div class="node-body"><details class="node level-2"><summary>SQL vs NoSQL</summary><div class="node-body"></div></details><details class="node level-2"><summary>REST vs gRPC</summary><div class="node-body"></div></details><details class="node level-2"><summary>WebSocket vs Webhook</summary><div class="node-body"></div></details><details class="node level-2"><summary>Strong vs Eventual Consistency</summary><div class="node-body"></div></details><details class="node level-2"><summary>Read vs Write</summary><div class="node-body"></div></details><details class="node level-2"><summary>Performance vs Cost</summary><div class="node-body"></div></details><details class="node level-2"><summary>Monolith vs Microservices</summary><div class="node-body"></div></details></div></details></div></details><details class="section level-0" open><summary>Level 1 — Design Patterns</summary><div class="node-body">
+<p>Design patterns are designed to solve recurring object-oriented software design problems.</p>
+<pre class="diagram">Programming
+    ↓
+Object-Oriented Programming
+    ↓
+Design Principles (SOLID)
+    ↓
+Design Patterns
+    ├── How to create objects?
+    ├── How to organize objects?
+    └── How should objects communicate?
+    ↓
+Application Architecture</pre>
+<p>Design Patterns → Gang of Four (GoF) → 23 Design Patterns.</p>
+<details class="node level-1"><summary>Purpose — Reusable solutions to common software design problems</summary><div class="node-body"></div></details><details class="node level-1"><summary>Problem-driven view</summary><div class="node-body"><details class="node level-1"><summary>Creational — How should I create objects?</summary><div class="node-body"><details class="node level-2"><summary>Need only one object? → Singleton</summary><div class="node-body"></div></details><details class="node level-2"><summary>Need different object types? → Factory Method</summary><div class="node-body"></div></details><details class="node level-2"><summary>Need complex object creation? → Builder</summary><div class="node-body"></div></details><details class="node level-2"><summary>Need to clone objects? → Prototype</summary><div class="node-body"></div></details></div></details><details class="node level-1"><summary>Structural — How should classes and objects be connected?</summary><div class="node-body"><details class="node level-2"><summary>Need incompatible classes to work together? → Adapter</summary><div class="node-body"></div></details><details class="node level-2"><summary>Need to add functionality without modifying code? → Decorator</summary><div class="node-body"></div></details><details class="node level-2"><summary>Need a simplified interface? → Facade</summary><div class="node-body"></div></details><details class="node level-2"><summary>Need to control access? → Proxy</summary><div class="node-body"></div></details><details class="node level-2"><summary>Need tree-like structures? → Composite</summary><div class="node-body"></div></details></div></details><details class="node level-1"><summary>Behavioral — How should objects communicate and share responsibilities?</summary><div class="node-body"><details class="node level-2"><summary>Need interchangeable algorithms? → Strategy</summary><div class="node-body"></div></details><details class="node level-2"><summary>Need event notifications? → Observer</summary><div class="node-body"></div></details><details class="node level-2"><summary>Need to encapsulate requests? → Command</summary><div class="node-body"></div></details><details class="node level-2"><summary>Need different behavior based on state? → State</summary><div class="node-body"></div></details><details class="node level-2"><summary>Need common algorithm skeleton? → Template Method</summary><div class="node-body"></div></details></div></details></div></details><details class="node level-1"><summary>Complete 23-pattern taxonomy</summary><div class="node-body"><details class="node level-1"><summary>Creational — Object Creation</summary><div class="node-body"><details class="node level-2"><summary>Singleton</summary><div class="node-body"></div></details><details class="node level-2"><summary>Factory Method</summary><div class="node-body"></div></details><details class="node level-2"><summary>Abstract Factory</summary><div class="node-body"></div></details><details class="node level-2"><summary>Builder</summary><div class="node-body"></div></details><details class="node level-2"><summary>Prototype</summary><div class="node-body"></div></details></div></details><details class="node level-1"><summary>Structural — Object Composition</summary><div class="node-body"><details class="node level-2"><summary>Adapter</summary><div class="node-body"></div></details><details class="node level-2"><summary>Bridge</summary><div class="node-body"></div></details><details class="node level-2"><summary>Composite</summary><div class="node-body"></div></details><details class="node level-2"><summary>Decorator</summary><div class="node-body"></div></details><details class="node level-2"><summary>Facade</summary><div class="node-body"></div></details><details class="node level-2"><summary>Flyweight</summary><div class="node-body"></div></details><details class="node level-2"><summary>Proxy</summary><div class="node-body"></div></details></div></details><details class="node level-1"><summary>Behavioral — Object Interaction</summary><div class="node-body"><details class="node level-2"><summary>Chain of Responsibility</summary><div class="node-body"></div></details><details class="node level-2"><summary>Command</summary><div class="node-body"></div></details><details class="node level-2"><summary>Interpreter</summary><div class="node-body"></div></details><details class="node level-2"><summary>Iterator</summary><div class="node-body"></div></details><details class="node level-2"><summary>Mediator</summary><div class="node-body"></div></details><details class="node level-2"><summary>Memento</summary><div class="node-body"></div></details><details class="node level-2"><summary>Observer</summary><div class="node-body"></div></details><details class="node level-2"><summary>State</summary><div class="node-body"></div></details><details class="node level-2"><summary>Strategy</summary><div class="node-body"></div></details><details class="node level-2"><summary>Template Method</summary><div class="node-body"></div></details><details class="node level-2"><summary>Visitor</summary><div class="node-body"></div></details></div></details></div></details><details class="node level-1"><summary>Goal — Build flexible, reusable and maintainable software</summary><div class="node-body"></div></details></div></details><details class="section level-0" open><summary>Software Engineering — Programming → Application Design → System Design → Infrastructure</summary><div class="node-body">
+<pre class="diagram">Software Engineering
+│
+├── 1. Programming (Writing Code)
+├── 2. Application Design
+├── 3. System Design
+└── 4. Infrastructure & Operations</pre>
+<details class="node level-1"><summary>1. Programming — Writing Code</summary><div class="node-body"><details class="node level-2"><summary>Language</summary><div class="node-body"><details class="node level-3"><summary>Java</summary><div class="node-body"></div></details><details class="node level-3"><summary>Python</summary><div class="node-body"></div></details><details class="node level-3"><summary>C#</summary><div class="node-body"></div></details></div></details><details class="node level-2"><summary>OOP (Foundation)</summary><div class="node-body"><details class="node level-3"><summary>Encapsulation</summary><div class="node-body"></div></details><details class="node level-3"><summary>Abstraction</summary><div class="node-body"></div></details><details class="node level-3"><summary>Inheritance</summary><div class="node-body"></div></details><details class="node level-3"><summary>Polymorphism</summary><div class="node-body"></div></details></div></details><details class="node level-2"><summary>Design Principles</summary><div class="node-body"><details class="node level-3"><summary>SOLID</summary><div class="node-body"></div></details><details class="node level-3"><summary>DRY</summary><div class="node-body"></div></details><details class="node level-3"><summary>KISS</summary><div class="node-body"></div></details><details class="node level-3"><summary>YAGNI</summary><div class="node-body"></div></details></div></details><details class="node level-2"><summary>Design Patterns</summary><div class="node-body"><p>Design patterns are designed to solve recurring object-oriented software design problems.</p><details class="node level-3"><summary>Creational</summary><div class="node-body"></div></details><details class="node level-3"><summary>Structural</summary><div class="node-body"></div></details><details class="node level-3"><summary>Behavioral</summary><div class="node-body"></div></details></div></details></div></details><details class="node level-1"><summary>2. Application Design</summary><div class="node-body"><details class="node level-2"><summary>Goal</summary><div class="node-body"><p>Design a maintainable application.</p></div></details><details class="node level-2"><summary>Architecture Patterns</summary><div class="node-body"><details class="node level-3"><summary>Layered</summary><div class="node-body"></div></details><details class="node level-3"><summary>MVC</summary><div class="node-body"></div></details><details class="node level-3"><summary>Clean Architecture</summary><div class="node-body"></div></details><details class="node level-3"><summary>Monolithic</summary><div class="node-body"></div></details><details class="node level-3"><summary>Hexagonal</summary><div class="node-body"></div></details><details class="node level-3"><summary>Microservices</summary><div class="node-body"></div></details><details class="node level-3"><summary>Event Driven</summary><div class="node-body"></div></details></div></details><details class="node level-2"><summary>Frameworks</summary><div class="node-body"><details class="node level-3"><summary>Spring Boot</summary><div class="node-body"></div></details><details class="node level-3"><summary>Spring MVC</summary><div class="node-body"></div></details><details class="node level-3"><summary>Spring Security</summary><div class="node-body"></div></details><details class="node level-3"><summary>Hibernate</summary><div class="node-body"></div></details></div></details><details class="node level-2"><summary>Communication</summary><div class="node-body"><details class="node level-3"><summary>REST</summary><div class="node-body"></div></details><details class="node level-3"><summary>GraphQL</summary><div class="node-body"></div></details><details class="node level-3"><summary>gRPC</summary><div class="node-body"></div></details><details class="node level-3"><summary>WebSocket</summary><div class="node-body"></div></details></div></details></div></details><details class="node level-1"><summary>3. System Design</summary><div class="node-body"><details class="node level-2"><summary>Goal</summary><div class="node-body"><p>Design a scalable, reliable distributed system.</p></div></details><details class="node level-2"><summary>Requirements</summary><div class="node-body"><details class="node level-3"><summary>Functional</summary><div class="node-body"></div></details><details class="node level-3"><summary>Non-Functional</summary><div class="node-body"></div></details></div></details><details class="node level-2"><summary>Architecture Components</summary><div class="node-body"><details class="node level-3"><summary>Load Balancer</summary><div class="node-body"></div></details><details class="node level-3"><summary>API Gateway</summary><div class="node-body"></div></details><details class="node level-3"><summary>Cache</summary><div class="node-body"></div></details><details class="node level-3"><summary>CDN</summary><div class="node-body"></div></details><details class="node level-3"><summary>Message Queue</summary><div class="node-body"></div></details><details class="node level-3"><summary>Database</summary><div class="node-body"></div></details></div></details><details class="node level-2"><summary>Data Design</summary><div class="node-body"><details class="node level-3"><summary>SQL vs NoSQL</summary><div class="node-body"></div></details><details class="node level-3"><summary>Indexing</summary><div class="node-body"></div></details><details class="node level-3"><summary>Replication</summary><div class="node-body"></div></details><details class="node level-3"><summary>Sharding</summary><div class="node-body"></div></details><details class="node level-3"><summary>Partitioning</summary><div class="node-body"></div></details></div></details><details class="node level-2"><summary>Distributed System Concepts</summary><div class="node-body"><details class="node level-3"><summary>CAP Theorem</summary><div class="node-body"></div></details><details class="node level-3"><summary>Consistent Hashing</summary><div class="node-body"></div></details><details class="node level-3"><summary>Eventual Consistency</summary><div class="node-body"></div></details><details class="node level-3"><summary>Rate Limiting</summary><div class="node-body"></div></details><details class="node level-3"><summary>Concurrency</summary><div class="node-body"></div></details></div></details><details class="node level-2"><summary>Trade-offs</summary><div class="node-body"><details class="node level-3"><summary>Performance vs Consistency</summary><div class="node-body"></div></details><details class="node level-3"><summary>Availability vs Consistency</summary><div class="node-body"></div></details><details class="node level-3"><summary>Read vs Write</summary><div class="node-body"></div></details><details class="node level-3"><summary>Scalability vs Cost</summary><div class="node-body"></div></details><details class="node level-3"><summary>...</summary><div class="node-body"></div></details></div></details></div></details><details class="node level-1"><summary>4. Infrastructure &amp; Operations</summary><div class="node-body"><details class="node level-2"><summary>Docker</summary><div class="node-body"></div></details><details class="node level-2"><summary>Kubernetes</summary><div class="node-body"></div></details><details class="node level-2"><summary>Cloud (AWS/Azure/GCP)</summary><div class="node-body"></div></details><details class="node level-2"><summary>CI/CD</summary><div class="node-body"></div></details><details class="node level-2"><summary>Monitoring</summary><div class="node-body"></div></details><details class="node level-2"><summary>Logging</summary><div class="node-body"></div></details></div></details></div></details><details class="section level-0" open><summary>Software Engineering Ladder — From Java to Production</summary><div class="node-body">
+<pre class="diagram">I know Java
+    ↓
+I write Object-Oriented code
+    ↓
+I follow good coding principles
+(SOLID for OOP; DRY, KISS, YAGNI as general software practice)
+    ↓
+I use Design Patterns to solve common coding problems
+    ↓
+Single Application — I design the Application
+(MVC, Layered, Microservices)
+    ↓
+Multiple Applications — I design how multiple applications work together
+(System Design)
+    ↓
+I deploy and run them
+(Docker, Kubernetes, Cloud)</pre>
+<details class="node level-1"><summary>Programming</summary><div class="node-body"><p><strong>Question:</strong> How do I write good code?</p><ul><li>Learn Java language syntax</li><li>Collections</li><li>Exception Handling</li><li>Multithreading</li></ul><p><strong>Goal:</strong> Write working programs.</p></div></details><details class="node level-1"><summary>OOP</summary><div class="node-body"><p><strong>Question:</strong> How do I model real-world objects?</p><ul><li>Encapsulation</li><li>Abstraction</li><li>Inheritance</li><li>Polymorphism</li></ul><p><strong>Goal:</strong> Model real-world entities using classes and objects.</p></div></details><details class="node level-1"><summary>Design Principles</summary><div class="node-body"><p><strong>Question:</strong> How do I keep my code maintainable and loosely coupled?</p><ul><li>SOLID</li><li>DRY</li><li>KISS</li><li>YAGNI</li></ul><p><strong>Goal:</strong> Keep the code maintainable, reusable and loosely coupled.</p></div></details><details class="node level-1"><summary>Design Patterns</summary><div class="node-body"><p><strong>Question:</strong> How do I solve common coding/design problems using proven solutions?</p><ul><li>Factory</li><li>Singleton</li><li>Builder</li><li>Strategy</li><li>Observer</li></ul><p><strong>Goal:</strong> Solve common software design problems using proven solutions.</p></div></details><details class="node level-1"><summary>Single Application — Application Architecture</summary><div class="node-body"><p><strong>Question:</strong> How do I organize one application?</p><ul><li>MVC</li><li>Layered Architecture</li><li>Clean Architecture</li><li>Hexagonal Architecture</li><li>Monolith</li></ul><p><strong>Goal:</strong> Organize one application into modules/layers that are easy to develop, test and maintain.</p></div></details><details class="node level-1"><summary>Application grows → Multiple Applications</summary><div class="node-body"><p>One application becomes too large or multiple applications/services need to communicate.</p><p><strong>Question:</strong> How do I make multiple applications work together at scale?</p><details class="node level-2"><summary>Communication</summary><div class="node-body"><details class="node level-3"><summary>REST</summary><div class="node-body"></div></details><details class="node level-3"><summary>GraphQL</summary><div class="node-body"></div></details><details class="node level-3"><summary>gRPC</summary><div class="node-body"></div></details><details class="node level-3"><summary>Messaging</summary><div class="node-body"></div></details></div></details><details class="node level-2"><summary>Scalability</summary><div class="node-body"><details class="node level-3"><summary>Load Balancer</summary><div class="node-body"></div></details><details class="node level-3"><summary>Caching</summary><div class="node-body"></div></details><details class="node level-3"><summary>CDN</summary><div class="node-body"></div></details><details class="node level-3"><summary>Horizontal Scaling</summary><div class="node-body"></div></details><details class="node level-3"><summary>Vertical Scaling</summary><div class="node-body"></div></details></div></details><details class="node level-2"><summary>Data</summary><div class="node-body"><details class="node level-3"><summary>SQL / NoSQL</summary><div class="node-body"></div></details><details class="node level-3"><summary>Indexing</summary><div class="node-body"></div></details><details class="node level-3"><summary>Replication</summary><div class="node-body"></div></details><details class="node level-3"><summary>Sharding</summary><div class="node-body"></div></details><details class="node level-3"><summary>Partitioning</summary><div class="node-body"></div></details></div></details><details class="node level-2"><summary>Distributed Systems</summary><div class="node-body"><details class="node level-3"><summary>CAP Theorem</summary><div class="node-body"></div></details><details class="node level-3"><summary>Consistent Hashing</summary><div class="node-body"></div></details><details class="node level-3"><summary>Rate Limiting</summary><div class="node-body"></div></details><details class="node level-3"><summary>Eventual Consistency</summary><div class="node-body"></div></details><details class="node level-3"><summary>Trade-offs</summary><div class="node-body"></div></details></div></details><details class="node level-2"><summary>Goal</summary><div class="node-body"><p>Design systems where multiple applications/services work together reliably, efficiently, and at scale.</p></div></details></div></details><details class="node level-1"><summary>Deploy &amp; Operate — Infrastructure / DevOps</summary><div class="node-body"><p><strong>Question:</strong> How do I deploy, run and monitor the system?</p><ul><li>Docker</li><li>Kubernetes</li><li>Cloud (AWS/Azure/GCP)</li><li>CI/CD</li><li>Monitoring</li><li>Logging</li></ul><p><strong>Goal:</strong> Deploy, scale, monitor and maintain applications in production.</p></div></details></div></details><details class="section level-0" open><summary>Architecture Principles vs Architecture Patterns</summary><div class="node-body">
+<table>
+<tr><th>Architecture Principles</th><th>Architecture Patterns</th></tr>
+<tr><td><strong>Why</strong></td><td><strong>How</strong></td></tr>
+<tr><td>Rules for making decisions.</td><td>Reusable solutions for implementing systems.</td></tr>
+<tr><td>High-level rules; they are not code.</td><td>Proven ways to structure software.</td></tr>
+</table>
+<p><strong>Principles answer:</strong> “Why did we choose this approach?”</p>
+<p><strong>Patterns answer:</strong> “How are we going to build it?”</p>
+<details class="node level-1"><summary>Architecture Principles — Rules / Guidelines</summary><div class="node-body"><details class="node level-2"><summary>No Single Point of Failure</summary><div class="node-body">
+<p><strong>Principle:</strong> If one component fails, the whole system should not stop.</p>
+<p>Instead of a single database server:</p>
+<pre class="diagram">Application
+     |
+Database Server</pre>
+<p>Use primary + replica:</p>
+<pre class="diagram">Application
+     |
+Primary Database
+     |
+Replica Database</pre>
+<p>If one database goes down, another can take over.</p>
+</div></details><details class="node level-2"><summary>SaaS is Preferred</summary><div class="node-body">
+<p><strong>Principle:</strong> Use existing cloud services instead of building everything yourself.</p>
+<p>Instead of writing your own email service in Java:</p>
+<pre class="code">public class EmailService {
+    // thousands of lines of code
+}</pre>
+<p>Use a SaaS provider such as <strong>SendGrid</strong> or <strong>Mailchimp</strong>. Your Java code simply calls their API.</p>
+</div></details><details class="node level-2"><summary>Best-of-Breed Applications</summary><div class="node-body">
+<p><strong>Principle:</strong> Choose the best tool for each job.</p>
+<ul>
+<li>Java Spring Boot for backend</li>
+<li>PostgreSQL for data</li>
+<li>Redis for caching</li>
+<li>Kafka for messaging</li>
+</ul>
+<p>Each tool is selected because it excels at a specific task.</p>
+</div></details></div></details><details class="node level-1"><summary>Architecture Patterns — Reusable Solutions</summary><div class="node-body"><details class="node level-2"><summary>MVC — Model-View-Controller</summary><div class="node-body">
+<p><strong>MVC (Model-View-Controller)</strong> is very common in Java web applications.</p>
+<pre class="diagram">User
+  |
+Controller
+  |
+Service
+  |
+Repository
+  |
+Database</pre>
+<h4>Spring Boot — Controller</h4>
+<pre class="code">@RestController
+public class UserController {
+
+    @GetMapping("/users")
+    public List&lt;User&gt; getUsers() {
+        return userService.getUsers();
+    }
+}</pre>
+<h4>Service</h4>
+<pre class="code">@Service
+public class UserService {
+
+    public List&lt;User&gt; getUsers() {
+        return repository.findAll();
+    }
+}</pre>
+<h4>Repository</h4>
+<pre class="code">@Repository
+public interface UserRepository
+        extends JpaRepository&lt;User, Long&gt; {
+}</pre>
+<p>This is the MVC pattern in action.</p>
+</div></details><details class="node level-2"><summary>Microservices</summary><div class="node-body">
+<p>Instead of one huge application:</p>
+<pre class="diagram">Big Monolith
+├── Users
+├── Orders
+├── Payments
+└── Inventory</pre>
+<p>Split it into multiple Java applications:</p>
+<pre class="diagram">User Service
+Order Service
+Payment Service
+Inventory Service</pre>
+<p>Each service:</p>
+<ul><li>Has its own Spring Boot application.</li><li>Has its own database.</li><li>Can be deployed independently.</li></ul>
+<h4>Example endpoints</h4>
+<pre class="code">User Service
+http://users/api/users
+
+Order Service
+http://orders/api/orders</pre>
+</div></details><details class="node level-2"><summary>Infrastructure as Code (IaC)</summary><div class="node-body">
+<p>Instead of manually creating servers:</p>
+<pre class="diagram">Login to AWS
+     ↓
+Click buttons
+     ↓
+Create servers</pre>
+<p>Describe infrastructure in code:</p>
+<pre class="code">server:
+  cpu: 4
+  memory: 16GB</pre>
+<p>Now infrastructure can be versioned like Java code.</p>
+</div></details><details class="node level-2"><summary>Event-Driven Architecture</summary><div class="node-body"><p>Listed as an architecture pattern.</p></div></details></div></details><details class="node level-1"><summary>Easy Way to Remember</summary><div class="node-body">
+<pre class="diagram">Principles = Why
+Rules for making decisions.
+Examples:
+• Security first
+• No single point of failure
+• Cloud first
+• Reuse before build
+
+Patterns = How
+Reusable solutions for implementing systems.
+Examples:
+• MVC
+• Microservices
+• Event-Driven Architecture
+• Infrastructure as Code</pre>
+</div></details></div></details><details class="section level-0"><summary>Deep Dive — Load Balancing</summary><div class="node-body"><p>A Load Balancer is a component that distributes incoming client requests across multiple servers to improve scalability, availability, reliability and performance.</p><details class="node level-2"><summary>Network Load Balancer (NLB) — Layer 4</summary><div class="node-body">
+<p>A <strong>Network Load Balancer (NLB)</strong> works at <strong>Layer 4</strong> of the OSI model. It distributes traffic based on network information such as IP addresses, ports, and TCP/UDP protocols without inspecting the HTTP request.</p>
+<p>Because it does not process application-layer data, it provides very high performance and low latency.</p>
+<p>It is commonly used for TCP/UDP services like databases, Kafka, and Redis. For HTTP-based microservices that require path- or host-based routing, an Application Load Balancer is typically the better choice.</p>
+<p>An NLB is used when a single service receives too much traffic for one server to handle. Multiple instances of the same service are deployed, and the NLB distributes incoming TCP or UDP connections across those instances.</p>
+<p>Since it operates at Layer 4, routing decisions are based on IP addresses and port numbers rather than inspecting the HTTP request.</p>
+<h4>When to use NLB</h4>
+<ul><li>Extremely high throughput.</li><li>Raw TCP or UDP traffic.</li><li>Low latency is critical.</li><li>No need to inspect HTTP requests.</li></ul>
+<h4>Examples</h4>
+<ul><li>Database connections</li><li>Redis</li><li>Kafka</li><li>Gaming servers</li><li>MQTT</li><li>SMTP</li></ul>
+</div></details><details class="node level-2"><summary>Application Load Balancer (ALB) — Layer 7</summary><div class="node-body">
+<p>An <strong>Application Load Balancer (ALB)</strong> works at <strong>Layer 7 (Application Layer)</strong> and routes traffic based on HTTP/HTTPS request details such as URL path, hostname, headers, or cookies.</p>
+<p>It is ideal for web applications and microservices.</p>
+<h4>When to use ALB</h4>
+<ul><li>Building REST APIs.</li><li>Running microservices.</li><li>Hosting web applications.</li><li>Routing based on URLs or hostnames.</li><li>Performing SSL termination.</li><li>Supporting authentication integrations.</li></ul>
+</div></details><details class="node level-2"><summary>Purpose</summary><div class="node-body"><p>Distributes incoming requests across multiple servers.</p></div></details><details class="node level-2"><summary>Why Needed</summary><div class="node-body"><details class="node level-3"><summary>Prevents one server from overloading</summary><div class="node-body"></div></details><details class="node level-3"><summary>Improves Availability</summary><div class="node-body"></div></details><details class="node level-3"><summary>Improves Scalability</summary><div class="node-body"></div></details><details class="node level-3"><summary>Improves Reliability</summary><div class="node-body"></div></details><details class="node level-3"><summary>Enables High Availability</summary><div class="node-body"></div></details></div></details><details class="node level-2"><summary>Works With</summary><div class="node-body"><details class="node level-3"><summary>Horizontal Scaling</summary><div class="node-body"></div></details></div></details><details class="node level-2"><summary>Types</summary><div class="node-body"><details class="node level-3"><summary>Layer 4 — Transport / NLB — TCP/UDP</summary><div class="node-body"></div></details><details class="node level-3"><summary>Layer 7 — Application / ALB — HTTP/HTTPS</summary><div class="node-body"></div></details></div></details><details class="node level-2"><summary>Algorithms</summary><div class="node-body"><details class="node level-3"><summary>Round Robin</summary><div class="node-body"></div></details><details class="node level-3"><summary>Least Connections</summary><div class="node-body"></div></details><details class="node level-3"><summary>Weighted Round Robin</summary><div class="node-body"></div></details><details class="node level-3"><summary>IP Hash</summary><div class="node-body"></div></details><details class="node level-3"><summary>Least Response Time</summary><div class="node-body"></div></details></div></details><details class="node level-2"><summary>Health Checks</summary><div class="node-body"><details class="node level-3"><summary>Detect unhealthy servers</summary><div class="node-body"></div></details><details class="node level-3"><summary>Route traffic only to healthy servers</summary><div class="node-body"></div></details></div></details><details class="node level-2"><summary>Examples</summary><div class="node-body"><details class="node level-3"><summary>NGINX</summary><div class="node-body"></div></details><details class="node level-3"><summary>HAProxy</summary><div class="node-body"></div></details><details class="node level-3"><summary>AWS Application Load Balancer (ALB)</summary><div class="node-body"></div></details><details class="node level-3"><summary>AWS Network Load Balancer (NLB)</summary><div class="node-body"></div></details><details class="node level-3"><summary>Google Cloud Load Balancer</summary><div class="node-body"></div></details><details class="node level-3"><summary>Azure Load Balancer</summary><div class="node-body"></div></details></div></details></div></details><details class="section level-0"><summary>Deep Dive — Scalability</summary><div class="node-body"><details class="node level-2"><summary>Vertical Scaling (Scale Up)</summary><div class="node-body"><details class="node level-3"><summary>Increase CPU</summary><div class="node-body"></div></details><details class="node level-3"><summary>Increase RAM</summary><div class="node-body"></div></details><details class="node level-3"><summary>Increase Storage</summary><div class="node-body"></div></details><details class="node level-3"><summary>Example: Upgrade server from 8GB → 32GB RAM</summary><div class="node-body"></div></details></div></details><details class="node level-2"><summary>Horizontal Scaling (Scale Out)</summary><div class="node-body"><details class="node level-3"><summary>Add more servers</summary><div class="node-body"></div></details><details class="node level-3"><summary>Load Balancer</summary><div class="node-body"></div></details><details class="node level-3"><summary>Distributed system</summary><div class="node-body"></div></details><details class="node level-3"><summary>Example: 1 server → 10 servers</summary><div class="node-body"></div></details></div></details></div></details><details class="section level-0"><summary>Deep Dive — Database Indexing</summary><div class="node-body">
+<p>An <strong>index</strong> is a separate data structure, usually a <strong>B+ Tree</strong>, that stores indexed column values along with pointers to the corresponding table rows. This allows the database to find data quickly without scanning the entire table.</p>
+<p>For structured data such as IDs, dates and salaries, databases use B+ Tree indexes.</p>
+<h4>Trade-off — advantages</h4>
+<ul><li>Faster SELECT</li><li>Faster WHERE</li><li>Faster JOIN</li><li>Faster ORDER BY</li></ul>
+<h4>Trade-off — disadvantages</h4>
+<ul><li>Slower INSERT</li><li>Slower UPDATE</li><li>Slower DELETE</li><li>Extra storage required</li></ul>
+<details class="node level-1"><summary>B+ Tree vs Inverted Index</summary><div class="node-body">
+<p>For searching text across many fields, such as Google or product search, systems use search engines such as <strong>Solr</strong> or <strong>Elasticsearch</strong>, which use inverted indexes.</p>
+<p>An inverted index maps each word (token) to the list of documents containing that word. This enables extremely fast full-text searches without scanning every document.</p>
+</div></details><details class="node level-1"><summary>Internal Working — Step by Step</summary><div class="node-body">
+<h4>Example table</h4>
+<table><tr><th>Row</th><th>UserId</th><th>Name</th></tr>
+<tr><td>1</td><td>101</td><td>Amit</td></tr>
+<tr><td>2</td><td>205</td><td>John</td></tr>
+<tr><td>3</td><td>150</td><td>Alice</td></tr>
+<tr><td>4</td><td>300</td><td>Bob</td></tr></table>
+<h4>Without an index</h4>
+<pre class="code">SELECT * FROM Users WHERE UserId = 205;</pre>
+<p>The database checks every row:</p>
+<pre class="diagram">101 ❌
+205 ✅
+150
+300</pre>
+<p>Time complexity: <strong>O(n)</strong>.</p>
+<h4>Create the index</h4>
+<pre class="code">CREATE INDEX idx_userid
+ON Users(UserId);</pre>
+<p>The database creates a separate structure. Each indexed value stores a pointer to the corresponding row.</p>
+<pre class="diagram">       205
+      /       150   300
+    /
+  101
+
+205
+ │
+ ▼
+Row #2</pre>
+<p>The database performs:</p>
+<pre class="diagram">Search Tree
+     ↓
+Find 205
+     ↓
+Follow Pointer
+     ↓
+Read Row #2</pre>
+<p>Time complexity: <strong>O(log n)</strong>.</p>
+<p><strong>Important:</strong> The index does not store the complete row.</p>
+</div></details><details class="node level-1"><summary>30-Second Interview Answer</summary><div class="node-body"><div class="answer">“An index is a separate data structure, usually a B+ Tree, created on one or more columns. It stores the indexed values and pointers to the actual table rows. Instead of scanning the entire table, the database searches the index first and then directly accesses the matching row. This improves read performance from roughly O(n) to O(log n), at the cost of additional storage and slower insert, update, and delete operations.”</div></div></details></div></details><details class="section level-0"><summary>Final Mental Model — From Code to City</summary><div class="node-body">
+<pre class="diagram">OOP = Bricks
+SOLID = Rules for arranging bricks
+Design Patterns = Standard room designs
+Architecture Patterns = House blueprint
+System Design = Entire colony / city planning
+Infrastructure = Roads, electricity, water</pre>
+<details class="node level-1"><summary>Programming</summary><div class="node-body"><p>How do I write good code?</p></div></details><details class="node level-1"><summary>OOP</summary><div class="node-body"><p>How do I model real-world objects?</p></div></details><details class="node level-1"><summary>Design Principles</summary><div class="node-body"><p>How do I keep code maintainable and loosely coupled?</p></div></details><details class="node level-1"><summary>Design Patterns</summary><div class="node-body"><p>How do I solve common coding/design problems using proven solutions?</p></div></details><details class="node level-1"><summary>Application Architecture</summary><div class="node-body"><p>How do I organize one application?</p></div></details><details class="node level-1"><summary>System Design</summary><div class="node-body"><p>How do I make multiple applications work together at scale?</p></div></details><details class="node level-1"><summary>Infrastructure</summary><div class="node-body"><p>How do I deploy, run and monitor the system?</p></div></details></div></details>
+<div class="footer">Structured from the uploaded Design_concept.pdf. Related material is grouped together; repeated material is consolidated without removing unique details.</div>
+</main>
+<script>
+const allDetails=[...document.querySelectorAll('details')];
+const sections=[...document.querySelectorAll('.section')];
+const search=document.getElementById('search');
+
+document.getElementById('expandAll').onclick=()=>{
+  allDetails.forEach(d=>d.open=true);
+};
+document.getElementById('collapseAll').onclick=()=>{
+  allDetails.forEach(d=>d.open=false);
+};
+document.getElementById('expandSections').onclick=()=>{
+  sections.forEach(s=>s.open=true);
+};
+search.addEventListener('input',()=>{
+  const q=search.value.toLowerCase().trim();
+  sections.forEach(s=>{
+    const hit=!q || s.innerText.toLowerCase().includes(q);
+    s.classList.toggle('hidden',!hit);
+    if(q && hit){
+      s.open=true;
+      s.querySelectorAll('details').forEach(d=>{
+        if(d.innerText.toLowerCase().includes(q)) d.open=true;
+      });
+    }
+  });
+});
+</script>
+</body>
+</html>

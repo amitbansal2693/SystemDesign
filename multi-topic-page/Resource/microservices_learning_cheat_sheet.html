@@ -1,0 +1,1036 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Microservices Architecture & Design Patterns — Learning Cheat Sheet</title>
+<style>
+:root{
+ --bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#64748b;--accent:#2563eb;
+ --accent2:#0f766e;--border:#dce3ec;--soft:#f8fafc;--code:#101827;--codeText:#e5e7eb;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.58}
+header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.header{max-width:1240px;margin:auto;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}
+h1{font-size:25px;margin:0}.subtitle{font-size:13px;color:var(--muted);margin-top:3px}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+input{width:300px;max-width:80vw;padding:10px 12px;border:1px solid var(--border);border-radius:9px;font-size:14px}
+button{padding:9px 12px;border:1px solid var(--border);border-radius:9px;background:#fff;font-weight:700;cursor:pointer}
+button:hover{border-color:var(--accent);color:var(--accent)}
+main{max-width:1240px;margin:24px auto;padding:0 16px}
+.hero,.roadmap-card{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:20px;margin-bottom:15px}
+.hero h2{margin:0 0 7px;font-size:20px}.hero p{margin:7px 0;color:#334155}
+.roadmap{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:9px;margin-top:12px}
+.roadmap div{background:var(--soft);border:1px solid var(--border);border-radius:10px;padding:11px}
+.chapter{background:var(--card);border:1px solid var(--border);border-radius:15px;margin:12px 0;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+.chapter summary{list-style:none;cursor:pointer;padding:17px 19px;font-size:18px;font-weight:800;display:flex;align-items:center;gap:10px}
+.chapter summary::-webkit-details-marker{display:none}
+.chapter summary:before{content:"▶";font-size:11px;color:var(--accent);transition:.15s}
+.chapter[open] summary:before{transform:rotate(90deg)}
+.chapter-num{font-family:ui-monospace,monospace;font-size:12px;background:#eaf1ff;color:var(--accent);padding:4px 7px;border-radius:6px}
+.chapter-body{border-top:1px solid var(--border);padding:5px 21px 25px}
+h3{font-size:20px;margin:24px 0 9px}h4{font-size:16px;margin:19px 0 7px}
+p{margin:8px 0}ul,ol{padding-left:25px}li{margin:4px 0}
+table{width:100%;border-collapse:collapse;margin:13px 0 18px;background:#fff}
+th,td{border:1px solid var(--border);padding:9px 10px;vertical-align:top;text-align:left}
+th{background:#f1f5f9}
+pre{white-space:pre-wrap;overflow:auto;border-radius:10px}
+.diagram{background:var(--soft);border:1px dashed #b8c4d0;padding:13px;font-family:"SFMono-Regular",Consolas,monospace;font-size:13px}
+.big-diagram{background:#0f172a;color:#e5e7eb;border-radius:12px;padding:17px;font-family:"SFMono-Regular",Consolas,monospace;font-size:13px;overflow:auto}
+code{font-family:"SFMono-Regular",Consolas,monospace;background:#edf2f7;padding:2px 5px;border-radius:5px}
+pre code{background:none;padding:0}
+.compare{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.compare>div{border:1px solid var(--border);background:var(--soft);border-radius:10px;padding:12px}
+.callout{background:#eff6ff;border-left:4px solid var(--accent);padding:12px 14px;border-radius:8px}
+.bulletline{margin:4px 0}
+.hidden{display:none!important}
+mark{background:#fde68a}
+footer{max-width:1240px;margin:28px auto;padding:0 16px 45px;color:var(--muted);font-size:12px}
+@media(max-width:700px){.compare{grid-template-columns:1fr}.header{position:static}input{width:100%}}
+</style>
+</head>
+<body>
+<header>
+<div class="header">
+<div><h1>Microservices Architecture & Design Patterns</h1>
+<div class="subtitle">Re-structured as a learning flow — related concepts grouped together, hierarchy charts preserved, detailed source material retained.</div></div>
+<div class="controls">
+<input id="search" type="search" placeholder="Search Saga, Kafka, Bulkhead, Gateway...">
+<button id="openAll">Open all</button><button id="closeAll">Close all</button>
+</div>
+</div>
+</header>
+
+<main>
+<section class="hero">
+<h2>How to learn this document</h2>
+<p>This version is intentionally <strong>not organized by PDF page order</strong>. The material is regrouped so that each concept is learned in the order it becomes useful in a real microservices design.</p>
+
+<div class="roadmap">
+  <div><b>1.</b> Understand <strong>why microservices</strong> exist and what trade-offs they introduce.</div>
+  <div><b>2.</b> Learn how to <strong>split the system</strong> into services.</div>
+  <div><b>3.</b> Learn how services and clients <strong>communicate</strong>.</div>
+  <div><b>4.</b> Understand <strong>service discovery and traffic routing</strong>.</div>
+  <div><b>5.</b> Learn how to manage <strong>data and distributed transactions</strong>.</div>
+  <div><b>6.</b> Add <strong>resilience</strong> so failures do not cascade.</div>
+  <div><b>7.</b> Understand <strong>deployment and service-to-service infrastructure</strong>.</div>
+  <div><b>8.</b> Add <strong>observability, security and scalability</strong>.</div>
+  <div><b>9.</b> Finish with <strong>pattern selection and interview revision</strong>.</div>
+</div>
+
+</section>
+
+
+<details class="chapter" id="chapter-01">
+  <summary><span class="chapter-num">01</span>Microservices: Why, What and Trade-offs</summary>
+  <div class="chapter-body">
+<h3>Why move from a monolith?</h3>
+<p>The source describes the motivation as the limitations of a monolithic architecture: a small change can require a full production deployment; the whole application may need to be scaled even when only one component needs more capacity; and many developers working on the same codebase create dependency and coordination problems.</p>
+<p>The microservices model addresses this by making application components independently developed, deployed, versioned and scaled. Different services can use different databases and technologies, and different components can be on different versions.</p>
+
+<div class="compare">
+<div><strong>Monolith</strong><ul>
+<li>Small change can require full deployment.</li>
+<li>Components are more dependent on each other.</li>
+<li>Scaling one component may mean scaling the full application.</li>
+<li>Many developers work on the same codebase.</li>
+</ul></div>
+<div><strong>Microservices</strong><ul>
+<li>Independent component development.</li>
+<li>Independent deployment.</li>
+<li>Independent scaling.</li>
+<li>Independent versioning.</li>
+<li>Different databases and technologies can be used.</li>
+<li>Different organizations/teams can develop components independently.</li>
+</ul></div>
+</div>
+
+<h3>Microservices trade-offs</h3>
+<p>The source also explicitly notes the costs: microservices are more complex to develop and manage, require separate teams and infrastructure, and have higher infrastructure cost.</p>
+
+<h3>What problem do microservices patterns solve?</h3>
+<p>Once an application is split, new system-level questions appear: how do we split services, how do they communicate, how is data managed, how are failures handled, how are services deployed, secured and scaled?</p>
+</div>
+</details>
+
+<details class="chapter" id="chapter-02">
+  <summary><span class="chapter-num">02</span>The Complete Microservices Pattern Map</summary>
+  <div class="chapter-body">
+<p>Use this hierarchy as the mental map for the rest of the document. It is intentionally preserved as a hierarchy rather than converted into a flat list.</p>
+<pre class="big-diagram">Microservices Design Patterns
+│
+├── 1. Decomposition Patterns
+│   ├── Decompose by Business Capability
+│   ├── Decompose by Subdomain (DDD)
+│   └── Strangler Fig Pattern
+│
+├── 2. Communication Patterns
+│   ├── Synchronous Communication
+│   │   ├── REST
+│   │   └── gRPC
+│   ├── Asynchronous Communication
+│   │   ├── RabbitMQ
+│   │   ├── Kafka
+│   │   └── Event Bus
+│   ├── API Gateway
+│   └── Backend For Frontend (BFF)
+│
+├── 3. Data Management Patterns
+│   ├── Database per Service
+│   ├── Shared Database (Anti-pattern)
+│   ├── Saga Pattern
+│   │   ├── Choreography
+│   │   └── Orchestration
+│   ├── CQRS
+│   ├── Event Sourcing
+│   └── Transactional Outbox
+│
+├── 4. Resiliency Patterns
+│   ├── Circuit Breaker
+│   ├── Retry
+│   ├── Timeout
+│   ├── Bulkhead
+│   ├── Fallback
+│   ├── Rate Limiter
+│   └── Idempotency
+│
+├── 5. Service Discovery Patterns
+│   ├── Client-side Discovery
+│   └── Server-side Discovery
+│
+├── 6. Deployment Patterns
+│   ├── Sidecar
+│   ├── Ambassador
+│   ├── Adapter
+│   ├── Service Mesh (Who controls the communication?)
+│   ├── Blue-Green Deployment
+│   ├── Canary Deployment
+│   └── Rolling Deployment
+│
+├── 7. Observability Patterns
+│   ├── Centralized Logging
+│   ├── Distributed Tracing
+│   ├── Metrics Collection
+│   ├── Health Check
+│   │   ├── Liveness Probe
+│   │   ├── Readiness Probe
+│   │   └── Startup Probe
+│   └── Correlation ID
+│
+├── 8. Security Patterns
+│   ├── OAuth2
+│   ├── JWT Authentication
+│   ├── API Key
+│   ├── Mutual TLS
+│   └── Zero Trust
+│
+└── 9. Scalability Patterns
+    ├── Load Balancing
+    ├── Auto Scaling
+    ├── Caching
+    ├── Sharding
+    └── Message Queue</pre>
+
+<h3>Pattern categories by question</h3>
+<table>
+<tr><th>Question</th><th>Pattern family</th></tr>
+<tr><td>How do we split a large system?</td><td>Decomposition</td></tr>
+<tr><td>How do services communicate?</td><td>Communication</td></tr>
+<tr><td>How do we store and synchronize data?</td><td>Data Management</td></tr>
+<tr><td>What happens when something fails?</td><td>Resilience</td></tr>
+<tr><td>How do services find each other?</td><td>Service Discovery</td></tr>
+<tr><td>How do we deploy safely?</td><td>Deployment</td></tr>
+<tr><td>How do we understand the running system?</td><td>Observability</td></tr>
+<tr><td>How do we protect the system?</td><td>Security</td></tr>
+<tr><td>How do we handle growth?</td><td>Scalability</td></tr>
+</table>
+
+<h3>Design patterns vs architecture patterns</h3>
+<p>The source distinguishes code-level design patterns from architecture-level patterns. Design patterns solve programming problems such as object/class interaction (for example Adapter, Decorator and Factory). Architecture patterns solve system-level problems involving multiple applications or services, such as Microservices, Monolith and Event-Driven Architecture.</p>
+</div>
+</details>
+
+<details class="chapter" id="chapter-03">
+  <summary><span class="chapter-num">03</span>Decomposition: How to Split the Monolith</summary>
+  <div class="chapter-body">
+<h3>The question</h3>
+<p><strong>How do we break a large monolithic application into independent microservices?</strong></p>
+<p>The source identifies maintainability, independent deployment, team ownership and scalability as the goals.</p>
+
+<h3>Decompose by Business Capability</h3>
+<p>Split services based on business domains such as User, Product, Order and Payment. The source recommends this when business domains are clearly separated and when following Domain-Driven Design (DDD).</p>
+
+<pre class="diagram">User Service
+Product Service
+Order Service
+Payment Service</pre>
+
+<h3>Decompose by Subdomain</h3>
+<p>This is a more fine-grained decomposition of a larger domain.</p>
+<pre class="diagram">Product
+├── Catalog
+├── Inventory
+└── Pricing</pre>
+<p>The source associates this with very large domains, better scalability and smaller codebases.</p>
+
+<h3>Strangler Fig Pattern</h3>
+<p>The pattern hierarchy includes Strangler Fig as a decomposition pattern. The source places it alongside business-capability and subdomain decomposition as a way of breaking down or migrating a larger system.</p>
+</div>
+</details>
+
+<details class="chapter" id="chapter-04">
+  <summary><span class="chapter-num">04</span>Communication: Client-to-Service and Service-to-Service</summary>
+  <div class="chapter-body">
+<h3>First decide: synchronous or asynchronous?</h3>
+<table>
+<tr><th>Synchronous</th><th>Asynchronous</th></tr>
+<tr><td>REST, gRPC</td><td>Kafka, RabbitMQ, Event Bus</td></tr>
+<tr><td>Direct request/response</td><td>Event/message based</td></tr>
+<tr><td>Use when an immediate response is required</td><td>Use when the caller does not need an immediate response</td></tr>
+<tr><td>Real-time communication</td><td>Loose coupling, high throughput and event-driven workflows</td></tr>
+<tr><td>Caller waits for response</td><td>Consumers process independently</td></tr>
+</table>
+
+<h3>REST — synchronous communication</h3>
+<p>Example from the source: Order Service needs Payment confirmation before placing an order. The calling service waits for the response.</p>
+<ul><li>Advantages: simple, easy to debug, widely adopted, immediate response.</li>
+<li>Disadvantages: tight coupling, higher latency, and cascading failures if the downstream service is unavailable.</li></ul>
+<p><strong>Spring technologies:</strong> RestTemplate (legacy), WebClient, OpenFeign.</p>
+
+<h3>gRPC — synchronous communication</h3>
+<p>The source describes gRPC as a high-performance RPC framework using Protocol Buffers and HTTP/2. It enables efficient service-to-service communication where clients call remote methods as if they were local.</p>
+<p>The notes emphasize: gRPC is still backend network communication and still needs host/port/security; it abstracts the network call as a method call.</p>
+
+<h3>Kafka — asynchronous communication</h3>
+<p>Use asynchronous messaging for work such as sending email after an order, updating analytics or generating reports where synchronous REST would unnecessarily block the caller.</p>
+<pre class="diagram">Order Created
+      │
+      ▼
+ Kafka Topic
+ ┌────┼─────┐
+ ▼    ▼     ▼
+Inventory Email Analytics</pre>
+<ul>
+<li>Advantages: loose coupling, high throughput, event replay, multiple consumers, fault tolerance.</li>
+<li>Disadvantages: eventual consistency, more complex debugging, additional infrastructure and message-ordering considerations.</li>
+<li>Spring technology: Spring Kafka.</li>
+</ul>
+
+<h3>RabbitMQ and Event Bus</h3>
+<p>The source groups RabbitMQ with Kafka and Event Bus under asynchronous communication. The core idea is that producers publish messages/events and consumers process them independently.</p>
+
+<h3>Interview comparison</h3>
+<p><strong>REST vs gRPC:</strong> both are synchronous request/response mechanisms; gRPC focuses on efficient RPC semantics with Protocol Buffers/HTTP/2.</p>
+<p><strong>Kafka vs RabbitMQ:</strong> the source explicitly lists this as an interview question; the notes emphasize Kafka's event-driven, high-throughput and replay characteristics.</p>
+</div>
+</details>
+
+<details class="chapter" id="chapter-05">
+  <summary><span class="chapter-num">05</span>API Gateway and Backend for Frontend (BFF)</summary>
+  <div class="chapter-body">
+<h3>API Gateway — the single entry point</h3>
+<p>Without a gateway, a client has to know the IP, port and endpoint of every service, update itself when services move, make too many network calls, and potentially duplicate authentication, rate limiting and logging logic.</p>
+
+<pre class="diagram">Client
+   │
+   ▼
+API Gateway
+   ├── Authentication
+   ├── Rate Limiting
+   ├── Routing
+   ├── Logging
+   ├── Load Balancing
+   ├── Service Discovery
+   └── Aggregation
+        │
+        ├── User Service
+        ├── Payment Service
+        ├── Hotel Service
+        └── Rating Service</pre>
+
+<h3>Gateway responsibilities</h3>
+<ul>
+<li><strong>Authentication:</strong> validate JWT/API key; the source notes that stateless APIs require authentication validation for incoming requests.</li>
+<li><strong>Rate limiting:</strong> control how many requests a client can make in a time window. The source distinguishes this from server capacity: rate limiting protects the system from excessive client traffic.</li>
+<li><strong>Routing:</strong> map paths such as <code>/user</code> or <code>/payment</code> to the appropriate service.</li>
+<li><strong>Logging:</strong> capture request/response details for monitoring, debugging and auditing.</li>
+<li><strong>Load balancing:</strong> distribute calls across multiple instances.</li>
+<li><strong>Service discovery:</strong> ask the registry where a service is and select an instance.</li>
+<li><strong>Aggregation:</strong> combine responses from several services into one response.</li>
+<li><strong>Protocol translation:</strong> the source includes HTTP→gRPC/WebSockets and REST→SOAP/legacy-system examples.</li>
+</ul>
+
+<h3>Gateway request flow</h3>
+<ol>
+<li>Client sends a request to the gateway.</li>
+<li>Gateway authenticates and applies cross-cutting policies.</li>
+<li>Gateway routes the request to the correct microservice.</li>
+<li>If required, it calls multiple services and aggregates their responses.</li>
+<li>Gateway returns the response to the client.</li>
+</ol>
+
+<h3>Advantages</h3>
+<ul><li>Single entry point.</li><li>Centralized authentication/authorization.</li><li>Rate limiting and routing in one place.</li><li>Response aggregation.</li><li>Hides internal service topology.</li><li>Easier API versioning.</li><li>Simplifies client code.</li></ul>
+
+<h3>Disadvantages</h3>
+<ul><li>Potential single point of failure unless highly available.</li><li>Can become a bottleneck or a “mini-monolith”.</li><li>Additional infrastructure.</li><li>Slight latency from extra processing/hops.</li></ul>
+
+<h3>Technologies listed in the source</h3>
+<p>Spring Cloud Gateway, Netflix Zuul (legacy), Kong, NGINX.</p>
+
+<h3>API Gateway vs BFF</h3>
+<p><strong>BFF (Backend for Frontend)</strong> is useful when different clients need materially different data. The source example: Web needs complete product details, Mobile needs basic information, and a Smartwatch may need only notifications.</p>
+<pre class="diagram">             ┌── Web BFF ──┐
+Client ──────┼── Mobile BFF ├── Microservices
+             └── Admin BFF ─┘</pre>
+<p>Each BFF communicates with the required microservices and returns only the data needed by its client.</p>
+<ul><li>Advantages: optimized responses, better performance, independent frontend evolution, frontend-specific logic.</li>
+<li>Disadvantages: additional services, some code duplication, increased deployment complexity.</li></ul>
+<p>The source lists as interview questions: Why BFF? API Gateway vs BFF? Can they coexist?</p>
+</div>
+</details>
+
+<details class="chapter" id="chapter-06">
+  <summary><span class="chapter-num">06</span>Service Discovery and Load Balancing</summary>
+  <div class="chapter-body">
+<h3>Why service discovery?</h3>
+<p>Microservice instances are deployed dynamically. IP addresses and ports can change, instances can scale up/down, and failed services should stop receiving traffic. Hardcoded endpoints therefore become a problem.</p>
+
+<h3>Service Registry</h3>
+<p>A Service Registry is a centralized database/server where microservices register their network locations. It acts as a directory of available services.</p>
+
+<h3>Dynamic discovery and self-healing</h3>
+<ul>
+<li>Services register on startup.</li>
+<li>Services deregister on shutdown.</li>
+<li>A crashed service can be removed from the registry.</li>
+<li>Consumers do not need to know the service's current IP/port.</li>
+<li>Services can move or scale without changing callers.</li>
+</ul>
+
+<pre class="diagram">Service Registry
+├── User Service → 10.0.1.2:8080
+├── Payment Service → 10.0.1.5:8080
+└── Inventory Service → available instances</pre>
+
+<h3>Client-side discovery</h3>
+<p>The client queries the Service Registry and selects an appropriate service instance. The client therefore contains discovery/load-balancing logic.</p>
+
+<h3>Server-side discovery</h3>
+<p>The client sends the request to an intermediary such as an API Gateway, Reverse Proxy or Load Balancer. The intermediary queries the Service Registry, selects a healthy instance and forwards the request.</p>
+
+<pre class="diagram">Client → Gateway / Load Balancer → Service Registry
+                                      │
+                                      ▼
+                              Healthy Service Instance</pre>
+
+<h3>Trade-offs</h3>
+<p>Client-side discovery gives the client more control but adds discovery logic to every client. Server-side discovery simplifies clients but adds infrastructure and an extra hop; the gateway/load balancer must be highly available and scaled.</p>
+
+<h3>Technologies</h3>
+<p>Eureka (Spring Cloud Netflix), Consul, Zookeeper, Spring Cloud Gateway, NGINX, HAProxy, Kubernetes Service and Kubernetes Ingress.</p>
+
+<h3>Use cases</h3>
+<ul><li>Dynamic scaling.</li><li>Cloud/container environments such as Kubernetes and Docker.</li><li>Resilience and automatic removal of unavailable instances.</li></ul>
+
+<h3>Load balancing</h3>
+<p>The source explains load balancing as choosing among multiple service instances to distribute load, improve performance and avoid overload. Example: U1, U2, U3, U4, U5 receive requests in distribution rather than every request hitting one instance.</p>
+</div>
+</details>
+
+<details class="chapter" id="chapter-07">
+  <summary><span class="chapter-num">07</span>Data Management: Ownership, Consistency and Distributed Transactions</summary>
+  <div class="chapter-body">
+<h3>Why data management patterns are needed</h3>
+<p>In a monolith, modules commonly share one database and ACID transactions are straightforward. In microservices, each service ideally owns its database, but one business operation can span several services. This creates questions about data ownership, consistency, distributed transactions and synchronization.</p>
+
+<h3>Database per Service</h3>
+<pre class="diagram">User Service   → User DB
+Order Service  → Order DB
+Payment Service → Payment DB
+Inventory Service → Inventory DB</pre>
+<p>Only the owning service directly reads/modifies its data. Other services use APIs or events.</p>
+<ul><li>Advantages: loose coupling, independent deployment, independent scaling, better security, technology flexibility, clear data ownership.</li>
+<li>Disadvantages: cross-service joins are unavailable, distributed transactions are harder, data duplication may be required, reporting becomes more complex.</li></ul>
+<p><strong>Technologies:</strong> Spring Data JPA, Spring Data MongoDB, Spring Data Redis, Hibernate, Flyway/Liquibase.</p>
+
+<h3>Shared Database — anti-pattern</h3>
+<p>Multiple services directly access one database. It initially provides easy joins, native ACID transactions, no data duplication and less initial development effort, but creates tight coupling, unclear ownership, schema dependencies, difficult independent deployment/scaling and the possibility that one faulty service affects others.</p>
+<p>The source says it may be acceptable temporarily during monolith migration, but is not recommended for a true microservices architecture.</p>
+
+<h3>Saga Pattern — distributed transactions</h3>
+<p>A Saga breaks a business transaction into a sequence of local transactions. If a later step fails, compensating transactions undo the completed business actions.</p>
+
+<pre class="diagram">Create Order
+    │
+    ▼
+Reserve Inventory
+    │
+    ▼
+Process Payment
+    │
+    ▼
+Arrange Shipping
+
+Failure example:
+Payment fails
+   → Release Inventory
+   → Cancel Order</pre>
+
+<h4>Choreography</h4>
+<p>Services coordinate by publishing and consuming events. There is no central controller.</p>
+<ul><li>Advantages: decentralized, suitable for smaller workflows, no central coordinator.</li>
+<li>Disadvantages: event chains become difficult to understand and debug as the system grows.</li></ul>
+
+<h4>Orchestration</h4>
+<p>A central Saga Orchestrator controls the workflow and tells each service what to do next.</p>
+<ul><li>Advantages: easier to understand, centralized control, easier monitoring/debugging.</li>
+<li>Disadvantages: another component to maintain; can become a bottleneck if poorly designed.</li></ul>
+<p><strong>Technologies:</strong> Spring Boot, Spring Kafka, RabbitMQ, Camunda, Temporal, Orkes/Netflix Conductor.</p>
+
+<h3>CQRS</h3>
+<p>CQRS separates write operations (Commands) from read operations (Queries), allowing each side to be optimized and scaled independently.</p>
+<p>Source example: a product page may be viewed 100,000 times/day but updated only 50 times/day.</p>
+<ul><li>Advantages: better read performance, independent scaling, simpler read models, flexible database design.</li>
+<li>Disadvantages: increased complexity, eventual consistency, more infrastructure.</li></ul>
+<p><strong>Technologies:</strong> Spring Boot, Spring Data JPA, Kafka/RabbitMQ, Redis, Elasticsearch.</p>
+
+<h3>Event Sourcing</h3>
+<p>Instead of storing only current state, every state-changing business event is stored as an immutable event. Current state is rebuilt by replaying the events.</p>
+<pre class="diagram">Account Created
+Deposit $500
+Deposit $700
+Withdraw $300
+        │
+        ▼
+Replay events → Current state</pre>
+<ul><li>Advantages: complete audit history, event replay, debugging, temporal queries.</li>
+<li>Disadvantages: implementation complexity, event-schema evolution, slower rebuilds without snapshots.</li></ul>
+<p><strong>Technologies:</strong> Spring Kafka, EventStoreDB, Axon Framework, PostgreSQL, MongoDB.</p>
+
+<h3>Transactional Outbox</h3>
+<p>Problem: a service saves an order successfully but Kafka is temporarily unavailable. The order exists but the event is lost, leaving other services unaware.</p>
+<pre class="diagram">DB Transaction
+├── Save Order
+└── Save OrderCreated in Outbox Table
+             │
+             ▼
+      Background Publisher
+             │
+             ▼
+       Kafka / RabbitMQ</pre>
+<p>The business data and outgoing event are saved in the same database transaction. A separate process later publishes the outbox event and marks it processed/removes it.</p>
+<ul><li>Advantages: reliable event publishing, prevents lost messages, supports event-driven architecture, keeps DB and broker state consistent.</li>
+<li>Disadvantages: extra outbox table, background publisher, possible duplicate events; consumers should therefore be idempotent.</li></ul>
+<p><strong>Technologies:</strong> Spring Boot, Spring Data JPA, Spring Kafka/RabbitMQ, Debezium (CDC), Kafka Connect.</p>
+</div>
+</details>
+
+<details class="chapter" id="chapter-08">
+  <summary><span class="chapter-num">08</span>Resilience: Designing for Failure</summary>
+  <div class="chapter-body">
+<h3>What is resilience?</h3>
+<p>Resiliency patterns help a microservices system continue functioning when services are slow, unavailable or fail unexpectedly. The source's goal is to prevent a single service failure from bringing down the whole system.</p>
+
+<pre class="big-diagram">Fault Tolerance
+│
+├── Detect Failure
+│   ├── Health Check
+│   └── Timeout
+│
+├── Prevent Failure
+│   ├── Circuit Breaker
+│   ├── Bulkhead
+│   └── Rate Limiting
+│
+├── Recover
+│   ├── Retry
+│   ├── Fallback
+│   └── Idempotency
+│
+└── Scale
+    ├── Load Balancer
+    └── Kubernetes</pre>
+
+<h3>Why failures happen</h3>
+<ul><li>Network failures</li><li>Service crashes</li><li>Database failures</li><li>High latency</li><li>Third-party API failures</li><li>Hardware/cloud failures</li></ul>
+
+<h3>1. Circuit Breaker</h3>
+<p>Stops sending requests to a failing service for a period, preventing repeated failures and giving the downstream service time to recover.</p>
+<pre class="diagram">Order Service → Payment Service (DOWN)
+                     │
+                     ▼
+                Circuit OPEN
+                     │
+               No more calls
+                     │
+                 wait period
+                     │
+               test request
+                     │
+          success → CLOSED
+          failure → OPEN</pre>
+<p>Advantages: prevents cascading failures, faster failure response, fewer unnecessary network calls, recovery time for the failing service.</p>
+<p>Disadvantages: configuration complexity, bad thresholds can block healthy services, operational complexity.</p>
+<p><strong>Spring:</strong> Resilience4j, Spring Cloud Circuit Breaker.</p>
+
+<h3>2. Retry</h3>
+<p>Retry temporary failures such as a temporary network issue, service startup or short database lock.</p>
+<pre class="diagram">Attempt 1 → Failed
+Attempt 2 → Failed
+Attempt 3 → Success</pre>
+<p>Advantages: handles transient failures, improves success rate, easy to implement. Disadvantages: increases latency, may overload a failing service, unsuitable for permanent failures.</p>
+<p>The source also discusses fixed delay, exponential backoff and maximum attempts. Technologies: Resilience4j Retry and Spring Retry.</p>
+
+<h3>3. Timeout</h3>
+<p>Limits how long a service waits for a response. Example: wait only 3 seconds; if no response arrives, cancel the request and return an error or fallback.</p>
+<ul><li>Advantages: prevents thread exhaustion, faster failure detection, better responsiveness.</li>
+<li>Disadvantages: requires careful tuning; too short rejects valid requests, too long reduces performance.</li></ul>
+<p><strong>Technologies:</strong> WebClient, RestTemplate, OpenFeign, Resilience4j TimeLimiter.</p>
+
+<h3>4. Bulkhead</h3>
+<p>Isolates resources such as thread pools, connection pools or service instances into compartments so one failure does not consume resources needed by other functions.</p>
+<pre class="diagram">Order Thread Pool      Payment Thread Pool      Notification Thread Pool
+      50 threads              20 threads                 10 threads</pre>
+<p>Source example: if Notification becomes slow and exhausts its 10 threads, Order and Payment continue using their own pools.</p>
+<p>The name comes from ships: watertight compartments stop flooding in one section from sinking the whole ship.</p>
+<h4>Types</h4>
+<ul><li><strong>Thread Pool Bulkhead:</strong> separate thread pools.</li><li><strong>Semaphore Bulkhead:</strong> limit concurrent requests; for example, allow 10 payment requests and reject an 11th.</li></ul>
+<pre><code>@Bulkhead(name = "paymentService", type = Bulkhead.Type.THREADPOOL)
+@Bulkhead(name = "paymentService")</code></pre>
+<p><strong>Spring:</strong> Resilience4j Bulkhead.</p>
+<ul><li>Advantages: prevents cascading failures, improves reliability, protects critical services, better fault isolation.</li>
+<li>Disadvantages: extra configuration, possible underutilization, pool-size tuning required.</li></ul>
+
+<h3>5. Fallback</h3>
+<p>When the primary service is unavailable, return an alternative response: cached data, a default value, friendly message or alternative service.</p>
+<p>It improves user experience, availability and graceful degradation, but may return stale/incomplete data and adds fallback complexity.</p>
+
+<h3>6. Rate Limiter</h3>
+<p>Controls the number of requests a client can make in a specified period. Example: 100 requests per minute. It protects against overload, denial of service and impact on other users.</p>
+<p>The source also lists Token Bucket, Leaky Bucket and API Gateway as related concepts.</p>
+
+<h3>7. Idempotency</h3>
+<p>Ensures retries do not create duplicate operations. The source's solution is an Idempotency Key: when the same request arrives again, return the original result rather than executing the operation again.</p>
+
+<h3>How the patterns work together</h3>
+<pre class="diagram">Client
+  ↓
+API Gateway
+  ↓
+Order Service
+  ↓
+Circuit Breaker
+  ├── Healthy → Payment Service
+  └── Failed  → Fallback Response</pre>
+<p>The source also summarizes the relationship as: Rate Limiter controls traffic; pooling controls resources.</p>
+</div>
+</details>
+
+<details class="chapter" id="chapter-09">
+  <summary><span class="chapter-num">09</span>Timeout, Pooling and Resource Protection</summary>
+  <div class="chapter-body">
+<h3>Pooling</h3>
+<p>The source explains pooling as distributing/reusing a finite set of expensive resources, especially database connections. Instead of creating a new connection for every request, requests take a connection from a pool and return it after use.</p>
+
+<pre class="diagram">Pool = [C1, C2]
+
+getConnection() → remove C1
+Pool = [C2]
+
+releaseConnection(C1)
+Pool = [C2, C1]</pre>
+
+<p>Spring Boot normally uses HikariCP as the default database connection pool.</p>
+<pre><code>spring.datasource.hikari.maximum-pool-size=10</code></pre>
+
+<h3>Pooling + rate limiting</h3>
+<pre class="diagram">Client
+  ↓
+Rate Limiter 🚫
+  ↓
+Service
+  ↓
+Connection Pool 🔄
+  ↓
+Database</pre>
+
+<p>Source mental test: if 10 requests arrive and pool size is 5, the first 5 get connections; the next 5 wait or fail depending on configuration.</p>
+
+<p><strong>One-line summary:</strong> Pooling = reuse expensive resources instead of recreating them.</p>
+</div>
+</details>
+
+<details class="chapter" id="chapter-10">
+  <summary><span class="chapter-num">10</span>Deployment Patterns and Service-to-Service Infrastructure</summary>
+  <div class="chapter-body">
+<h3>Deployment pattern goals</h3>
+<p>The source groups deployment around zero downtime, easy rollback, independent deployment and safe releases.</p>
+
+<h3>Service per Container</h3>
+<p>Each microservice runs in its own container, such as Docker. The source associates this with isolation and portability.</p>
+
+<h3>Sidecar Pattern</h3>
+<p>A sidecar attaches infrastructure capabilities to a service without embedding them directly into application code.</p>
+<pre class="diagram">┌───────────────────────┐
+│ Main Service          │
+│       +               │
+│ Envoy / Sidecar Proxy │
+└───────────────────────┘</pre>
+<p>Typical responsibilities in the source: logging, monitoring, security, traffic management, TLS, routing, load balancing, retries and metrics.</p>
+<p><strong>Technologies:</strong> Envoy Proxy, Fluent Bit, OpenTelemetry Collector, Istio Sidecar.</p>
+<ul><li>Advantages: separation of concerns, reusable infrastructure, easier maintenance, no application-code changes.</li>
+<li>Disadvantages: additional container/process, resource consumption, deployment complexity.</li></ul>
+
+<h3>Ambassador Pattern</h3>
+<p>An Ambassador is a proxy acting as a local representative for communication with external services. The application talks only to the Ambassador.</p>
+<p>It can handle routing, TLS, retries, timeouts and authentication. It simplifies application code and centralizes communication logic, but adds infrastructure and network overhead.</p>
+<p><strong>Technologies:</strong> Envoy, NGINX, HAProxy.</p>
+
+<h3>Adapter Pattern</h3>
+<p>The Adapter converts one interface/protocol to another so incompatible systems can communicate. Source example: an application expects JSON but an external system exposes XML/SOAP.</p>
+<p>It helps integrate legacy systems and reduces changes to business logic, at the cost of another component and small performance overhead.</p>
+<p><strong>Technologies:</strong> Spring Integration, Spring Web Services, Apache Camel.</p>
+
+<h3>Service Mesh</h3>
+<p>A Service Mesh is an infrastructure layer that abstracts service-to-service communication using sidecar proxies. It manages traffic management, security, observability and resiliency without changing application code.</p>
+<pre class="diagram">Control Plane
+     │     │     │
+     ▼     ▼     ▼
+┌────────┐ ┌────────┐ ┌────────┐
+│Sidecar │ │Sidecar │ │Sidecar │
+│  +     │ │  +     │ │  +     │
+│Service A││Service B││Service C│
+└────────┘ └────────┘ └────────┘</pre>
+
+<h4>Sidecar proxy responsibilities</h4>
+<ul><li>Traffic routing</li><li>Load balancing</li><li>Retry</li><li>Circuit breaker</li><li>Timeout</li><li>mTLS encryption</li><li>Metrics and distributed tracing</li></ul>
+<p>Examples: Envoy and Linkerd Proxy.</p>
+
+<h4>Control Plane responsibilities</h4>
+<ul><li>Traffic policies</li><li>Security policies</li><li>Certificate management</li><li>Service discovery</li><li>Configuration updates</li></ul>
+<p>Examples: Istio Control Plane and Linkerd Control Plane.</p>
+
+<h4>Service Mesh features</h4>
+<ul>
+<li><strong>Traffic:</strong> intelligent routing, load balancing, canary, blue-green, traffic splitting.</li>
+<li><strong>Security:</strong> mTLS, authentication, authorization, certificate management.</li>
+<li><strong>Observability:</strong> distributed tracing, metrics, logging, monitoring.</li>
+<li><strong>Resilience:</strong> retry, circuit breaker, timeout, fault injection.</li>
+</ul>
+
+<h4>How the sidecar actually works</h4>
+<p>The source explains that sidecars intercept inbound and outbound traffic. In Kubernetes this can be achieved by redirecting traffic through the sidecar using Linux iptables. Routing rules are supplied by the control plane. The proxy can discover services through the control plane, establish mTLS between proxies and send metrics/logs to tools such as Prometheus and Grafana.</p>
+
+<pre class="diagram">Service A
+   │
+   ▼
+Sidecar A
+   │  mTLS / routing / retry / timeout
+   ▼
+Sidecar B
+   │
+   ▼
+Service B</pre>
+
+<p>The source gives a canary routing example of 90% stable traffic and 10% new-version traffic.</p>
+
+<h4>When to use a Service Mesh</h4>
+<ul><li>Large/complex microservice architectures.</li><li>Security and compliance requirements.</li><li>Advanced traffic management.</li><li>Need for retries, timeouts, circuit breakers and traffic splitting without changing application code.</li></ul>
+
+<h4>Service Mesh trade-offs</h4>
+<ul><li>No application code changes.</li><li>Centralized communication policies.</li><li>Automatic mTLS and observability.</li><li>Additional infrastructure and resource use.</li><li>More operational complexity and learning curve.</li><li>Slight latency from the proxy hop.</li></ul>
+</div>
+</details>
+
+<details class="chapter" id="chapter-11">
+  <summary><span class="chapter-num">11</span>Safe Deployment: Blue-Green, Canary and Rolling</summary>
+  <div class="chapter-body">
+<h3>Blue-Green Deployment</h3>
+<p>Maintain two production environments. Blue serves current production; Green contains the new version.</p>
+<pre class="diagram">Blue  → Current Production
+Green → New Version
+
+Validate Green
+   │
+   ├── success → switch all traffic to Green
+   └── failure → switch traffic back to Blue</pre>
+<p>Advantages: near-zero downtime, fast rollback, safe deployment and easy testing.</p>
+<p>Disadvantages: roughly double infrastructure, higher cost, and database migrations can be challenging.</p>
+<p><strong>Technologies:</strong> Kubernetes, NGINX, AWS Load Balancer, Azure Traffic Manager.</p>
+
+<h3>Canary Deployment</h3>
+<p>Release a new version to a small percentage of users and gradually increase traffic.</p>
+<pre class="diagram">5% → 20% → 50% → 100%</pre>
+<p>Monitor metrics at every stage; stop rollout if issues appear.</p>
+<p>Advantages: reduced deployment risk, early issue detection, real-user feedback, controlled rollout.</p>
+<p>Disadvantages: more complex routing, monitoring requirements and operational effort.</p>
+<p><strong>Technologies:</strong> Kubernetes, Istio, Argo Rollouts, AWS CodeDeploy.</p>
+
+<h3>Rolling Deployment</h3>
+<p>Replace old instances gradually rather than stopping all servers at once.</p>
+<pre class="diagram">Server 1 → Updated
+Server 2 → Updated
+Server 3 → Updated
+Remaining servers continue serving traffic</pre>
+<p>Advantages: no downtime, lower infrastructure cost, gradual rollout, simple deployment.</p>
+<p>Disadvantages: old and new versions run simultaneously, rollback is slower than Blue-Green, and backward compatibility is required.</p>
+<p><strong>Technologies:</strong> Kubernetes Deployments, Docker Swarm, AWS ECS.</p>
+
+<h3>Quick comparison</h3>
+<table>
+<tr><th>Pattern</th><th>Core idea</th><th>Rollback</th><th>Main cost/risk</th></tr>
+<tr><td>Blue-Green</td><td>Two environments; switch traffic</td><td>Very fast</td><td>Double infrastructure</td></tr>
+<tr><td>Canary</td><td>Gradually increase new-version traffic</td><td>Stop/redirect rollout</td><td>Routing + monitoring complexity</td></tr>
+<tr><td>Rolling</td><td>Replace instances gradually</td><td>Slower</td><td>Version compatibility</td></tr>
+</table>
+</div>
+</details>
+
+<details class="chapter" id="chapter-12">
+  <summary><span class="chapter-num">12</span>Observability: See What the System Is Doing</summary>
+  <div class="chapter-body">
+<h3>Observability pattern map</h3>
+<pre class="diagram">Observability
+├── Centralized Logging
+├── Distributed Tracing
+├── Metrics Collection
+├── Health Check
+│   ├── Liveness Probe
+│   ├── Readiness Probe
+│   └── Startup Probe
+└── Correlation ID</pre>
+
+<h3>Centralized Logging</h3>
+<p>Centralize logs so requests and failures across multiple services can be investigated from one place. The source repeatedly associates logging with monitoring, debugging and auditing.</p>
+
+<h3>Distributed Tracing</h3>
+<p>Track a request across multiple microservices so latency and failure points can be located.</p>
+
+<h3>Metrics</h3>
+<p>Collect measures such as request count, latency, error rate and service health. The service-mesh notes specifically describe sidecars collecting latency, request count and errors and sending these to monitoring tools such as Prometheus/Grafana.</p>
+
+<h3>Health checks</h3>
+<ul><li><strong>Liveness:</strong> whether the service is alive.</li><li><strong>Readiness:</strong> whether the service is ready to receive traffic.</li><li><strong>Startup:</strong> whether a slow-starting service has completed startup.</li></ul>
+<p>The source links health checks with Spring Boot Actuator and Kubernetes probes.</p>
+
+<h3>Correlation ID</h3>
+<p>A correlation identifier allows logs/traces belonging to one end-to-end request to be connected across services.</p>
+</div>
+</details>
+
+<details class="chapter" id="chapter-13">
+  <summary><span class="chapter-num">13</span>Security Patterns</summary>
+  <div class="chapter-body">
+<h3>Security pattern map</h3>
+<pre class="diagram">Security
+├── OAuth2
+├── JWT Authentication
+├── API Key
+├── Mutual TLS
+└── Zero Trust</pre>
+
+<h3>API Gateway security</h3>
+<p>The gateway can centralize authentication and authorization, validate client tokens and only forward valid requests to internal services. This reduces duplicated security logic in every service.</p>
+
+<h3>JWT / OAuth2</h3>
+<p>The source uses token-based authentication as the mechanism for passing user identity between services and achieving stateless authentication.</p>
+<pre class="diagram">Client
+  │
+  ▼
+JWT Token
+  │
+  ▼
+Microservices</pre>
+
+<h3>Mutual TLS</h3>
+<p>mTLS provides secure service-to-service communication. Both sides authenticate each other and establish encrypted communication. The source especially associates mTLS with Service Mesh and sidecar proxies.</p>
+
+<h3>Zero Trust and API Keys</h3>
+<p>The hierarchy lists Zero Trust and API Key as security patterns. The source positions them as part of the broader microservices security toolbox.</p>
+</div>
+</details>
+
+<details class="chapter" id="chapter-14">
+  <summary><span class="chapter-num">14</span>Scalability: Load Balancing, Caching, Sharding, Queues and Pooling</summary>
+  <div class="chapter-body">
+<h3>Scalability pattern map</h3>
+<pre class="diagram">Scalability
+├── Load Balancing
+├── Auto Scaling
+├── Caching
+├── Sharding
+└── Message Queue</pre>
+
+<h3>Load Balancing</h3>
+<p>Distribute requests across multiple service instances. The source example uses five instances and distributes successive requests across U1, U2, U3 and so on to improve performance, availability and resource utilization.</p>
+
+<h3>Auto Scaling</h3>
+<p>Scale service capacity based on demand. The source includes Auto Scaling in the scalability pattern hierarchy and links dynamic service instances to Service Discovery.</p>
+
+<h3>Caching</h3>
+<p>Caching reduces repeated expensive operations by reusing previously obtained data. It is listed as a scalability pattern in the source.</p>
+
+<h3>Sharding</h3>
+<p>Sharding is listed as a scalability pattern for distributing data across partitions/shards so the system can scale beyond a single data store.</p>
+
+<h3>Message Queue</h3>
+<p>Message queues support asynchronous work and decouple producers from consumers. Kafka and RabbitMQ are the source's primary examples.</p>
+
+<h3>Connection pooling</h3>
+<p>Pooling controls access to expensive resources such as database connections. HikariCP is identified as Spring Boot's default DB connection pool.</p>
+</div>
+</details>
+
+<details class="chapter" id="chapter-15">
+  <summary><span class="chapter-num">15</span>When to Use Which Pattern</summary>
+  <div class="chapter-body">
+<p>The source includes a practical selection guide. Use it as the interview decision layer after learning the individual patterns.</p>
+
+<table>
+<tr><th>Situation</th><th>Pattern to consider</th></tr>
+<tr><td>Clients should not depend on internal service layout; central auth/throttling/routing is needed</td><td>Gateway</td></tr>
+<tr><td>Service instances scale/move dynamically</td><td>Service Registry / Discovery</td></tr>
+<tr><td>Downstream service may become slow/unreliable</td><td>Circuit Breaker</td></tr>
+<tr><td>Temporary failures are likely to recover</td><td>Retry + Timeout</td></tr>
+<tr><td>One workload can consume all shared resources</td><td>Bulkhead</td></tr>
+<tr><td>One business transaction spans multiple databases/services</td><td>Saga</td></tr>
+<tr><td>Read and write workloads scale differently</td><td>CQRS</td></tr>
+<tr><td>Shared infrastructure behavior should be added without changing application code</td><td>Sidecar</td></tr>
+<tr><td>A single view needs data from multiple services</td><td>API Composition</td></tr>
+<tr><td>Services should react to changes without tight coupling</td><td>Event-Driven Architecture</td></tr>
+<tr><td>Safe progressive release is required</td><td>Canary / Blue-Green / Rolling</td></tr>
+</table>
+
+<h3>Pattern trade-offs captured by the source</h3>
+<p><strong>Gateway:</strong> centralization versus bottleneck/mini-monolith risk.</p>
+<p><strong>Service Registry:</strong> location transparency versus registry availability/operational complexity.</p>
+<p><strong>Circuit Breaker:</strong> graceful degradation versus threshold/fallback complexity.</p>
+<p><strong>Saga:</strong> distributed consistency without distributed locking versus complex compensating transactions and eventual consistency.</p>
+<p><strong>CQRS:</strong> independent read/write scaling versus more code and eventual consistency.</p>
+<p><strong>Bulkhead:</strong> failure isolation versus resource fragmentation and capacity tuning.</p>
+<p><strong>Sidecar:</strong> consistent infrastructure behavior without app changes versus extra resources/latency.</p>
+<p><strong>API Composition:</strong> simple read aggregation versus latency/reliability determined by the slowest participating service.</p>
+<p><strong>Event-Driven:</strong> loose coupling and scalability versus harder tracing/debugging and event-ordering/eventual-consistency concerns.</p>
+</div>
+</details>
+
+<details class="chapter" id="chapter-16">
+  <summary><span class="chapter-num">16</span>Interview Revision: Questions and Mental Models</summary>
+  <div class="chapter-body">
+<h3>High-value interview questions from the source</h3>
+<ul>
+<li>What is Microservice Architecture and why use it?</li>
+<li>What are the advantages and disadvantages of microservices?</li>
+<li>What are the types of APIs: REST, SOAP, GraphQL and gRPC?</li>
+<li>Why do we need an API Gateway?</li>
+<li>API Gateway vs Load Balancer?</li>
+<li>API Gateway vs Reverse Proxy?</li>
+<li>What happens if the API Gateway goes down?</li>
+<li>What is a Sidecar Proxy?</li>
+<li>Sidecar vs Service Mesh?</li>
+<li>What is Service Registry and Discovery?</li>
+<li>Client-side vs Server-side discovery?</li>
+<li>How does service discovery work with dynamic instances?</li>
+<li>Synchronous vs Asynchronous communication?</li>
+<li>REST vs gRPC?</li>
+<li>Kafka vs RabbitMQ?</li>
+<li>Why use Database per Service?</li>
+<li>Why is Shared Database an anti-pattern?</li>
+<li>Saga vs Two-Phase Commit?</li>
+<li>Choreography vs Orchestration?</li>
+<li>What is a compensating transaction?</li>
+<li>What is CQRS? When should it be used?</li>
+<li>CQRS vs CRUD?</li>
+<li>Can CQRS work without Event Sourcing?</li>
+<li>Event Sourcing vs traditional CRUD?</li>
+<li>What are snapshots?</li>
+<li>What problem does Transactional Outbox solve?</li>
+<li>What is Fault Tolerance?</li>
+<li>Circuit Breaker vs Retry?</li>
+<li>Retry vs Timeout?</li>
+<li>Why Bulkhead?</li>
+<li>What is graceful degradation?</li>
+<li>What is Idempotency?</li>
+<li>Why do we need health checks?</li>
+<li>How does Kubernetes help fault tolerance?</li>
+<li>Blue-Green vs Canary vs Rolling?</li>
+<li>Why is Canary safer?</li>
+<li>How is Blue-Green rollback performed?</li>
+<li>Why use BFF?</li>
+<li>API Gateway vs BFF?</li>
+<li>Can API Gateway and BFF coexist?</li>
+</ul>
+
+<h3>Fault-tolerance mental model</h3>
+<pre class="big-diagram">{html.escape(fault_hierarchy)}</pre>
+
+<h3>Communication mental model</h3>
+<pre class="diagram">Synchronous
+REST / gRPC
+→ Real-time, direct call
+
+Asynchronous
+Kafka / RabbitMQ
+→ Loosely coupled, resilient, event-driven</pre>
+
+<h3>System-design mental model</h3>
+<pre class="diagram">Client
+  ↓
+API Gateway
+  ↓
+Authentication / Rate Limiting / Routing
+  ↓
+Service Discovery + Load Balancing
+  ↓
+Microservice
+  ├── Timeout
+  ├── Retry
+  ├── Circuit Breaker
+  ├── Bulkhead
+  └── Fallback
+  ↓
+Own Database
+  └── Transactional Outbox
+          ↓
+      Kafka / RabbitMQ
+          ↓
+   Other Microservices
+
+Infrastructure layer:
+Service Mesh / Sidecars
+   ├── mTLS
+   ├── Traffic management
+   ├── Observability
+   └── Resilience</pre>
+
+<h3>One-line memory anchors</h3>
+<ul>
+<li><strong>Gateway:</strong> one entry point for clients.</li>
+<li><strong>BFF:</strong> backend tailored to a specific frontend.</li>
+<li><strong>Service Discovery:</strong> find service instances dynamically.</li>
+<li><strong>Database per Service:</strong> service owns its data.</li>
+<li><strong>Saga:</strong> distributed transaction as local transactions + compensation.</li>
+<li><strong>CQRS:</strong> separate reads and writes.</li>
+<li><strong>Event Sourcing:</strong> state is reconstructed from immutable events.</li>
+<li><strong>Outbox:</strong> persist business change and outgoing event atomically.</li>
+<li><strong>Timeout:</strong> don't wait forever.</li>
+<li><strong>Retry:</strong> try temporary failures again.</li>
+<li><strong>Circuit Breaker:</strong> stop calling a failing dependency.</li>
+<li><strong>Bulkhead:</strong> isolate resources so one failure does not spread.</li>
+<li><strong>Fallback:</strong> return an alternative response.</li>
+<li><strong>Rate Limiter:</strong> control request volume.</li>
+<li><strong>Idempotency:</strong> repeated requests do not repeat the business effect.</li>
+<li><strong>Sidecar:</strong> infrastructure helper beside the service.</li>
+<li><strong>Service Mesh:</strong> infrastructure layer controlling service-to-service communication.</li>
+<li><strong>Blue-Green:</strong> two environments, switch traffic.</li>
+<li><strong>Canary:</strong> gradually increase new-version traffic.</li>
+<li><strong>Rolling:</strong> replace instances gradually.</li>
+</ul>
+</div>
+</details>
+
+</main>
+
+<footer>
+Based on the uploaded Microservices.pdf. The content has been reorganized into a learning-oriented structure rather than reproduced page-by-page. Source terminology, examples, hierarchy charts, pattern trade-offs, technologies and interview questions are retained where present in the source.
+</footer>
+<script>
+const chapters=[...document.querySelectorAll('.chapter')];
+const search=document.getElementById('search');
+const normalize=s=>s.toLowerCase().trim();
+function clearMarks(root){
+  root.querySelectorAll('mark').forEach(m=>m.replaceWith(document.createTextNode(m.textContent)));
+}
+function filter(){
+  const q=normalize(search.value);
+  chapters.forEach(c=>{
+    clearMarks(c);
+    const hit=!q || normalize(c.innerText).includes(q);
+    c.classList.toggle('hidden',!hit);
+    if(q && hit){
+      c.open=true;
+      const walker=document.createTreeWalker(c.querySelector('.chapter-body'),NodeFilter.SHOW_TEXT);
+      const nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+      const esc=q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+      nodes.forEach(n=>{
+        if(n.parentElement.closest('pre') || !normalize(n.nodeValue).includes(q)) return;
+        const parts=n.nodeValue.split(new RegExp('('+esc+')','ig'));
+        const frag=document.createDocumentFragment();
+        parts.forEach(p=>{
+          if(new RegExp('^'+esc+'$','i').test(p)){
+            const m=document.createElement('mark'); m.textContent=p; frag.appendChild(m);
+          } else frag.appendChild(document.createTextNode(p));
+        });
+        n.parentNode.replaceChild(frag,n);
+      });
+    }
+  });
+}
+document.getElementById('openAll').onclick=()=>chapters.forEach(c=>{if(!c.classList.contains('hidden'))c.open=true});
+document.getElementById('closeAll').onclick=()=>chapters.forEach(c=>c.open=false);
+search.addEventListener('input',filter);
+</script>
+</body>
+</html>

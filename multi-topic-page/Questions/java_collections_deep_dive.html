@@ -1,0 +1,1770 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Java Collections Deep Dive</title>
+<style>
+:root {
+  --surface-0: #fafafa;
+  --surface-1: #f0f0f0;
+  --surface-2: #ffffff;
+  --border: #e0e0e0;
+  --border-strong: #bbb;
+  --text-primary: #1a1a1a;
+  --text-secondary: #555;
+  --fill-accent: #2563eb;
+  --on-accent: #fff;
+  --radius: 8px;
+  --code-bg: #1e1e2e;
+  --code-text: #cdd6f4;
+  --code-keyword: #cba6f7;
+  --code-string: #a6e3a1;
+  --code-comment: #6c7086;
+  --code-number: #fab387;
+  --code-type: #89b4fa;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--surface-0); color: var(--text-primary); }
+
+.container { max-width: 920px; margin: 0 auto; padding: 2rem 1rem; }
+
+.header { text-align: center; margin-bottom: 2rem; }
+.header h1 { font-size: 28px; font-weight: 500; margin-bottom: 0.5rem; }
+.header p { color: var(--text-secondary); font-size: 14px; }
+
+.mindmap-view { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+
+.topic-card {
+  background: var(--surface-2);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-height: 120px;
+  justify-content: center;
+}
+
+.topic-card:hover {
+  border-color: var(--fill-accent);
+  background: var(--surface-1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37,99,235,0.12);
+}
+
+.topic-icon { font-size: 28px; }
+.topic-name { font-weight: 500; font-size: 14px; line-height: 1.3; }
+
+.qa-view { display: none; }
+.qa-view.active { display: block; }
+
+.qa-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.back-btn {
+  background: none;
+  border: 0.5px solid var(--border);
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.back-btn:hover { background: var(--surface-1); border-color: var(--border-strong); }
+
+.qa-title { font-size: 24px; font-weight: 500; }
+
+.qa-container { display: flex; flex-direction: column; gap: 16px; }
+
+.qa-pair {
+  background: var(--surface-2);
+  border: 0.5px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.qa-pair:hover { border-color: var(--border-strong); background: var(--surface-1); }
+.qa-pair.expanded { border-color: var(--fill-accent); }
+
+.qa-number {
+  display: inline-block;
+  background: var(--fill-accent);
+  color: var(--on-accent);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 28px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.question {
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.7;
+  padding-left: 36px;
+}
+
+.qa-pair.expanded .answer {
+  max-height: 8000px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 0.5px solid var(--border);
+}
+
+.toggle-icon {
+  display: inline-block;
+  transition: transform 0.3s;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.qa-pair.expanded .toggle-icon { transform: rotate(180deg); }
+
+.center-content {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+}
+
+pre.code {
+  background: var(--code-bg);
+  color: var(--code-text);
+  padding: 14px 16px;
+  border-radius: 8px;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 12.5px;
+  line-height: 1.6;
+  overflow-x: auto;
+  margin: 10px 0;
+  white-space: pre;
+  border: 1px solid #313244;
+}
+
+.kw { color: #cba6f7; }
+.tp { color: #89b4fa; }
+.str { color: #a6e3a1; }
+.cm { color: #6c7086; font-style: italic; }
+.num { color: #fab387; }
+.fn { color: #89dceb; }
+
+.badge {
+  display: inline-block;
+  background: var(--fill-accent);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.badge-green { background: #16a34a; }
+.badge-red { background: #dc2626; }
+.badge-orange { background: #ea580c; }
+.badge-purple { background: #9333ea; }
+
+.sep { display: block; height: 8px; }
+
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin: 10px 0;
+}
+.tbl th {
+  background: var(--fill-accent);
+  color: white;
+  padding: 8px 10px;
+  text-align: left;
+  font-weight: 500;
+}
+.tbl td {
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.tbl tr:hover td { background: #f5f5f5; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>☕ Java Collections Deep Dive</h1>
+    <p>Internal working · Resizing · Collisions · Comparisons · Code examples · 12 topics</p>
+  </div>
+
+  <!-- MINDMAP VIEW -->
+  <div class="mindmap-view" id="mindmapView">
+    <div class="topic-card" onclick="showTopic(0)">
+      <span class="topic-icon">🗺️</span>
+      <span class="topic-name">Hierarchy & Overview</span>
+    </div>
+    <div class="topic-card" onclick="showTopic(1)">
+      <span class="topic-icon">📋</span>
+      <span class="topic-name">ArrayList Internals</span>
+    </div>
+    <div class="topic-card" onclick="showTopic(2)">
+      <span class="topic-icon">🔗</span>
+      <span class="topic-name">LinkedList Internals</span>
+    </div>
+    <div class="topic-card" onclick="showTopic(3)">
+      <span class="topic-icon">🗄️</span>
+      <span class="topic-name">HashMap Internals</span>
+    </div>
+    <div class="topic-card" onclick="showTopic(4)">
+      <span class="topic-icon">💥</span>
+      <span class="topic-name">Hashing & Collisions</span>
+    </div>
+    <div class="topic-card" onclick="showTopic(5)">
+      <span class="topic-icon">🌳</span>
+      <span class="topic-name">TreeMap & TreeSet</span>
+    </div>
+    <div class="topic-card" onclick="showTopic(6)">
+      <span class="topic-icon">📐</span>
+      <span class="topic-name">HashSet & LinkedHashSet</span>
+    </div>
+    <div class="topic-card" onclick="showTopic(7)">
+      <span class="topic-icon">📊</span>
+      <span class="topic-name">Queue & Deque</span>
+    </div>
+    <div class="topic-card" onclick="showTopic(8)">
+      <span class="topic-icon">🔒</span>
+      <span class="topic-name">Synchronized Collections</span>
+    </div>
+    <div class="topic-card" onclick="showTopic(9)">
+      <span class="topic-icon">⚡</span>
+      <span class="topic-name">Concurrent Collections</span>
+    </div>
+    <div class="topic-card" onclick="showTopic(10)">
+      <span class="topic-icon">⚖️</span>
+      <span class="topic-name">Comparisons & When to Use</span>
+    </div>
+    <div class="topic-card" onclick="showTopic(11)">
+      <span class="topic-icon">🎯</span>
+      <span class="topic-name">Interview Traps & Gotchas</span>
+    </div>
+  </div>
+
+  <!-- QA VIEW -->
+  <div class="qa-view" id="qaView">
+    <div class="qa-header">
+      <button class="back-btn" onclick="showMindmap()">← Back</button>
+      <span id="qaTitle" class="qa-title"></span>
+    </div>
+    <div class="qa-container" id="qaContainer"></div>
+  </div>
+</div>
+
+<script>
+const topics = [
+  // ──────────────────────────────────────────────
+  // 0  HIERARCHY & OVERVIEW
+  // ──────────────────────────────────────────────
+  {
+    name: "Hierarchy & Overview",
+    icon: "🗺️",
+    questions: [
+      {
+        q: "Draw the Java Collections hierarchy.",
+        a: `<b>Iterable</b> (top-level interface)<br>
+└─ <b>Collection</b><br>
+&nbsp;&nbsp;&nbsp;├─ <b>List</b> (ordered, duplicates allowed)<br>
+&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;├─ ArrayList<br>
+&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;├─ LinkedList<br>
+&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;├─ Vector → Stack<br>
+&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;└─ CopyOnWriteArrayList<br>
+&nbsp;&nbsp;&nbsp;├─ <b>Set</b> (no duplicates)<br>
+&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;├─ HashSet<br>
+&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;├─ LinkedHashSet<br>
+&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;├─ TreeSet<br>
+&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;├─ EnumSet<br>
+&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;└─ CopyOnWriteArraySet<br>
+&nbsp;&nbsp;&nbsp;└─ <b>Queue / Deque</b><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ PriorityQueue<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ ArrayDeque<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ LinkedList (also Deque)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├─ ConcurrentLinkedQueue<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ BlockingQueue → ArrayBlockingQueue, LinkedBlockingQueue, PriorityBlockingQueue<br>
+<span class="sep"></span>
+<b>Map</b> (separate hierarchy, NOT Collection)<br>
+├─ HashMap<br>
+├─ LinkedHashMap<br>
+├─ TreeMap<br>
+├─ Hashtable → Properties<br>
+├─ WeakHashMap<br>
+├─ EnumMap<br>
+├─ ConcurrentHashMap<br>
+└─ ConcurrentSkipListMap`
+      },
+      {
+        q: "List vs Set vs Queue vs Map — one-liner difference?",
+        a: `<table class="tbl">
+<tr><th>Type</th><th>Ordered?</th><th>Duplicates?</th><th>Key-Value?</th><th>Use Case</th></tr>
+<tr><td><b>List</b></td><td>✅ Index-based</td><td>✅ Yes</td><td>❌</td><td>Ordered data, access by index</td></tr>
+<tr><td><b>Set</b></td><td>❌ (LinkedHashSet ✅)</td><td>❌ No</td><td>❌</td><td>Unique elements, membership test</td></tr>
+<tr><td><b>Queue</b></td><td>✅ FIFO/Priority</td><td>✅ Yes</td><td>❌</td><td>Task scheduling, BFS</td></tr>
+<tr><td><b>Map</b></td><td>❌ (LinkedHashMap ✅)</td><td>Keys ❌, Values ✅</td><td>✅</td><td>Key→Value lookup</td></tr>
+</table>`
+      },
+      {
+        q: "What interfaces does each collection implement?",
+        a: `<b>ArrayList</b> → List, RandomAccess, Cloneable, Serializable<br>
+<b>LinkedList</b> → List, Deque, Cloneable, Serializable (NO RandomAccess)<br>
+<b>HashMap</b> → Map, Cloneable, Serializable<br>
+<b>TreeMap</b> → NavigableMap, SortedMap, Map, Cloneable, Serializable<br>
+<b>HashSet</b> → Set, Cloneable, Serializable<br>
+<b>PriorityQueue</b> → Queue, Serializable<br>
+<b>ArrayDeque</b> → Deque, Cloneable, Serializable<br>
+<span class="sep"></span>
+<span class="badge">Key</span> <b>RandomAccess</b> is a marker interface — tells algorithms that get(i) is O(1). LinkedList does NOT have it, so Collections.binarySearch() falls back to iterator-based search.`
+      },
+      {
+        q: "Fail-fast vs Fail-safe iterators?",
+        a: `<span class="badge-red badge">Fail-Fast</span> Throws <b>ConcurrentModificationException</b> if collection modified during iteration.<br>
+Uses internal <code>modCount</code>. Iterator checks modCount on every next() call.<br>
+Collections: ArrayList, HashMap, HashSet, LinkedList, TreeMap, TreeSet.<br>
+<span class="sep"></span>
+<span class="badge-green badge">Fail-Safe</span> Works on a <b>clone/snapshot</b> — never throws CME.<br>
+Collections: ConcurrentHashMap, CopyOnWriteArrayList, CopyOnWriteArraySet.<br>
+<span class="sep"></span>
+<pre class="code"><span class="cm">// Fail-fast — throws ConcurrentModificationException</span>
+<span class="tp">List</span>&lt;<span class="tp">String</span>&gt; list = <span class="kw">new</span> <span class="tp">ArrayList</span>&lt;&gt;(<span class="tp">List</span>.<span class="fn">of</span>(<span class="str">"a"</span>, <span class="str">"b"</span>, <span class="str">"c"</span>));
+<span class="kw">for</span> (<span class="tp">String</span> s : list) {
+    list.<span class="fn">remove</span>(s);  <span class="cm">// 💥 ConcurrentModificationException</span>
+}
+
+<span class="cm">// Safe way — use Iterator.remove()</span>
+<span class="tp">Iterator</span>&lt;<span class="tp">String</span>&gt; it = list.<span class="fn">iterator</span>();
+<span class="kw">while</span> (it.<span class="fn">hasNext</span>()) {
+    <span class="tp">String</span> s = it.<span class="fn">next</span>();
+    <span class="kw">if</span> (s.<span class="fn">equals</span>(<span class="str">"b"</span>)) it.<span class="fn">remove</span>();  <span class="cm">// ✅ Safe</span>
+}</pre>`
+      }
+    ]
+  },
+
+  // ──────────────────────────────────────────────
+  // 1  ARRAYLIST INTERNALS
+  // ──────────────────────────────────────────────
+  {
+    name: "ArrayList Internals",
+    icon: "📋",
+    questions: [
+      {
+        q: "What is the internal data structure of ArrayList?",
+        a: `ArrayList uses a <b>dynamic array</b> (Object[] elementData).<br>
+Default initial capacity: <b>10</b> (when first element added, not at construction).<br>
+New ArrayList() creates an EMPTY array (Object[0]). First add() grows to 10.<br>
+<pre class="code"><span class="cm">// Inside ArrayList (JDK source simplified)</span>
+<span class="kw">transient</span> <span class="tp">Object</span>[] elementData;
+<span class="kw">private int</span> size;
+
+<span class="cm">// Default constructor</span>
+<span class="kw">public</span> <span class="fn">ArrayList</span>() {
+    <span class="kw">this</span>.elementData = {};  <span class="cm">// empty array</span>
+}
+
+<span class="cm">// Constructor with initial capacity</span>
+<span class="kw">public</span> <span class="fn">ArrayList</span>(<span class="kw">int</span> initialCapacity) {
+    <span class="kw">this</span>.elementData = <span class="kw">new</span> <span class="tp">Object</span>[initialCapacity];
+}</pre>`
+      },
+      {
+        q: "How does ArrayList resizing work? What is the growth factor?",
+        a: `When array is full → <b>grow by 50%</b> (newCapacity = oldCapacity + oldCapacity >> 1).<br>
+Steps: 1) Calculate new size. 2) Create new larger array. 3) <b>Arrays.copyOf()</b> — copies all elements. 4) Old array eligible for GC.<br>
+<span class="sep"></span>
+<b>Resize history</b> (starting from default):<br>
+0 → 10 → 15 → 22 → 33 → 49 → 73 → 109 → ...<br>
+<span class="sep"></span>
+<pre class="code"><span class="cm">// JDK grow() method simplified</span>
+<span class="kw">private</span> <span class="tp">Object</span>[] <span class="fn">grow</span>(<span class="kw">int</span> minCapacity) {
+    <span class="kw">int</span> oldCapacity = elementData.length;
+    <span class="kw">int</span> newCapacity = oldCapacity + (oldCapacity >> <span class="num">1</span>); <span class="cm">// 1.5x</span>
+    <span class="kw">if</span> (newCapacity < minCapacity)
+        newCapacity = minCapacity;
+    <span class="kw">return</span> elementData = <span class="tp">Arrays</span>.<span class="fn">copyOf</span>(elementData, newCapacity);
+}</pre>
+<span class="sep"></span>
+<span class="badge-orange badge">Cost</span> Resizing is <b>O(n)</b> — copies all elements. Amortized add is still O(1). But if you know size upfront, use <code>new ArrayList&lt;&gt;(1000)</code> to avoid resizing.`
+      },
+      {
+        q: "ArrayList add / get / remove — time complexity?",
+        a: `<table class="tbl">
+<tr><th>Operation</th><th>Time</th><th>Why</th></tr>
+<tr><td>get(index)</td><td><b>O(1)</b></td><td>Direct array index access</td></tr>
+<tr><td>add(element) — end</td><td><b>O(1)</b> amortized</td><td>Append at size, occasional resize O(n)</td></tr>
+<tr><td>add(index, element)</td><td><b>O(n)</b></td><td>Shifts elements right via System.arraycopy</td></tr>
+<tr><td>remove(index)</td><td><b>O(n)</b></td><td>Shifts elements left</td></tr>
+<tr><td>remove(Object)</td><td><b>O(n)</b></td><td>Linear search + shift</td></tr>
+<tr><td>contains(Object)</td><td><b>O(n)</b></td><td>Linear scan using equals()</td></tr>
+<tr><td>set(index, element)</td><td><b>O(1)</b></td><td>Direct array index write</td></tr>
+<tr><td>size()</td><td><b>O(1)</b></td><td>Returns int size field</td></tr>
+</table>
+<pre class="code"><span class="cm">// How add(index, element) works internally</span>
+<span class="kw">public void</span> <span class="fn">add</span>(<span class="kw">int</span> index, <span class="tp">E</span> element) {
+    ensureCapacityInternal(size + <span class="num">1</span>);
+    <span class="cm">// shift everything from index onwards → one position right</span>
+    <span class="tp">System</span>.<span class="fn">arraycopy</span>(elementData, index,
+                     elementData, index + <span class="num">1</span>, size - index);
+    elementData[index] = element;
+    size++;
+}</pre>`
+      },
+      {
+        q: "What is trimToSize() and ensureCapacity()?",
+        a: `<b>trimToSize()</b> — shrinks internal array to match actual size. Saves memory after bulk removals.<br>
+<b>ensureCapacity(n)</b> — pre-allocate capacity. Use before bulk inserts to avoid repeated resizing.<br>
+<pre class="code"><span class="tp">ArrayList</span>&lt;<span class="tp">String</span>&gt; list = <span class="kw">new</span> <span class="tp">ArrayList</span>&lt;&gt;();
+list.<span class="fn">ensureCapacity</span>(<span class="num">10000</span>); <span class="cm">// pre-allocate, no resizing during adds</span>
+
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i < <span class="num">10000</span>; i++) {
+    list.<span class="fn">add</span>(<span class="str">"item-"</span> + i);  <span class="cm">// no resize overhead</span>
+}
+
+<span class="cm">// After removing 9000 elements...</span>
+list.<span class="fn">subList</span>(<span class="num">1000</span>, <span class="num">10000</span>).<span class="fn">clear</span>();
+list.<span class="fn">trimToSize</span>(); <span class="cm">// shrink internal array from 10000 → 1000</span></pre>`
+      },
+      {
+        q: "ArrayList vs Arrays.asList() vs List.of() — differences?",
+        a: `<table class="tbl">
+<tr><th>Method</th><th>Mutable?</th><th>Fixed Size?</th><th>Null?</th><th>Backed by Array?</th></tr>
+<tr><td>new ArrayList&lt;&gt;()</td><td>✅ Fully mutable</td><td>❌ Grows</td><td>✅ Yes</td><td>Own array</td></tr>
+<tr><td>Arrays.asList(arr)</td><td>✅ set() works</td><td>✅ Can't add/remove</td><td>✅ Yes</td><td>✅ Same array!</td></tr>
+<tr><td>List.of(a, b, c)</td><td>❌ Immutable</td><td>✅ Fixed</td><td>❌ NPE</td><td>Own</td></tr>
+<tr><td>Collections.unmodifiableList()</td><td>❌ Unmodifiable view</td><td>✅ Fixed</td><td>✅ Yes</td><td>Wraps original</td></tr>
+</table>
+<pre class="code"><span class="cm">// Arrays.asList — backed by SAME array!</span>
+<span class="tp">String</span>[] arr = {<span class="str">"a"</span>, <span class="str">"b"</span>, <span class="str">"c"</span>};
+<span class="tp">List</span>&lt;<span class="tp">String</span>&gt; list = <span class="tp">Arrays</span>.<span class="fn">asList</span>(arr);
+arr[<span class="num">0</span>] = <span class="str">"z"</span>;
+<span class="tp">System</span>.out.<span class="fn">println</span>(list.<span class="fn">get</span>(<span class="num">0</span>)); <span class="cm">// "z" ← changed!</span>
+list.<span class="fn">add</span>(<span class="str">"d"</span>); <span class="cm">// 💥 UnsupportedOperationException</span>
+
+<span class="cm">// List.of — truly immutable</span>
+<span class="tp">List</span>&lt;<span class="tp">String</span>&gt; immutable = <span class="tp">List</span>.<span class="fn">of</span>(<span class="str">"a"</span>, <span class="str">"b"</span>);
+immutable.<span class="fn">add</span>(<span class="str">"c"</span>); <span class="cm">// 💥 UnsupportedOperationException</span>
+<span class="tp">List</span>.<span class="fn">of</span>(<span class="str">"a"</span>, <span class="kw">null</span>); <span class="cm">// 💥 NullPointerException</span></pre>`
+      }
+    ]
+  },
+
+  // ──────────────────────────────────────────────
+  // 2  LINKEDLIST INTERNALS
+  // ──────────────────────────────────────────────
+  {
+    name: "LinkedList Internals",
+    icon: "🔗",
+    questions: [
+      {
+        q: "What is the internal data structure of LinkedList?",
+        a: `LinkedList uses a <b>doubly-linked list</b>. Each element is wrapped in a <b>Node</b> object.<br>
+<pre class="code"><span class="cm">// Internal Node class (JDK source)</span>
+<span class="kw">private static class</span> <span class="tp">Node</span>&lt;<span class="tp">E</span>&gt; {
+    <span class="tp">E</span> item;
+    <span class="tp">Node</span>&lt;<span class="tp">E</span>&gt; next;
+    <span class="tp">Node</span>&lt;<span class="tp">E</span>&gt; prev;
+
+    <span class="fn">Node</span>(<span class="tp">Node</span>&lt;<span class="tp">E</span>&gt; prev, <span class="tp">E</span> element, <span class="tp">Node</span>&lt;<span class="tp">E</span>&gt; next) {
+        <span class="kw">this</span>.item = element;
+        <span class="kw">this</span>.next = next;
+        <span class="kw">this</span>.prev = prev;
+    }
+}
+
+<span class="cm">// LinkedList maintains head (first) and tail (last)</span>
+<span class="kw">transient</span> <span class="tp">Node</span>&lt;<span class="tp">E</span>&gt; first;
+<span class="kw">transient</span> <span class="tp">Node</span>&lt;<span class="tp">E</span>&gt; last;
+<span class="kw">transient int</span> size;</pre>
+<span class="sep"></span>
+<b>Memory overhead</b>: Each Node stores item + 2 pointers (prev, next). ~40 bytes per node vs ~4 bytes per slot in ArrayList.<br>
+<span class="badge-red badge">Warning</span> LinkedList uses <b>3-4x more memory</b> than ArrayList for the same data.`
+      },
+      {
+        q: "LinkedList time complexity for all operations?",
+        a: `<table class="tbl">
+<tr><th>Operation</th><th>Time</th><th>Why</th></tr>
+<tr><td>addFirst() / addLast()</td><td><b>O(1)</b></td><td>Update head/tail pointer</td></tr>
+<tr><td>add(element) — end</td><td><b>O(1)</b></td><td>Append at tail</td></tr>
+<tr><td>add(index, element)</td><td><b>O(n)</b></td><td>Must traverse to index first</td></tr>
+<tr><td>get(index)</td><td><b>O(n)</b></td><td>Traverse from head or tail (whichever closer)</td></tr>
+<tr><td>remove(first/last)</td><td><b>O(1)</b></td><td>Update pointers</td></tr>
+<tr><td>remove(index)</td><td><b>O(n)</b></td><td>Traverse to index, then unlink</td></tr>
+<tr><td>contains(Object)</td><td><b>O(n)</b></td><td>Linear traversal</td></tr>
+</table>
+<span class="sep"></span>
+<span class="badge">Smart</span> get(index) is optimized: if index < size/2, traverse from <b>head</b>. Otherwise from <b>tail</b>. Still O(n) worst case.
+<pre class="code"><span class="cm">// JDK optimization: traverse from closer end</span>
+<span class="tp">Node</span>&lt;<span class="tp">E</span>&gt; <span class="fn">node</span>(<span class="kw">int</span> index) {
+    <span class="kw">if</span> (index < (size >> <span class="num">1</span>)) {
+        <span class="tp">Node</span>&lt;<span class="tp">E</span>&gt; x = first;
+        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i < index; i++) x = x.next;
+        <span class="kw">return</span> x;
+    } <span class="kw">else</span> {
+        <span class="tp">Node</span>&lt;<span class="tp">E</span>&gt; x = last;
+        <span class="kw">for</span> (<span class="kw">int</span> i = size - <span class="num">1</span>; i > index; i--) x = x.prev;
+        <span class="kw">return</span> x;
+    }
+}</pre>`
+      },
+      {
+        q: "LinkedList as Queue and Deque — how?",
+        a: `LinkedList implements both <b>List</b> and <b>Deque</b> interfaces, so it can be used as a queue, stack, or deque.<br>
+<pre class="code"><span class="cm">// As Queue (FIFO)</span>
+<span class="tp">Queue</span>&lt;<span class="tp">String</span>&gt; queue = <span class="kw">new</span> <span class="tp">LinkedList</span>&lt;&gt;();
+queue.<span class="fn">offer</span>(<span class="str">"first"</span>);   <span class="cm">// add to tail</span>
+queue.<span class="fn">offer</span>(<span class="str">"second"</span>);
+queue.<span class="fn">poll</span>();            <span class="cm">// remove from head → "first"</span>
+queue.<span class="fn">peek</span>();            <span class="cm">// look at head → "second"</span>
+
+<span class="cm">// As Stack (LIFO)</span>
+<span class="tp">Deque</span>&lt;<span class="tp">String</span>&gt; stack = <span class="kw">new</span> <span class="tp">LinkedList</span>&lt;&gt;();
+stack.<span class="fn">push</span>(<span class="str">"first"</span>);    <span class="cm">// addFirst</span>
+stack.<span class="fn">push</span>(<span class="str">"second"</span>);
+stack.<span class="fn">pop</span>();             <span class="cm">// removeFirst → "second"</span>
+
+<span class="cm">// As Deque (double-ended)</span>
+<span class="tp">Deque</span>&lt;<span class="tp">String</span>&gt; deque = <span class="kw">new</span> <span class="tp">LinkedList</span>&lt;&gt;();
+deque.<span class="fn">offerFirst</span>(<span class="str">"A"</span>);
+deque.<span class="fn">offerLast</span>(<span class="str">"B"</span>);
+deque.<span class="fn">pollFirst</span>();  <span class="cm">// "A"</span>
+deque.<span class="fn">pollLast</span>();   <span class="cm">// "B"</span></pre>
+<span class="sep"></span>
+<span class="badge-orange badge">Prefer</span> Use <b>ArrayDeque</b> over LinkedList for Queue/Deque — it's faster (array-based, cache-friendly, no node allocation overhead).`
+      },
+      {
+        q: "Does LinkedList need resizing?",
+        a: `<b>No!</b> LinkedList never resizes. Each add() creates a new Node object and links it. No array copying needed.<br>
+<span class="sep"></span>
+<b>Trade-off:</b><br>
+• ArrayList: Rare but expensive resize (O(n) copy), cheap access O(1).<br>
+• LinkedList: No resize ever, but each node costs ~40 bytes overhead, and cache-unfriendly (nodes scattered in heap).<br>
+<span class="sep"></span>
+<span class="badge-red badge">Reality</span> Despite "O(1) insert", LinkedList is almost <b>always slower</b> than ArrayList in practice due to poor cache locality. Java core team member Joshua Bloch: <i>"I wrote LinkedList. Don't use it."</i>`
+      }
+    ]
+  },
+
+  // ──────────────────────────────────────────────
+  // 3  HASHMAP INTERNALS
+  // ──────────────────────────────────────────────
+  {
+    name: "HashMap Internals",
+    icon: "🗄️",
+    questions: [
+      {
+        q: "How does HashMap work internally? Step by step.",
+        a: `HashMap uses an <b>array of buckets</b> (Node[] table). Each bucket is a linked list (or tree if too many collisions).<br>
+<span class="sep"></span>
+<b>put(key, value) — step by step:</b><br>
+1. Compute <code>hash = hash(key.hashCode())</code> — perturbed hash.<br>
+2. Find bucket index: <code>index = hash & (table.length - 1)</code> — bitwise AND (fast modulo).<br>
+3. If bucket empty → create new Node, put in bucket.<br>
+4. If bucket not empty → walk linked list:<br>
+&nbsp;&nbsp;&nbsp;a. If key found (equals()) → replace value.<br>
+&nbsp;&nbsp;&nbsp;b. If key not found → append new Node at end.<br>
+5. If linked list length ≥ 8 AND table size ≥ 64 → <b>treeify</b> (convert to Red-Black Tree).<br>
+6. If size > threshold (capacity × loadFactor) → <b>resize</b> (double the array).<br>
+<pre class="code"><span class="cm">// Simplified JDK HashMap.put()</span>
+<span class="kw">public</span> <span class="tp">V</span> <span class="fn">put</span>(<span class="tp">K</span> key, <span class="tp">V</span> value) {
+    <span class="kw">int</span> hash = <span class="fn">hash</span>(key);  <span class="cm">// perturbed hash</span>
+    <span class="kw">int</span> i = hash & (table.length - <span class="num">1</span>); <span class="cm">// bucket index</span>
+
+    <span class="kw">if</span> (table[i] == <span class="kw">null</span>) {
+        table[i] = <span class="kw">new</span> <span class="tp">Node</span>(hash, key, value, <span class="kw">null</span>);
+    } <span class="kw">else</span> {
+        <span class="cm">// walk chain, check equals(), replace or append</span>
+    }
+    <span class="kw">if</span> (++size > threshold) <span class="fn">resize</span>();
+}</pre>`
+      },
+      {
+        q: "What is the hash perturbation function in HashMap?",
+        a: `HashMap does NOT use key.hashCode() directly. It <b>XORs the high 16 bits with low 16 bits</b> to spread hash better.<br>
+<pre class="code"><span class="cm">// JDK HashMap hash function</span>
+<span class="kw">static final int</span> <span class="fn">hash</span>(<span class="tp">Object</span> key) {
+    <span class="kw">int</span> h;
+    <span class="kw">return</span> (key == <span class="kw">null</span>) ? <span class="num">0</span>
+         : (h = key.<span class="fn">hashCode</span>()) ^ (h >>> <span class="num">16</span>);
+}
+
+<span class="cm">// Why? Table size is power of 2 (16, 32, 64...)
+// index = hash & (n-1) only uses low bits
+// XOR spreads high bits into low bits → better distribution
+//
+// Example: hashCode = 0xABCD1234
+// h >>> 16      = 0x0000ABCD
+// h ^ (h>>>16)  = 0xABCD1234 ^ 0x0000ABCD = 0xABCDB9F9
+// Now low bits contain info from high bits too!</span></pre>`
+      },
+      {
+        q: "HashMap resizing — how does it work? What is load factor?",
+        a: `<b>Default values:</b><br>
+• Initial capacity: <b>16</b> (always power of 2)<br>
+• Load factor: <b>0.75</b><br>
+• Threshold = capacity × loadFactor = 16 × 0.75 = <b>12</b><br>
+<span class="sep"></span>
+<b>When size > threshold → resize (double capacity):</b><br>
+16 → 32 → 64 → 128 → 256 → 512 → 1024 → ...<br>
+<span class="sep"></span>
+<b>Resize process:</b><br>
+1. Create new array of 2x size.<br>
+2. Rehash ALL entries — each entry's bucket may change because <code>index = hash & (newCapacity - 1)</code>.<br>
+3. Each node either stays at same index OR moves to <code>index + oldCapacity</code>.<br>
+<span class="sep"></span>
+<span class="badge-orange badge">Cost</span> Resize is <b>O(n)</b> — rehashes everything. With load factor 0.75, average ~1.33 entries per bucket before resize.
+<pre class="code"><span class="cm">// Optimal: pre-size if you know element count</span>
+<span class="cm">// Need 1000 entries? capacity = 1000/0.75 = 1334 → next power of 2 = 2048</span>
+<span class="tp">Map</span>&lt;<span class="tp">String</span>, <span class="tp">Integer</span>&gt; map = <span class="kw">new</span> <span class="tp">HashMap</span>&lt;&gt;(<span class="num">2048</span>);
+<span class="cm">// Or simpler: pass expected size, JDK calculates</span>
+<span class="tp">Map</span>&lt;<span class="tp">String</span>, <span class="tp">Integer</span>&gt; map2 = <span class="kw">new</span> <span class="tp">HashMap</span>&lt;&gt;(<span class="num">1000</span>, <span class="num">0.75f</span>);</pre>`
+      },
+      {
+        q: "Why is load factor 0.75? What happens with different values?",
+        a: `<b>Load factor = tradeoff between space and time.</b><br>
+<span class="sep"></span>
+<table class="tbl">
+<tr><th>Load Factor</th><th>Space</th><th>Collisions</th><th>Resize Freq</th><th>Best For</th></tr>
+<tr><td>0.5 (low)</td><td>Wastes memory</td><td>Very few</td><td>Frequent</td><td>Time-critical, memory OK</td></tr>
+<tr><td><b>0.75 (default)</b></td><td><b>Good balance</b></td><td><b>Moderate</b></td><td><b>Balanced</b></td><td><b>General purpose</b></td></tr>
+<tr><td>1.0 (high)</td><td>Space efficient</td><td>Many</td><td>Rare</td><td>Memory-critical</td></tr>
+</table>
+<span class="sep"></span>
+<b>0.75 is derived from Poisson distribution</b> — at load factor 0.75, probability of 8+ entries in one bucket is 0.00000006 (nearly impossible under random hashing). This is why <b>treeify threshold is 8</b>.`
+      },
+      {
+        q: "How does treeification work? (Linked List → Red-Black Tree)",
+        a: `<b>Before Java 8:</b> Buckets were always linked lists → O(n) worst case for collisions.<br>
+<b>Java 8+:</b> When a bucket has <b>≥ 8 nodes</b> AND table size <b>≥ 64</b>, linked list converts to <b>Red-Black Tree</b> → O(log n) worst case.<br>
+<span class="sep"></span>
+<b>Thresholds:</b><br>
+• TREEIFY_THRESHOLD = <b>8</b> (list → tree)<br>
+• UNTREEIFY_THRESHOLD = <b>6</b> (tree → list, on resize)<br>
+• MIN_TREEIFY_CAPACITY = <b>64</b> (table must be ≥64, otherwise just resize instead)<br>
+<span class="sep"></span>
+<b>Why 8?</b> Poisson distribution: at load factor 0.75, probability of 8+ entries = 0.00000006. So treeification is extremely rare — only happens with bad hashCode() implementations.<br>
+<span class="sep"></span>
+<b>Node types:</b><br>
+• Normal: <code>Node&lt;K,V&gt;</code> — has hash, key, value, next<br>
+• Tree: <code>TreeNode&lt;K,V&gt;</code> — extends Node, adds parent, left, right, red/black color<br>
+TreeNode uses <b>2x memory</b> of regular Node.`
+      },
+      {
+        q: "HashMap.get() — complete internal flow?",
+        a: `<pre class="code"><span class="cm">// map.get("myKey") — what happens inside</span>
+
+<span class="cm">// Step 1: Compute hash</span>
+<span class="kw">int</span> hash = key.<span class="fn">hashCode</span>() ^ (key.<span class="fn">hashCode</span>() >>> <span class="num">16</span>);
+
+<span class="cm">// Step 2: Find bucket</span>
+<span class="kw">int</span> index = hash & (table.length - <span class="num">1</span>);
+
+<span class="cm">// Step 3: Check first node</span>
+<span class="tp">Node</span> first = table[index];
+<span class="kw">if</span> (first.hash == hash && first.key.<span class="fn">equals</span>(key))
+    <span class="kw">return</span> first.value;  <span class="cm">// ✅ Found!</span>
+
+<span class="cm">// Step 4: If TreeNode → tree search O(log n)</span>
+<span class="kw">if</span> (first <span class="kw">instanceof</span> <span class="tp">TreeNode</span>)
+    <span class="kw">return</span> ((<span class="tp">TreeNode</span>)first).<span class="fn">getTreeNode</span>(hash, key);
+
+<span class="cm">// Step 5: Walk linked list O(n)</span>
+<span class="kw">for</span> (<span class="tp">Node</span> e = first.next; e != <span class="kw">null</span>; e = e.next) {
+    <span class="kw">if</span> (e.hash == hash && e.key.<span class="fn">equals</span>(key))
+        <span class="kw">return</span> e.value;  <span class="cm">// ✅ Found!</span>
+}
+<span class="kw">return null</span>;  <span class="cm">// ❌ Not found</span></pre>
+<span class="sep"></span>
+<span class="badge">Key</span> HashMap checks <b>hash first</b> (int comparison, fast) before calling <b>equals()</b> (potentially slow). This is why hashCode() and equals() must be consistent.`
+      },
+      {
+        q: "What happens when you put null key in HashMap?",
+        a: `HashMap allows <b>one null key</b> and <b>multiple null values</b>.<br>
+Null key always goes to <b>bucket 0</b> (hash(null) returns 0).<br>
+<pre class="code"><span class="tp">Map</span>&lt;<span class="tp">String</span>, <span class="tp">String</span>&gt; map = <span class="kw">new</span> <span class="tp">HashMap</span>&lt;&gt;();
+map.<span class="fn">put</span>(<span class="kw">null</span>, <span class="str">"null-value"</span>);  <span class="cm">// ✅ OK, goes to bucket[0]</span>
+map.<span class="fn">put</span>(<span class="str">"key"</span>, <span class="kw">null</span>);        <span class="cm">// ✅ OK, null value</span>
+map.<span class="fn">get</span>(<span class="kw">null</span>);                <span class="cm">// → "null-value"</span>
+
+<span class="cm">// Hashtable — NO nulls at all</span>
+<span class="tp">Hashtable</span>&lt;<span class="tp">String</span>, <span class="tp">String</span>&gt; ht = <span class="kw">new</span> <span class="tp">Hashtable</span>&lt;&gt;();
+ht.<span class="fn">put</span>(<span class="kw">null</span>, <span class="str">"x"</span>);  <span class="cm">// 💥 NullPointerException</span>
+ht.<span class="fn">put</span>(<span class="str">"x"</span>, <span class="kw">null</span>);  <span class="cm">// 💥 NullPointerException</span>
+
+<span class="cm">// ConcurrentHashMap — NO nulls</span>
+<span class="tp">ConcurrentHashMap</span>&lt;<span class="tp">String</span>, <span class="tp">String</span>&gt; chm = <span class="kw">new</span> <span class="tp">ConcurrentHashMap</span>&lt;&gt;();
+chm.<span class="fn">put</span>(<span class="kw">null</span>, <span class="str">"x"</span>);  <span class="cm">// 💥 NullPointerException</span>
+
+<span class="cm">// TreeMap — null key NOT allowed (needs Comparable)</span>
+<span class="tp">TreeMap</span>&lt;<span class="tp">String</span>, <span class="tp">String</span>&gt; tm = <span class="kw">new</span> <span class="tp">TreeMap</span>&lt;&gt;();
+tm.<span class="fn">put</span>(<span class="kw">null</span>, <span class="str">"x"</span>);  <span class="cm">// 💥 NullPointerException</span></pre>`
+      }
+    ]
+  },
+
+  // ──────────────────────────────────────────────
+  // 4  HASHING & COLLISIONS
+  // ──────────────────────────────────────────────
+  {
+    name: "Hashing & Collisions",
+    icon: "💥",
+    questions: [
+      {
+        q: "What is a hash collision? When does it happen?",
+        a: `<b>Collision</b> = two different keys map to the <b>same bucket index</b>.<br>
+Happens when: <code>hash(key1) & (n-1) == hash(key2) & (n-1)</code><br>
+<span class="sep"></span>
+<b>Two types:</b><br>
+1. <b>Same hashCode()</b>: "Aa" and "BB" have same hashCode (2112) in Java.<br>
+2. <b>Different hashCode, same bucket</b>: hashCode 16 and 32 both go to bucket 0 when table size is 16 (16 & 15 = 0, 32 & 15 = 0).<br>
+<pre class="code"><span class="cm">// Proof: "Aa" and "BB" have same hashCode</span>
+<span class="tp">System</span>.out.<span class="fn">println</span>(<span class="str">"Aa"</span>.<span class="fn">hashCode</span>());  <span class="cm">// 2112</span>
+<span class="tp">System</span>.out.<span class="fn">println</span>(<span class="str">"BB"</span>.<span class="fn">hashCode</span>());  <span class="cm">// 2112</span>
+<span class="cm">// Both go to same bucket → collision!</span>
+
+<span class="cm">// You can generate infinite collisions:</span>
+<span class="cm">// "AaAa", "AaBB", "BBAa", "BBBB" all collide</span>
+<span class="cm">// Pattern: combine "Aa"/"BB" pairs recursively</span></pre>`
+      },
+      {
+        q: "How does Java resolve hash collisions? (Chaining + Treeification)",
+        a: `<b>Java uses Separate Chaining (linked list → tree):</b><br>
+<span class="sep"></span>
+<b>Step 1 — Chaining (Java 1-7):</b><br>
+Multiple entries in same bucket form a <b>linked list</b>.<br>
+New entries added at head (Java 7) or tail (Java 8+).<br>
+Lookup: walk chain, compare hash then equals(). Worst case O(n).<br>
+<span class="sep"></span>
+<b>Step 2 — Treeification (Java 8+):</b><br>
+If chain length ≥ 8 AND table ≥ 64 → convert to <b>Red-Black Tree</b>.<br>
+Lookup becomes O(log n) instead of O(n).<br>
+If chain shrinks to ≤ 6 (on resize) → convert back to linked list.<br>
+<span class="sep"></span>
+<b>Visual:</b><br>
+<pre class="code"><span class="cm">// Bucket[5] with chaining (linked list):</span>
+table[<span class="num">5</span>] → [K1,V1] → [K2,V2] → [K3,V3] → <span class="kw">null</span>
+
+<span class="cm">// After treeification (8+ nodes):</span>
+table[<span class="num">5</span>] →     [K4]        <span class="cm">← Red-Black Tree root</span>
+              /     \\
+          [K2]       [K6]
+          / \\       / \\
+       [K1] [K3] [K5] [K7]</pre>`
+      },
+      {
+        q: "What are other collision resolution strategies? (Not used in Java HashMap)",
+        a: `<table class="tbl">
+<tr><th>Strategy</th><th>How</th><th>Used In</th><th>Pros/Cons</th></tr>
+<tr><td><b>Separate Chaining</b></td><td>Linked list / tree at each bucket</td><td>Java HashMap</td><td>✅ Simple, handles high load. ❌ Extra memory for nodes</td></tr>
+<tr><td><b>Open Addressing — Linear Probing</b></td><td>If bucket full, check next slot (i+1, i+2...)</td><td>Python dict, IdentityHashMap</td><td>✅ Cache friendly. ❌ Clustering problem</td></tr>
+<tr><td><b>Open Addressing — Quadratic Probing</b></td><td>Check i+1², i+2², i+3²...</td><td>Some C++ implementations</td><td>✅ Less clustering. ❌ May not find empty slot</td></tr>
+<tr><td><b>Open Addressing — Double Hashing</b></td><td>Use second hash function for step size</td><td>Academic</td><td>✅ Best distribution. ❌ Complex</td></tr>
+<tr><td><b>Robin Hood Hashing</b></td><td>Steal from rich (short probe) give to poor (long probe)</td><td>Rust HashMap</td><td>✅ Even probe lengths. ❌ Complex</td></tr>
+<tr><td><b>Cuckoo Hashing</b></td><td>Two tables, two hash functions. Kick out existing entry.</td><td>Network hardware</td><td>✅ O(1) worst-case lookup. ❌ Insertion can loop</td></tr>
+</table>`
+      },
+      {
+        q: "hashCode() and equals() contract — why both matter?",
+        a: `<b>THE CONTRACT:</b><br>
+1. If <code>a.equals(b)</code> is true → <code>a.hashCode() == b.hashCode()</code> MUST be true.<br>
+2. If <code>a.hashCode() != b.hashCode()</code> → <code>a.equals(b)</code> MUST be false.<br>
+3. If <code>a.hashCode() == b.hashCode()</code> → <code>a.equals(b)</code> MAY be true or false (collision).<br>
+<span class="sep"></span>
+<b>What breaks if you violate this?</b><br>
+<pre class="code"><span class="cm">// BUG: Override equals() but NOT hashCode()</span>
+<span class="kw">class</span> <span class="tp">Employee</span> {
+    <span class="tp">String</span> name;
+
+    <span class="kw">public boolean</span> <span class="fn">equals</span>(<span class="tp">Object</span> o) {
+        <span class="kw">return</span> name.<span class="fn">equals</span>(((Employee)o).name);
+    }
+    <span class="cm">// hashCode() NOT overridden — uses Object.hashCode() (memory address)</span>
+}
+
+<span class="tp">Map</span>&lt;<span class="tp">Employee</span>, <span class="tp">String</span>&gt; map = <span class="kw">new</span> <span class="tp">HashMap</span>&lt;&gt;();
+<span class="tp">Employee</span> e1 = <span class="kw">new</span> <span class="tp">Employee</span>(<span class="str">"John"</span>);
+map.<span class="fn">put</span>(e1, <span class="str">"Engineer"</span>);
+
+<span class="tp">Employee</span> e2 = <span class="kw">new</span> <span class="tp">Employee</span>(<span class="str">"John"</span>); <span class="cm">// same name</span>
+map.<span class="fn">get</span>(e2);  <span class="cm">// → null! 💥 Different hashCode → different bucket</span>
+
+<span class="cm">// FIX: Always override BOTH</span>
+<span class="kw">public int</span> <span class="fn">hashCode</span>() {
+    <span class="kw">return</span> <span class="tp">Objects</span>.<span class="fn">hash</span>(name); <span class="cm">// consistent with equals</span>
+}</pre>`
+      },
+      {
+        q: "How to write a good hashCode()? Best practices.",
+        a: `<pre class="code"><span class="cm">// Option 1: Objects.hash() — simple, good enough</span>
+@<span class="tp">Override</span>
+<span class="kw">public int</span> <span class="fn">hashCode</span>() {
+    <span class="kw">return</span> <span class="tp">Objects</span>.<span class="fn">hash</span>(name, age, department);
+}
+
+<span class="cm">// Option 2: Manual — better performance (no varargs array)</span>
+@<span class="tp">Override</span>
+<span class="kw">public int</span> <span class="fn">hashCode</span>() {
+    <span class="kw">int</span> result = <span class="num">17</span>;  <span class="cm">// non-zero prime</span>
+    result = <span class="num">31</span> * result + (name != <span class="kw">null</span> ? name.<span class="fn">hashCode</span>() : <span class="num">0</span>);
+    result = <span class="num">31</span> * result + age;
+    result = <span class="num">31</span> * result + (dept != <span class="kw">null</span> ? dept.<span class="fn">hashCode</span>() : <span class="num">0</span>);
+    <span class="kw">return</span> result;
+}
+
+<span class="cm">// Option 3: Lombok — zero boilerplate</span>
+@<span class="tp">EqualsAndHashCode</span>
+<span class="kw">class</span> <span class="tp">Employee</span> {
+    <span class="tp">String</span> name;
+    <span class="kw">int</span> age;
+}
+
+<span class="cm">// Why 31? Prime, odd, JVM optimizes 31*i as (i&lt;&lt;5)-i (bitshift)</span></pre>`
+      },
+      {
+        q: "What is a hash DoS attack? How does Java protect against it?",
+        a: `<b>Attack:</b> Attacker sends thousands of keys with the same hashCode() → all go to ONE bucket → O(n) for every operation → server slows to crawl.<br>
+<span class="sep"></span>
+<b>Java protections:</b><br>
+1. <b>Treeification (Java 8)</b>: Chain ≥ 8 → Red-Black Tree → O(log n) instead of O(n). Limits damage.<br>
+2. <b>Hash perturbation</b>: XOR high/low bits → harder to predict final bucket.<br>
+3. <b>String hashCode caching</b>: String.hashCode() is cached after first call (private int hash field).<br>
+<span class="sep"></span>
+<b>Extra defense in web apps:</b><br>
+• Limit POST body size (prevent sending millions of keys).<br>
+• Use ConcurrentHashMap (segments limit contention).<br>
+• Rate-limit API calls per client.`
+      }
+    ]
+  },
+
+  // ──────────────────────────────────────────────
+  // 5  TREEMAP & TREESET
+  // ──────────────────────────────────────────────
+  {
+    name: "TreeMap & TreeSet",
+    icon: "🌳",
+    questions: [
+      {
+        q: "How does TreeMap work internally?",
+        a: `TreeMap uses a <b>Red-Black Tree</b> (self-balancing BST).<br>
+Every node stores: key, value, left, right, parent, color (RED/BLACK).<br>
+<span class="sep"></span>
+<b>Red-Black Tree rules:</b><br>
+1. Every node is RED or BLACK.<br>
+2. Root is always BLACK.<br>
+3. No two consecutive RED nodes (red node's children must be black).<br>
+4. Every path from root to null has the same number of BLACK nodes.<br>
+5. Null leaves are BLACK.<br>
+<span class="sep"></span>
+These rules ensure tree height is always <b>O(log n)</b>.<br>
+Max height = 2 × log₂(n+1). For 1 million entries: max ~40 levels.<br>
+<span class="sep"></span>
+<table class="tbl">
+<tr><th>Operation</th><th>Time</th></tr>
+<tr><td>put(key, value)</td><td>O(log n)</td></tr>
+<tr><td>get(key)</td><td>O(log n)</td></tr>
+<tr><td>remove(key)</td><td>O(log n)</td></tr>
+<tr><td>firstKey() / lastKey()</td><td>O(log n)</td></tr>
+<tr><td>floorKey() / ceilingKey()</td><td>O(log n)</td></tr>
+</table>`
+      },
+      {
+        q: "TreeMap vs HashMap — when to use which?",
+        a: `<table class="tbl">
+<tr><th>Feature</th><th>HashMap</th><th>TreeMap</th></tr>
+<tr><td>Data structure</td><td>Hash table (array + chain/tree)</td><td>Red-Black Tree</td></tr>
+<tr><td>Order</td><td>❌ No order</td><td>✅ Sorted by key (natural or Comparator)</td></tr>
+<tr><td>get/put/remove</td><td><b>O(1)</b> average</td><td><b>O(log n)</b></td></tr>
+<tr><td>Null key</td><td>✅ One null key</td><td>❌ NPE</td></tr>
+<tr><td>Null values</td><td>✅ Yes</td><td>✅ Yes</td></tr>
+<tr><td>Memory</td><td>Less (Node has 4 fields)</td><td>More (TreeNode has 7 fields)</td></tr>
+<tr><td>Thread safe</td><td>❌ No</td><td>❌ No</td></tr>
+<tr><td>Iteration</td><td>Unpredictable order</td><td>Sorted order</td></tr>
+</table>
+<span class="sep"></span>
+<span class="badge-green badge">Use HashMap</span> when you need fastest lookup and don't care about order.<br>
+<span class="badge-purple badge">Use TreeMap</span> when you need sorted keys, range queries, or floor/ceiling operations.
+<pre class="code"><span class="cm">// TreeMap range query — not possible with HashMap</span>
+<span class="tp">TreeMap</span>&lt;<span class="tp">Integer</span>, <span class="tp">String</span>&gt; scores = <span class="kw">new</span> <span class="tp">TreeMap</span>&lt;&gt;();
+scores.<span class="fn">put</span>(<span class="num">85</span>, <span class="str">"Alice"</span>);
+scores.<span class="fn">put</span>(<span class="num">92</span>, <span class="str">"Bob"</span>);
+scores.<span class="fn">put</span>(<span class="num">78</span>, <span class="str">"Charlie"</span>);
+scores.<span class="fn">put</span>(<span class="num">95</span>, <span class="str">"Diana"</span>);
+
+scores.<span class="fn">subMap</span>(<span class="num">80</span>, <span class="num">93</span>);     <span class="cm">// {85=Alice, 92=Bob}</span>
+scores.<span class="fn">headMap</span>(<span class="num">90</span>);          <span class="cm">// {78=Charlie, 85=Alice}</span>
+scores.<span class="fn">tailMap</span>(<span class="num">90</span>);          <span class="cm">// {92=Bob, 95=Diana}</span>
+scores.<span class="fn">floorKey</span>(<span class="num">90</span>);         <span class="cm">// 85 (≤ 90)</span>
+scores.<span class="fn">ceilingKey</span>(<span class="num">90</span>);       <span class="cm">// 92 (≥ 90)</span></pre>`
+      },
+      {
+        q: "TreeSet — how does it work? What's inside?",
+        a: `TreeSet is backed by a <b>TreeMap</b> internally. Each element is a KEY in the map, value is a dummy constant.<br>
+<pre class="code"><span class="cm">// Inside TreeSet (JDK source)</span>
+<span class="kw">public class</span> <span class="tp">TreeSet</span>&lt;<span class="tp">E</span>&gt; {
+    <span class="kw">private transient</span> <span class="tp">NavigableMap</span>&lt;<span class="tp">E</span>, <span class="tp">Object</span>&gt; m;
+    <span class="kw">private static final</span> <span class="tp">Object</span> PRESENT = <span class="kw">new</span> <span class="tp">Object</span>();
+
+    <span class="kw">public boolean</span> <span class="fn">add</span>(<span class="tp">E</span> e) {
+        <span class="kw">return</span> m.<span class="fn">put</span>(e, PRESENT) == <span class="kw">null</span>;
+    }
+}
+
+<span class="cm">// Usage — always sorted</span>
+<span class="tp">TreeSet</span>&lt;<span class="tp">Integer</span>&gt; set = <span class="kw">new</span> <span class="tp">TreeSet</span>&lt;&gt;();
+set.<span class="fn">add</span>(<span class="num">30</span>); set.<span class="fn">add</span>(<span class="num">10</span>); set.<span class="fn">add</span>(<span class="num">20</span>);
+<span class="tp">System</span>.out.<span class="fn">println</span>(set); <span class="cm">// [10, 20, 30] — sorted!</span>
+set.<span class="fn">first</span>();     <span class="cm">// 10</span>
+set.<span class="fn">last</span>();      <span class="cm">// 30</span>
+set.<span class="fn">floor</span>(<span class="num">25</span>);   <span class="cm">// 20 (≤ 25)</span>
+set.<span class="fn">ceiling</span>(<span class="num">25</span>); <span class="cm">// 30 (≥ 25)</span></pre>`
+      },
+      {
+        q: "Comparable vs Comparator — when to use which?",
+        a: `<b>Comparable</b> — natural ordering. Class implements it. Single sort order.<br>
+<b>Comparator</b> — custom ordering. Passed externally. Multiple sort orders.<br>
+<pre class="code"><span class="cm">// Comparable — class defines its own sort</span>
+<span class="kw">class</span> <span class="tp">Employee</span> <span class="kw">implements</span> <span class="tp">Comparable</span>&lt;<span class="tp">Employee</span>&gt; {
+    <span class="tp">String</span> name;
+    <span class="kw">int</span> age;
+
+    <span class="kw">public int</span> <span class="fn">compareTo</span>(<span class="tp">Employee</span> other) {
+        <span class="kw">return</span> <span class="kw">this</span>.name.<span class="fn">compareTo</span>(other.name); <span class="cm">// sort by name</span>
+    }
+}
+<span class="tp">TreeSet</span>&lt;<span class="tp">Employee</span>&gt; set = <span class="kw">new</span> <span class="tp">TreeSet</span>&lt;&gt;(); <span class="cm">// uses compareTo</span>
+
+<span class="cm">// Comparator — external, flexible, multiple sorts</span>
+<span class="tp">Comparator</span>&lt;<span class="tp">Employee</span>&gt; byAge = <span class="tp">Comparator</span>.<span class="fn">comparingInt</span>(e -> e.age);
+<span class="tp">Comparator</span>&lt;<span class="tp">Employee</span>&gt; byName = <span class="tp">Comparator</span>.<span class="fn">comparing</span>(e -> e.name);
+<span class="tp">Comparator</span>&lt;<span class="tp">Employee</span>&gt; byAgeThenName = byAge.<span class="fn">thenComparing</span>(byName);
+
+<span class="tp">TreeSet</span>&lt;<span class="tp">Employee</span>&gt; set2 = <span class="kw">new</span> <span class="tp">TreeSet</span>&lt;&gt;(byAge); <span class="cm">// sort by age</span>
+<span class="tp">List</span>&lt;<span class="tp">Employee</span>&gt; list = <span class="kw">new</span> <span class="tp">ArrayList</span>&lt;&gt;(employees);
+list.<span class="fn">sort</span>(byAgeThenName);  <span class="cm">// sort by age, then name</span>
+<span class="tp">Collections</span>.<span class="fn">sort</span>(list, byAge.<span class="fn">reversed</span>()); <span class="cm">// descending</span></pre>`
+      }
+    ]
+  },
+
+  // ──────────────────────────────────────────────
+  // 6  HASHSET & LINKEDHASHSET
+  // ──────────────────────────────────────────────
+  {
+    name: "HashSet & LinkedHashSet",
+    icon: "📐",
+    questions: [
+      {
+        q: "How does HashSet work internally?",
+        a: `HashSet is backed by a <b>HashMap</b>. Element = key, value = dummy PRESENT object.<br>
+<pre class="code"><span class="cm">// Inside HashSet (JDK source)</span>
+<span class="kw">public class</span> <span class="tp">HashSet</span>&lt;<span class="tp">E</span>&gt; {
+    <span class="kw">private transient</span> <span class="tp">HashMap</span>&lt;<span class="tp">E</span>, <span class="tp">Object</span>&gt; map;
+    <span class="kw">private static final</span> <span class="tp">Object</span> PRESENT = <span class="kw">new</span> <span class="tp">Object</span>();
+
+    <span class="kw">public boolean</span> <span class="fn">add</span>(<span class="tp">E</span> e) {
+        <span class="kw">return</span> map.<span class="fn">put</span>(e, PRESENT) == <span class="kw">null</span>;
+        <span class="cm">// put returns null if key was new → add returns true</span>
+        <span class="cm">// put returns old value if key existed → add returns false</span>
+    }
+
+    <span class="kw">public boolean</span> <span class="fn">contains</span>(<span class="tp">Object</span> o) {
+        <span class="kw">return</span> map.<span class="fn">containsKey</span>(o);  <span class="cm">// O(1)</span>
+    }
+
+    <span class="kw">public boolean</span> <span class="fn">remove</span>(<span class="tp">Object</span> o) {
+        <span class="kw">return</span> map.<span class="fn">remove</span>(o) == PRESENT;
+    }
+}</pre>
+<span class="sep"></span>
+So HashSet inherits all HashMap properties: capacity 16, load factor 0.75, resizing, collision handling, treeification.`
+      },
+      {
+        q: "LinkedHashSet vs HashSet — what's different?",
+        a: `<b>LinkedHashSet</b> maintains <b>insertion order</b> using a doubly-linked list running through all entries.<br>
+Backed by <b>LinkedHashMap</b> (not HashMap).<br>
+<span class="sep"></span>
+<pre class="code"><span class="cm">// HashSet — no order guarantee</span>
+<span class="tp">Set</span>&lt;<span class="tp">String</span>&gt; hashSet = <span class="kw">new</span> <span class="tp">HashSet</span>&lt;&gt;();
+hashSet.<span class="fn">add</span>(<span class="str">"Banana"</span>);
+hashSet.<span class="fn">add</span>(<span class="str">"Apple"</span>);
+hashSet.<span class="fn">add</span>(<span class="str">"Cherry"</span>);
+<span class="tp">System</span>.out.<span class="fn">println</span>(hashSet);
+<span class="cm">// Might print: [Apple, Cherry, Banana] — unpredictable</span>
+
+<span class="cm">// LinkedHashSet — insertion order preserved</span>
+<span class="tp">Set</span>&lt;<span class="tp">String</span>&gt; linkedSet = <span class="kw">new</span> <span class="tp">LinkedHashSet</span>&lt;&gt;();
+linkedSet.<span class="fn">add</span>(<span class="str">"Banana"</span>);
+linkedSet.<span class="fn">add</span>(<span class="str">"Apple"</span>);
+linkedSet.<span class="fn">add</span>(<span class="str">"Cherry"</span>);
+<span class="tp">System</span>.out.<span class="fn">println</span>(linkedSet);
+<span class="cm">// Always: [Banana, Apple, Cherry] — insertion order!</span></pre>
+<span class="sep"></span>
+<table class="tbl">
+<tr><th></th><th>HashSet</th><th>LinkedHashSet</th><th>TreeSet</th></tr>
+<tr><td>Order</td><td>❌ None</td><td>✅ Insertion</td><td>✅ Sorted</td></tr>
+<tr><td>Internal</td><td>HashMap</td><td>LinkedHashMap</td><td>TreeMap</td></tr>
+<tr><td>add/contains</td><td>O(1)</td><td>O(1)</td><td>O(log n)</td></tr>
+<tr><td>Memory</td><td>Lowest</td><td>Slightly more (linked list)</td><td>Most</td></tr>
+<tr><td>Null</td><td>✅ One null</td><td>✅ One null</td><td>❌ No null</td></tr>
+</table>`
+      },
+      {
+        q: "How does LinkedHashMap maintain order internally?",
+        a: `LinkedHashMap extends HashMap. Each entry (Node) has two extra pointers: <b>before</b> and <b>after</b>, forming a doubly-linked list across ALL entries.<br>
+<pre class="code"><span class="cm">// LinkedHashMap.Entry extends HashMap.Node</span>
+<span class="kw">static class</span> <span class="tp">Entry</span>&lt;<span class="tp">K</span>,<span class="tp">V</span>&gt; <span class="kw">extends</span> <span class="tp">HashMap.Node</span>&lt;<span class="tp">K</span>,<span class="tp">V</span>&gt; {
+    <span class="tp">Entry</span>&lt;<span class="tp">K</span>,<span class="tp">V</span>&gt; before, after;  <span class="cm">// linked list pointers</span>
+}
+
+<span class="cm">// Visual: HashMap buckets + linked list overlay</span>
+<span class="cm">// Bucket[0]: [K1] → [K4]</span>
+<span class="cm">// Bucket[3]: [K2]</span>
+<span class="cm">// Bucket[7]: [K3]</span>
+<span class="cm">// </span>
+<span class="cm">// Insertion order chain: K1 ↔ K2 ↔ K3 ↔ K4</span>
+<span class="cm">// Iterator follows the chain, not buckets</span></pre>
+<span class="sep"></span>
+<span class="badge-purple badge">Bonus</span> LinkedHashMap can also maintain <b>access order</b> (LRU cache):
+<pre class="code"><span class="cm">// Access-order LinkedHashMap (for LRU cache)</span>
+<span class="tp">Map</span>&lt;<span class="tp">String</span>, <span class="tp">String</span>&gt; lru = <span class="kw">new</span> <span class="tp">LinkedHashMap</span>&lt;&gt;(<span class="num">16</span>, <span class="num">0.75f</span>, <span class="kw">true</span>);
+<span class="cm">//                                              ^ accessOrder = true</span>
+lru.<span class="fn">put</span>(<span class="str">"a"</span>, <span class="str">"1"</span>);
+lru.<span class="fn">put</span>(<span class="str">"b"</span>, <span class="str">"2"</span>);
+lru.<span class="fn">put</span>(<span class="str">"c"</span>, <span class="str">"3"</span>);
+lru.<span class="fn">get</span>(<span class="str">"a"</span>);  <span class="cm">// access "a" → moves to end</span>
+<span class="cm">// Order: b, c, a (LRU = b)</span></pre>`
+      },
+      {
+        q: "How to implement LRU Cache using LinkedHashMap?",
+        a: `<pre class="code"><span class="kw">class</span> <span class="tp">LRUCache</span>&lt;<span class="tp">K</span>, <span class="tp">V</span>&gt; <span class="kw">extends</span> <span class="tp">LinkedHashMap</span>&lt;<span class="tp">K</span>, <span class="tp">V</span>&gt; {
+    <span class="kw">private final int</span> maxSize;
+
+    <span class="kw">public</span> <span class="fn">LRUCache</span>(<span class="kw">int</span> maxSize) {
+        <span class="kw">super</span>(maxSize, <span class="num">0.75f</span>, <span class="kw">true</span>); <span class="cm">// accessOrder = true</span>
+        <span class="kw">this</span>.maxSize = maxSize;
+    }
+
+    @<span class="tp">Override</span>
+    <span class="kw">protected boolean</span> <span class="fn">removeEldestEntry</span>(<span class="tp">Map.Entry</span>&lt;<span class="tp">K</span>,<span class="tp">V</span>&gt; eldest) {
+        <span class="kw">return</span> <span class="fn">size</span>() > maxSize; <span class="cm">// evict oldest when full</span>
+    }
+}
+
+<span class="cm">// Usage</span>
+<span class="tp">LRUCache</span>&lt;<span class="tp">String</span>, <span class="tp">String</span>&gt; cache = <span class="kw">new</span> <span class="tp">LRUCache</span>&lt;&gt;(<span class="num">3</span>);
+cache.<span class="fn">put</span>(<span class="str">"a"</span>, <span class="str">"1"</span>);
+cache.<span class="fn">put</span>(<span class="str">"b"</span>, <span class="str">"2"</span>);
+cache.<span class="fn">put</span>(<span class="str">"c"</span>, <span class="str">"3"</span>);
+cache.<span class="fn">get</span>(<span class="str">"a"</span>);          <span class="cm">// access "a"</span>
+cache.<span class="fn">put</span>(<span class="str">"d"</span>, <span class="str">"4"</span>);    <span class="cm">// evicts "b" (least recently used)</span>
+<span class="tp">System</span>.out.<span class="fn">println</span>(cache); <span class="cm">// {c=3, a=1, d=4}</span></pre>`
+      }
+    ]
+  },
+
+  // ──────────────────────────────────────────────
+  // 7  QUEUE & DEQUE
+  // ──────────────────────────────────────────────
+  {
+    name: "Queue & Deque",
+    icon: "📊",
+    questions: [
+      {
+        q: "PriorityQueue — internal structure and usage?",
+        a: `PriorityQueue uses a <b>binary min-heap</b> (array-based).<br>
+Root is always the <b>minimum</b> element (or max with custom Comparator).<br>
+<span class="sep"></span>
+<b>Internal array representation:</b><br>
+Parent of node at index i: <code>(i - 1) / 2</code><br>
+Left child: <code>2 * i + 1</code><br>
+Right child: <code>2 * i + 2</code><br>
+<span class="sep"></span>
+<table class="tbl">
+<tr><th>Operation</th><th>Time</th><th>How</th></tr>
+<tr><td>offer(e) / add(e)</td><td>O(log n)</td><td>Add at end, sift up</td></tr>
+<tr><td>poll() / remove()</td><td>O(log n)</td><td>Remove root, sift down</td></tr>
+<tr><td>peek()</td><td>O(1)</td><td>Return root (minimum)</td></tr>
+<tr><td>contains(e)</td><td>O(n)</td><td>Linear scan</td></tr>
+<tr><td>remove(Object)</td><td>O(n)</td><td>Find + sift</td></tr>
+</table>
+<pre class="code"><span class="cm">// Min-heap (default)</span>
+<span class="tp">PriorityQueue</span>&lt;<span class="tp">Integer</span>&gt; minHeap = <span class="kw">new</span> <span class="tp">PriorityQueue</span>&lt;&gt;();
+minHeap.<span class="fn">offer</span>(<span class="num">30</span>); minHeap.<span class="fn">offer</span>(<span class="num">10</span>); minHeap.<span class="fn">offer</span>(<span class="num">20</span>);
+minHeap.<span class="fn">poll</span>();  <span class="cm">// → 10 (smallest)</span>
+
+<span class="cm">// Max-heap</span>
+<span class="tp">PriorityQueue</span>&lt;<span class="tp">Integer</span>&gt; maxHeap = <span class="kw">new</span> <span class="tp">PriorityQueue</span>&lt;&gt;(
+    <span class="tp">Comparator</span>.<span class="fn">reverseOrder</span>()
+);
+maxHeap.<span class="fn">offer</span>(<span class="num">30</span>); maxHeap.<span class="fn">offer</span>(<span class="num">10</span>); maxHeap.<span class="fn">offer</span>(<span class="num">20</span>);
+maxHeap.<span class="fn">poll</span>();  <span class="cm">// → 30 (largest)</span>
+
+<span class="cm">// Custom: sort by string length</span>
+<span class="tp">PriorityQueue</span>&lt;<span class="tp">String</span>&gt; pq = <span class="kw">new</span> <span class="tp">PriorityQueue</span>&lt;&gt;(
+    <span class="tp">Comparator</span>.<span class="fn">comparingInt</span>(<span class="tp">String</span>::length)
+);</pre>
+<span class="sep"></span>
+<span class="badge-red badge">Warning</span> PriorityQueue is NOT sorted when iterated. Only poll() gives min order. Iterator gives no order guarantee!`
+      },
+      {
+        q: "ArrayDeque vs LinkedList as Queue/Stack?",
+        a: `<span class="badge-green badge">Winner</span> <b>ArrayDeque is almost always better.</b><br>
+<span class="sep"></span>
+<table class="tbl">
+<tr><th>Feature</th><th>ArrayDeque</th><th>LinkedList</th></tr>
+<tr><td>Structure</td><td>Circular resizable array</td><td>Doubly-linked list</td></tr>
+<tr><td>Memory</td><td>Less (array, no node overhead)</td><td>More (~40 bytes per node)</td></tr>
+<tr><td>Cache locality</td><td>✅ Excellent (contiguous memory)</td><td>❌ Poor (scattered nodes)</td></tr>
+<tr><td>Speed</td><td>✅ Faster</td><td>Slower</td></tr>
+<tr><td>Null elements</td><td>❌ Not allowed</td><td>✅ Allowed</td></tr>
+<tr><td>Thread safe</td><td>❌</td><td>❌</td></tr>
+<tr><td>As Stack</td><td>✅ Better than Stack class</td><td>Works</td></tr>
+</table>
+<pre class="code"><span class="cm">// Use ArrayDeque as Stack (NOT java.util.Stack!)</span>
+<span class="tp">Deque</span>&lt;<span class="tp">Integer</span>&gt; stack = <span class="kw">new</span> <span class="tp">ArrayDeque</span>&lt;&gt;();
+stack.<span class="fn">push</span>(<span class="num">1</span>);  <span class="cm">// addFirst</span>
+stack.<span class="fn">push</span>(<span class="num">2</span>);
+stack.<span class="fn">pop</span>();    <span class="cm">// removeFirst → 2</span>
+stack.<span class="fn">peek</span>();   <span class="cm">// 1</span>
+
+<span class="cm">// Use ArrayDeque as Queue</span>
+<span class="tp">Deque</span>&lt;<span class="tp">Integer</span>&gt; queue = <span class="kw">new</span> <span class="tp">ArrayDeque</span>&lt;&gt;();
+queue.<span class="fn">offer</span>(<span class="num">1</span>);  <span class="cm">// addLast</span>
+queue.<span class="fn">offer</span>(<span class="num">2</span>);
+queue.<span class="fn">poll</span>();    <span class="cm">// removeFirst → 1</span></pre>`
+      },
+      {
+        q: "How does ArrayDeque resizing work (circular array)?",
+        a: `ArrayDeque uses a <b>circular array</b> with <b>head</b> and <b>tail</b> pointers. Default capacity: <b>16</b> (power of 2).<br>
+<span class="sep"></span>
+<b>Circular behavior:</b><br>
+• addFirst: <code>head = (head - 1) & (array.length - 1)</code> — wraps around.<br>
+• addLast: <code>tail = (tail + 1) & (array.length - 1)</code> — wraps around.<br>
+• When head == tail → array full → <b>double the size</b>.<br>
+<span class="sep"></span>
+<b>Resize: always doubles (2x).</b><br>
+16 → 32 → 64 → 128 → ...<br>
+Copies elements in order: head-to-end, then start-to-tail.<br>
+<pre class="code"><span class="cm">// Circular array visualization</span>
+<span class="cm">// Array: [_, _, _, C, D, E, _, _]</span>
+<span class="cm">//         ↑tail   ↑head</span>
+<span class="cm">// addFirst("B"): head moves left</span>
+<span class="cm">// Array: [_, _, B, C, D, E, _, _]</span>
+<span class="cm">//         ↑tail↑head</span>
+<span class="cm">// addLast("F"): tail moves right</span>
+<span class="cm">// Array: [_, _, B, C, D, E, F, _]</span>
+<span class="cm">//                          ↑tail</span>
+
+<span class="cm">// Wrap-around: if head at index 0, addFirst wraps to end</span>
+<span class="cm">// Array: [A, B, C, _, _, _, _, Z]</span>
+<span class="cm">//                              ↑head (wrapped!)</span></pre>`
+      },
+      {
+        q: "BlockingQueue — types and usage in producer-consumer?",
+        a: `<b>BlockingQueue</b>: thread-safe, blocks on put/take when full/empty.<br>
+<span class="sep"></span>
+<table class="tbl">
+<tr><th>Type</th><th>Bounded?</th><th>Structure</th><th>Use Case</th></tr>
+<tr><td>ArrayBlockingQueue</td><td>✅ Fixed size</td><td>Array</td><td>Bounded producer-consumer</td></tr>
+<tr><td>LinkedBlockingQueue</td><td>Optional</td><td>Linked list</td><td>Unbounded tasks queue</td></tr>
+<tr><td>PriorityBlockingQueue</td><td>❌ Unbounded</td><td>Heap</td><td>Priority-based tasks</td></tr>
+<tr><td>SynchronousQueue</td><td>0 capacity</td><td>None</td><td>Direct handoff</td></tr>
+<tr><td>DelayQueue</td><td>❌ Unbounded</td><td>Heap</td><td>Scheduled tasks</td></tr>
+</table>
+<pre class="code"><span class="cm">// Producer-Consumer pattern</span>
+<span class="tp">BlockingQueue</span>&lt;<span class="tp">String</span>&gt; queue = <span class="kw">new</span> <span class="tp">ArrayBlockingQueue</span>&lt;&gt;(<span class="num">10</span>);
+
+<span class="cm">// Producer thread</span>
+<span class="kw">new</span> <span class="tp">Thread</span>(() -> {
+    <span class="kw">try</span> {
+        queue.<span class="fn">put</span>(<span class="str">"task-1"</span>);  <span class="cm">// blocks if queue full</span>
+        queue.<span class="fn">put</span>(<span class="str">"task-2"</span>);
+    } <span class="kw">catch</span> (<span class="tp">InterruptedException</span> e) { }
+}).<span class="fn">start</span>();
+
+<span class="cm">// Consumer thread</span>
+<span class="kw">new</span> <span class="tp">Thread</span>(() -> {
+    <span class="kw">try</span> {
+        <span class="tp">String</span> task = queue.<span class="fn">take</span>();  <span class="cm">// blocks if queue empty</span>
+        <span class="fn">process</span>(task);
+    } <span class="kw">catch</span> (<span class="tp">InterruptedException</span> e) { }
+}).<span class="fn">start</span>();</pre>`
+      }
+    ]
+  },
+
+  // ──────────────────────────────────────────────
+  // 8  SYNCHRONIZED COLLECTIONS
+  // ──────────────────────────────────────────────
+  {
+    name: "Synchronized Collections",
+    icon: "🔒",
+    questions: [
+      {
+        q: "What are synchronized collections? How do they work?",
+        a: `<b>Legacy synchronized:</b> Vector, Hashtable, Stack — every method is <code>synchronized</code>. Global lock on entire object.<br>
+<b>Wrapper synchronized:</b> <code>Collections.synchronizedXxx()</code> — wraps any collection with synchronized methods.<br>
+<span class="sep"></span>
+<pre class="code"><span class="cm">// Legacy — avoid in new code</span>
+<span class="tp">Vector</span>&lt;<span class="tp">String</span>&gt; vector = <span class="kw">new</span> <span class="tp">Vector</span>&lt;&gt;();       <span class="cm">// ❌ Old</span>
+<span class="tp">Hashtable</span>&lt;<span class="tp">String</span>,<span class="tp">String</span>&gt; ht = <span class="kw">new</span> <span class="tp">Hashtable</span>&lt;&gt;(); <span class="cm">// ❌ Old</span>
+<span class="tp">Stack</span>&lt;<span class="tp">String</span>&gt; stack = <span class="kw">new</span> <span class="tp">Stack</span>&lt;&gt;();          <span class="cm">// ❌ Old</span>
+
+<span class="cm">// Wrapper — better but still coarse-grained lock</span>
+<span class="tp">List</span>&lt;<span class="tp">String</span>&gt; syncList =
+    <span class="tp">Collections</span>.<span class="fn">synchronizedList</span>(<span class="kw">new</span> <span class="tp">ArrayList</span>&lt;&gt;());
+<span class="tp">Map</span>&lt;<span class="tp">String</span>,<span class="tp">String</span>&gt; syncMap =
+    <span class="tp">Collections</span>.<span class="fn">synchronizedMap</span>(<span class="kw">new</span> <span class="tp">HashMap</span>&lt;&gt;());
+<span class="tp">Set</span>&lt;<span class="tp">String</span>&gt; syncSet =
+    <span class="tp">Collections</span>.<span class="fn">synchronizedSet</span>(<span class="kw">new</span> <span class="tp">HashSet</span>&lt;&gt;());</pre>
+<span class="sep"></span>
+<span class="badge-red badge">Problem</span> Single lock = <b>bottleneck</b>. All threads compete for same lock. Poor throughput under high concurrency.`
+      },
+      {
+        q: "Why are synchronized collections not enough? What's the problem?",
+        a: `<b>Problem 1: Compound operations are NOT safe.</b><br>
+<pre class="code"><span class="tp">List</span>&lt;<span class="tp">String</span>&gt; list = <span class="tp">Collections</span>.<span class="fn">synchronizedList</span>(<span class="kw">new</span> <span class="tp">ArrayList</span>&lt;&gt;());
+
+<span class="cm">// Thread A                      // Thread B</span>
+<span class="kw">if</span> (!list.<span class="fn">contains</span>(<span class="str">"x"</span>)) {     <span class="cm">// contains is synchronized</span>
+    <span class="cm">// 💥 Thread B can add "x" HERE between contains() and add()</span>
+    list.<span class="fn">add</span>(<span class="str">"x"</span>);               <span class="cm">// add is synchronized</span>
+}
+<span class="cm">// Result: duplicate "x" in list! Each call is atomic, but combo is not.</span>
+
+<span class="cm">// Fix: External synchronization</span>
+<span class="kw">synchronized</span> (list) {
+    <span class="kw">if</span> (!list.<span class="fn">contains</span>(<span class="str">"x"</span>)) {
+        list.<span class="fn">add</span>(<span class="str">"x"</span>);
+    }
+}</pre>
+<span class="sep"></span>
+<b>Problem 2: Iteration requires manual lock.</b><br>
+<pre class="code"><span class="cm">// Must lock during iteration, otherwise ConcurrentModificationException</span>
+<span class="kw">synchronized</span> (list) {
+    <span class="kw">for</span> (<span class="tp">String</span> s : list) {
+        <span class="tp">System</span>.out.<span class="fn">println</span>(s);
+    }
+}
+<span class="cm">// Blocks ALL other threads during entire iteration → poor performance</span></pre>
+<span class="sep"></span>
+<span class="badge-green badge">Solution</span> Use <b>java.util.concurrent</b> collections instead: ConcurrentHashMap, CopyOnWriteArrayList, etc.`
+      },
+      {
+        q: "Vector vs ArrayList — complete comparison?",
+        a: `<table class="tbl">
+<tr><th>Feature</th><th>Vector</th><th>ArrayList</th></tr>
+<tr><td>Thread safe</td><td>✅ Synchronized</td><td>❌ Not synchronized</td></tr>
+<tr><td>Performance</td><td>Slow (lock overhead)</td><td>Fast</td></tr>
+<tr><td>Growth</td><td><b>Doubles</b> (2x)</td><td><b>1.5x</b> (50% more)</td></tr>
+<tr><td>Introduced</td><td>Java 1.0 (legacy)</td><td>Java 1.2</td></tr>
+<tr><td>Iterator</td><td>Enumeration + Iterator</td><td>Iterator only</td></tr>
+<tr><td>Recommendation</td><td>❌ Don't use</td><td>✅ Use this</td></tr>
+</table>
+<span class="sep"></span>
+<span class="badge-red badge">Never use Vector</span> — use ArrayList (single-threaded) or CopyOnWriteArrayList (multi-threaded).<br>
+<span class="badge-red badge">Never use Stack</span> — use ArrayDeque instead.
+<pre class="code"><span class="cm">// ❌ Legacy — don't write this</span>
+<span class="tp">Vector</span>&lt;<span class="tp">String</span>&gt; v = <span class="kw">new</span> <span class="tp">Vector</span>&lt;&gt;();
+<span class="tp">Stack</span>&lt;<span class="tp">String</span>&gt; s = <span class="kw">new</span> <span class="tp">Stack</span>&lt;&gt;();
+
+<span class="cm">// ✅ Modern equivalents</span>
+<span class="tp">List</span>&lt;<span class="tp">String</span>&gt; list = <span class="kw">new</span> <span class="tp">ArrayList</span>&lt;&gt;();
+<span class="tp">Deque</span>&lt;<span class="tp">String</span>&gt; stack = <span class="kw">new</span> <span class="tp">ArrayDeque</span>&lt;&gt;();
+
+<span class="cm">// ✅ Thread-safe modern</span>
+<span class="tp">List</span>&lt;<span class="tp">String</span>&gt; safeList = <span class="kw">new</span> <span class="tp">CopyOnWriteArrayList</span>&lt;&gt;();</pre>`
+      },
+      {
+        q: "Hashtable vs HashMap — complete comparison?",
+        a: `<table class="tbl">
+<tr><th>Feature</th><th>Hashtable</th><th>HashMap</th><th>ConcurrentHashMap</th></tr>
+<tr><td>Thread safe</td><td>✅ Synchronized</td><td>❌</td><td>✅ Segment-lock</td></tr>
+<tr><td>Null key</td><td>❌</td><td>✅ One</td><td>❌</td></tr>
+<tr><td>Null value</td><td>❌</td><td>✅ Multiple</td><td>❌</td></tr>
+<tr><td>Performance</td><td>Slow</td><td>Fast</td><td>Fast</td></tr>
+<tr><td>Fail-fast</td><td>✅</td><td>✅</td><td>❌ Fail-safe</td></tr>
+<tr><td>Treeification</td><td>❌</td><td>✅ (Java 8)</td><td>✅ (Java 8)</td></tr>
+<tr><td>Initial capacity</td><td>11</td><td>16</td><td>16</td></tr>
+<tr><td>Introduced</td><td>Java 1.0</td><td>Java 1.2</td><td>Java 1.5</td></tr>
+<tr><td>Recommendation</td><td>❌ Don't use</td><td>✅ Single thread</td><td>✅ Multi thread</td></tr>
+</table>`
+      }
+    ]
+  },
+
+  // ──────────────────────────────────────────────
+  // 9  CONCURRENT COLLECTIONS
+  // ──────────────────────────────────────────────
+  {
+    name: "Concurrent Collections",
+    icon: "⚡",
+    questions: [
+      {
+        q: "ConcurrentHashMap — how does it work internally? (Java 8+)",
+        a: `<b>Java 7:</b> Segment-based locking (16 segments, each a mini-hashtable with own lock).<br>
+<b>Java 8+:</b> <b>Node-level locking</b> using <code>synchronized</code> + <code>CAS</code> (Compare-And-Swap).<br>
+<span class="sep"></span>
+<b>Java 8 internal structure:</b><br>
+• Same as HashMap: Node[] table, buckets, linked list → tree.<br>
+• <b>put():</b> If bucket empty → CAS to insert (lock-free). If bucket occupied → synchronized on first node of bucket (fine-grained lock).<br>
+• <b>get():</b> NO locks at all! Uses <code>volatile</code> reads.<br>
+• <b>size():</b> Uses addCount/sumCount (distributed counters, not single counter).<br>
+<span class="sep"></span>
+<pre class="code"><span class="cm">// ConcurrentHashMap — safe compound operations</span>
+<span class="tp">ConcurrentHashMap</span>&lt;<span class="tp">String</span>, <span class="tp">Integer</span>&gt; map = <span class="kw">new</span> <span class="tp">ConcurrentHashMap</span>&lt;&gt;();
+
+<span class="cm">// Atomic putIfAbsent — no race condition</span>
+map.<span class="fn">putIfAbsent</span>(<span class="str">"key"</span>, <span class="num">1</span>);
+
+<span class="cm">// Atomic compute — thread-safe counter</span>
+map.<span class="fn">compute</span>(<span class="str">"visits"</span>, (k, v) -> v == <span class="kw">null</span> ? <span class="num">1</span> : v + <span class="num">1</span>);
+
+<span class="cm">// Atomic merge</span>
+map.<span class="fn">merge</span>(<span class="str">"score"</span>, <span class="num">10</span>, <span class="tp">Integer</span>::sum);
+
+<span class="cm">// getOrDefault</span>
+<span class="kw">int</span> val = map.<span class="fn">getOrDefault</span>(<span class="str">"missing"</span>, <span class="num">0</span>);</pre>
+<span class="sep"></span>
+<span class="badge">Key</span> ConcurrentHashMap does NOT allow null keys or null values (ambiguity: null = absent vs null = present with null value).`
+      },
+      {
+        q: "CopyOnWriteArrayList — how does it work?",
+        a: `Every <b>write</b> (add, set, remove) creates a <b>new copy of the entire array</b>.<br>
+Reads never lock — they read from the current snapshot. Eventually consistent.<br>
+<span class="sep"></span>
+<pre class="code"><span class="cm">// Inside CopyOnWriteArrayList (simplified)</span>
+<span class="kw">public boolean</span> <span class="fn">add</span>(<span class="tp">E</span> e) {
+    <span class="kw">synchronized</span> (lock) {
+        <span class="tp">Object</span>[] current = getArray();
+        <span class="tp">Object</span>[] newArr = <span class="tp">Arrays</span>.<span class="fn">copyOf</span>(current, current.length + <span class="num">1</span>);
+        newArr[current.length] = e;
+        setArray(newArr);  <span class="cm">// volatile write — visible to all threads</span>
+        <span class="kw">return true</span>;
+    }
+}
+
+<span class="cm">// Iterator reads snapshot — never throws CME</span>
+<span class="kw">public</span> <span class="tp">Iterator</span>&lt;<span class="tp">E</span>&gt; <span class="fn">iterator</span>() {
+    <span class="kw">return new</span> <span class="tp">COWIterator</span>(getArray(), <span class="num">0</span>);
+    <span class="cm">// iterator works on snapshot, ignores future writes</span>
+}</pre>
+<span class="sep"></span>
+<table class="tbl">
+<tr><th>Operation</th><th>Time</th><th>Lock?</th></tr>
+<tr><td>get(index)</td><td>O(1)</td><td>❌ No lock</td></tr>
+<tr><td>iterator()</td><td>O(1)</td><td>❌ Snapshot</td></tr>
+<tr><td>add(element)</td><td>O(n)</td><td>✅ Full copy</td></tr>
+<tr><td>set(index, e)</td><td>O(n)</td><td>✅ Full copy</td></tr>
+<tr><td>remove(index)</td><td>O(n)</td><td>✅ Full copy</td></tr>
+</table>
+<span class="sep"></span>
+<span class="badge-green badge">Use when</span> Reads >>> Writes. Example: listener lists, config lists.<br>
+<span class="badge-red badge">Avoid when</span> Frequent writes — each write copies entire array!`
+      },
+      {
+        q: "ConcurrentLinkedQueue vs BlockingQueue — when to use which?",
+        a: `<table class="tbl">
+<tr><th>Feature</th><th>ConcurrentLinkedQueue</th><th>BlockingQueue (ArrayBlockingQueue)</th></tr>
+<tr><td>Blocks?</td><td>❌ Non-blocking</td><td>✅ Blocks on put/take</td></tr>
+<tr><td>Bounded?</td><td>❌ Unbounded</td><td>✅ Fixed capacity</td></tr>
+<tr><td>Lock-free?</td><td>✅ CAS-based</td><td>❌ ReentrantLock</td></tr>
+<tr><td>Use case</td><td>High-throughput, non-blocking</td><td>Producer-consumer pattern</td></tr>
+<tr><td>Empty queue</td><td>poll() returns null</td><td>take() blocks thread</td></tr>
+<tr><td>Full queue</td><td>Always accepts (grows)</td><td>put() blocks thread</td></tr>
+</table>
+<pre class="code"><span class="cm">// Non-blocking — poll returns null if empty</span>
+<span class="tp">ConcurrentLinkedQueue</span>&lt;<span class="tp">String</span>&gt; clq = <span class="kw">new</span> <span class="tp">ConcurrentLinkedQueue</span>&lt;&gt;();
+clq.<span class="fn">offer</span>(<span class="str">"task"</span>);
+<span class="tp">String</span> result = clq.<span class="fn">poll</span>();  <span class="cm">// null if empty, doesn't block</span>
+
+<span class="cm">// Blocking — waits for data</span>
+<span class="tp">BlockingQueue</span>&lt;<span class="tp">String</span>&gt; bq = <span class="kw">new</span> <span class="tp">ArrayBlockingQueue</span>&lt;&gt;(<span class="num">100</span>);
+bq.<span class="fn">put</span>(<span class="str">"task"</span>);          <span class="cm">// blocks if queue full</span>
+<span class="tp">String</span> r = bq.<span class="fn">take</span>();    <span class="cm">// blocks if queue empty</span></pre>`
+      },
+      {
+        q: "ConcurrentSkipListMap vs ConcurrentHashMap?",
+        a: `<table class="tbl">
+<tr><th>Feature</th><th>ConcurrentHashMap</th><th>ConcurrentSkipListMap</th></tr>
+<tr><td>Structure</td><td>Hash table</td><td>Skip list (probabilistic balanced structure)</td></tr>
+<tr><td>Ordered?</td><td>❌</td><td>✅ Sorted by key</td></tr>
+<tr><td>get/put</td><td>O(1) average</td><td>O(log n)</td></tr>
+<tr><td>Range queries</td><td>❌</td><td>✅ subMap, headMap, tailMap</td></tr>
+<tr><td>Null</td><td>❌</td><td>❌</td></tr>
+<tr><td>Thread safe</td><td>✅</td><td>✅</td></tr>
+</table>
+<span class="sep"></span>
+<span class="badge-green badge">Use ConcurrentHashMap</span> when you need fast key-value lookup (most cases).<br>
+<span class="badge-purple badge">Use ConcurrentSkipListMap</span> when you need thread-safe sorted map with range queries.`
+      }
+    ]
+  },
+
+  // ──────────────────────────────────────────────
+  // 10  COMPARISONS & WHEN TO USE
+  // ──────────────────────────────────────────────
+  {
+    name: "Comparisons & When to Use",
+    icon: "⚖️",
+    questions: [
+      {
+        q: "ArrayList vs LinkedList — the REAL comparison (with benchmarks)",
+        a: `<table class="tbl">
+<tr><th>Operation</th><th>ArrayList</th><th>LinkedList</th><th>Winner</th></tr>
+<tr><td>get(index)</td><td>O(1)</td><td>O(n)</td><td>✅ ArrayList</td></tr>
+<tr><td>add (end)</td><td>O(1) amortized</td><td>O(1)</td><td>✅ ArrayList (cache)</td></tr>
+<tr><td>add (middle)</td><td>O(n) — arraycopy</td><td>O(n) — traverse + O(1) insert</td><td>✅ ArrayList (in practice)</td></tr>
+<tr><td>add (start)</td><td>O(n) — shift all</td><td>O(1)</td><td>✅ LinkedList</td></tr>
+<tr><td>remove (end)</td><td>O(1)</td><td>O(1)</td><td>Tie</td></tr>
+<tr><td>remove (middle)</td><td>O(n)</td><td>O(n)</td><td>✅ ArrayList (cache)</td></tr>
+<tr><td>Memory per element</td><td>~4 bytes</td><td>~40 bytes</td><td>✅ ArrayList (10x less)</td></tr>
+<tr><td>Iteration speed</td><td>Fast (sequential array)</td><td>Slow (pointer chasing)</td><td>✅ ArrayList</td></tr>
+</table>
+<span class="sep"></span>
+<span class="badge-green badge">Rule</span> Use <b>ArrayList</b> by default. Use <b>LinkedList</b> only if you need frequent addFirst/removeFirst and never access by index.<br>
+In practice: <b>ArrayDeque</b> beats LinkedList even for queue/deque operations.`
+      },
+      {
+        q: "HashMap vs TreeMap vs LinkedHashMap — decision chart",
+        a: `<pre class="code"><span class="cm">// Decision tree:</span>
+<span class="cm">// Need sorted keys?</span>
+<span class="cm">//   YES → TreeMap (O(log n))</span>
+<span class="cm">//   NO  → Need insertion order?</span>
+<span class="cm">//           YES → LinkedHashMap (O(1))</span>
+<span class="cm">//           NO  → HashMap (O(1), fastest)</span></pre>
+<table class="tbl">
+<tr><th></th><th>HashMap</th><th>LinkedHashMap</th><th>TreeMap</th></tr>
+<tr><td>Order</td><td>None</td><td>Insertion / Access</td><td>Sorted (natural/Comparator)</td></tr>
+<tr><td>get/put</td><td>O(1)</td><td>O(1)</td><td>O(log n)</td></tr>
+<tr><td>Null key</td><td>✅</td><td>✅</td><td>❌</td></tr>
+<tr><td>Memory</td><td>Least</td><td>More (before/after ptrs)</td><td>Most (tree node)</td></tr>
+<tr><td>Use case</td><td>General lookup</td><td>LRU cache, ordered iteration</td><td>Range queries, sorted data</td></tr>
+<tr><td>Implements</td><td>Map</td><td>Map</td><td>NavigableMap, SortedMap</td></tr>
+</table>`
+      },
+      {
+        q: "Which collection to choose? — Master cheat sheet",
+        a: `<b>Need a List?</b><br>
+• General purpose → <b>ArrayList</b><br>
+• Frequent add/remove at ends → <b>ArrayDeque</b><br>
+• Thread-safe, read-heavy → <b>CopyOnWriteArrayList</b><br>
+• Thread-safe, write-heavy → <b>Collections.synchronizedList(ArrayList)</b><br>
+<span class="sep"></span>
+<b>Need a Set?</b><br>
+• General unique elements → <b>HashSet</b><br>
+• Preserve insertion order → <b>LinkedHashSet</b><br>
+• Sorted elements → <b>TreeSet</b><br>
+• Thread-safe → <b>ConcurrentHashMap.newKeySet()</b> or <b>CopyOnWriteArraySet</b><br>
+• Enum values only → <b>EnumSet</b> (fastest possible)<br>
+<span class="sep"></span>
+<b>Need a Map?</b><br>
+• General key-value → <b>HashMap</b><br>
+• Insertion order → <b>LinkedHashMap</b><br>
+• Sorted keys → <b>TreeMap</b><br>
+• Thread-safe → <b>ConcurrentHashMap</b><br>
+• Weak references (cache) → <b>WeakHashMap</b><br>
+• Enum keys → <b>EnumMap</b> (fastest)<br>
+<span class="sep"></span>
+<b>Need a Queue?</b><br>
+• FIFO → <b>ArrayDeque</b><br>
+• Priority → <b>PriorityQueue</b><br>
+• Thread-safe blocking → <b>ArrayBlockingQueue</b><br>
+• Thread-safe non-blocking → <b>ConcurrentLinkedQueue</b><br>
+<span class="sep"></span>
+<b>Need a Stack?</b><br>
+• Use <b>ArrayDeque</b> (NOT java.util.Stack!)`
+      },
+      {
+        q: "Collection resizing summary — all in one place",
+        a: `<table class="tbl">
+<tr><th>Collection</th><th>Default Capacity</th><th>Growth Factor</th><th>Load Factor</th><th>Resize Cost</th></tr>
+<tr><td>ArrayList</td><td>10 (on first add)</td><td>1.5x (50%)</td><td>N/A</td><td>O(n) — array copy</td></tr>
+<tr><td>Vector</td><td>10</td><td>2x (100%)</td><td>N/A</td><td>O(n) — array copy</td></tr>
+<tr><td>HashMap</td><td>16</td><td>2x</td><td>0.75</td><td>O(n) — rehash all</td></tr>
+<tr><td>Hashtable</td><td>11</td><td>2x + 1</td><td>0.75</td><td>O(n) — rehash all</td></tr>
+<tr><td>HashSet</td><td>16 (HashMap)</td><td>2x</td><td>0.75</td><td>O(n) — rehash all</td></tr>
+<tr><td>ArrayDeque</td><td>16</td><td>2x</td><td>N/A (resizes when full)</td><td>O(n) — array copy</td></tr>
+<tr><td>PriorityQueue</td><td>11</td><td>&lt;64: 2x+2, else 1.5x</td><td>N/A</td><td>O(n) — array copy</td></tr>
+<tr><td>StringBuilder</td><td>16</td><td>2x + 2</td><td>N/A</td><td>O(n) — array copy</td></tr>
+<tr><td>LinkedList</td><td>N/A</td><td>No resize</td><td>N/A</td><td>N/A</td></tr>
+<tr><td>TreeMap</td><td>N/A</td><td>No resize</td><td>N/A</td><td>N/A (tree rebalance)</td></tr>
+</table>`
+      },
+      {
+        q: "Time complexity cheat sheet — all collections",
+        a: `<table class="tbl">
+<tr><th>Collection</th><th>add</th><th>remove</th><th>get/contains</th><th>Ordered</th><th>Thread-safe</th></tr>
+<tr><td>ArrayList</td><td>O(1)*</td><td>O(n)</td><td>O(1) / O(n)</td><td>✅ Index</td><td>❌</td></tr>
+<tr><td>LinkedList</td><td>O(1)</td><td>O(1)**</td><td>O(n)</td><td>✅ Index</td><td>❌</td></tr>
+<tr><td>HashMap</td><td>O(1)</td><td>O(1)</td><td>O(1)</td><td>❌</td><td>❌</td></tr>
+<tr><td>LinkedHashMap</td><td>O(1)</td><td>O(1)</td><td>O(1)</td><td>✅ Insertion</td><td>❌</td></tr>
+<tr><td>TreeMap</td><td>O(log n)</td><td>O(log n)</td><td>O(log n)</td><td>✅ Sorted</td><td>❌</td></tr>
+<tr><td>HashSet</td><td>O(1)</td><td>O(1)</td><td>O(1)</td><td>❌</td><td>❌</td></tr>
+<tr><td>TreeSet</td><td>O(log n)</td><td>O(log n)</td><td>O(log n)</td><td>✅ Sorted</td><td>❌</td></tr>
+<tr><td>PriorityQueue</td><td>O(log n)</td><td>O(log n)</td><td>O(n)</td><td>✅ Heap</td><td>❌</td></tr>
+<tr><td>ArrayDeque</td><td>O(1)*</td><td>O(1)</td><td>O(n)</td><td>✅ FIFO</td><td>❌</td></tr>
+<tr><td>ConcurrentHashMap</td><td>O(1)</td><td>O(1)</td><td>O(1)</td><td>❌</td><td>✅</td></tr>
+<tr><td>CopyOnWriteArrayList</td><td>O(n)</td><td>O(n)</td><td>O(1) / O(n)</td><td>✅ Index</td><td>✅</td></tr>
+</table>
+<span class="sep"></span>
+* amortized &nbsp;&nbsp; ** if you have the node reference`
+      }
+    ]
+  },
+
+  // ──────────────────────────────────────────────
+  // 11  INTERVIEW TRAPS & GOTCHAS
+  // ──────────────────────────────────────────────
+  {
+    name: "Interview Traps & Gotchas",
+    icon: "🎯",
+    questions: [
+      {
+        q: "Can you modify a HashMap key after insertion? What happens?",
+        a: `<b>NEVER modify a mutable key after inserting into HashMap/HashSet.</b> The entry becomes unreachable!<br>
+<pre class="code"><span class="tp">List</span>&lt;<span class="tp">String</span>&gt; key = <span class="kw">new</span> <span class="tp">ArrayList</span>&lt;&gt;();
+key.<span class="fn">add</span>(<span class="str">"hello"</span>);
+
+<span class="tp">Map</span>&lt;<span class="tp">List</span>&lt;<span class="tp">String</span>&gt;, <span class="tp">String</span>&gt; map = <span class="kw">new</span> <span class="tp">HashMap</span>&lt;&gt;();
+map.<span class="fn">put</span>(key, <span class="str">"world"</span>);
+<span class="tp">System</span>.out.<span class="fn">println</span>(map.<span class="fn">get</span>(key));  <span class="cm">// "world" ✅</span>
+
+key.<span class="fn">add</span>(<span class="str">"modified!"</span>);  <span class="cm">// ⚠️ hashCode changed!</span>
+
+<span class="tp">System</span>.out.<span class="fn">println</span>(map.<span class="fn">get</span>(key));  <span class="cm">// null 💥 Lost!</span>
+<span class="tp">System</span>.out.<span class="fn">println</span>(map.<span class="fn">size</span>());     <span class="cm">// 1 — entry still there, just unreachable</span>
+<span class="tp">System</span>.out.<span class="fn">println</span>(map);           <span class="cm">// {[hello, modified!]=world} — shows in iteration</span>
+
+<span class="cm">// Rule: Use IMMUTABLE keys (String, Integer, enum)</span></pre>`
+      },
+      {
+        q: "HashMap infinite loop in Java 7 — what was the bug?",
+        a: `In <b>Java 7</b>, HashMap used <b>head insertion</b> during resize. Under concurrent access, two threads resizing simultaneously could create a <b>circular linked list</b> in a bucket → get() enters infinite loop → CPU 100%.<br>
+<span class="sep"></span>
+<b>Java 8 fix:</b> Uses <b>tail insertion</b> during resize. Maintains original order of nodes → no circular reference possible.<br>
+<span class="sep"></span>
+<b>Lesson:</b> HashMap is NOT thread-safe. Never share across threads without synchronization. Use ConcurrentHashMap instead.<br>
+<span class="sep"></span>
+<pre class="code"><span class="cm">// Java 7 resize (simplified) — HEAD insertion → causes loop</span>
+<span class="cm">// Thread 1: A → B → null  (bucket after resize)</span>
+<span class="cm">// Thread 2: B → A → null  (reverse order!)</span>
+<span class="cm">// Result:   A → B → A → B → ... infinite loop!</span>
+
+<span class="cm">// Java 8 resize — TAIL insertion → preserves order</span>
+<span class="cm">// Both threads: A → B → null  (same order, no loop)</span></pre>`
+      },
+      {
+        q: "Why does ConcurrentHashMap not allow null keys/values?",
+        a: `<b>Ambiguity problem:</b><br>
+<pre class="code"><span class="cm">// In HashMap:</span>
+map.<span class="fn">get</span>(<span class="str">"key"</span>); <span class="cm">// returns null</span>
+<span class="cm">// Does this mean: key doesn't exist? OR key maps to null value?</span>
+<span class="cm">// In single-thread: you can check with containsKey() first.</span>
+
+<span class="cm">// In ConcurrentHashMap:</span>
+<span class="cm">// Thread A: if (!map.containsKey("key")) ...</span>
+<span class="cm">// Thread B: map.put("key", null);  ← happens between contains and get</span>
+<span class="cm">// Thread A: map.get("key"); → null ← was it absent or null value?</span>
+<span class="cm">// IMPOSSIBLE to distinguish safely without external locking!</span>
+
+<span class="cm">// Doug Lea's decision: just ban null. Removes ambiguity entirely.</span></pre>`
+      },
+      {
+        q: "Collections.unmodifiableList() vs List.of() vs List.copyOf()?",
+        a: `<pre class="code"><span class="cm">// 1. Collections.unmodifiableList() — VIEW, not copy</span>
+<span class="tp">List</span>&lt;<span class="tp">String</span>&gt; original = <span class="kw">new</span> <span class="tp">ArrayList</span>&lt;&gt;(<span class="tp">List</span>.<span class="fn">of</span>(<span class="str">"a"</span>, <span class="str">"b"</span>));
+<span class="tp">List</span>&lt;<span class="tp">String</span>&gt; unmod = <span class="tp">Collections</span>.<span class="fn">unmodifiableList</span>(original);
+unmod.<span class="fn">add</span>(<span class="str">"c"</span>);    <span class="cm">// 💥 UnsupportedOperationException</span>
+original.<span class="fn">add</span>(<span class="str">"c"</span>); <span class="cm">// ✅ Works! unmod now sees "c" too! 😱</span>
+<span class="cm">// unmod is a VIEW of original, not independent copy</span>
+
+<span class="cm">// 2. List.of() — truly immutable, no nulls</span>
+<span class="tp">List</span>&lt;<span class="tp">String</span>&gt; immutable = <span class="tp">List</span>.<span class="fn">of</span>(<span class="str">"a"</span>, <span class="str">"b"</span>);
+immutable.<span class="fn">add</span>(<span class="str">"c"</span>);     <span class="cm">// 💥 UnsupportedOperationException</span>
+<span class="tp">List</span>.<span class="fn">of</span>(<span class="str">"a"</span>, <span class="kw">null</span>);       <span class="cm">// 💥 NullPointerException</span>
+
+<span class="cm">// 3. List.copyOf() — immutable COPY, no nulls</span>
+<span class="tp">List</span>&lt;<span class="tp">String</span>&gt; copy = <span class="tp">List</span>.<span class="fn">copyOf</span>(original);
+original.<span class="fn">add</span>(<span class="str">"d"</span>);
+<span class="tp">System</span>.out.<span class="fn">println</span>(copy); <span class="cm">// unchanged — independent copy</span></pre>
+<table class="tbl">
+<tr><th></th><th>unmodifiableList</th><th>List.of</th><th>List.copyOf</th></tr>
+<tr><td>Independent?</td><td>❌ View</td><td>✅ Yes</td><td>✅ Yes</td></tr>
+<tr><td>Null elements</td><td>✅</td><td>❌</td><td>❌</td></tr>
+<tr><td>Modification</td><td>❌ Through view</td><td>❌</td><td>❌</td></tr>
+<tr><td>Source changes visible?</td><td>✅ Yes!</td><td>N/A</td><td>❌ No</td></tr>
+</table>`
+      },
+      {
+        q: "EnumSet and EnumMap — why are they the fastest?",
+        a: `<b>EnumSet</b> is stored as a <b>bit vector</b> (long or long[]). Each enum constant = 1 bit. Blazing fast.<br>
+<b>EnumMap</b> is stored as a <b>simple array</b> indexed by enum ordinal. No hashing needed.<br>
+<pre class="code"><span class="kw">enum</span> <span class="tp">Day</span> { MON, TUE, WED, THU, FRI, SAT, SUN }
+
+<span class="cm">// EnumSet — internally a single long (64 bits for ≤64 enums)</span>
+<span class="tp">EnumSet</span>&lt;<span class="tp">Day</span>&gt; weekend = <span class="tp">EnumSet</span>.<span class="fn">of</span>(<span class="tp">Day</span>.SAT, <span class="tp">Day</span>.SUN);
+<span class="tp">EnumSet</span>&lt;<span class="tp">Day</span>&gt; weekdays = <span class="tp">EnumSet</span>.<span class="fn">complementOf</span>(weekend);
+<span class="tp">EnumSet</span>&lt;<span class="tp">Day</span>&gt; all = <span class="tp">EnumSet</span>.<span class="fn">allOf</span>(<span class="tp">Day</span>.<span class="kw">class</span>);
+<span class="cm">// contains, add, remove = O(1) — just bit operations!</span>
+
+<span class="cm">// EnumMap — internally Object[7] (one slot per enum)</span>
+<span class="tp">EnumMap</span>&lt;<span class="tp">Day</span>, <span class="tp">String</span>&gt; schedule = <span class="kw">new</span> <span class="tp">EnumMap</span>&lt;&gt;(<span class="tp">Day</span>.<span class="kw">class</span>);
+schedule.<span class="fn">put</span>(<span class="tp">Day</span>.MON, <span class="str">"Work"</span>);
+schedule.<span class="fn">put</span>(<span class="tp">Day</span>.SAT, <span class="str">"Rest"</span>);
+<span class="cm">// get/put = O(1) — direct array[ordinal] access. No hashing!</span></pre>
+<span class="sep"></span>
+<span class="badge-green badge">Rule</span> If keys are enums → ALWAYS use EnumMap/EnumSet. Fastest possible collections.`
+      },
+      {
+        q: "What is IdentityHashMap? When would you use it?",
+        a: `IdentityHashMap uses <code>==</code> (reference equality) instead of <code>equals()</code>. Two keys are same ONLY if they are the exact same object.<br>
+<pre class="code"><span class="tp">IdentityHashMap</span>&lt;<span class="tp">String</span>, <span class="tp">Integer</span>&gt; map = <span class="kw">new</span> <span class="tp">IdentityHashMap</span>&lt;&gt;();
+
+<span class="tp">String</span> s1 = <span class="kw">new</span> <span class="tp">String</span>(<span class="str">"hello"</span>);
+<span class="tp">String</span> s2 = <span class="kw">new</span> <span class="tp">String</span>(<span class="str">"hello"</span>);
+
+map.<span class="fn">put</span>(s1, <span class="num">1</span>);
+map.<span class="fn">put</span>(s2, <span class="num">2</span>);
+
+<span class="tp">System</span>.out.<span class="fn">println</span>(map.<span class="fn">size</span>()); <span class="cm">// 2! (s1 != s2 by reference)</span>
+
+<span class="cm">// In regular HashMap:</span>
+<span class="tp">HashMap</span>&lt;<span class="tp">String</span>, <span class="tp">Integer</span>&gt; hm = <span class="kw">new</span> <span class="tp">HashMap</span>&lt;&gt;();
+hm.<span class="fn">put</span>(s1, <span class="num">1</span>);
+hm.<span class="fn">put</span>(s2, <span class="num">2</span>);
+<span class="tp">System</span>.out.<span class="fn">println</span>(hm.<span class="fn">size</span>()); <span class="cm">// 1! (s1.equals(s2) is true)</span></pre>
+<span class="sep"></span>
+<b>Use cases:</b> Serialization frameworks, object graph traversal, deep copy detection (track visited objects by reference, not value).
+<span class="sep"></span>
+<b>Internal:</b> Uses <b>linear probing</b> (open addressing), not chaining. Array stores key-value pairs interleaved: [key0, val0, key1, val1, ...]`
+      },
+      {
+        q: "WeakHashMap — how does it work? Use case?",
+        a: `WeakHashMap wraps keys in <b>WeakReference</b>. If no strong reference to the key exists elsewhere, the entry is <b>automatically removed</b> after GC.<br>
+<pre class="code"><span class="tp">WeakHashMap</span>&lt;<span class="tp">Object</span>, <span class="tp">String</span>&gt; map = <span class="kw">new</span> <span class="tp">WeakHashMap</span>&lt;&gt;();
+
+<span class="tp">Object</span> key = <span class="kw">new</span> <span class="tp">Object</span>();
+map.<span class="fn">put</span>(key, <span class="str">"value"</span>);
+<span class="tp">System</span>.out.<span class="fn">println</span>(map.<span class="fn">size</span>()); <span class="cm">// 1</span>
+
+key = <span class="kw">null</span>;  <span class="cm">// remove strong reference</span>
+<span class="tp">System</span>.<span class="fn">gc</span>();  <span class="cm">// hint to GC</span>
+<span class="tp">Thread</span>.<span class="fn">sleep</span>(<span class="num">1000</span>);
+
+<span class="tp">System</span>.out.<span class="fn">println</span>(map.<span class="fn">size</span>()); <span class="cm">// 0! Entry was auto-removed</span></pre>
+<span class="sep"></span>
+<b>Use case:</b> Metadata cache, ClassLoader-related caches, canonical mapping. Entry disappears when key object is no longer used anywhere in the program.<br>
+<span class="badge-orange badge">Note</span> String literals are always strongly referenced from string pool → never GC'd → never removed from WeakHashMap. Use <code>new String()</code> for testing.`
+      },
+      {
+        q: "What is the diamond problem with Collections.sort() and Comparable?",
+        a: `<pre class="code"><span class="cm">// Trap: sorting a list that implements Comparable wrong</span>
+<span class="kw">class</span> <span class="tp">Employee</span> <span class="kw">implements</span> <span class="tp">Comparable</span>&lt;<span class="tp">Employee</span>&gt; {
+    <span class="kw">int</span> salary;
+
+    <span class="kw">public int</span> <span class="fn">compareTo</span>(<span class="tp">Employee</span> o) {
+        <span class="kw">return this</span>.salary - o.salary;  <span class="cm">// ⚠️ BUG!</span>
+    }
+}
+
+<span class="cm">// Why is subtraction wrong?</span>
+<span class="cm">// Integer.MIN_VALUE - 1 = Integer.MAX_VALUE (overflow!)</span>
+<span class="cm">// Result: WRONG comparison, inconsistent sorting</span>
+
+<span class="cm">// ✅ Correct ways:</span>
+<span class="kw">public int</span> <span class="fn">compareTo</span>(<span class="tp">Employee</span> o) {
+    <span class="kw">return</span> <span class="tp">Integer</span>.<span class="fn">compare</span>(<span class="kw">this</span>.salary, o.salary);  <span class="cm">// ✅ Safe</span>
+}
+
+<span class="cm">// Or with Comparator (modern Java):</span>
+list.<span class="fn">sort</span>(<span class="tp">Comparator</span>.<span class="fn">comparingInt</span>(e -> e.salary));  <span class="cm">// ✅ Clean</span>
+
+<span class="cm">// Multi-field sort:</span>
+list.<span class="fn">sort</span>(<span class="tp">Comparator</span>.<span class="fn">comparing</span>(<span class="tp">Employee</span>::getName)
+                  .<span class="fn">thenComparingInt</span>(<span class="tp">Employee</span>::getSalary)
+                  .<span class="fn">thenComparing</span>(<span class="tp">Employee</span>::getDept));
+</pre>`
+      }
+    ]
+  }
+];
+
+// ── RENDER LOGIC ──
+function showTopic(index) {
+  document.getElementById('mindmapView').style.display = 'none';
+  const view = document.getElementById('qaView');
+  view.classList.add('active');
+
+  const topic = topics[index];
+  document.getElementById('qaTitle').textContent = topic.icon + ' ' + topic.name;
+
+  const container = document.getElementById('qaContainer');
+  container.innerHTML = '';
+
+  topic.questions.forEach((qa, idx) => {
+    const div = document.createElement('div');
+    div.className = 'qa-pair';
+    div.innerHTML = `
+      <div class="question">
+        <span class="qa-number">${idx + 1}</span>
+        <div class="center-content">
+          <span>${qa.q}</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+      </div>
+      <div class="answer">${qa.a}</div>
+    `;
+    div.addEventListener('click', function() {
+      this.classList.toggle('expanded');
+    });
+    container.appendChild(div);
+  });
+}
+
+function showMindmap() {
+  document.getElementById('mindmapView').style.display = 'grid';
+  document.getElementById('qaView').classList.remove('active');
+}
+</script>
+</body>
+</html>
+

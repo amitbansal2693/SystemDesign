@@ -1,0 +1,426 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Design Patterns — Learning Flow</title><style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#64748b;--accent:#2563eb;--border:#dbe3ee;--soft:#f8fafc;--dark:#0f172a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.6}
+header{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.head{max-width:1200px;margin:auto;padding:18px;display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+h1{margin:0;font-size:25px}.sub{color:var(--muted);font-size:13px}.controls{display:flex;gap:8px;flex-wrap:wrap}
+input{padding:10px 12px;border:1px solid var(--border);border-radius:9px;width:290px;max-width:75vw}
+button{padding:9px 12px;border:1px solid var(--border);background:#fff;border-radius:9px;font-weight:700;cursor:pointer}
+main{max-width:1200px;margin:24px auto;padding:0 15px}.hero,.chapter{background:var(--card);border:1px solid var(--border);border-radius:15px;margin-bottom:13px}
+.hero{padding:20px}.hero h2{margin:0 0 8px;font-size:20px}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:9px;margin-top:14px}
+.flow div{background:var(--soft);border:1px solid var(--border);border-radius:10px;padding:11px}
+.chapter{overflow:hidden}.chapter summary{list-style:none;cursor:pointer;padding:17px 19px;font-size:18px;font-weight:800;display:flex;gap:10px;align-items:center}
+.chapter summary::-webkit-details-marker{display:none}.chapter summary:before{content:"▶";font-size:11px;color:var(--accent)}.chapter[open] summary:before{transform:rotate(90deg)}
+.num{font-family:monospace;background:#eaf1ff;color:var(--accent);padding:3px 7px;border-radius:6px;font-size:12px}
+.body{border-top:1px solid var(--border);padding:4px 21px 24px}h3{margin:24px 0 8px;font-size:20px}
+p{margin:8px 0}li{margin:4px 0}table{width:100%;border-collapse:collapse;margin:13px 0}
+th,td{border:1px solid var(--border);padding:9px;vertical-align:top;text-align:left}th{background:#eef2f7}
+pre{white-space:pre-wrap;overflow:auto}.big{background:var(--dark);color:#e5e7eb;border-radius:11px;padding:15px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px}
+.code{background:#111827;color:#e5e7eb;border-radius:10px;padding:14px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px}
+.callout{background:#eff6ff;border-left:4px solid var(--accent);padding:11px 13px;border-radius:7px}.hidden{display:none!important}
+footer{max-width:1200px;margin:25px auto;padding:0 15px 40px;color:var(--muted);font-size:12px}
+@media(max-width:700px){.head{position:static}input{width:100%}}
+</style></head>
+<body>
+<header><div class="head"><div><h1>Design Patterns — Learning Flow</h1><div class="sub">Restructured from the uploaded Oops_DB.pdf for sequential study and interview preparation.</div></div>
+<div class="controls"><input id="q" placeholder="Search Factory, Proxy, Strategy..."><button id="open">Open all</button><button id="close">Close all</button></div></div></header>
+<main>
+<section class="hero">
+<h2>Study this document as a problem-solving guide</h2>
+<p>Learn each pattern through <strong>problem → solution → mental model → examples → comparison → interview usage</strong>.</p>
+<div class="flow">
+<div><b>Foundation</b><br>OOP → SOLID → Design Patterns</div>
+<div><b>Creational</b><br>Factory, Abstract Factory, Builder, Prototype, Singleton</div>
+<div><b>Structural</b><br>Adapter, Bridge, Composite, Decorator, Facade, Flyweight, Proxy</div>
+<div><b>Behavioral</b><br>Observer, Chain, Strategy, Command, State</div>
+<div><b>Comparisons</b><br>Factory vs Abstract Factory vs Prototype vs Builder</div>
+<div><b>Interview</b><br>Select a pattern from the problem statement</div>
+</div>
+</section>
+<details class="chapter"><summary><span class="num">01</span>Big Picture: OOP → SOLID → Design Patterns → Architecture</summary><div class="body">
+<h3>Start here before memorizing individual patterns</h3>
+<p>Design Patterns fit naturally into the progression from Object-Oriented Programming and SOLID principles to application architecture.</p>
+<pre class="big">Programming ↓
+Object-Oriented Programming ↓
+Design Principles (SOLID) ↓
+Design Patterns ↓
+Application Architecture</pre> <h3>The three questions Design Patterns answer</h3>
+<table>
+<tr><th>Question</th><th>Pattern family</th></tr>
+<tr><td>How should I create objects?</td><td>Creational</td></tr>
+<tr><td>How should classes/objects be connected?</td><td>Structural</td></tr>
+<tr><td>How should objects communicate?</td><td>Behavioral</td></tr>
+</table> <p>Design Patterns are reusable solutions to recurring object-oriented software design problems. fileciteturn5file0L2-L4</p> <h3>Hierarchy from </h3>
+<pre class="big">📦 Design Patterns
+├── 🏭 Creational → Object creation
+├── 🧱 Structural → Object composition / connection
+└── 🧠 Behavioral → Communication between objects</pre> <p><strong>Interview framing:</strong> “Creational patterns like Factory and Singleton handle object creation smartly. Structural ones like Adapter and Proxy manage how objects are connected. Behavioral ones like Observer and Strategy govern interactions between them.” fileciteturn5file0L213-L217</p>
+</div></details><details class="chapter"><summary><span class="num">02</span>Creational Patterns: How Objects Are Created</summary><div class="body">
+<h3>Core mental model</h3>
+<pre class="big">CREATIONAL ↓
+How should I create objects? ├── Need only one object? → Singleton ├── Need different object types? → Factory ├── Need complex object creation? → Builder ├── Need to clone objects? → Prototype └── Need related object families? → Abstract Factory</pre> <p> lists Factory, Singleton, Abstract Factory, Builder and Prototype as the main creational patterns. fileciteturn5file0L6-L12</p> <h3>What they optimize</h3>
+<ul>
+<li>Reduce coupling between client code and concrete classes.</li>
+<li>Centralize or simplify object creation logic.</li>
+<li>Allow object types to change without spreading <code>new</code> throughout the code.</li>
+<li>Improve readability, reuse and testability.</li>
+</ul>
+</div></details><details class="chapter"><summary><span class="num">03</span>Factory Pattern: Choose Which Object to Create</summary><div class="body">
+<h3>Problem</h3>
+<p>Object creation logic is spread throughout the code, or the client should not know the exact concrete class being instantiated.</p> <h3>Solution</h3>
+<p>Encapsulate creation logic inside a factory. The client asks for an object and the factory decides which implementation to return.</p> <pre class="code">Shape shape = factory.getShape("circle");</pre> <h3>Core flow</h3>
+<pre class="big">Client ↓
+Factory ↓ decides using input / type
+Concrete implementation ↓
+Common interface returned to client</pre> <h3>Benefits</h3>
+<ul>
+<li>Encapsulation — creation logic is centralized.</li>
+<li>Loose coupling — client depends on an interface rather than concrete classes.</li>
+<li>Easier extension — add implementations through the factory.</li>
+<li>Cleaner client code — fewer scattered <code>new</code> statements.</li>
+</ul> <h3>When to use</h3>
+<p> says to use Factory when you have a superclass/interface with multiple implementations, need runtime selection, want to hide creation logic, or want to support SOLID goals such as OCP and SRP. fileciteturn5file0L617-L621</p> <h3>Java / Spring examples</h3>
+<ul>
+<li><code>ShapeFactory</code></li>
+<li>UI component factories</li>
+<li>Document generators</li>
+<li>Database driver selection</li>
+<li>SAP report/form generation</li>
+<li>Spring <code>BeanFactory</code> / <code>FactoryBean</code></li>
+</ul> <h3>Factory Method note</h3>
+<p>Factory Method means creating objects based on runtime input such as a string or enum, hiding object creation logic. fileciteturn5file0L566-L570</p>
+</div></details><details class="chapter"><summary><span class="num">04</span>Factory vs Abstract Factory: One Object vs Object Family</summary><div class="body">
+<h3>The most important distinction</h3>
+<pre class="big">Factory → Create ONE object → Choose among implementations Abstract Factory → Create a FAMILY of related objects → Keep the family compatible
+</pre> <table>
+<tr><th>Aspect</th><th>Factory</th><th>Abstract Factory</th></tr>
+<tr><td>Purpose</td><td>Create one object from multiple options</td><td>Create families of related objects</td></tr>
+<tr><td>Returns</td><td>One object</td><td>Multiple related objects</td></tr>
+<tr><td>Typical trigger</td><td>String / enum / config</td><td>Factory object / factory subclass</td></tr>
+<tr><td>Focus</td><td>Object creation</td><td>Family/group creation</td></tr>
+<tr><td>Complexity</td><td>Simpler</td><td>More structured</td></tr>
+</table> <h3>Factory example</h3>
+<pre class="code">Shape s = shapeFactory.getShape("circle");</pre> <h3>Abstract Factory example</h3>
+<pre class="code">GUIFactory factory = new WindowsFactory();
+Button b = factory.createButton();
+Checkbox c = factory.createCheckbox();</pre> <h3>Use-case test</h3>
+<p><strong>Ask yourself:</strong> “Do I need one product, or a compatible set of products?”</p>
+<ul>
+<li>One product → Factory.</li>
+<li>Compatible product family → Abstract Factory.</li>
+</ul> <p>The key distinction is: Factory creates a single object from multiple options, while Abstract Factory creates a related product family. fileciteturn5file0L467-L476</p>
+</div></details><details class="chapter"><summary><span class="num">05</span>Builder Pattern: How Should I Build This Object?</summary><div class="body">
+<h3>Problem</h3>
+<p>A class has many optional parameters, leading to telescoping constructors or confusing constructor calls.</p> <h3>Solution</h3>
+<p>Build the object step by step through a fluent API.</p> <pre class="code">Transaction.builder() .account(account) .type(TransactionType.DEPOSIT) .amount(amount) .createdAt(LocalDateTime.now()) .note(note != null ? note : "Deposit") .build();</pre> <h3>What happens</h3>
+<ol>
+<li><code>builder()</code> creates a builder.</li>
+<li>Each fluent method sets one property and returns the builder.</li>
+<li><code>build()</code> creates the final object.</li>
+</ol> <h3>Benefits</h3>
+<ul>
+<li>Readable object construction.</li>
+<li>Fluent API.</li>
+<li>Optional fields can be selected naturally.</li>
+<li>Avoids constructor parameter chaos.</li>
+<li>Useful for immutable object creation.</li>
+</ul> <h3>Lombok example from </h3>
+<pre class="code">@Data
+@Builder
+public class Transaction { private Account account; private TransactionType type; private BigDecimal amount; private LocalDateTime createdAt; private String note;
+}</pre> <h3>Builder vs Factory vs Prototype</h3>
+<table>
+<tr><th>Pattern</th><th>Question it answers</th></tr>
+<tr><td>Builder</td><td>“How should I build this object?”</td></tr>
+<tr><td>Factory</td><td>“Which object should I create?”</td></tr>
+<tr><td>Prototype</td><td>“I already have one — make me a copy.”</td></tr>
+</table>
+</div></details><details class="chapter"><summary><span class="num">06</span>Prototype Pattern: Clone an Existing Object</summary><div class="body">
+<h3>Problem</h3>
+<p>Creating a new object from scratch is expensive, complicated or repetitive.</p> <h3>Solution</h3>
+<p>Clone an existing prepared object and customize the copy.</p> <pre class="big">Prepared Prototype ↓ clone()
+New Object ↓ customize
+Final Object</pre> <h3>Java mechanism in </h3>
+<pre class="code">Cloneable
+clone()</pre> <h3>Typical use cases</h3>
+<ul>
+<li>Game objects / enemies.</li>
+<li>UI builders.</li>
+<li>Document templates.</li>
+<li>Object templates.</li>
+<li>Configuration copies.</li>
+<li>SAP SmartForms / configuration versions.</li>
+</ul> <h3>Shallow vs Deep Copy</h3>
+<table>
+<tr><th>Shallow copy</th><th>Deep copy</th></tr>
+<tr><td>Copies the object itself.</td><td>Copies referenced objects as well, when implemented.</td></tr>
+<tr><td>Reference fields may still point to the same referenced object.</td><td>Referenced state is independently copied.</td></tr>
+</table> <h3>Prototype vs Factory</h3>
+<p><strong>Factory:</strong> decide what new object to construct. <strong>Prototype:</strong> start from an existing prepared object and copy it.</p> <p>The key distinction is: hiding creation logic versus cloning an existing object. fileciteturn5file0L514-L515</p>
+</div></details><details class="chapter"><summary><span class="num">07</span>Singleton Pattern: One Shared Instance</summary><div class="body">
+<h3>Problem</h3>
+<p>Only one instance of a class should exist, for example for configuration or logging according to .</p> <h3>Solution</h3>
+<pre class="big">Private constructor ↓
+Restrict external instantiation ↓
+Static instance / access method ↓
+Single shared instance</pre> <h3>Java note</h3>
+<p> highlights a private static instance plus <code>getInstance()</code> and notes that thread safety is important in Java. fileciteturn5file0L66-L71</p> <h3>Spring connection</h3>
+<p> uses Spring beans with the default singleton scope as an example.</p> <h3>Interview caution</h3>
+<p>Be ready to explain not just “one instance”, but also why lifecycle, access and thread safety matter.</p>
+</div></details><details class="chapter"><summary><span class="num">08</span>Structural Patterns: How Objects Are Connected</summary><div class="body">
+<h3>Core mental model</h3>
+<pre class="big">STRUCTURAL ↓
+How should classes / objects be connected? ├── Incompatible interfaces? → Adapter ├── Separate abstraction/implementation? → Bridge ├── Tree of objects? → Composite ├── Add behavior dynamically? → Decorator ├── Simplify complex subsystem? → Facade ├── Reduce memory by sharing? → Flyweight └── Control access? → Proxy</pre> <p> defines structural patterns as organizing and connecting classes and objects into larger structures while keeping them flexible and maintainable. fileciteturn5file0L341-L345</p> <h3>Typical problems</h3>
+<table>
+<tr><th>Problem</th><th>Pattern</th></tr>
+<tr><td>Different interfaces must work together</td><td>Adapter</td></tr>
+<tr><td>Abstraction and implementation need independent extension</td><td>Bridge</td></tr>
+<tr><td>Individual and group objects should be treated uniformly</td><td>Composite</td></tr>
+<tr><td>Add functionality without modifying the original class</td><td>Decorator</td></tr>
+<tr><td>Complex subsystem needs one simple entry point</td><td>Facade</td></tr>
+<tr><td>Too many similar objects consume memory</td><td>Flyweight</td></tr>
+<tr><td>Access needs security/logging/lazy loading/caching control</td><td>Proxy</td></tr>
+</table>
+</div></details><details class="chapter"><summary><span class="num">09</span>Adapter Pattern: Make Incompatible Interfaces Work Together</summary><div class="body">
+<h3>Problem</h3>
+<p>Two incompatible interfaces need to work together.</p> <h3>Solution</h3>
+<p>Create an adapter/wrapper that converts one interface into the interface expected by the client.</p> <pre class="big">Client ↓ expects Interface A
+Adapter ↓ converts
+Existing class / Interface B</pre> <h3>Examples from </h3>
+<ul>
+<li><code>InputStreamReader</code>: InputStream → Reader.</li>
+<li><code>Arrays.asList()</code>: array → List.</li>
+<li>Spring MVC <code>HandlerAdapter</code>.</li>
+<li>Real-world analogy: a plug adapter between incompatible sockets.</li>
+</ul> <h3>Key benefit</h3>
+<p>Reuse existing classes without modifying them.</p>
+</div></details><details class="chapter"><summary><span class="num">10</span>Decorator Pattern: Add Behavior Dynamically</summary><div class="body">
+<h3>Problem</h3>
+<p>Add behavior dynamically without changing the existing class.</p> <h3>Solution</h3>
+<p>Wrap the original object inside another object that adds behavior.</p> <pre class="big">Original Object ↓ wrapped by
+Decorator ↓
+Additional behavior
+</pre> <h3>Java examples</h3>
+<ul>
+<li><code>BufferedReader</code> wrapping <code>InputStreamReader</code>.</li>
+<li><code>Collections.synchronizedList()</code> wrapping a List.</li>
+</ul> <h3>Spring examples</h3>
+<ul>
+<li>Spring Security filters wrapping <code>HttpServletRequest</code>.</li>
+<li>BeanPostProcessors decorating bean logic.</li>
+</ul> <h3>Decorator vs inheritance</h3>
+<p> emphasizes runtime extension rather than static inheritance. fileciteturn5file0L378-L388</p>
+</div></details><details class="chapter"><summary><span class="num">11</span>Facade Pattern: Simplify a Complex Subsystem</summary><div class="body">
+<h3>Problem</h3>
+<p>A subsystem exposes APIs that are too complex for the client to use directly.</p> <h3>Solution</h3>
+<p>Provide a simpler interface that delegates to the complex subsystem.</p> <pre class="big">Client ↓
+Facade ↓
+Complex subsystem
+├── Service A
+├── Service B
+└── Service C</pre> <h3>Examples from </h3>
+<ul>
+<li>SLF4J as a facade for logging frameworks.</li>
+<li>Spring <code>JdbcTemplate</code>.</li>
+<li>Spring <code>RestTemplate</code>.</li>
+<li>Spring <code>JmsTemplate</code>.</li>
+</ul> <h3>Interview phrase</h3>
+<p><strong>Facade hides subsystem complexity behind a simple entry point.</strong></p>
+</div></details><details class="chapter"><summary><span class="num">12</span>Proxy Pattern: Control Access to Another Object</summary><div class="body">
+<h3>Problem</h3>
+<p>Access to another object needs to be controlled—for example security, logging, caching or lazy loading.</p> <h3>Solution</h3>
+<p>A proxy acts as an intermediary between the client and the real object.</p> <pre class="big">Client ↓
+Proxy ├── security ├── logging ├── caching ├── lazy loading └── access control ↓ Real Object</pre> <h3>Proxy types</h3>
+<ul>
+<li>Virtual proxy — lazy loading.</li>
+<li>Remote proxy — RPC.</li>
+<li>Protection proxy — authorization.</li>
+</ul> <h3>Spring examples</h3>
+<p>In Spring, AOP proxies, JDK Dynamic Proxy, CGLIB, <code>@Transactional</code> and <code>@Async</code> with Proxy. fileciteturn5file0L153-L163</p> <h3>Hibernate connection</h3>
+<p>Hibernate commonly uses proxies for lazy loading. fileciteturn5file0L458-L465</p>
+</div></details><details class="chapter"><summary><span class="num">13</span>Composite, Bridge and Flyweight: Complete the Structural Family</summary><div class="body">
+<h3>Composite</h3>
+<p><strong>Problem:</strong> Treat individual objects and groups of objects uniformly.</p>
+<p><strong>Solution:</strong> Compose objects into a tree structure.</p>
+<pre class="big">Component
+├── Leaf
+├── Leaf
+└── Composite ├── Leaf └── Leaf</pre>
+<p>Examples from include files/folders, org charts and <code>java.awt.Component</code>/<code>Container</code>.</p> <h3>Bridge</h3>
+<p><strong>Problem:</strong> Tight coupling between abstraction and implementation hierarchies.</p>
+<p><strong>Solution:</strong> Separate abstraction and implementation through a bridge interface.</p>
+<pre class="big">Abstraction ↓
+Bridge ↓
+Implementation</pre>
+<p> gives JDBC and AWT examples and describes independent extensibility as the key benefit. fileciteturn5file0L97-L106</p> <h3>Flyweight</h3>
+<p><strong>Problem:</strong> Too many similar objects consume memory.</p>
+<p><strong>Solution:</strong> Share intrinsic state between objects and keep extrinsic state external.</p>
+<p>Examples in include the String pool and cached Integer objects. fileciteturn5file0L142-L151</p>
+</div></details><details class="chapter"><summary><span class="num">14</span>Behavioral Patterns: How Objects Communicate</summary><div class="body">
+<h3>Core mental model</h3>
+<pre class="big">BEHAVIORAL ↓
+How should objects communicate / share responsibilities? ├── Event notifications → Observer ├── Pass request through handlers → Chain of Responsibility ├── Interchangeable algorithms → Strategy ├── Encapsulate a request → Command ├── Behavior changes with state → State └── Common algorithm skeleton → Template Method</pre> <p>The behavioral family includes Observer, Chain of Responsibility, Strategy, Command and State, and later also lists Template Method among behavioral patterns. fileciteturn5file0L192-L204 fileciteturn5file0L262-L273</p>
+</div></details><details class="chapter"><summary><span class="num">15</span>Observer Pattern: Notify Many Dependents</summary><div class="body">
+<h3>Problem</h3>
+<p>Many dependent objects must react when one object changes.</p> <h3>Solution</h3>
+<p>Create a one-to-many dependency: the subject publishes a change and observers react.</p> <pre class="big">Subject ↓ change ├── Observer A ├── Observer B └── Observer C</pre> <p> mentions Java's Observable/Observer as a historical example and notes that they are deprecated in recent versions. fileciteturn5file0L193-L196</p>
+</div></details><details class="chapter"><summary><span class="num">16</span>Chain of Responsibility: Pass a Request Through Handlers</summary><div class="body">
+<h3>Problem</h3>
+<p>Multiple handlers may be able to process a request.</p> <h3>Solution</h3>
+<p>Pass the request through a chain until a handler processes it.</p> <pre class="big">Request ↓
+Handler A ↓
+Handler B ↓
+Handler C ↓
+Handled</pre> <h3>Source examples</h3>
+<ul>
+<li>Servlet filters.</li>
+<li>Logging chains.</li>
+</ul> <p> defines the pattern as passing a request through a chain until one handler handles it. fileciteturn5file0L197-L200</p>
+</div></details><details class="chapter"><summary><span class="num">17</span>Strategy Pattern: Switch Algorithms at Runtime</summary><div class="body">
+<h3>Problem</h3>
+<p>Multiple algorithms are needed and the application should be able to choose among them.</p> <h3>Solution</h3>
+<p>Define a strategy interface and provide multiple implementations that can be selected at runtime.</p> <pre class="big">Context ↓
+Strategy interface ├── Strategy A ├── Strategy B └── Strategy C</pre> <h3>Source examples</h3>
+<ul>
+<li>Sorting strategies.</li>
+<li>Payment modes.</li>
+</ul> <h3>Interview framing</h3>
+<p>Strategy is especially useful when you have multiple interchangeable business algorithms and want to avoid a large conditional block.</p> <p>Strategy is as one of the patterns commonly used in backend microservices. fileciteturn5file0L213-L217</p>
+</div></details><details class="chapter"><summary><span class="num">18</span>Command and State: Request vs State-Driven Behavior</summary><div class="body">
+<h3>Command Pattern</h3>
+<p><strong>Problem:</strong> Encapsulate a request as an object.</p>
+<p><strong>Solution:</strong> Represent an action as an object so it can support concepts such as undo/redo and queuing.</p>
+<pre class="big">Invoker ↓
+Command ↓
+Receiver
+</pre>
+<p>Example: GUI button actions. fileciteturn5file0L206-L209</p> <h3>State Pattern</h3>
+<p><strong>Problem:</strong> An object's behavior changes when its internal state changes.</p>
+<p><strong>Solution:</strong> Model state transitions as state objects.</p>
+<pre class="big">Context ↓
+Current State ├── State A ├── State B └── State C
+</pre>
+<p> fileciteturn5file0L210-L212</p> <h3>Quick distinction</h3>
+<p><strong>Command:</strong> “What action/request should I encapsulate?”</p>
+<p><strong>State:</strong> “How should this object behave in its current state?”</p>
+</div></details><details class="chapter"><summary><span class="num">19</span>The Most Important Creational Comparisons</summary><div class="body">
+<h3>Factory vs Abstract Factory</h3>
+<pre class="big">Factory
+→ One product
+→ Choose implementation Abstract Factory
+→ Product family
+→ Keep products compatible</pre> <h3>Factory vs Prototype</h3>
+<pre class="big">Factory
+→ Create a fresh object
+→ Hide construction / select implementation Prototype
+→ Copy an existing object
+→ Avoid expensive or complicated construction</pre> <h3>Builder vs Factory vs Prototype</h3>
+<table>
+<tr><th>Pattern</th><th>Main focus</th><th>Question</th></tr>
+<tr><td>Builder</td><td>Construction process</td><td>How do I build it?</td></tr>
+<tr><td>Factory</td><td>Object selection/creation</td><td>Which object should I create?</td></tr>
+<tr><td>Prototype</td><td>Cloning</td><td>Can I copy an existing one?</td></tr>
+</table> <p>Keep these distinctions clear: fileciteturn5file0L467-L476 fileciteturn5file0L514-L515</p>
+</div></details><details class="chapter"><summary><span class="num">20</span>Interview Revision: Pattern Selection by Problem</summary><div class="body">
+<h3>Use the problem statement to select the pattern</h3>
+<table>
+<tr><th>If the interviewer says…</th><th>Think…</th></tr>
+<tr><td>“I need only one instance.”</td><td>Singleton</td></tr>
+<tr><td>“I have multiple implementations and choose one at runtime.”</td><td>Factory</td></tr>
+<tr><td>“I need a compatible family of objects.”</td><td>Abstract Factory</td></tr>
+<tr><td>“There are many optional constructor parameters.”</td><td>Builder</td></tr>
+<tr><td>“Creating the object is expensive; copies are similar.”</td><td>Prototype</td></tr>
+<tr><td>“These interfaces are incompatible.”</td><td>Adapter</td></tr>
+<tr><td>“I need abstraction and implementation to evolve independently.”</td><td>Bridge</td></tr>
+<tr><td>“I have a tree and leaf/group should look the same to the client.”</td><td>Composite</td></tr>
+<tr><td>“Add behavior without modifying the original.”</td><td>Decorator</td></tr>
+<tr><td>“The subsystem is too complicated for clients.”</td><td>Facade</td></tr>
+<tr><td>“Too many similar objects consume memory.”</td><td>Flyweight</td></tr>
+<tr><td>“Control access / security / caching / lazy loading.”</td><td>Proxy</td></tr>
+<tr><td>“Many objects react to one change.”</td><td>Observer</td></tr>
+<tr><td>“Pass request through multiple handlers.”</td><td>Chain of Responsibility</td></tr>
+<tr><td>“Swap algorithms/payment modes at runtime.”</td><td>Strategy</td></tr>
+<tr><td>“Represent a request as an object.”</td><td>Command</td></tr>
+<tr><td>“Behavior changes with internal state.”</td><td>State</td></tr>
+</table> <h3>Fast interview answer</h3>
+<pre class="big">Creational → creation
+Structural → composition / connection
+Behavioral → communication / responsibility Factory → choose one
+Abstract Factory → choose a family
+Builder → construct step-by-step
+Prototype → clone
+Singleton → one instance Adapter → compatibility
+Decorator → add behavior
+Facade → simplify
+Proxy → control access
+Composite → tree
+Bridge → separate abstraction / implementation
+Flyweight → share memory Observer → notify
+Chain → pass request
+Strategy → swap algorithm
+Command → encapsulate request
+State → behavior by state</pre>
+</div></details><details class="chapter"><summary><span class="num">21</span>Backend / Spring / Microservices Connection</summary><div class="body">
+<h3>Connect the patterns to the technology you already use</h3>
+<p>Here are useful Java/Spring connections for interview discussions.</p> <table>
+<tr><th>Pattern</th><th>Source connection</th></tr>
+<tr><td>Factory</td><td>Spring BeanFactory / FactoryBean; service selection examples</td></tr>
+<tr><td>Singleton</td><td>Spring beans with default singleton scope</td></tr>
+<tr><td>Builder</td><td>Lombok <code>@Builder</code>; <code>UriComponentsBuilder</code></td></tr>
+<tr><td>Adapter</td><td>Spring MVC HandlerAdapter</td></tr>
+<tr><td>Decorator</td><td>Spring Security filters / BeanPostProcessors</td></tr>
+<tr><td>Facade</td><td>JdbcTemplate / RestTemplate / JmsTemplate</td></tr>
+<tr><td>Proxy</td><td>AOP, JDK Dynamic Proxy, CGLIB, <code>@Transactional</code>, <code>@Async</code></td></tr>
+<tr><td>Strategy</td><td>Sorting strategies / payment modes; explicitly highlighted for backend microservices</td></tr>
+<tr><td>Prototype</td><td>Templates, configuration, SAP forms and similar objects</td></tr>
+</table> <h3>Architecture-level thinking</h3>
+<p>Do not present patterns as isolated definitions. Start from the problem, explain why the existing design is problematic, select the pattern, then explain the trade-off and how it appears in your application/framework.</p> <pre class="big">Problem ↓
+Constraint / design pressure ↓
+Pattern ↓
+Structure ↓
+Trade-offs ↓
+Real implementation ↓
+Production impact</pre>
+</div></details><details class="chapter"><summary><span class="num">22</span>Final Master Map</summary><div class="body">
+<h3>One-page mental model</h3>
+<pre class="big">DESIGN PATTERNS
+│
+├── 🏭 CREATIONAL — How are objects created?
+│ ├── Factory → choose one object
+│ ├── Abstract Factory → choose a compatible family
+│ ├── Builder → build step-by-step
+│ ├── Prototype → clone existing object
+│ └── Singleton → one shared instance
+│
+├── 🧱 STRUCTURAL — How are objects connected?
+│ ├── Adapter → incompatible interfaces
+│ ├── Bridge → abstraction ↔ implementation
+│ ├── Composite → tree / part-whole
+│ ├── Decorator → add behavior dynamically
+│ ├── Facade → simplify subsystem
+│ ├── Flyweight → share memory
+│ └── Proxy → control access
+│
+└── 🧠 BEHAVIORAL — How do objects communicate? ├── Observer → notify dependents ├── Chain of Responsibility → pass request ├── Strategy → interchangeable algorithm ├── Command → encapsulate request ├── State → behavior changes with state └── Template Method → common algorithm skeleton</pre> <h3>Study order</h3>
+<ol>
+<li>Understand the three families.</li>
+<li>Master Factory, Builder, Prototype and Abstract Factory.</li>
+<li>Master Adapter, Decorator, Facade and Proxy.</li>
+<li>Learn Composite, Bridge and Flyweight.</li>
+<li>Master Strategy, Observer and Chain of Responsibility.</li>
+<li>Then learn Command, State and Template Method.</li>
+<li>Finally, connect every pattern to a real Java/Spring example and an interview problem statement.</li>
+</ol> <div class="callout"><strong>Best interview habit:</strong> Don't start with “Factory is a creational pattern.” Start with the problem: “We had multiple implementations and the client shouldn't know which concrete class to instantiate, so I centralized that decision in a Factory.”</div>
+</div></details>
+</main>
+<footer>Design Patterns learning notes — organized for practical Java, Spring and backend interview preparation.</footer>
+<script>
+const cs=[...document.querySelectorAll('.chapter')], q=document.getElementById('q');
+function filter(){const x=q.value.toLowerCase().trim();cs.forEach(c=>{const hit=!x||c.innerText.toLowerCase().includes(x);c.classList.toggle('hidden',!hit);if(x&&hit)c.open=true})}
+q.addEventListener('input',filter);
+document.getElementById('open').onclick=()=>cs.forEach(c=>{if(!c.classList.contains('hidden'))c.open=true});
+document.getElementById('close').onclick=()=>cs.forEach(c=>c.open=false);
+</script></body></html>

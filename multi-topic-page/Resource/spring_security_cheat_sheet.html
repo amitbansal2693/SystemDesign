@@ -1,0 +1,855 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Spring Security Interview Cheat Sheet</title>
+<style>
+:root{
+  --bg:#f4f6f8; --card:#fff; --text:#17202a; --muted:#5f6b76;
+  --accent:#2563eb; --accent2:#0f766e; --border:#d9e0e7;
+  --code:#111827; --codeText:#e5e7eb; --warn:#fff7ed; --warnBorder:#fb923c;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+header{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:18px 22px}
+.header-inner{max-width:1200px;margin:auto;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+h1{font-size:24px;margin:0}
+.subtitle{color:var(--muted);font-size:13px;margin-top:3px}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+input{width:280px;max-width:80vw;padding:10px 12px;border:1px solid var(--border);border-radius:9px;font-size:14px}
+button{border:1px solid var(--border);background:#fff;border-radius:9px;padding:9px 12px;cursor:pointer;font-weight:600}
+button:hover{border-color:var(--accent);color:var(--accent)}
+main{max-width:1200px;margin:24px auto;padding:0 16px}
+.intro{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:16px}
+details{background:var(--card);border:1px solid var(--border);border-radius:14px;margin:12px 0;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+summary{cursor:pointer;padding:16px 18px;font-weight:800;font-size:17px;list-style:none;display:flex;align-items:center;gap:10px}
+summary::-webkit-details-marker{display:none}
+summary:before{content:"▶";font-size:11px;color:var(--accent);transition:.15s}
+details[open] summary:before{transform:rotate(90deg)}
+.section-body{padding:0 20px 22px;border-top:1px solid var(--border)}
+h3{font-size:20px;margin:22px 0 10px}
+h4{font-size:15px;margin:18px 0 7px;color:#243447}
+p{margin:8px 0}
+ul,ol{padding-left:24px}
+li{margin:4px 0}
+pre{background:var(--code);color:var(--codeText);padding:14px;border-radius:10px;overflow:auto;font-size:13px}
+code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace}
+p code,li code,td code{background:#eef2f7;padding:2px 5px;border-radius:5px;color:#111827}
+table{border-collapse:collapse;width:100%;margin:12px 0 18px;background:#fff}
+th,td{border:1px solid var(--border);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#f0f4f8}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin:12px 0}
+.flow div{border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:9px;padding:10px;background:#f8fafc;font-weight:700}
+.flow span{display:block;color:var(--accent2);font-weight:500;font-size:13px;margin-top:3px}
+.diagram{background:#f8fafc;border:1px dashed #b8c4d0;border-radius:10px;padding:14px;margin:12px 0;white-space:pre-wrap;font-family:"SFMono-Regular",Consolas,monospace}
+.callout{background:#eff6ff;border-left:4px solid var(--accent);padding:12px 14px;border-radius:8px;margin:12px 0}
+.warning{background:var(--warn);border-left:4px solid var(--warnBorder);padding:12px 14px;border-radius:8px;margin:12px 0}
+.note{background:#f0fdfa;border-left:4px solid var(--accent2);padding:12px 14px;border-radius:8px;margin:12px 0}
+.compare{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0}
+.compare>div{border:1px solid var(--border);border-radius:10px;padding:12px;background:#fafafa}
+.interview{background:#f8fafc;border:1px solid var(--border);padding:12px 14px;border-radius:9px;margin:14px 0}
+.meta{color:var(--muted);font-size:12px;font-weight:500}
+footer{max-width:1200px;margin:28px auto;padding:0 16px 40px;color:var(--muted);font-size:12px}
+.hidden{display:none!important}
+mark{background:#fde68a;padding:0 2px}
+@media(max-width:700px){.compare{grid-template-columns:1fr} input{width:100%} header{position:static}}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div>
+      <h1>Spring Security — Detailed Interview Cheat Sheet</h1>
+      <div class="subtitle">Structured from the uploaded 25-page PDF • all source topics retained • collapsible sections</div>
+    </div>
+    <div class="controls">
+      <input id="search" type="search" placeholder="Search JWT, CORS, OAuth2, CSRF...">
+      <button id="openAll">Open all</button>
+      <button id="closeAll">Close all</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="intro">
+    <strong>How to use this sheet:</strong> Keep sections collapsed during revision, open the relevant topic before an interview, and use the search box to jump directly to a concept. The content is reorganized from the uploaded source while retaining its technical details, examples, flows, code snippets, comparisons, and terminology.
+  </div>
+  <details open>
+<summary>1. Spring Security — Core Overview <span class="meta">Pages 1–2</span></summary>
+<div class="section-body">
+<h3>Where does Spring Security work?</h3>
+<p><strong>Answer:</strong> Before the request reaches the controller, it passes through the <strong>Spring Security Filter Chain</strong>, where security checks are performed.</p>
+
+<p><strong>Spring Security</strong> is a framework that provides authentication, authorization, and protection against common web security attacks for Spring applications.</p>
+
+<h4>It helps secure</h4>
+<ul>
+<li>REST APIs</li>
+<li>Web Applications</li>
+<li>Microservices</li>
+</ul>
+
+<div class="flow">
+<div>WHO are you?<span>Authentication</span></div>
+<div>WHAT can you do?<span>Authorization</span></div>
+<div>HOW do we identify you?<span>JWT / OAuth2</span></div>
+<div>HOW is communication secured?<span>HTTPS</span></div>
+<div>HOW do we stop forged requests?<span>CSRF</span></div>
+<div>WHO can call my API?<span>CORS</span></div>
+</div>
+
+<h4>Core features listed in the notes</h4>
+<ul>
+<li>Authentication</li>
+<li>Authorization</li>
+<li>Password Encryption</li>
+<li>Session Management</li>
+<li>JWT</li>
+<li>OAuth2</li>
+<li>CSRF Protection</li>
+<li>CORS</li>
+<li>Method Security</li>
+<li>HTTPS</li>
+</ul>
+</div>
+</details><details >
+<summary>2. CORS — Cross-Origin Resource Sharing <span class="meta">Pages 2–5</span></summary>
+<div class="section-body">
+<h3>What is CORS?</h3>
+<p><strong>CORS (Cross-Origin Resource Sharing)</strong> controls access when a website tries to access a different site/API from the current site. Browsers do not allow cross-origin JavaScript requests by default; the target server must explicitly allow the origin through CORS headers.</p>
+
+<div class="callout">
+<strong>Key idea:</strong> CORS allows selected origins to access your API. It prevents malicious websites from reading data from another origin unless that server explicitly permits the origin.
+</div>
+
+<h4>How it works</h4>
+<ol>
+<li>Browser makes a request from the current site to a target website.</li>
+<li>If the target website allows traffic from the source website, the browser allows the request/response to be used by the current site.</li>
+<li>The server communicates its policy through CORS response headers.</li>
+</ol>
+
+<h4>Example configuration from the notes</h4>
+<pre><code>registry.addMapping("/**")
+         .allowedOrigins("http://localhost:3000")
+         .allowedMethods("*");</code></pre>
+
+<h4>Frontend vs backend example</h4>
+<table>
+<tr><th>Component</th><th>Origin</th></tr>
+<tr><td>Frontend</td><td>http://localhost:3000</td></tr>
+<tr><td>Backend</td><td>http://localhost:8080</td></tr>
+</table>
+<p>These are different origins because the <strong>ports are different</strong>.</p>
+
+<pre><code>fetch("http://localhost:8080/api/recipes")</code></pre>
+
+<p>The browser may block it with:</p>
+<pre><code>Access to fetch has been blocked by CORS policy</code></pre>
+
+<h4>Why is this restriction needed?</h4>
+<p>Suppose you are logged into <code>https://bank.com</code>. Your browser stores your session cookie. You then visit <code>https://evil.com</code>. The malicious site could attempt:</p>
+<pre><code>fetch("https://bank.com/account")</code></pre>
+<p>Without browser cross-origin protections, the malicious website could potentially read sensitive information such as a bank balance. Therefore, the browser requires the target site to explicitly allow the requesting origin before the response can be read.</p>
+
+<h4>CORS flow shown in the notes</h4>
+<div class="diagram">
+Browser → OPTIONS Request → Server → Access-Control-Allow-Origin → Browser allows request
+</div>
+
+<h4>Spring Boot example</h4>
+<pre><code>@CrossOrigin(origins = "http://localhost:3000")</code></pre>
+
+<div class="interview">
+<strong>Interview memory:</strong> CORS is primarily a browser-side cross-origin access control mechanism. The server declares which origins may access its resources; the browser enforces whether frontend JavaScript can read the response.
+</div>
+</div>
+</details><details >
+<summary>3. CSRF — Cross-Site Request Forgery <span class="meta">Pages 6–7</span></summary>
+<div class="section-body">
+<h3>What is CSRF?</h3>
+<p><strong>CSRF (Cross-Site Request Forgery)</strong> is an attack where a malicious website tricks a user's browser into sending an authenticated request to another site.</p>
+
+<p>The notes emphasize that this is especially relevant to <strong>session/cookie-based authentication</strong>, because browsers automatically include session cookies with requests.</p>
+
+<h4>Attack idea</h4>
+<div class="flow">
+<div>Bank User Logged In</div>
+<div>↓</div>
+<div>Visits Malicious Website</div>
+<div>↓</div>
+<div>Hidden Transfer Request</div>
+<div>↓</div>
+<div>Bank receives request</div>
+<div>↓</div>
+<div>Money transferred</div>
+</div>
+
+<h4>Why cookies need CSRF protection</h4>
+<ul>
+<li>Cookie = <strong>automatic passport</strong></li>
+<li>Browser sends the cookie automatically</li>
+<li>Therefore, an attacker may cause the browser to send an authenticated request</li>
+<li>CSRF protection adds a value the attacker cannot normally read or reproduce</li>
+</ul>
+
+<h4>Spring Security protection</h4>
+<p>Spring Security generates a unique <strong>CSRF token</strong>. The client must send the token with every state-changing request. Attackers cannot normally read this token because of the browser's Same-Origin Policy, so forged requests are rejected.</p>
+
+<h4>JWT REST APIs</h4>
+<p>For REST APIs using JWT in the <code>Authorization</code> header, CSRF protection is <strong>typically disabled</strong> because authentication is stateless and browsers do not automatically attach the JWT in the same way they automatically attach cookies.</p>
+
+<div class="compare">
+<div><strong>Cookie/session</strong><br>Automatic passport → browser sends it automatically → needs CSRF protection.</div>
+<div><strong>JWT Authorization header</strong><br>Manual ID card → application explicitly attaches it → generally not vulnerable to CSRF in the same way.</div>
+</div>
+
+<h4>Protection flow</h4>
+<ol>
+<li>Spring Security generates a CSRF token.</li>
+<li>Client must send the token with every state-changing request.</li>
+<li>Server validates the token.</li>
+<li>A forged request without the correct token is rejected.</li>
+</ol>
+</div>
+</details><details >
+<summary>4. HTTPS — Secure Communication <span class="meta">Pages 7–8</span></summary>
+<div class="section-body">
+<h3>What does HTTPS do?</h3>
+<p><strong>HTTPS encrypts communication between client and server using TLS/SSL.</strong></p>
+
+<h4>Without HTTPS</h4>
+<div class="diagram">Client → Username / Password → Internet → Anyone can intercept → Server</div>
+
+<h4>With HTTPS</h4>
+<div class="diagram">Client → Encrypted Data → Internet → Server</div>
+
+<h4>What HTTPS solves</h4>
+<ul>
+<li>Data Encryption</li>
+<li>Data Integrity</li>
+<li>Authentication of the Server</li>
+</ul>
+</div>
+</details><details >
+<summary>5. Authentication vs Authorization <span class="meta">Pages 8–10</span></summary>
+<div class="section-body">
+<h3>Authentication = Who are you?</h3>
+<p>Authentication verifies the identity of the user.</p>
+
+<table>
+<tr><th>Authentication</th><th>Authorization</th></tr>
+<tr><td>Who are you?</td><td>What can you access?</td></tr>
+<tr><td>Login / identity verification</td><td>Permissions</td></tr>
+<tr><td>Happens first</td><td>Happens after authentication</td></tr>
+</table>
+
+<h4>Authentication example</h4>
+<div class="diagram">Username + Password → Database → Valid User</div>
+
+<h4>Authentication types listed</h4>
+<ul>
+<li>Username &amp; Password</li>
+<li>JWT</li>
+<li>OAuth2</li>
+<li>LDAP</li>
+<li>SSO</li>
+<li>Biometric</li>
+</ul>
+
+<h4>Spring Security classes</h4>
+<div class="diagram">
+AuthenticationManager<br>↓<br>AuthenticationProvider<br>↓<br>UserDetailsService<br>↓<br>PasswordEncoder
+</div>
+
+<h4>Authentication flow</h4>
+<div class="diagram">User Login → Username + Password → AuthenticationManager → UserDetailsService → Database → Authenticated User</div>
+
+<h3>Authorization = What are you allowed to do?</h3>
+<p>Authorization determines what an authenticated user is allowed to access or perform.</p>
+
+<h4>Example</h4>
+<div class="compare">
+<div><strong>Admin</strong><br>Read<br>Write<br>Delete</div>
+<div><strong>User</strong><br>Read Only</div>
+</div>
+
+<h4>Spring example</h4>
+<pre><code>@PreAuthorize("hasRole('ADMIN')")</code></pre>
+</div>
+</details><details >
+<summary>6. Spring Security Request Flow &amp; Filter Chain <span class="meta">Pages 10–11</span></summary>
+<div class="section-body">
+<h3>Request flow</h3>
+<div class="diagram">
+Client<br>
+↓<br>
+<strong>Spring Security Filter Chain</strong><br>
+├── Authentication<br>
+├── Authorization<br>
+├── CSRF<br>
+├── CORS<br>
+└── Other Filters<br>
+↓<br>
+Controller
+</div>
+
+<p>The notes explicitly state that security checks happen <strong>before the request reaches the controller</strong>.</p>
+
+<h4>Spring Security authentication classes</h4>
+<div class="diagram">
+AuthenticationManager<br>
+↓<br>
+AuthenticationProvider<br>
+↓<br>
+UserDetailsService<br>
+↓<br>
+PasswordEncoder
+</div>
+
+<div class="note">
+The page-11 visual also shows the Client → Spring Security Filter Chain → Controller flow and labels the chain's responsibilities as Authentication, Authorization, CSRF, CORS and Other Filters.
+</div>
+</div>
+</details><details >
+<summary>7. JWT — JSON Web Token <span class="meta">Pages 11–17</span></summary>
+<div class="section-body">
+<h3>JWT in one sentence</h3>
+<p><strong>JWT (JSON Web Token)</strong> is a compact, URL-safe, JSON-based token used for stateless authentication. It carries claims such as identity and roles and is digitally signed to prevent tampering.</p>
+
+<h4>JWT format</h4>
+<pre><code>xxxxx.yyyyy.zzzzz
+Header.Payload.Signature</code></pre>
+
+<h4>Core idea</h4>
+<p>Instead of storing sessions on the server, the client sends the token with every request.</p>
+
+<h4>Basic JWT flow</h4>
+<div class="diagram">
+Login<br>
+↓<br>
+Username + Password<br>
+↓<br>
+Server verifies<br>
+↓<br>
+Generate JWT<br>
+↓<br>
+Client stores token<br>
+↓<br>
+Every subsequent request: Authorization: Bearer Token<br>
+↓<br>
+Server validates<br>
+↓<br>
+Access Granted
+</div>
+
+<h4>Advantages</h4>
+<ul>
+<li>Stateless</li>
+<li>Scalable</li>
+<li>Good for Microservices</li>
+<li>No server session</li>
+<li>Better scalability</li>
+<li>Faster request processing</li>
+<li>No session storage required</li>
+</ul>
+
+<h4>Disadvantages</h4>
+<ul>
+<li>Difficult logout</li>
+<li>Token expiration is required</li>
+</ul>
+
+<h3>How JWT is created</h3>
+<ol>
+<li>User sends username and password to the <code>/login</code> endpoint.</li>
+<li>Spring Security authenticates credentials using <code>AuthenticationManager</code>, <code>UserDetailsService</code>, and <code>PasswordEncoder</code>.</li>
+<li>After successful authentication, the server collects required claims.</li>
+<li>A header is created with the algorithm and token type.</li>
+<li>A payload is created containing claims.</li>
+<li>Header and payload are Base64URL encoded.</li>
+<li>JJWT creates a digital signature using the encoded header, encoded payload and secret/private key.</li>
+<li>The signature is appended to the encoded header and payload.</li>
+<li>The final token is returned to the client.</li>
+<li>The client sends it with future requests.</li>
+</ol>
+
+<h4>Claims listed in the notes</h4>
+<ul>
+<li><code>sub</code> — SUBJECT — who the token is for</li>
+<li><code>role</code> — role such as ADMIN</li>
+<li><code>iat</code> — ISSUED_AT — when token was created</li>
+<li><code>exp</code> — EXPIRATION — when token expires</li>
+<li><code>iss</code> — ISSUER — who created the token, generally the application name</li>
+<li><code>aud</code> — AUDIENCE</li>
+<li><code>nbf</code> — NOT_BEFORE — token is not valid before this time</li>
+<li><code>jti</code> — ID</li>
+<li><code>type</code> — access / refresh</li>
+<li>User ID — optional</li>
+</ul>
+
+<h4>Example payload</h4>
+<pre><code>{
+  "sub": "amit",
+  "role": "ADMIN",
+  "iat": 1722144000,
+  "exp": 1722147600
+}</code></pre>
+
+<h3>Is JWT encrypted?</h3>
+<p><strong>No.</strong> JWT is Base64URL encoded, not encrypted. Anyone who has the token can decode the header and payload. The signature protects against modification.</p>
+
+<div class="callout">
+<strong>Important wording:</strong> JWTs are not decrypted — they are decoded and verified. The server decodes the payload and checks the signature using the appropriate secret/public key.
+</div>
+
+<h3>JWT signature creation</h3>
+<p>The notes show the conceptual process:</p>
+<ol>
+<li>Define a secret key.</li>
+<li>Encode the header and payload separately using Base64URL.</li>
+<li>Build the data to sign:</li>
+</ol>
+<pre><code>dataToSign = base64UrlEncode(header) + "." + base64UrlEncode(payload)</code></pre>
+<p>Then sign the data:</p>
+<pre><code>signature = HMAC_SHA256(dataToSign, secretKey)</code></pre>
+
+<h4>Example key setup from the notes</h4>
+<pre><code>static String secret = "superSecretKeyForJWTsuperSecretKeyForJWT";
+private static Key key = Keys.hmacShaKeyFor(secret.getBytes());</code></pre>
+
+<h4>JJWT builder example from the notes</h4>
+<pre><code>String token = Jwts.builder()
+    .subject(username)
+    .claim("role", role)
+    .issuedAt(new Date())
+    .expiration(expiryDate)
+    .signWith(secretKey)
+    .compact();</code></pre>
+
+<h3>What happens in a JWT-based system?</h3>
+<ol>
+<li>User logs in with username/password.</li>
+<li>Server generates a JWT containing information such as userId, role, issuedAt and expiry.</li>
+<li>Server signs the JWT using a secret key or private key.</li>
+<li>Server sends the JWT back to the client as a string.</li>
+<li>Client sends the token in each future request:</li>
+</ol>
+<pre><code>Authorization: Bearer &lt;JWT&gt;</code></pre>
+<ol start="6">
+<li>Server verifies the signature using the same secret key or corresponding public key.</li>
+<li>If valid, the server reads the payload and grants access.</li>
+</ol>
+
+<h3>JWT verification</h3>
+<ul>
+<li>JWT is verified inside the <strong>Spring Security Filter Chain</strong>.</li>
+<li>The server checks expiration while validating the token.</li>
+<li>Libraries such as JJWT automatically validate the <code>exp</code> claim when parsing the JWT.</li>
+<li>Invalid or expired JWT → <strong>401 Unauthorized</strong>.</li>
+</ul>
+
+<h3>Why doesn't the server trust the client?</h3>
+<p>The client can modify or forge a token. Therefore, every incoming JWT must be verified for:</p>
+<ul>
+<li>Signature</li>
+<li>Expiration</li>
+<li>Issuer — optional</li>
+<li>Audience — optional</li>
+</ul>
+
+<h3>JWT best practices from the notes</h3>
+<ul>
+<li>Use HTTPS.</li>
+<li>Keep access tokens short-lived, e.g. 15 minutes.</li>
+<li>Use refresh tokens.</li>
+<li>Store refresh tokens securely, preferably HttpOnly cookies.</li>
+<li>Never store passwords or sensitive data in JWT claims.</li>
+<li>Validate signature and expiration on every request.</li>
+<li>Rotate signing keys periodically.</li>
+<li>Consider RS256 for distributed systems where services only need the public key to verify tokens.</li>
+</ul>
+
+<h3>Access Token vs Refresh Token</h3>
+<table>
+<tr><th>Access Token</th><th>Refresh Token</th></tr>
+<tr><td>Short-lived</td><td>Long-lived</td></tr>
+<tr><td>Sent with every API request</td><td>Sent only to refresh access tokens</td></tr>
+<tr><td>Contains user claims</td><td>Used to obtain a new access token</td></tr>
+<tr><td>Usually 15–30 minutes</td><td>Usually days or weeks</td></tr>
+</table>
+</div>
+</details><details >
+<summary>8. OAuth2 — Open Authorization <span class="meta">Pages 17–21</span></summary>
+<div class="section-body">
+<h3>What is OAuth2?</h3>
+<p><strong>OAuth2 is an authorization framework/protocol.</strong> It allows users to give one application limited access to another application without sharing their password.</p>
+
+<div class="callout">
+<strong>Key idea:</strong> Instead of giving away your password, you give a token that lets another app act on your behalf — in a limited, secure way.
+</div>
+
+<h4>OAuth2 roles</h4>
+<div class="diagram">
+User<br>
+↓<br>
+Client Application<br>
+↓<br>
+Authorization Server<br>
+↓<br>
+Resource Server
+</div>
+
+<h4>Simple flow from the notes</h4>
+<div class="diagram">
+User → Google Login → Google verifies → Access Token → Application → API Access
+</div>
+
+<h3>Real-life example: Login to LinkedIn with Google</h3>
+<ol>
+<li>User clicks <strong>Sign in with Google</strong> on LinkedIn.</li>
+<li>Google asks for consent to share basic profile information.</li>
+<li>User approves.</li>
+<li>Google gives LinkedIn an access token.</li>
+<li>LinkedIn uses the token to get the user's name and email.</li>
+<li>Login completes without the user giving LinkedIn the Google password.</li>
+</ol>
+
+<h3>OAuth flow — 4 main steps</h3>
+<ol>
+<li><strong>Authorization Request:</strong> The app sends the user to the provider's login page, such as Google.</li>
+<li><strong>User Grants Access:</strong> User logs in and clicks Allow.</li>
+<li><strong>Authorization Code:</strong> Provider redirects back to the app with a short-lived code.</li>
+<li><strong>Token Exchange:</strong> App sends the code plus credentials and gets an access token.</li>
+</ol>
+
+<h3>Behind the scenes — detailed example</h3>
+
+<h4>Step 1 — LinkedIn requests Google authorization</h4>
+<p>LinkedIn redirects the user to Google's authorization page, for example:</p>
+<pre><code>https://accounts.google.com/o/oauth2/auth?client_id=...&scope=...</code></pre>
+<p>LinkedIn includes:</p>
+<ul>
+<li>Client ID — identifies LinkedIn</li>
+<li>Scope — what information LinkedIn wants, such as email and name</li>
+<li>Redirect URI — where Google should send the user afterward</li>
+</ul>
+
+<h4>Step 2 — User logs in / gives consent</h4>
+<p>Google asks whether LinkedIn may see information such as email address and basic profile information. The user clicks Allow.</p>
+
+<h4>Step 3 — Google redirects back with an authorization code</h4>
+<p>Google sends LinkedIn a temporary authorization code, not the actual token yet.</p>
+<pre><code>GET https://linkedin.com/callback?code=XYZ123</code></pre>
+<p>The code is short-lived and intended to be used only once.</p>
+
+<h4>Step 4 — LinkedIn exchanges the code for a token</h4>
+<p>LinkedIn communicates server-to-server with Google:</p>
+<pre><code>POST https://oauth2.googleapis.com/token
+
+{
+  code: "XYZ123",
+  client_id: "linkedin-client-id",
+  client_secret: "linkedin-secret",
+  grant_type: "authorization_code"
+}</code></pre>
+
+<p>Google responds with an access token:</p>
+<pre><code>{
+  "access_token": "ya29.a0AVvZV...",
+  "expires_in": 3600
+}</code></pre>
+
+<h4>Step 5 — LinkedIn uses the access token</h4>
+<pre><code>GET https://www.googleapis.com/oauth2/v2/userinfo
+Authorization: Bearer ya29.a0AVvZV...</code></pre>
+
+<p>Google can return information such as:</p>
+<pre><code>{
+  "email": "alex@gmail.com",
+  "name": "Alex Kumar",
+  "picture": "https://..."
+}</code></pre>
+
+<h3>Why this is safe — as described in the notes</h3>
+<ul>
+<li>You never gave LinkedIn your Google password.</li>
+<li>You chose exactly what information to share.</li>
+<li>You can revoke access from Google settings.</li>
+<li>The token has a time limit and cannot be used indefinitely.</li>
+</ul>
+
+<h3>OAuth terminology recap</h3>
+<table>
+<tr><th>Term</th><th>Meaning in the example</th></tr>
+<tr><td>Authorization Server</td><td>Google — handles login and token issuing</td></tr>
+<tr><td>Client</td><td>LinkedIn — application requesting access</td></tr>
+<tr><td>User</td><td>You — granting access to your Google account</td></tr>
+<tr><td>Scope</td><td>What LinkedIn is allowed to see, e.g. email and name</td></tr>
+<tr><td>Access Token</td><td>Temporary key LinkedIn uses to fetch information</td></tr>
+</table>
+</div>
+</details><details >
+<summary>9. SSH Keys vs OAuth Tokens vs SSL Certificates vs Credentials <span class="meta">Pages 22–25</span></summary>
+<div class="section-body">
+<h3>1. SSH Keys</h3>
+<p><strong>SSH (Secure Shell)</strong> is a protocol used to securely connect to remote systems such as servers.</p>
+
+<h4>What is SSH key-based authentication?</h4>
+<p>It uses a pair of cryptographic keys:</p>
+<ul>
+<li><strong>Public key:</strong> shared with the server</li>
+<li><strong>Private key:</strong> kept safe by the user</li>
+</ul>
+<p>It replaces the need for a password.</p>
+
+<h4>Why use SSH keys?</h4>
+<ul>
+<li>More secure than passwords; the notes describe them as almost impossible to brute-force.</li>
+<li>Useful for automated scripts or remote server management.</li>
+<li>Avoids sharing plain-text passwords.</li>
+</ul>
+
+<h4>When to use SSH keys?</h4>
+<ul>
+<li>Managing cloud servers such as AWS EC2 or DigitalOcean</li>
+<li>Git over SSH, such as GitHub or GitLab</li>
+<li>DevOps pipelines requiring secure access</li>
+</ul>
+
+<h4>Real-life use case</h4>
+<p>A developer connects from a laptop to a Linux server on AWS. They generate SSH keys, upload the public key to AWS, and connect securely using the private key.</p>
+
+<h4>Step-by-step</h4>
+<ol>
+<li>Generate keys on your machine:</li>
+</ol>
+<pre><code>ssh-keygen -t rsa -b 4096 -C "your_email@example.com"</code></pre>
+<ol start="2">
+<li>Upload the public key to the server's <code>~/.ssh/authorized_keys</code>.</li>
+<li>When connecting, the server sends a challenge encrypted with the public key.</li>
+<li>Your SSH client/laptop decrypts it using the private key.</li>
+<li>If successful → access is granted.</li>
+</ol>
+
+<h3>2. OAuth Tokens</h3>
+<p><strong>OAuth (Open Authorization)</strong> is described in the notes as a protocol/token-based authorization approach that lets one app access data from another without sharing user credentials.</p>
+
+<h4>Why use OAuth?</h4>
+<ul>
+<li>Delegate secure access to APIs without exposing passwords.</li>
+<li>Tokens can expire and be revoked.</li>
+<li>Helps prevent unauthorized access if a token is leaked.</li>
+</ul>
+
+<h4>When to use OAuth?</h4>
+<ul>
+<li>Applications accessing user accounts from other services</li>
+<li>Protecting API endpoints</li>
+</ul>
+
+<h4>Real-life use case</h4>
+<p>A travel app wants access to a user's Google Calendar to book trips. Instead of asking for the Google password, it uses OAuth to request permission and gets a token.</p>
+
+<h4>Step-by-step</h4>
+<ol>
+<li>Client sends request with client ID + secret to the Authorization Server.</li>
+<li>Server validates credentials and sends back an access token.</li>
+<li>Client uses the token to access protected APIs.</li>
+<li>Server checks token validity before allowing the request.</li>
+</ol>
+
+<h3>3. SSL Certificates</h3>
+<p><strong>SSL (Secure Sockets Layer) certificates</strong> are digital files that secure communication over the internet, especially websites using HTTPS.</p>
+<p>They ensure data sent between browser and server is encrypted and safe. The notes use “SSL” terminology while also explaining HTTPS/TLS.</p>
+
+<h4>Why use SSL?</h4>
+<ul>
+<li>Protects against man-in-the-middle attacks.</li>
+<li>Encrypts sensitive data such as passwords and credit card numbers.</li>
+<li>Builds trust with users and shows the browser padlock.</li>
+</ul>
+
+<h4>When to use SSL?</h4>
+<ul>
+<li>Always use SSL/HTTPS on public-facing websites.</li>
+<li>Especially important for e-commerce, login pages and APIs.</li>
+</ul>
+
+<h4>Real-life use case</h4>
+<p>An e-commerce site uses SSL to protect user passwords and credit card details during checkout.</p>
+
+<h4>Step-by-step</h4>
+<ol>
+<li>Browser contacts the website, e.g. <code>https://example.com</code>.</li>
+<li>Server sends its SSL certificate.</li>
+<li>Browser checks certificate expiry.</li>
+<li>Browser checks issuer / trusted Certificate Authority.</li>
+<li>Browser checks domain-name match.</li>
+<li>If checks pass, browser trusts the connection.</li>
+<li>A secure connection is established using encryption.</li>
+<li>Data sent and received is now secure.</li>
+</ol>
+
+<h3>4. Credentials — Username &amp; Password</h3>
+<p>This is the most basic form of authentication: the user provides a username and password and the system checks them against stored records.</p>
+
+<h4>Why use it?</h4>
+<ul>
+<li>Simple and widely understood.</li>
+<li>Easy to implement in web and mobile applications.</li>
+</ul>
+
+<h4>When to use?</h4>
+<ul>
+<li>Basic login systems such as user portals and admin dashboards.</li>
+<li>Internal applications that do not need OAuth or tokens.</li>
+</ul>
+
+<h4>Real-life example</h4>
+<p>You log in to Netflix using email and password. Behind the scenes, credentials are sent securely over HTTPS and verified.</p>
+
+<h4>Step-by-step</h4>
+<ol>
+<li>User sends username + password over a secure HTTPS connection.</li>
+<li>Server decrypts the request.</li>
+<li>Server checks whether the user exists in the database.</li>
+<li>Server checks whether the password hash matches.</li>
+<li>If yes → Login success.</li>
+</ol>
+</div>
+</details><details >
+<summary>10. Static URLs &amp; Method-Level Security <span class="meta">Page 25</span></summary>
+<div class="section-body">
+<h3>Restrict static URLs</h3>
+<p>The notes include this Spring Security configuration example for excluding static resources from security:</p>
+<pre><code>&lt;http pattern="/static/**" security="none" /&gt;</code></pre>
+
+<h3>Spring Security at method level</h3>
+<ul>
+<li>Spring Security supports method-level security.</li>
+<li>The notes state that Spring Security uses <strong>AOP</strong> for security at the method level.</li>
+<li>Security can be applied using annotations based on Spring annotations or JSR-250 annotations.</li>
+<li>Java configuration is used to activate detection of annotations.</li>
+<li>It typically secures your services.</li>
+</ul>
+
+<h4>Important note from the source</h4>
+<div class="warning">
+<strong>Do not access repositories directly</strong> when the intention is to enforce service-layer security, because direct repository access can bypass the security applied at the service/method level.
+</div>
+
+<h4>Annotations mentioned</h4>
+<ul>
+<li><code>@Secured</code></li>
+<li><code>@RolesAllowed</code></li>
+</ul>
+
+<h4>Example from earlier in the notes</h4>
+<pre><code>@PreAuthorize("hasRole('ADMIN')")</code></pre>
+</div>
+</details><details >
+<summary>11. Rapid Interview Revision <span class="meta">Cross-reference of the source notes</span></summary>
+<div class="section-body">
+<h3>One-line answers</h3>
+<table>
+<tr><th>Question</th><th>Quick answer</th></tr>
+<tr><td>Where does Spring Security work?</td><td>In the Spring Security Filter Chain before the controller.</td></tr>
+<tr><td>Authentication?</td><td>Answers “Who are you?”</td></tr>
+<tr><td>Authorization?</td><td>Answers “What are you allowed to do?”</td></tr>
+<tr><td>CORS?</td><td>Controls whether browser JavaScript from one origin can access another origin's resources when the server permits it.</td></tr>
+<tr><td>CSRF?</td><td>Attack where a malicious site tricks a browser into sending an authenticated request.</td></tr>
+<tr><td>Why CSRF with cookies?</td><td>Browsers automatically send cookies.</td></tr>
+<tr><td>Why often disable CSRF for JWT REST APIs?</td><td>JWT in the Authorization header is explicitly attached rather than automatically sent as a cookie.</td></tr>
+<tr><td>HTTPS?</td><td>Encrypts client-server communication using TLS/SSL and provides integrity and server authentication.</td></tr>
+<tr><td>JWT?</td><td>Stateless, signed, JSON-based token carrying claims.</td></tr>
+<tr><td>Is JWT encrypted?</td><td>No. Header/payload are Base64URL encoded; the signature protects integrity.</td></tr>
+<tr><td>JWT verified where?</td><td>Inside the Spring Security Filter Chain.</td></tr>
+<tr><td>Invalid/expired JWT status?</td><td>401 Unauthorized.</td></tr>
+<tr><td>JWT stateless?</td><td>Server does not store user session data; request carries required authentication information.</td></tr>
+<tr><td>Access token?</td><td>Short-lived token sent with API requests.</td></tr>
+<tr><td>Refresh token?</td><td>Long-lived token used to obtain a new access token.</td></tr>
+<tr><td>OAuth2?</td><td>Authorization framework for delegated, limited access without sharing passwords.</td></tr>
+<tr><td>OAuth authorization code?</td><td>Short-lived, temporary code exchanged server-to-server for an access token.</td></tr>
+<tr><td>SSH key?</td><td>Public/private key pair used for secure remote-system authentication.</td></tr>
+<tr><td>SSL certificate?</td><td>Digital certificate used to establish trust for HTTPS/TLS connections.</td></tr>
+<tr><td>Method-level security?</td><td>Security applied to methods, commonly at service level, using annotations/AOP.</td></tr>
+</table>
+
+<h3>Spring Security mental model</h3>
+<div class="diagram">
+Client Request<br>
+↓<br>
+HTTPS / TLS<br>
+↓<br>
+Spring Security Filter Chain<br>
+├─ CORS<br>
+├─ CSRF<br>
+├─ Authentication<br>
+│  ├─ Username/Password<br>
+│  ├─ JWT<br>
+│  └─ OAuth2<br>
+├─ Authorization<br>
+└─ Other Filters<br>
+↓<br>
+Controller<br>
+↓<br>
+Service (method-level security may apply)<br>
+↓<br>
+Repository / Data Access
+</div>
+
+<h3>Security concepts by purpose</h3>
+<table>
+<tr><th>Concept</th><th>Main purpose</th></tr>
+<tr><td>Authentication</td><td>Identify the user</td></tr>
+<tr><td>Authorization</td><td>Determine permissions</td></tr>
+<tr><td>JWT</td><td>Carry signed authentication/claims information statelessly</td></tr>
+<tr><td>OAuth2</td><td>Delegate limited access without sharing passwords</td></tr>
+<tr><td>HTTPS/TLS</td><td>Secure communication in transit</td></tr>
+<tr><td>CSRF</td><td>Protect cookie/session-based applications from forged state-changing requests</td></tr>
+<tr><td>CORS</td><td>Control browser cross-origin access</td></tr>
+<tr><td>SSH keys</td><td>Authenticate securely to remote systems</td></tr>
+<tr><td>SSL certificates</td><td>Establish certificate-based trust for HTTPS</td></tr>
+<tr><td>Method security</td><td>Enforce authorization at method/service level</td></tr>
+</table>
+</div>
+</details>
+</main>
+
+<footer>
+  Source: uploaded “Google Keep Document-4.pdf” (25 pages). This HTML is a structured study/cheat-sheet representation of that source.
+</footer>
+<script>
+const sections=[...document.querySelectorAll('details')];
+const search=document.getElementById('search');
+function clearMarks(el){el.querySelectorAll('mark').forEach(m=>m.replaceWith(document.createTextNode(m.textContent)))}
+function filter(){
+  const q=search.value.trim().toLowerCase();
+  sections.forEach(d=>{
+    clearMarks(d);
+    const text=d.innerText.toLowerCase();
+    const hit=!q || text.includes(q);
+    d.classList.toggle('hidden',!hit);
+    if(q && hit){
+      d.open=true;
+      const walker=document.createTreeWalker(d.querySelector('.section-body'),NodeFilter.SHOW_TEXT);
+      const nodes=[];
+      while(walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach(n=>{
+        if(!n.nodeValue.toLowerCase().includes(q) || n.parentElement.closest('pre')) return;
+        const frag=document.createDocumentFragment();
+        const parts=n.nodeValue.split(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig'));
+        parts.forEach(p=>frag.appendChild(new RegExp('^'+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'$','i').test(p)?Object.assign(document.createElement('mark'),{textContent:p}):document.createTextNode(p)));
+        n.parentNode.replaceChild(frag,n);
+      });
+    }
+  });
+}
+document.getElementById('openAll').onclick=()=>sections.forEach(d=>{if(!d.classList.contains('hidden'))d.open=true});
+document.getElementById('closeAll').onclick=()=>sections.forEach(d=>d.open=false);
+search.addEventListener('input',filter);
+</script>
+</body>
+</html>

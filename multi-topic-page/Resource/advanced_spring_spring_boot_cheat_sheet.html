@@ -1,0 +1,3812 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Advanced Spring & Spring Boot — Detailed Cheat Sheet</title>
+<style>
+:root{
+ --bg:#f4f6f8;--card:#fff;--text:#17202a;--muted:#65717d;--accent:#2563eb;
+ --border:#d8e0e8;--soft:#f7f9fb;--code:#111827;--codeText:#e5e7eb;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5}
+header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:16px 20px}
+.header-inner{max-width:1250px;margin:auto;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+h1{font-size:23px;margin:0 0 3px}.subtitle{font-size:12px;color:var(--muted)}
+.controls{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+input{width:300px;max-width:70vw;padding:10px 12px;border:1px solid var(--border);border-radius:9px;font-size:14px}
+button{background:#fff;border:1px solid var(--border);border-radius:9px;padding:9px 11px;font-weight:700;cursor:pointer}
+button:hover{border-color:var(--accent);color:var(--accent)}
+main{max-width:1250px;margin:20px auto;padding:0 15px}
+.intro{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:17px 19px;margin-bottom:14px}
+.warning{margin-top:10px;padding:10px 12px;border-left:4px solid var(--accent);background:#eff6ff;border-radius:7px}
+details{background:var(--card);border:1px solid var(--border);border-radius:12px;margin:9px 0;overflow:hidden}
+details.topic{box-shadow:0 1px 2px rgba(0,0,0,.035)}
+summary{cursor:pointer;list-style:none;padding:14px 16px;font-weight:800;display:flex;align-items:center;gap:9px}
+summary::-webkit-details-marker{display:none}
+summary:before{content:"▶";font-size:10px;color:var(--accent);transition:.15s}
+details[open]>summary:before{transform:rotate(90deg)}
+.topic>summary{font-size:16px;background:#fff}
+.topic-num{display:inline-flex;width:27px;height:27px;align-items:center;justify-content:center;border-radius:50%;background:#eaf1ff;color:var(--accent);font-size:12px}
+.meta{margin-left:auto;color:var(--muted);font-size:11px;font-weight:600}
+.topic-body{padding:5px 14px 15px;border-top:1px solid var(--border)}
+.page{margin:7px 0;border-radius:9px;background:var(--soft)}
+.page>summary{font-size:13px;padding:10px 12px}
+.page-body{border-top:1px solid var(--border);padding:0}
+pre{margin:0;padding:15px;white-space:pre-wrap;overflow:auto;font:13px/1.55 "SFMono-Regular",Consolas,"Liberation Mono",monospace;color:#202b36;background:#fbfcfd}
+code{font-family:"SFMono-Regular",Consolas,monospace}
+.hidden{display:none!important}
+mark{background:#fde68a}
+#stats{color:var(--muted);font-size:12px;margin:10px 2px}
+footer{max-width:1250px;margin:20px auto;padding:0 15px 40px;color:var(--muted);font-size:11px}
+@media(max-width:720px){input{width:100%;max-width:none}.meta{font-size:10px}}
+</style>
+</head>
+<body>
+<header>
+<div class="header-inner">
+<div>
+<h1>Advanced Spring & Spring Boot — Detailed Interview Cheat Sheet</h1>
+<div class="subtitle">Based on the uploaded 91-page Google Keep document • source details preserved • collapsible topic + page hierarchy</div>
+</div>
+<div class="controls">
+<input id="search" type="search" placeholder="Search @Autowired, lifecycle, Retryable, Controller...">
+<button id="openAll">Open all</button>
+<button id="closeAll">Close all</button>
+</div>
+</div>
+</header>
+<main>
+<div class="intro">
+<strong>Structure:</strong> The original 91 pages are reorganized into major Spring/Spring Boot interview topics. Each topic can be expanded, and every source page remains individually collapsible so no source detail is lost.
+<div class="warning"><strong>Source fidelity:</strong> This sheet preserves the uploaded document's terminology, examples, code, questions, explanations and page content rather than silently correcting or replacing it with outside material.</div>
+</div>
+<div id="stats"></div>
+
+<details class="topic" id="topic-1">
+  <summary><span class="topic-num">1</span>1. Spring &amp; Spring Boot — Advanced Interview Questions <span class="meta">Pages 1–4</span></summary>
+  <div class="topic-body">
+    
+    <details class="page">
+      <summary>Page 1</summary>
+      <div class="page-body"><pre>Advance in depth Spring
+1. @Component Annotation
+2. @Controller Annotation internal working
+3. @RestController
+4. @Service, @Repository, and @Controller: Since all extends @Component : Spring adds
+extra behavior for Controller and Repository
+5. @contoller vs @RestController
+6. @Target Annotation
+7. Element Type Enum for @Target annotation
+8.  @Retention Annotation
+9. @Document
+10. spring vs spring boot
+11. What is annotation?
+12. Spring Events | Resource Loading | Scheduling</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 2</summary>
+      <div class="page-body"><pre>Questions
+1. Controller vs Rest Controller
+2. Webservice? combination of smaller services that work together for larger, application-wide
+functionality.
+3. REST: (architectural style that uses standard HTTP methods (GET, POST, PUT, DELETE) to
+manipulate resources)
+4. Bean Factory: (Create Beans+ wiring+ dispatch objects on request)
+- It is used for mobile or applet applications where speed is required
+vs Application Context:  (Transactions+ AOP + Create Beans+ wiring+ dispatch objects on
+request+ Internationalisation + Load File Resources + Events handling on beans)
+4. Spring: Constructor vs Setter
+Spring Bean Scope(singleton[default], prototype scope[every bean request], request[every
+request], session[every session], application[per web application])
+
+5. How can we verify internally that Spring’s DispatcherServlet treats @Controller differently
+from other stereotype annotations like @Service?
+==================
+1. How would you debug a memory leak in a Spring Boot microservice?
+
+Hint: They want more than &quot;check the logs.
+Talk about heap dumps, analyzing with tools like VisualVM, finding large collections or caches
+that never get cleared.
+
+2. What happens if one `@Transactional` method calls another `@Transactional` method in the
+same class?
+
+Spoiler: The second transaction may be ignored because of Spring&#x27;s proxy-based AOP. They
+want to know if you understand self-invocation issues.
+
+3. You added caching with `@Cacheable`, but it&#x27;s not working. What could go wrong?
+
+This is about Spring&#x27;s proxy mechanism again.
+Common issues: method is `private`, called internally, or caching is misconfigured.
+
+4. How do you handle circular dependencies in Spring?
+
+They want to know your strategies — using setter injection, `@Lazy`, or refactoring design to</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 3</summary>
+      <div class="page-body"><pre>break the cycle.
+
+5. A REST API intermittently fails with 500 errors under load. How do you find and fix it?
+
+Think like an SRE: thread dumps, analyze logs, look for blocking code, DB bottlenecks,
+connection pool exhaustion, etc.
+
+6. Your scheduled task in Spring Boot doesn’t run. Why?
+
+Missed `@EnableScheduling`? Running as a non-bean? Wrong cron?
+These questions test if you actually used these annotations — not just read about them.
+
+7. What happens when you use `@Autowired` on a field vs constructor vs setter?
+
+This isn&#x27;t just preference — it&#x27;s about testability, immutability, and control over injection.
+
+===========
+1. How does Spring Boot decide which auto-configuration to apply?
+2. What happens internally when you add spring-boot-starter-web?
+3. Why does Spring Boot prefer Convention over Configuration?
+4. How does Spring Boot load application.properties internally?
+5. What is the exact startup flow of a Spring Boot application?
+6. Difference between @ComponentScan and @SpringBootApplication?
+7. How does Spring Boot detect embedded Tomcat automatically?
+8. What happens if two beans of same type exist without @Qualifier?
+9. How does Spring Boot load profile specific configurations?
+10. What is the role of SpringFactoriesLoader?
+11. How did Spring Boot remove XML configuration almost completely?
+12. Difference between @RestController and @Controller internally?
+13. How does Spring Boot manage dependency versions automatically?
+14. What is the complete lifecycle of a Spring Bean?
+15. How does Spring Boot handle externalized configuration?
+16. What happens if application.yml and application.properties both exist?
+17. How does Spring Boot integrate with Actuator internally?
+18. Difference between @Configuration class and normal class?
+19. How does Spring Boot auto-create DataSource?
+20. What is the real use of CommandLineRunner?</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 4</summary>
+      <div class="page-body"><pre>21. How does Spring Boot handle exception translation?
+22. Difference between @EnableAutoConfiguration and @Import?
+23. What happens when you exclude an auto-configuration class?
+24. Why is Spring Boot perfect for microservices?
+25. Difference between fat JAR and normal JAR?
+26. How does Spring Boot handle logging by default?
+27. How does Spring Boot decide server port priority?
+28. What happens internally when you hit a REST endpoint?
+29. Why is Spring Boot preferred for cloud-native apps?
+30. What are the most common Spring Boot performance mistakes?
+
+
+
+
+Spring Boot Important topics
+Spring Boot
+│
+├── Auto Configuration
+│   └── Automatically creates and configures Spring beans based on</pre></div>
+    </details>
+    
+  </div>
+</details>
+
+<details class="topic" id="topic-2">
+  <summary><span class="topic-num">2</span>2. Spring Boot Core Features <span class="meta">Pages 5–13</span></summary>
+  <div class="topic-body">
+    
+    <details class="page">
+      <summary>Page 5</summary>
+      <div class="page-body"><pre>│       dependencies and application properties.
+│
+├── Starter Dependencies
+│   └── Pre-packaged dependency bundles that bring all required
+│       libraries for a specific feature (Web, JPA, Security, etc.).
+│
+├── Profiles
+│   └── Mechanism for running the application with different
+│       configurations for different environments (Dev, Test, Prod).
+│
+├── External Configuration
+│   └── Way to keep configuration outside the source code using
+│       properties, YAML files, environment variables, etc.
+│
+├── Validation
+│   └── Ensures incoming data satisfies business rules before
+│       processing or saving it.
+│
+├── Exception Handling
+│   └── Centralized mechanism to catch exceptions and return
+│       meaningful error responses.
+│
+├── Logging
+│   └── Records application events, warnings, errors, and debugging
+│       information during execution.
+│
+├── Configuration Properties
+│   └── Type-safe binding of related configuration values from
+│       properties/YAML files into Java objects.
+│
+└── Spring Boot Actuator
+    └── Built-in production monitoring and management endpoints
+        (health, metrics, info, beans, environment, etc.).
+
+1. Auto Configuration</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 6</summary>
+      <div class="page-body"><pre>Problem
+In the Spring Framework, you had to configure many beans manually.
+
+For example, if you wanted to use a database, you had to configure:
+DataSource
+EntityManager
+TransactionManager
+JdbcTemplate
+
+This required a lot of boilerplate configuration.
+
+Solution
+Spring Boot automatically configures common beans based on the dependencies present in
+your project and your configuration.
+
+For example, if you add:
+spring-boot-starter-data-jpa
+
+and configure:
+spring.datasource.url=jdbc:mysql://localhost:3306/mydb
+spring.datasource.username=root
+spring.datasource.password=pass
+Spring Boot automatically creates:
+
+then,
+DataSource
+EntityManagerFactory
+TransactionManager
+Hibernate configuration
+
+You don&#x27;t need to create these beans manually.
+
+Why is it called Auto Configuration?
+Because Spring Boot automatically configures your application based on:
+Dependencies on the classpath
+Configuration properties
+Existing beans</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 7</summary>
+      <div class="page-body"><pre>==============================
+2. Starter Dependencies
+
+Problem
+Suppose you want to build a REST API.
+
+Without starters, you must add many dependencies manually:
+Spring Core
+Spring MVC
+Jackson
+Validation
+Logging
+Embedded Tomcat
+Managing versions becomes difficult.
+
+Solution
+Spring Boot provides Starter Dependencies, which are pre-packaged collections of commonly
+used libraries.
+
+Example:
+spring-boot-starter-web
+This single dependency brings in:
+Spring MVC
+Jackson
+Embedded Tomcat
+Validation
+Logging
+
+You only need one dependency instead of many.
+
+Common Starters
+spring-boot-starter-web
+spring-boot-starter-data-jpa
+spring-boot-starter-security
+spring-boot-starter-test</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 8</summary>
+      <div class="page-body"><pre>===============================
+Profiles
+
+Problem
+An application usually runs in multiple environments:
+Development
+Testing
+Production
+
+Each environment needs different configurations.
+
+For example:
+1. Development database:
+localhost:3306
+
+2. Production database:
+prod.company.com
+
+Without profiles, you would have to edit configuration files every time you deploy.
+
+Solution
+Spring Boot provides Profiles.
+
+Create different configuration files:
+application-dev.properties
+application-test.properties
+application-prod.properties
+Activate one profile:
+spring.profiles.active=dev
+
+Now Spring loads only the configuration for the active environment.
+
+Common Use Cases
+Different databases
+Different API URLs
+Different logging levels</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 9</summary>
+      <div class="page-body"><pre>Feature toggles
+
+===================
+External Configuration
+Problem
+Suppose your database password is hardcoded:
+String password = &quot;mypassword&quot;;
+
+If the password changes, you must modify the code and redeploy the application.
+Hardcoding sensitive information is also insecure.
+
+Solution
+Keep configuration outside the code.
+
+Spring Boot can read configuration from:
+application.properties
+application.yml
+Environment variables
+Command-line arguments
+
+Example:
+spring.datasource.url=jdbc:mysql://localhost:3306/mydb
+spring.datasource.username=root
+spring.datasource.password=password
+
+Now changing the database password doesn&#x27;t require code changes.
+
+==========================
+Validation
+Problem
+Suppose a client sends:
+{
+  &quot;name&quot;: &quot;&quot;,
+  &quot;age&quot;: -5
+}
+Without validation, invalid data is saved to the database.</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 10</summary>
+      <div class="page-body"><pre>Solution
+Use Bean Validation annotations.
+
+Example:
+public class UserDTO {
+
+    @NotBlank
+    private String name;
+
+    @Min(18)
+    private int age;
+}
+
+In the controller:
+@PostMapping
+public User create(@Valid @RequestBody UserDTO dto) {
+    return service.save(dto);
+}
+
+If validation fails, Spring returns an error instead of saving invalid data.
+
+Common Validation Annotations
+@NotNull
+@NotBlank
+@Email
+@Size
+@Min
+@Max
+@Pattern
+
+====================
+Exception Handling
+Problem
+Suppose a user requests:
+GET /users/100
+User 100 doesn&#x27;t exist.</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 11</summary>
+      <div class="page-body"><pre>Without exception handling, the application may return:
+500 Internal Server Error
+This is not helpful to the client.
+Solution
+Handle exceptions globally.
+Example:
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity&lt;String&gt; handle(UserNotFoundException ex) {
+        return ResponseEntity.status(404).body(ex.getMessage());
+    }
+}
+N
+ow the client receives:
+404 Not Found
+User not found
+instead of a generic server error.
+
+7. Logging
+Problem
+When an application fails, developers need to know:
+What happened?
+When did it happen?
+Which user made the request?
+Why did it fail?
+
+Using:
+System.out.println();
+is not suitable for production.
+
+Solution
+
+Spring Boot uses SLF4J with Logback by default.</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 12</summary>
+      <div class="page-body"><pre>Example:
+private static final Logger log =
+    LoggerFactory.getLogger(UserService.class);
+
+log.info(&quot;User created successfully&quot;);
+log.warn(&quot;Invalid request&quot;);
+log.error(&quot;Database connection failed&quot;);
+
+Log Levels
+TRACE
+DEBUG
+INFO
+WARN
+ERROR
+Logging helps with debugging, monitoring, and auditing applications.
+
+8. Configuration Properties
+Problem
+Suppose your application has many related configuration values:
+app.name=RecipeApp
+app.version=1.0
+app.maxRecipes=100
+Using @Value for each property becomes repetitive.
+
+Solution
+Bind related properties to a Java class using @ConfigurationProperties.
+
+Example:
+@ConfigurationProperties(prefix = &quot;app&quot;)
+public class AppProperties {
+
+    private String name;
+    private String version;
+    private int maxRecipes;
+
+    // getters and setters</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 13</summary>
+      <div class="page-body"><pre>}
+Spring automatically maps:
+app.name=RecipeApp
+app.version=1.0
+app.maxRecipes=100
+to the fields in AppProperties.
+This makes configuration cleaner, type-safe, and easier to maintain.
+
+============
+Spring Boot Actuator
+Problem
+In production, administrators need to know:
+Is the application running?
+Is the database connected?
+Memory usage?
+Health status?
+Metrics?
+Without built-in support, developers would need to implement monitoring endpoints themselves.
+Solution
+Spring Boot Actuator provides ready-made endpoints for monitoring and managing applications.
+Add the dependency:
+spring-boot-starter-actuator
+Common endpoints:
+/actuator/health – Application health
+/actuator/info – Application information
+/actuator/metrics – Performance metrics
+/actuator/beans – Spring beans
+/actuator/env – Environment properties
+Example
+Request:
+GET /actuator/health
+Response:
+{
+  &quot;status&quot;: &quot;UP&quot;
+}</pre></div>
+    </details>
+    
+  </div>
+</details>
+
+<details class="topic" id="topic-3">
+  <summary><span class="topic-num">3</span>3. Spring Events, Resource Loading &amp; Scheduling <span class="meta">Pages 14–18</span></summary>
+  <div class="topic-body">
+    
+    <details class="page">
+      <summary>Page 14</summary>
+      <div class="page-body"><pre>This indicates the application is healthy and running.
+
+
+
+
+Spring Events(allow to perform task async) | Resource Loading |
+Scheduling
+1. Spring Events
+Problem
+Suppose a new user registers.
+
+After registration, you need to:
+Send a welcome email
+Create a profile
+Give bonus points
+Write an audit log
+
+Without events, your service would look like:
+registerUser();
+sendEmail();
+createProfile();
+giveBonus();
+writeLog();
+
+The registration service now has many responsibilities and is tightly coupled to other services.
+
+Solution
+Spring provides an Event mechanism.
+Instead of calling every service directly, you publish an event.</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 15</summary>
+      <div class="page-body"><pre>Other components listen for that event and perform their own work.
+
+Example
+After saving the user:
+applicationEventPublisher.publishEvent(new UserRegisteredEvent(user));
+Now listeners automatically receive the event.
+@EventListener
+public void sendWelcomeEmail(UserRegisteredEvent event) {
+    // Send email
+}
+@EventListener
+public void createProfile(UserRegisteredEvent event) {
+    // Create profile
+}
+@EventListener
+public void writeAuditLog(UserRegisteredEvent event) {
+    // Save log
+}
+The registration service doesn&#x27;t know who is listening.
+
+Advantages
+Loose coupling
+Easy to add new listeners
+Better maintainability
+
+Real-life Example
+Think of a fire alarm.
+When the alarm rings:
+Fire department responds.
+Security opens emergency exits.
+Elevators stop.
+Sprinklers activate.
+The alarm doesn&#x27;t call each one individually—it simply broadcasts an event.
+==========================
+2. Resource Loading</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 16</summary>
+      <div class="page-body"><pre>Problem
+Applications need to read resources such as:
+
+Configuration files
+Images
+PDF files
+SQL scripts
+Templates
+
+These resources may come from:
+Classpath
+Local file system
+URL
+Cloud storage
+
+Without Spring, you&#x27;d need different APIs for each location.
+
+Solution
+Spring provides a common Resource abstraction.
+You use the same API regardless of where the resource is stored.
+
+Example
+Read a file from the classpath:
+Resource resource =    new ClassPathResource(&quot;data.txt&quot;);
+
+Read from the file system:
+Resource resource =   new FileSystemResource(&quot;/home/data.txt&quot;);
+
+Read from a URL:
+Resource resource =   new UrlResource(&quot;https://example.com/file.pdf&quot;);
+Spring treats all of them as a Resource.
+
+Advantages
+One API for all resource types
+Easy to switch resource locations
+Cleaner code</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 17</summary>
+      <div class="page-body"><pre>Real-life Example
+Think of a USB port on your computer.
+
+Whether you connect:
+Keyboard
+Mouse
+Pen drive
+
+You use the same USB interface.
+Similarly, Spring uses the same Resource interface for different resource locations.
+=================================
+
+3. Scheduling
+Problem
+Some tasks should run automatically.
+
+Examples:
+Send daily reports
+Clean temporary files
+Generate invoices every month
+Sync data every hour
+Backup the database every night
+Without scheduling, someone would have to run these tasks manually.
+
+Solution
+Spring provides scheduling using the @Scheduled annotation.
+You enable scheduling:
+@EnableScheduling
+Then create scheduled methods.
+
+Example
+Run every minute:
+@Scheduled(fixedRate = 60000)
+public void syncData() {
+    System.out.println(&quot;Syncing...&quot;);
+}</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 18</summary>
+      <div class="page-body"><pre>Run every day at midnight:
+@Scheduled(cron = &quot;0 0 0 * * ?&quot;)
+public void generateReport() {
+    System.out.println(&quot;Generating report...&quot;);
+}
+Spring automatically executes these methods based on the configured schedule.
+
+Common Scheduling Options
+Fixed Rate
+Runs every fixed interval.
+@Scheduled(fixedRate = 5000)
+Runs every 5 seconds, measured from the start of the previous execution.
+
+Fixed Delay
+Runs after the previous execution completes.
+@Scheduled(fixedDelay = 5000)
+Waits 5 seconds after the previous execution finishes.
+
+Cron Expression
+Runs at specific times.
+@Scheduled(cron = &quot;0 0 9 * * MON-FRI&quot;)
+Runs every weekday at 9:00 AM.
+
+Advantages
+Automates repetitive tasks
+No manual intervention
+Built-in support in Spring
+Supports intervals and cron-based scheduling
+
+Real-life Example
+Think of an alarm clock.
+You set it for 7:00 AM every day.
+You don&#x27;t manually check the time—it automatically rings at the scheduled time.
+Similarly, Spring automatically executes scheduled methods at the configured times.</pre></div>
+    </details>
+    
+  </div>
+</details>
+
+<details class="topic" id="topic-4">
+  <summary><span class="topic-num">4</span>4. Apache Ant &amp; Spring Cache <span class="meta">Pages 19–20</span></summary>
+  <div class="topic-body">
+    
+    <details class="page">
+      <summary>Page 19</summary>
+      <div class="page-body"><pre>Apache Ant
+It is a Java-based build automation tool used to compile, test, package, and deploy applications.
+
+How Ant works
+Ant executes tasks defined in an XML file called build.xml.
+Example flow:
+Source Code
+    ↓
+Compile
+    ↓
+Run Tests
+    ↓
+Create JAR/WAR
+    ↓
+Deploy
+Structure of build.xml
+&lt;project name=&quot;MyProject&quot; default=&quot;jar&quot;&gt;
+
+   &lt;target name=&quot;clean&quot;&gt;
+       &lt;delete dir=&quot;build&quot;/&gt;
+   &lt;/target&gt;
+
+   &lt;target name=&quot;compile&quot;&gt;
+       &lt;mkdir dir=&quot;build&quot;/&gt;
+       &lt;javac srcdir=&quot;src&quot; destdir=&quot;build&quot;/&gt;
+   &lt;/target&gt;
+
+   &lt;target name=&quot;jar&quot; depends=&quot;compile&quot;&gt;
+       &lt;jar destfile=&quot;dist/app.jar&quot; basedir=&quot;build&quot;/&gt;
+   &lt;/target&gt;
+
+&lt;/project&gt;
+
+
+Advantages</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 20</summary>
+      <div class="page-body"><pre>Simple XML configuration
+Highly customizable
+Good for legacy Java projects
+Easy to automate repetitive tasks
+Disadvantages
+You manually manage dependencies.
+Build files can become very large.
+More verbose than Maven or Gradle.
+
+
+Apache Ant is an XML-based Java build automation tool. It automates tasks such as compiling
+source code, running tests, packaging JAR/WAR files, and deployment. Unlike Maven or
+Gradle, Ant does not provide built-in dependency management, so dependencies must be
+managed manually. In SAP Commerce (Hybris), Ant is extensively used for platform builds and
+maintenance with commands like ant clean all, ant initialize, and ant updatesystem.
+
+
+Spring Cache | @Cacheable
+@Cacheable(value = &quot;basicCache&quot;)
+public String getUserInfo(String userId) {
+    ...
+}
+
+Spring Cache itself does not store anything. It is just an abstraction.
+
+The actual storage is provided by a Cache Provider, such as:
+EHCache
+Caffeine
+Hazelcast
+Redis
+Infinispan
+ConcurrentMapCache (simple in-memory)</pre></div>
+    </details>
+    
+  </div>
+</details>
+
+<details class="topic" id="topic-5">
+  <summary><span class="topic-num">5</span>5. Spring AOP / Proxy-Based Annotations &amp; @Retryable <span class="meta">Pages 21–31</span></summary>
+  <div class="topic-body">
+    
+    <details class="page">
+      <summary>Page 21</summary>
+      <div class="page-body"><pre>How to recognize proxy-based annotations? |@Retryable
+@Cacheable @Transactional
+How to recognize proxy-based annotations?
+
+If an annotation adds behavior around a method call, then this will only work when another
+bean calls this method. if a method is called within same bean, then this wont work.
+
+
+Before method
+↓
+Method
+↓
+After method
+
+it&#x27;s usually implemented with Spring AOP/proxies.
+
+For all Spring AOP-based annotations, the rule is generally:
+The method call must go through the Spring proxy.
+
+This includes:
+@Retryable
+@Cacheable
+@Transactional
+@Async
+@Secured
+many others
+
+
+
+@Retryable
+Spring @Retryable Notes
+What is @Retryable?
+@Retryable is a Spring Retry annotation that automatically retries a method when specific
+exceptions occur.
+Instead of writing manual retry loops:</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 22</summary>
+      <div class="page-body"><pre>try {
+    return restTemplate.getForObject(...);
+} catch (HttpServerErrorException e) {
+    // retry logic
+}
+
+you can simply write:
+@Retryable(
+    retryFor = HttpServerErrorException.ServiceUnavailable.class,
+    maxAttempts = 3
+)
+public Response callApi() {
+    return restTemplate.getForObject(...);
+}
+
+Spring handles the retries automatically.
+
+Prerequisites
+Dependency
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.retry&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-retry&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-aspects&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+Enable Retry
+@Configuration
+@EnableRetry
+public class RetryConfig {
+}
+
+Without @EnableRetry, @Retryable will not work.</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 23</summary>
+      <div class="page-body"><pre>Basic Example
+@Retryable(
+    retryFor = HttpServerErrorException.ServiceUnavailable.class,
+    maxAttempts = 3
+)
+public Response searchAvailableDates() {
+    return restTemplate.getForObject(uri, Response.class);
+}
+
+Behavior:
+First call fails with 503.
+Spring retries.
+Second call fails.
+Spring retries.
+Third call succeeds.
+Method returns successful response.
+
+Backoff Configuration
+@Retryable(
+    retryFor = HttpServerErrorException.ServiceUnavailable.class,
+    maxAttempts = 3,
+    backoff = @Backoff(
+        delay = 1000,
+        multiplier = 2
+    )
+)
+
+Retry timing:
+Attempt 1 → immediately
+Retry 1 → after 1 second
+Retry 2 → after 2 seconds
+Useful for temporary outages.
+
+Common Use Cases
+External REST APIs
+@Retryable(</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 24</summary>
+      <div class="page-body"><pre>    retryFor = HttpServerErrorException.ServiceUnavailable.class
+)
+
+Example:
+503 Service Unavailable
+Server restarting
+Temporary load balancer issue
+
+Database Connectivity
+@Retryable(
+    retryFor = SQLException.class
+)
+
+Example:
+Temporary connection loss
+Network glitch
+
+Messaging Systems
+@Retryable(
+    retryFor = TimeoutException.class
+)
+
+Example:
+Kafka timeout
+RabbitMQ temporary failure
+
+IMPORTANT: Exceptions Must Escape the Method
+Wrong
+@Retryable(...)
+public Response call() {
+
+    try {
+        return restTemplate.getForObject(...);
+    } catch (Exception e) {
+        return null;
+    }
+}</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 25</summary>
+      <div class="page-body"><pre>Reason:
+Exception is swallowed.
+Method returns normally.
+Spring thinks execution succeeded.
+No retry occurs.
+
+Correct
+@Retryable(...)
+public Response call() {
+    return restTemplate.getForObject(...);
+}
+
+or
+@Retryable(...)
+public Response call() {
+
+    try {
+        return restTemplate.getForObject(...);
+    } catch (Exception e) {
+        log.error(&quot;Failed&quot;, e);
+        throw e;
+    }
+}
+
+Reason:
+Exception leaves method.
+Retry interceptor catches it.
+Retry occurs.
+
+Using @Recover
+Executed after all retries fail.
+@Recover
+public Optional&lt;Response&gt; recover(
+        HttpServerErrorException.ServiceUnavailable e,
+        String postalCode,
+        DeliveryModeModel deliveryMode) {</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 26</summary>
+      <div class="page-body"><pre>    log.error(&quot;All retries exhausted&quot;, e);
+
+    return Optional.empty();
+}
+
+Flow:
+Attempt 1 -&gt; fail
+Attempt 2 -&gt; fail
+Attempt 3 -&gt; fail
+↓
+@Recover executes
+
+Useful for:
+Returning default values
+Logging final failure
+Sending alerts
+
+Self Invocation Problem
+Does NOT work
+@Service
+public class MyService {
+
+    @Retryable(...)
+    public void methodA() {
+    }
+
+    public void methodB() {
+        methodA();
+    }
+}
+
+Reason:
+Call stays inside same object.
+Spring proxy is bypassed.
+Retry interceptor never executes.
+
+Works</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 27</summary>
+      <div class="page-body"><pre>@Service
+public class OtherService {
+
+    private final MyService myService;
+
+    public void call() {
+        myService.methodA();
+    }
+}
+
+Reason:
+Call goes through Spring proxy.
+
+Interface vs Implementation
+Interface Annotation
+public interface Client {
+
+    @Retryable(...)
+    Response call();
+}
+
+Can work when using JDK proxies.
+
+Implementation Annotation
+Preferred:
+@Service
+public class ClientImpl implements Client {
+
+    @Override
+    @Retryable(...)
+    public Response call() {
+        ...
+    }
+}
+
+Reason:
+More explicit.
+Less dependent on proxy type.</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 28</summary>
+      <div class="page-body"><pre>Easier to understand.
+
+Using with @Cacheable
+Example:
+@Retryable(...)
+@Cacheable(&quot;cacheName&quot;)
+public Optional&lt;Response&gt; searchAvailableDates() {
+    ...
+}
+
+Typical flow:
+Cache miss
+↓
+Call API
+↓
+503
+↓
+Retry
+↓
+Success
+↓
+Cache result
+
+Usually a good combination.
+
+Be Careful with Optional.empty()
+@Cacheable(&quot;cache&quot;)
+public Optional&lt;Response&gt; call() {
+    return Optional.empty();
+}
+
+Some cache implementations may cache the empty Optional.
+Result:
+Temporary outage
+↓
+Optional.empty()</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 29</summary>
+      <div class="page-body"><pre>↓
+Cached
+↓
+Future calls never hit API
+
+Consider:
+@Cacheable(
+    unless = &quot;#result == null || #result.isEmpty()&quot;
+)
+
+
+Best Practices
+Retry only transient failures
+Good:
+503 Service Unavailable
+Timeout
+Connection reset
+Temporary network issues
+Bad:
+400 Bad Request
+Validation failures
+Authentication failures
+Business rule errors
+
+Use exponential backoff
+Prefer:
+@Backoff(delay = 1000, multiplier = 2)
+
+instead of immediate retries.
+
+Keep retry count small
+Common values:
+maxAttempts = 3
+
+or
+maxAttempts = 5</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 30</summary>
+      <div class="page-body"><pre>Avoid excessive retries.
+
+Interview / Knowledge Check Questions
+Q1. Why isn&#x27;t @Retryable working?
+Possible reasons:
+Missing @EnableRetry
+Exception is caught and swallowed
+Self-invocation
+Wrong exception type configured
+Bean not managed by Spring
+
+Q2. Will this retry?
+@Retryable(...)
+public String call() {
+    try {
+        ...
+    } catch (Exception e) {
+        return &quot;failed&quot;;
+    }
+}
+
+Answer:
+No. Exception is swallowed.
+
+Q3. Will this retry?
+@Retryable(...)
+public String call() {
+    try {
+        ...
+    } catch (Exception e) {
+        throw e;
+    }
+}
+
+Answer:
+Yes. Exception escapes the method.</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 31</summary>
+      <div class="page-body"><pre>Q4. When should @Recover be used?
+After all retry attempts fail, to provide fallback behavior.
+
+Q5. Why does self-invocation break retries?
+Because Spring AOP works through proxies. Internal method calls bypass the proxy.
+
+Q6. Should I retry HTTP 400?
+No.
+400 indicates a client/request problem, not a temporary failure.
+
+Q7. Should I retry HTTP 503?
+Usually yes.
+503 often indicates:
+Server restart
+Temporary overload
+Maintenance
+Load balancer transition
+
+Q8. Which is better: Manual retry or @Retryable?
+Generally:
+Use @Retryable for standard retry scenarios.
+Use manual retry only when custom logic is required.
+@Retryable is cleaner, easier to maintain, and consistent across the application.
+
+
+Spring(Framework) vs Spring Boot(Simplified Spring- goal is to
+Run Spring apps with minimal setup)
+👉 Spring = Framework
+👉 Spring Boot = Tool built on top of Spring to make it easy
+
+🌱 1. Spring Framework
+👉 Full-featured framework for building Java applications
+
+What it provides:
+Dependency Injection (IoC)
+MVC (Spring MVC)</pre></div>
+    </details>
+    
+  </div>
+</details>
+
+<details class="topic" id="topic-6">
+  <summary><span class="topic-num">6</span>6. Spring Framework vs Spring Boot &amp; Java Annotations <span class="meta">Pages 31–32</span></summary>
+  <div class="topic-body">
+    
+    <details class="page">
+      <summary>Page 31</summary>
+      <div class="page-body"><pre>Q4. When should @Recover be used?
+After all retry attempts fail, to provide fallback behavior.
+
+Q5. Why does self-invocation break retries?
+Because Spring AOP works through proxies. Internal method calls bypass the proxy.
+
+Q6. Should I retry HTTP 400?
+No.
+400 indicates a client/request problem, not a temporary failure.
+
+Q7. Should I retry HTTP 503?
+Usually yes.
+503 often indicates:
+Server restart
+Temporary overload
+Maintenance
+Load balancer transition
+
+Q8. Which is better: Manual retry or @Retryable?
+Generally:
+Use @Retryable for standard retry scenarios.
+Use manual retry only when custom logic is required.
+@Retryable is cleaner, easier to maintain, and consistent across the application.
+
+
+Spring(Framework) vs Spring Boot(Simplified Spring- goal is to
+Run Spring apps with minimal setup)
+👉 Spring = Framework
+👉 Spring Boot = Tool built on top of Spring to make it easy
+
+🌱 1. Spring Framework
+👉 Full-featured framework for building Java applications
+
+What it provides:
+Dependency Injection (IoC)
+MVC (Spring MVC)</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 32</summary>
+      <div class="page-body"><pre>Security
+Data access (JPA, JDBC)
+
+❌ Problem with Spring (Old Style)
+👉 Too much manual configuration
+
+&lt;!-- XML configuration 😓 --&gt;
+&lt;bean id=&quot;userService&quot; class=&quot;com.app.UserService&quot;/&gt;
+👉 Or lots of Java config
+
+🚀 2. Spring Boot
+👉 Spring Boot = Simplified Spring
+👉 Goal: “Run Spring apps with minimal setup”
+
+
+Annotation
+👉 Annotation is metadata (information) added to code
+1. It does NOT change code behavior directly
+2. It provides extra information to:
+Compiler
+Runtime (JVM)
+Frameworks (Spring, Hibernate, etc.)
+
+🧠 Simple English Meaning
+👉 Annotation = “label or instruction attached to code”
+
+💡 Example
+@Override
+public String toString() {
+   return &quot;Hello&quot;;
+}
+👉 @Override is an annotation
+👉 It tells compiler: “This method overrides parent method”
+
+🚀 Real Example (Spring - YOUR DOMAIN)</pre></div>
+    </details>
+    
+  </div>
+</details>
+
+<details class="topic" id="topic-7">
+  <summary><span class="topic-num">7</span>7. Spring Bean Lifecycle <span class="meta">Pages 33–37</span></summary>
+  <div class="topic-body">
+    
+    <details class="page">
+      <summary>Page 33</summary>
+      <div class="page-body"><pre>@Service
+public class OrderService {
+}
+👉 Spring reads this annotation
+👉 Creates object automatically (Spring Bean)
+
+Annotations in Java are metadata added to classes, methods, or fields to provide additional
+information to the compiler, runtime, or frameworks. They do not change program logic directly
+but influence behavior through tools or frameworks that process them.
+
+
+
+
+
+Spring Life Cycle:
+🧠 What is Spring Bean Lifecycle?
+It defines how a bean is created, initialized, used, and destroyed by the IoC container.
+
+🏗️ Who manages lifecycle?
+Spring IoC Container manages everything:
+Creates beans
+Injects dependencies
+Initializes beans
+Destroys beans
+
+🚀 Application Start Flow
+@SpringBootApplication
+public class LifeCycle {
+
+    public static void main(String[] args) {</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 34</summary>
+      <div class="page-body"><pre>        System.out.println(&quot;Spring boot application main class method:&quot;);
+
+        var container = SpringApplication.run(LifeCycle.class, args);
+    }
+}
+
+👉 What happens internally:
+
+Container starts
+→ Scans components
+→ Creates beans
+→ Injects dependencies
+→ Initializes beans
+→ Application runs
+→ On shutdown → destroys beans
+
+🌳 COMPLETE BEAN LIFECYCLE (FINAL FLOW)
+1. Bean Instantiation (constructor called)
+2. Dependency Injection
+3. Aware Interfaces (optional)
+4. BeanPostProcessor (before init)
+5. Initialization methods: 3 ways(interface/annotation/xml)
+6. BeanPostProcessor (after init)
+7. Bean ready to use
+8. Destruction (on shutdown)
+
+🔍 STEP-BY-STEP WITH YOUR EXAMPLES
+
+🥇 Step 1: Bean Instantiation
+@Component
+public class Battery {
+   public Battery() {
+       System.out.println(&quot;Battery constructor called&quot;);
+   }
+}
+👉 Output:
+Battery constructor called</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 35</summary>
+      <div class="page-body"><pre>🥈 Step 2: Dependency Injection
+👉 Spring injects dependencies using:
+@Autowired
+constructor / setter
+
+🥉 Step 3: Aware Interfaces (Optional)
+👉 Spring gives bean access to:
+Bean name
+ApplicationContext
+✔ Rarely used
+✔ Advanced use case only
+
+🧪 Step 4: BeanPostProcessor (Before Init)
+👉 Spring calls:
+postProcessBeforeInitialization()
+✔ Used internally (AOP, proxies, etc.)
+
+⚙️ Step 5: Initialization (IMPORTANT)- 3 ways
+✅ Using Annotation
+@PostConstruct
+public void init() {
+   System.out.println(&quot;Battery init method called&quot;);
+}
+👉 Output:
+Battery init method called
+
+✅ Using Interface
+@Component
+public class Car implements InitializingBean {
+
+   @Override
+   public void afterPropertiesSet() {
+       System.out.println(&quot;CarBean afterPropertiesSet method called&quot;);
+   }
+}</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 36</summary>
+      <div class="page-body"><pre>✅ Using XML
+&lt;bean id=&quot;exampleBean&quot;
+      class=&quot;com.example.MyBean&quot;
+      init-method=&quot;init&quot;
+      destroy-method=&quot;destroy&quot;/&gt;
+
+👉 ALL THREE are same purpose:
+“Run logic AFTER dependencies are injected”
+
+🧪 Step 6: BeanPostProcessor (After Init) ⭐
+👉 Spring calls:
+postProcessAfterInitialization()
+🔥 MOST IMPORTANT STEP
+👉 Used for:
+Proxy creation
+AOP
+@Transactional
+
+✅ Step 7: Bean Ready
+👉 Now bean is:
+Fully initialized
+Ready to use
+
+🧨 Step 8: Destruction
+✅ Using Annotation
+@PreDestroy
+public void destroy() {
+   System.out.println(&quot;Battery destroy method called&quot;);
+}
+
+✅ Using Interface
+@Component
+public class Car implements DisposableBean {
+
+   @Override
+   public void destroy() {
+       System.out.println(&quot;CarBean destroy method called&quot;);</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 37</summary>
+      <div class="page-body"><pre>   }
+}
+
+👉 Happens when:
+Application shuts down
+
+🔥 FULL OUTPUT FLOW (MENTAL IMAGE)
+Battery constructor called
+→ dependencies injected
+→ Battery init method called
+→ Bean is ready
+→ (application runs)
+→ Battery destroy method called
+
+
+
+
+Spring Bean Scope(No. of instance + how long instance live)
+✅ 1. What is Spring Bean Scope?
+Bean scope defines how many instances of a bean Spring creates and how long they live
+
+Bean Scope
+│
+├── Singleton (default)
+├── Prototype
+├── Request (web)
+├── Session (web)
+└── Application (web)
+
+
+
+Bean Scope:
+As a rule, you should prefer to use the prototype scope for all stateful beans and the singleton
+scope for stateless beans.
+
+=========1.1. singleton scope(ApplicationContext)</pre></div>
+    </details>
+    
+  </div>
+</details>
+
+<details class="topic" id="topic-8">
+  <summary><span class="topic-num">8</span>8. Spring Bean Scopes <span class="meta">Pages 37–39</span></summary>
+  <div class="topic-body">
+    
+    <details class="page">
+      <summary>Page 37</summary>
+      <div class="page-body"><pre>   }
+}
+
+👉 Happens when:
+Application shuts down
+
+🔥 FULL OUTPUT FLOW (MENTAL IMAGE)
+Battery constructor called
+→ dependencies injected
+→ Battery init method called
+→ Bean is ready
+→ (application runs)
+→ Battery destroy method called
+
+
+
+
+Spring Bean Scope(No. of instance + how long instance live)
+✅ 1. What is Spring Bean Scope?
+Bean scope defines how many instances of a bean Spring creates and how long they live
+
+Bean Scope
+│
+├── Singleton (default)
+├── Prototype
+├── Request (web)
+├── Session (web)
+└── Application (web)
+
+
+
+Bean Scope:
+As a rule, you should prefer to use the prototype scope for all stateful beans and the singleton
+scope for stateless beans.
+
+=========1.1. singleton scope(ApplicationContext)</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 38</summary>
+      <div class="page-body"><pre>🔹 1. Singleton (DEFAULT ⭐)
+👉 Only ONE instance per Spring container
+
+👉 Only ONE instance per Spring container
+@Component
+@Scope(&quot;singleton&quot;)  // optional (default)
+class MyService {}
+
+💡 Behavior:
+Multiple requests → SAME object
+
+✅ Use case:
+Stateless services
+Business logic
+
+⚠️ Important:
+Shared across threads → must be thread-safe
+
+singleton is default bean scope in spring container. It tells the container to create and manage
+only one instance of bean class, per container.
+
+e.g
+
+&lt;bean id=&quot;beanId&quot; class=&quot;com.howtodoinjava.BeanClass&quot; scope=&quot;singleton&quot; /&gt;
+or
+@Component
+//This statement is redundant - singleton is default scope
+@Scope(&quot;singleton&quot;)  //This statement is redundant
+public class BeanClass {
+
+}
+
+=====1.2. prototype scope
+
+&gt;== prototype scope results in the creation of a new bean instance every time a request for the
+bean is made by application code.
+
+Thus, You should know that destruction bean lifecycle methods are not called prototype scoped</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 39</summary>
+      <div class="page-body"><pre>beans, only initialization callback methods are called. So as developer, you are responsible for
+clean up prototype-scoped bean instances and any resource there hold.
+
+@Component
+@Scope(&quot;prototype&quot;)
+public class BeanClass {
+}
+
+or
+
+&lt;bean id=&quot;beanId&quot; class=&quot;com.howtodoinjava.BeanClass&quot; scope=&quot;prototype&quot; /&gt;
+
+=========1.3. request scope
+
+
+In request scope, container creates a new instance for each and every HTTP request. So, if
+server is currently handling 50 requests, then container can have at most 50 individual
+instances of bean class. Any state change to one instance, will not be visible to other instances.
+These instances are destructed as soon as the request is completed.
+
+=========1.4  session scope
+
+In session scope, container creates a new instance for each and every HTTP session. So, if
+server has 20 active sessions, then container can have at most 20 individual instances of bean
+class. All HTTP requests within single session lifetime will have access to same single bean
+instance in that session scope.
+
+Any state change to one instance, will not be visible to other instances. These instances are
+destructed as soon as the session is destroyed/end on server.
+
+
+====1.5. application scope(ServletContext)
+
+In application scope, container creates one instance per web application runtime. It is almost
+similar to singleton scope, with only two differences i.e.
+
+application scoped bean is singleton per ServletContext, whereas singleton scoped bean is
+singleton per ApplicationContext. Please note that there can be multiple application contexts for
+single application.</pre></div>
+    </details>
+    
+  </div>
+</details>
+
+<details class="topic" id="topic-9">
+  <summary><span class="topic-num">9</span>9. BeanFactory vs ApplicationContext <span class="meta">Pages 40–44</span></summary>
+  <div class="topic-body">
+    
+    <details class="page">
+      <summary>Page 40</summary>
+      <div class="page-body"><pre>application scoped bean is visible as a ServletContext attribute.
+
+
+Bean Factory(root interface for beans creation, basically
+represents a container because container creates, injects, and
+manage beans) and Application Context and XMLBeanFactory
+Bean Factory: (Create Beans+ wiring+ dispatch objects on request+ lifecycle
+management+lazy initialization)
+
+- This is root interface for accessing spring bean container.
+- It is actual container that instantiates, configures and manages beans
+- BeanFactory is the root interface of the Spring IoC container that manages beans by
+creating, configuring, and returning them. It supports dependency injection, bean scopes, and
+lifecycle management. It uses lazy initialization, meaning beans are created only when
+requested.
+
+- ApplicationContext is an advanced container built on top of BeanFactory.
+
+-------------
+Application Context:  (Transactions+ AOP + Create Beans+ wiring+ dispatch objects on
+request+ Internationalisation + Load File Resources + Events handling on beans)
+
+- It is used for  enterprise web application where Events, Message
+interpretation(Internationalisation) is required
+
+a- The ability to load file resources in a generic fashion
+b- The ability to publish events to registered listeners
+c- The ability to resolve messages, supporting internationalization. Inherited from the
+MessageSource interface.
+d- Inheritance from a parent context. It means it can be used by multiple child since application
+context is child context
+e- ApplicationContext implementations detect and invoke ApplicationContextAware beans as
+well as ResourceLoaderAware, ApplicationEventPublisherAware and MessageSourceAware
+beans.</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 41</summary>
+      <div class="page-body"><pre>1. It holds Bean Definitions of multiple beans
+
+2. It instantiates the bean whenever asked for by clients.
+
+3. collaborate objects as they are instantiated
+
+4. It maintains life cycle of a bean,
+
+ 5.  calls to custom initialization and destruction methods.
+=========
+
+🧠 1. What is BeanFactory (Simple Statement)
+BeanFactory is the core interface of Spring IoC container responsible for creating, managing,
+and providing beans.
+
+🎯 2. One-Line Intuition
+👉 Think:
+BeanFactory = Central factory + registry of all beans
+
+🏭 3. What BeanFactory Actually Does
+BeanFactory Responsibilities
+│
+├── Stores bean definitions
+├── Creates beans
+├── Injects dependencies
+├── Manages bean lifecycle
+└── Returns beans when requested
+
+🔍 4. Key Features Explained (From Your Notes)
+
+🔹 1. Central Registry
+👉 It holds all beans:
+&quot;bean name&quot; → Bean object
+Example:
+&quot;userService&quot; → UserService instance</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 42</summary>
+      <div class="page-body"><pre>🔹 2. Returns Beans (Core Method)
+getBean(&quot;userService&quot;);
+👉 This is pull-based access
+
+🔹 3. Supports Different Scopes
+👉 Based on configuration:
+Singleton → same object
+Prototype → new object
+Request / Session → web scopes
+
+🔹 4. Dependency Injection Engine
+👉 BeanFactory internally:
+Creates objects
+Injects dependencies
+
+⚠️ IMPORTANT CONCEPT (From your notes)
+🔥 Push vs Pull (VERY IMPORTANT)
+❌ Pull (not recommended)
+UserService service = beanFactory.getBean(UserService.class);
+👉 Object is asking for dependencies
+
+✅ Push (Recommended → DI)
+@Autowired
+UserService service;
+👉 Spring injects automatically
+
+👉 BeanFactory enables DI, but we should not use it directly
+
+🧠 5. Lifecycle Support (From Your Notes)
+BeanFactory supports lifecycle like:
+1. Aware interfaces
+2. BeanPostProcessor (before init)
+3. afterPropertiesSet()
+4. custom init-method
+5. BeanPostProcessor (after init)</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 43</summary>
+      <div class="page-body"><pre>🧨 On Shutdown
+1. postProcessBeforeDestruction()
+2. destroy()
+3. custom destroy-method
+
+🌳 6. Hierarchy (Very Important)
+BeanFactory (root interface)
+│
+├── ListableBeanFactory
+├── ConfigurableBeanFactory
+└── ApplicationContext (MOST USED)
+
+🔥 7. BeanFactory vs ApplicationContext
+Feature
+BeanFactory
+ApplicationContext
+Bean creation
+Lazy
+Eager (default)
+AOP
+❌ Limited
+✅ Supported
+Events
+❌ No
+✅ Yes
+Internationalization
+❌ No
+✅ Yes
+Usage
+Rare
+Most common
+
+🧠 8. Lazy vs Eager (VERY IMPORTANT)
+🔹 BeanFactory
+Bean created ONLY when requested</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 44</summary>
+      <div class="page-body"><pre>getBean(&quot;A&quot;) → then created
+
+🔹 ApplicationContext
+Beans created at startup
+
+🔥 9. Real-Life Analogy
+👉 BeanFactory = Factory warehouse
+Stores blueprints (bean definitions)
+Creates product only when requested
+
+🎯 10. Key Interview Points
+
+✅ Point 1
+BeanFactory is the root container of Spring IoC
+
+✅ Point 2
+It provides basic bean management features
+
+✅ Point 3
+ApplicationContext is built on top of BeanFactory
+
+✅ Point 4
+BeanFactory uses lazy initialization
+
+🎯 11. Perfect Interview Answer
+“BeanFactory is the root interface of the Spring IoC container that manages beans by creating,
+configuring, and returning them. It supports dependency injection, bean scopes, and lifecycle
+management. It uses lazy initialization, meaning beans are created only when requested.
+ApplicationContext is an advanced container built on top of BeanFactory.”
+
+
+How can we verify internally that Spring’s DispatcherServlet
+treats @Controller differently from other stereotype annotations
+like @Service?</pre></div>
+    </details>
+    
+  </div>
+</details>
+
+<details class="topic" id="topic-10">
+  <summary><span class="topic-num">10</span>10. DispatcherServlet, @Controller &amp; Handler Mapping Internals <span class="meta">Pages 45–47</span></summary>
+  <div class="topic-body">
+    
+    <details class="page">
+      <summary>Page 45</summary>
+      <div class="page-body"><pre>“How can we verify internally that Spring’s DispatcherServlet treats @Controller differently from
+other stereotype annotations like @Service?”
+
+🧠 1. Core Idea
+👉 Spring does NOT treat @Controller differently at bean creation level
+👉 It treats it differently at request handling level
+
+🔍 2. Where the Difference Happens
+👉 Inside:
+DispatcherServlet → HandlerMapping → HandlerAdapter
+
+🔥 3. How to ACTUALLY VERIFY (Practical Ways)
+
+🔹 Method 1: Enable Debug Logs (BEST WAY)
+Add in application.properties:
+logging.level.org.springframework.web=DEBUG
+👉 Run app and observe logs like:
+Mapped &quot;{[/hello]}&quot; onto public java.lang.String com.example.MyController.hello()
+✅ Only classes with @Controller / @RestController appear here
+❌ @Service beans NEVER appear
+
+🔹 Method 2: Breakpoint Debugging (MOST POWERFUL)
+👉 Put breakpoint in:
+RequestMappingHandlerMapping
+Specifically method:
+detectHandlerMethods()
+What You’ll See:
+Spring checks:
+isHandler(Class&lt;?&gt; beanType)
+Inside:
+return (AnnotatedElementUtils.hasAnnotation(beanType, Controller.class) ||
+        AnnotatedElementUtils.hasAnnotation(beanType, RequestMapping.class));
+🔥 KEY INSIGHT
+👉 Spring explicitly checks:
+@Controller
+NOT:
+@Service</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 46</summary>
+      <div class="page-body"><pre>🔹 Method 3: Convert @Service to @Controller (Experiment)
+@Service
+public class TestService {
+
+    @GetMapping(&quot;/test&quot;)
+    public String test() {
+        return &quot;hello&quot;;
+    }
+}
+👉 Hit /test
+❌ Won’t work (404)
+Now change:
+@Controller
+public class TestService { ... }
+👉 Hit /test
+✅ Works
+🔹 Method 4: Check Bean vs Handler
+Print all beans:
+applicationContext.getBeanDefinitionNames()
+👉 You’ll see:
+@Controller ✅
+@Service ✅
+BUT…
+👉 Only @Controller is registered as:
+HandlerMethod
+🌳 4. Internal Flow (Clear Mental Model)
+Spring Startup
+│
+├── Step 1: Component Scan
+│   └── Creates beans (@Controller, @Service, etc.)
+│
+├── Step 2: Handler Mapping Initialization
+│   │
+│   └── Scan beans
+│       │
+│       ├── If @Controller → Register as handler ✅</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 47</summary>
+      <div class="page-body"><pre>│       └── If @Service → Ignore ❌
+│
+└── Step 3: DispatcherServlet uses only handlers
+🎯 5. Final Interview Answer
+“We can verify that DispatcherServlet treats @Controller differently by checking how Spring
+registers handler methods. Internally, RequestMappingHandlerMapping scans beans and only
+registers those annotated with @Controller or @RequestMapping. This can be verified through
+debug logs, breakpoints, or by observing that @Service methods with mappings are not
+exposed as endpoints.”
+
+
+
+@Autowired| Spring handles the object creation and injection
+✅ What is @Autowired?
+
+@Autowired is a Spring annotation used to inject dependencies (i.e., objects) into
+Spring-managed classes automatically.
+
+It tells Spring:
+&quot;Find a bean of the matching type in the application context, and inject it here.&quot;
+
+🚦 Condition for opt-out auto wired during constructor?
+
+Spring will automatically inject dependencies without @Autowired only if:
+🔹 Your class has exactly one constructor,
+🔹 And that constructor has parameters (dependencies),
+🔹 And those parameter types are available as beans in the Spring context.
+
+ 🚦 If a class has multiple fields to inject,
+and it has a single constructor with only some of those fields,
+will Spring inject just what&#x27;s in the constructor and leave the other fields null?
+
+👉 Short Answer: ✅ Yes, Spring will inject only what&#x27;s declared in the constructor.
+The other fields will remain null unless:
+
+======================================================================</pre></div>
+    </details>
+    
+  </div>
+</details>
+
+<details class="topic" id="topic-11">
+  <summary><span class="topic-num">11</span>11. @Autowired &amp; Dependency Injection <span class="meta">Pages 47–52</span></summary>
+  <div class="topic-body">
+    
+    <details class="page">
+      <summary>Page 47</summary>
+      <div class="page-body"><pre>│       └── If @Service → Ignore ❌
+│
+└── Step 3: DispatcherServlet uses only handlers
+🎯 5. Final Interview Answer
+“We can verify that DispatcherServlet treats @Controller differently by checking how Spring
+registers handler methods. Internally, RequestMappingHandlerMapping scans beans and only
+registers those annotated with @Controller or @RequestMapping. This can be verified through
+debug logs, breakpoints, or by observing that @Service methods with mappings are not
+exposed as endpoints.”
+
+
+
+@Autowired| Spring handles the object creation and injection
+✅ What is @Autowired?
+
+@Autowired is a Spring annotation used to inject dependencies (i.e., objects) into
+Spring-managed classes automatically.
+
+It tells Spring:
+&quot;Find a bean of the matching type in the application context, and inject it here.&quot;
+
+🚦 Condition for opt-out auto wired during constructor?
+
+Spring will automatically inject dependencies without @Autowired only if:
+🔹 Your class has exactly one constructor,
+🔹 And that constructor has parameters (dependencies),
+🔹 And those parameter types are available as beans in the Spring context.
+
+ 🚦 If a class has multiple fields to inject,
+and it has a single constructor with only some of those fields,
+will Spring inject just what&#x27;s in the constructor and leave the other fields null?
+
+👉 Short Answer: ✅ Yes, Spring will inject only what&#x27;s declared in the constructor.
+The other fields will remain null unless:
+
+======================================================================</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 48</summary>
+      <div class="page-body"><pre>🚦 When Is It Used?
+
+Whenever your class needs another object to do its work.
+
+Instead of this:
+PaymentService paymentService = new PaymentService();
+
+You use this:
+@Autowired
+private PaymentService paymentService;
+Spring handles the object creation and injection ✅
+
+===================================
+🧱 Where Can You Use @Autowired?
+
+Location Description Example
+🔹 Field Inject directly into a field @Autowired private A a;
+🔹 Constructor Inject via constructor (Best ✅) @Autowired A(A a) {}
+🔹 Setter Method Inject via setter method @Autowired setA(A a)
+
+===================================
+🛠 1. Field Injection (Quick, but not preferred)
+
+@Component
+public class OrderService {
+
+    @Autowired
+    private PaymentService paymentService;
+}
+
+🔹 Spring injects PaymentService using reflection
+⚠️ Harder to test &amp; violates immutability
+
+======================================================================
+🛠 2. Constructor Injection (✅ Recommended)
+
+@Component
+public class OrderService {</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 49</summary>
+      <div class="page-body"><pre>    private final PaymentService paymentService;
+
+    @Autowired
+    public OrderService(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+}
+
+Preferred because it&#x27;s:
+Testable
+Immutable
+Null-safe
+
+💡 Spring Boot allows you to skip @Autowired if only one constructor exists
+
+======================================================================
+🛠 3. Setter Injection (Optional or for Circular Dependency)
+
+@Component
+public class OrderService {
+    private PaymentService paymentService;
+
+    @Autowired
+    public void setPaymentService(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+}
+
+Good for:
+Optional dependencies
+Circular references
+
+======================================================================
+🎯 How Does Spring Know What to Inject?
+
+It matches by:
+
+✅ Type (PaymentService)</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 50</summary>
+      <div class="page-body"><pre>======================================================================
+1. 🔁 If multiple beans of the same type exist, use @Qualifier to pick the right one
+🧪 What If Spring Can&#x27;t Find a Matching Bean?
+
+You get:
+NoSuchBeanDefinitionException: No qualifying bean of type &#x27;X&#x27; available
+
+✅ Fix:
+Make sure the dependency class is also a Spring bean (@Component, @Service, @Repository,
+etc.)
+
+Or define it via @Bean in a @Configuration class
+
+Cases:
+Case 1. it will throw an error if multiple beans of the same type exist and you don’t use
+@Qualifier (or any disambiguation). error: NoUniqueBeanDefinitionException
+
+Case 2. if we use  @Autowired(required = false), still throw error:
+NoUniqueBeanDefinitionException
+
+Case 3: if we have multiple beans of same type, we need to provide primary or default bean.
+
+Example:
+@Component
+@Primary
+class UpiPaymentService implements PaymentService {}
+
+Or
+&lt;bean id=&quot;paytmPaymentService&quot; class=&quot;com.example.PaytmPaymentService&quot;/&gt;
+
+&lt;bean id=&quot;gPayPaymentService&quot; class=&quot;com.example.GPayPaymentService&quot; primary=&quot;true&quot;/&gt;
+
+2. ⚖️ Optional Injection
+
+If the bean may or may not exist:
+
+@Autowired(required = false)
+private DiscountService discountService;</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 51</summary>
+      <div class="page-body"><pre>✅ No error if bean not found
+======================================================================
+
+🔄 When Is @Autowired Processed?
+
+During the bean post-processing phase
+Spring constructs your bean, then resolves all @Autowired dependencies
+Uses reflection and dependency graph resolution
+
+🔐 Example with Multiple Beans
+
+@Component
+public class PaytmPaymentService implements PaymentService {}
+
+@Component
+public class GPayPaymentService implements PaymentService {}
+
+@Component
+public class OrderService {
+
+    @Autowired
+    @Qualifier(&quot;gPayPaymentService&quot;)
+    private PaymentService paymentService;
+}
+
+✅ Here, @Qualifier tells Spring exactly which bean to inject.
+
+==============
+
+@Autowired Injection
+│
+├── Step 1: Find beans by TYPE
+│
+├── Case 1: No Bean Found
+│   │
+│   ├── required = true (default)
+│   │   └── ❌ ERROR → NoSuchBeanDefinitionException
+│   │</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 52</summary>
+      <div class="page-body"><pre>│   └── required = false
+│       └── ✅ No error → value = null
+│
+├── Case 2: Exactly One Bean Found
+│   └── ✅ Inject successfully
+│
+└── Case 3: Multiple Beans Found
+    │
+    ├── No @Qualifier / @Primary
+    │   └── ❌ ERROR → NoUniqueBeanDefinitionException
+    │
+    ├── @Qualifier used
+    │   └── ✅ Inject specified bean
+    │
+    └── @Primary used
+        └── ✅ Inject default bean
+
+
+
+
+@Service, @Repository, and @Controller: Since all extends
+@Component
+Spring adds extra behavior for @controller and @repository.</pre></div>
+    </details>
+    
+  </div>
+</details>
+
+<details class="topic" id="topic-12">
+  <summary><span class="topic-num">12</span>12. @Component, @Controller, Circular Dependencies &amp; 3-Level Caching <span class="meta">Pages 53–58</span></summary>
+  <div class="topic-body">
+    
+    <details class="page">
+      <summary>Page 53</summary>
+      <div class="page-body"><pre>  🔹 3. @Controller = Web Layer (Spring MVC)
+✅ Used for handling web requests in Spring MVC
+
+Extra behavior:
+
+Methods get mapped to HTTP routes using @GetMapping, @PostMapping, etc.
+Can return views (like home.jsp) or, with @ResponseBody, return JSON
+Internally, registered with the DispatcherServlet as request handlers
+
+ 🔹 1. @Repository = Data Access Layer (DAO)
+✅ Adds automatic exception translation (for persistence exceptions)
+When you annotate a class with @Repository:
+
+Spring wraps your DAO methods using a proxy
+Catches low-level DB exceptions like SQLException
+Converts them into Spring&#x27;s unified exceptions like DataAccessException
+
+
+spring internal working for creating beans
+✅ Summary
+
+Concept What Happens
+1. Class A depends on Class B-- Spring delays A, creates B, injects B into A
+
+2. Order of scanning-- Doesn’t matter — Spring builds a dependency graph
+
+3. Unavailable dependency-- Spring throws an error (NoSuchBeanDefinitionException)
+
+4. Circular dependencies--
+Spring tries to resolve via setter injection, may fail on constructor
+
+🧠 What Is a Circular Dependency?
+
+A circular dependency happens when two or more beans depend on each other directly or
+indirectly — forming a loop.
+
+🔁 Example:</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 54</summary>
+      <div class="page-body"><pre>Class A depends on Class B
+Class B depends on Class A
+
+Spring sees:
+
+&quot;To create ClassA, I need ClassB&quot;
+&quot;To create ClassB, I need ClassA&quot;
+🧨 Infinite loop!
+
+❌ Why This Is a Problem?
+
+Because Spring:
+
+Uses constructor or field injection to build beans
+Needs to fully create one bean before injecting it into the other
+
+So if both beans are waiting on each other, Spring cannot finish either.
+
+🛠 How to Fix Circular Dependencies
+
+✅ 1. Use Setter Injection Instead of Constructor
+Constructor injection makes circular dependencies unresolvable.
+
+Setter injection allows Spring to create the object first and inject dependencies later:
+
+✅ 1. Use field injection: may work sometimes with proxies, but not guaranteed
+@Component
+public class A {
+    @Autowired
+    @Lazy
+    private B b;
+}
+
+=========================
+(Why constructor fails) - Circular dependency
+=========================
+
+🧠 Core Problem Recap (Why constructor fails)
+@Component</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 55</summary>
+      <div class="page-body"><pre>class A {
+    private final B b;
+
+    public A(B b) {   // needs B immediately
+        this.b = b;
+    }
+}
+
+@Component
+class B {
+    private final A a;
+
+    public B(A a) {   // needs A immediately
+        this.a = a;
+    }
+}
+
+❌ What happens internally
+Create A
+ └── needs B
+       └── create B
+             └── needs A
+                   └── create A again ❌ (loop)
+👉 Spring stuck → cannot create even first object
+
+✅ Now WHY Setter Injection Works
+👉 Key idea:
+Setter injection allows object creation FIRST, dependency injection LATER
+
+💡 Step-by-step with Setter Injection
+@Component
+class A {
+    private B b;
+
+    @Autowired
+    public void setB(B b) {</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 56</summary>
+      <div class="page-body"><pre>        this.b = b;
+    }
+}
+
+@Component
+class B {
+    private A a;
+
+    @Autowired
+    public void setA(A a) {
+        this.a = a;
+    }
+}
+🔥 What Spring does internally
+Step 1: Create A (empty object) ✅
+Step 2: Create B (empty object) ✅
+
+Now both objects EXIST (important!)
+
+Step 3: Inject dependencies
+   A.setB(B)
+   B.setA(A)
+
+DONE ✅
+🌳 Visual Difference
+❌ Constructor Injection
+A needs B → B needs A → ❌ deadlock
+
+✅ Setter Injection
+Create A  (no dependency yet)
+Create B  (no dependency yet)
+
+Inject later:
+A → B
+B → A</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 57</summary>
+      <div class="page-body"><pre>⚠️ Important Insight (Senior-Level)
+
+👉 Spring uses 3-level caching internally
+That’s how it:
+Creates partial objects
+Then injects dependencies
+
+👉 This works ONLY when:
+Object can be created without dependencies first
+
+🚨 Why Constructor Injection Fails
+👉 Because:
+Constructor = object cannot exist without dependencies
+Setter = object can exist first, dependencies later</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 58</summary>
+      <div class="page-body"><pre>@Component Annotation(create instance and add in spring
+container)
+Note: stereotype means part of core spring framework
+
+✅ What is @Component in Spring?
+@Component is a Spring annotation used to mark a Java class as a Spring-managed bean.
+
+Once a class is annotated with @Component, Spring will:
+• Detect it during component scanning
+• Instantiate it
+• Manage its lifecycle
+• Inject it wherever it’s needed (using @Autowired, constructor injection, etc.)
+
+@Component means: Spring will create an instance of the class and register it in the Spring
+ApplicationContext (also called the Spring container).
+
+📦 Package: org.springframework.stereotype
+
+So it’s part of the core Spring container, not just web stuff.
+
+🧠 Why Is It Important?
+Spring is based on Inversion of Control (IoC) — instead of you creating objects, Spring does it
+for you.
+
+But for Spring to manage your classes as beans, you have to:
+• Either declare them in a configuration file
+• Or annotate them with @Component (and enable component scanning)
+
+✅ Related Annotations (All are @Component)
+These are specializations of @Component, used for semantic clarity:
+
+Annotation Description
+@Component Generic component
+@Service For service/business logic classes
+@Repository For DAO classes (adds exception translation)
+@Controller For MVC controllers
+@RestController For REST APIs</pre></div>
+    </details>
+    
+  </div>
+</details>
+
+<details class="topic" id="topic-13">
+  <summary><span class="topic-num">13</span>13. @ResponseBody &amp; @RestController Internals <span class="meta">Pages 59–64</span></summary>
+  <div class="topic-body">
+    
+    <details class="page">
+      <summary>Page 59</summary>
+      <div class="page-body"><pre>@ResponseBody(bind return value to HTTP response)
+✅ What Is @ResponseBody in Spring?
+@ResponseBody is a Spring annotation that tells Spring MVC to bind the return value of a
+method directly to the HTTP response body (instead of rendering a view like JSP or Thymeleaf).
+
+🧠 Why Do We Use It?
+Normally in Spring MVC:
+• If you return a String, Spring thinks it’s a view name and tries to render a JSP page.
+• But in REST APIs, we want to return JSON, XML, or raw data, not views.
+That’s where @ResponseBody comes in:
+It tells Spring: &quot;Don’t render a view — just write the return value into the HTTP response body.&quot;
+ =========================
+✅ Source Code Explanation
+
+@Target({ElementType.TYPE, ElementType.METHOD})
+🔹 You can use @ResponseBody on:
+• A method → to apply it only to that method
+• A class → to apply it to all methods in that controller
+________________________________________
+
+@Retention(RetentionPolicy.RUNTIME)
+🔹 The annotation is kept at runtime, so Spring can use reflection to detect and apply it.
+
+________________________________________
+
+public @interface ResponseBody {
+}
+🔹 This defines it as an annotation with no methods (i.e., a marker annotation).
+________________________________________
+
+💡 How Does Spring Use It?
+Internally, Spring MVC’s RequestMappingHandlerAdapter looks for @ResponseBody, and if it’s</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 60</summary>
+      <div class="page-body"><pre>present:
+• It uses a HttpMessageConverter (like Jackson) to:
+o Convert Java objects → JSON/XML/text
+o Write directly to the HTTP response
+
+________________________________________
+✅ Examples
+
+1 🔹 Without @ResponseBody (default behavior)
+
+@Controller
+public class MyController {
+    @GetMapping(&quot;/hello&quot;)
+    public String sayHello() {
+        return &quot;home&quot;;  // Spring will try to render home.jsp or home.html
+    }
+}
+________________________________________
+2 🔹 With @ResponseBody
+
+@Controller
+public class MyController {
+    @GetMapping(&quot;/api/hello&quot;)
+    @ResponseBody
+    public String sayHello() {
+        return &quot;Hello from REST!&quot;;  // This goes directly into HTTP response
+    }
+}
+
+
+🔄 Becomes:
+
+HTTP 200 OK
+Body: &quot;Hello from REST!&quot;
+
+====================================
+3 🔹 With @RestController (shortcut)</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 61</summary>
+      <div class="page-body"><pre>@RestController
+public class MyRestController {
+    @GetMapping(&quot;/api/hello&quot;)
+    public String hello() {
+        return &quot;Hello JSON!&quot;;
+    }
+}
+
+✅ Equivalent to:
+
+@Controller
+@ResponseBody
+public class MyRestController { ... }
+
+
+
+
+
+@RestController(@Controller + @ResponseBody) Which means:
+Every method in a @RestController class automatically has
+@ResponseBody applied — i.e., it returns data, not views.</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 62</summary>
+      <div class="page-body"><pre>Here it has one extra annotation: @ResponseBody.
+It extends Controller annotation.
+
+package org.springframework.web.bind.annotation; : it means it is part of Spring Web MVC,
+which is the module responsible for handling HTTP requests in Spring.
+
+
+✅ Why @RestController Handles HTTP Requests
+
+🔹 It’s part of Spring’s Web MVC (Model-View-Controller) framework
+
+When you include the Spring Web dependency in your project, Spring Boot:
+
+Bootstraps a DispatcherServlet (central router)
+Scans your code for annotations like @RestController, @GetMapping, etc.
+Registers these as HTTP endpoints
+
+============================
+✅ So yes — @RestController is just a convenient combination of:
+
+@Controller
+@ResponseBody
+
+=============================
+@RestController is a Spring annotation used to build RESTful web services.
+It&#x27;s a shortcut that combines:
+
+🔧 What Does It Do?
+
+When you annotate a class with @RestController, you are telling Spring:
+
+“This class will handle HTTP requests, and return JSON/XML or text, not HTML views.”
+
+🧠 Under the Hood
+
+Spring scans for @RestController classes
+Registers their endpoints in the DispatcherServlet
+
+Each method:</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 63</summary>
+      <div class="page-body"><pre>Is mapped to an HTTP path (via @GetMapping, @PostMapping, etc.)
+Return value is serialized to JSON (or XML) using HttpMessageConverters
+The result is sent directly in the HTTP response body
+
+=======================
+📦 Required Maven Dependency
+
+You need this in pom.xml to enable web features:
+
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+&lt;/dependency&gt;
+✅ This includes:
+
+Spring MVC (with @Controller, @RestController)
+Tomcat (as embedded HTTP server)
+Jackson (for JSON)
+HTTP Message Converters
+And more
+
+=============================
+🚦 How It Works at Runtime (Simplified Flow)
+
+User hits /api/users
+Tomcat (embedded server) accepts request
+DispatcherServlet receives it
+Spring scans for the best matching method
+Finds method in @RestController → executes it
+Return value is converted to JSON and sent back
+
+==============================
+🧪 Without Spring Web
+
+If you remove the spring-boot-starter-web dependency:
+
+@RestController and @GetMapping won’t be recognized
+No embedded Tomcat</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 64</summary>
+      <div class="page-body"><pre>No HTTP request handling
+No DispatcherServlet
+
+
+
+
+
+
+@Documented: When you hover over class or method, it is
+visible in java-doc
+📌 What is @Documented?
+
+@Documented is a marker annotation (no methods inside) from java.lang.annotation that tells
+the compiler:
+
+➤ “Include this annotation in the Javadoc of whatever it annotates.”
+So it&#x27;s not about runtime behavior — it’s about making annotations visible in generated
+documentation.
+
+🧠 Why Is It Useful?
+
+Without @Documented, your custom annotation won’t show up in the Javadoc of the
+class/method it&#x27;s used on.</pre></div>
+    </details>
+    
+  </div>
+</details>
+
+<details class="topic" id="topic-14">
+  <summary><span class="topic-num">14</span>14. @Documented, @Retention, @Target &amp; ElementType <span class="meta">Pages 64–69</span></summary>
+  <div class="topic-body">
+    
+    <details class="page">
+      <summary>Page 64</summary>
+      <div class="page-body"><pre>No HTTP request handling
+No DispatcherServlet
+
+
+
+
+
+
+@Documented: When you hover over class or method, it is
+visible in java-doc
+📌 What is @Documented?
+
+@Documented is a marker annotation (no methods inside) from java.lang.annotation that tells
+the compiler:
+
+➤ “Include this annotation in the Javadoc of whatever it annotates.”
+So it&#x27;s not about runtime behavior — it’s about making annotations visible in generated
+documentation.
+
+🧠 Why Is It Useful?
+
+Without @Documented, your custom annotation won’t show up in the Javadoc of the
+class/method it&#x27;s used on.</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 65</summary>
+      <div class="page-body"><pre>With @Documented, your annotation appears in the generated JavaDoc, helping other
+developers understand its purpose.
+
+
+Example:
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Controller
+@ResponseBody
+public @interface MyController {
+    @AliasFor(
+            annotation = Controller.class
+    )
+    String value() default &quot;&quot;;
+}
+
+
+
+
+
+
+
+@Retention Annotation
+@Retention defines how long an annotation is available — whether only in source code, in</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 66</summary>
+      <div class="page-body"><pre>compiled class, or at runtime.
+
+It defines how long an annotation is available in the system:
+
+Just during compilation?
+In the .class file?
+Or at runtime so it can be used via reflection (like Spring does)?
+
+
+🧠 2. Why It Matters
+👉 Because frameworks like Spring, Hibernate use reflection
+
+👉 So they need annotations:
+✅ Available at runtime
+
+
+@Retention
+│
+├── SOURCE
+│   └── Available only in source code → removed after compilation
+│
+├── CLASS
+│   └── Stored in .class file → NOT available at runtime
+│
+└── RUNTIME
+    └── Available at runtime → accessible via reflection ✅
+
+
+
+
+🧱 Used Like This: If annotation is needed during run time
+
+Usable via reflection (e.g., in Spring, Hibernate, custom processors)
+
+example:
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface LogExecution {}</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 67</summary>
+      <div class="page-body"><pre>This means: the @LogExecution annotation will be:
+
+
+
+
+
+ElementType enum : @Target(ElementType.METHOD)
+|ElementType tells Java where an annotation is allowed to appear
+🧩 What Is ElementType?
+
+ElementType is an enum that defines where an annotation can legally be placed in your Java
+code.
+It is used inside the @Target annotation like this:
+
+✅ Summary
+
+ElementType tells Java where an annotation is allowed to appear
+It&#x27;s passed to the @Target(...) meta-annotation
+
+Helps enforce annotation rules at compile time
+New types like TYPE_USE, TYPE_PARAMETER, RECORD_COMPONENT support modern
+Java features (Java 8–17)</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 68</summary>
+      <div class="page-body"><pre>@Target( enforce where custom annotation to be applied- such
+as on a class, method, field, constructor, or parameter.)|
+Permission rules for where annotation is allowed
+✅ What is @Target?
+🔹 It’s a meta-annotation
+
+An annotation that is used to annotate other annotations.
+Specifically, @Target tells where your custom annotation can be applied — like to a method,
+field, class, constructor, etc.
+
+🧠 Why Do We Need @Target?
+
+Sometimes, we create custom annotations and want to restrict their use to specific places.(such
+as on a class, method, field, constructor, or parameter.)
+
+Example:
+• Maybe an annotation should only go on a method (@GetMapping)
+• Or only on a class (@Controller)
+• Or on a field (@Autowired)
+That’s where @Target comes in — it uses ElementType enum constants to define valid targets.
+
+
+✅ Summary
+• @Target is used to control where an annotation can be applied
+• It uses the ElementType enum to specify valid locations
+• Helps you safely restrict your custom annotations
+• Meta-annotations like @Controller, @Service, @Autowired all use @Target
+
+example: New annotation MyController  should be applied only at class level.
+
+🌳 2. Example (From Your Understanding)
+@Target(ElementType.TYPE)
+public @interface MyAnnotation {}
+
+👉 Means:
+✅ Can be used on:</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 69</summary>
+      <div class="page-body"><pre>Class
+Interface
+
+❌ Cannot be used on:
+Methods
+Fields
+
+💻 3. Multiple Targets
+@Target({ElementType.METHOD, ElementType.FIELD})
+
+👉 Means:
+Can be used on methods ✅
+Can be used on fields ✅
+
+
+⚠️ 5. What Happens If You Misuse It?
+a. create annotation name: Test
+@Target(ElementType.METHOD)
+@interface Test {}
+
+b. apply annotation on class: compile time error.
+@Test
+class A {}   // ❌ ERROR
+👉 Compile-time error</pre></div>
+    </details>
+    
+  </div>
+</details>
+
+<details class="topic" id="topic-15">
+  <summary><span class="topic-num">15</span>15. @Controller Deep Dive &amp; Stereotype Annotations <span class="meta">Pages 70–80</span></summary>
+  <div class="topic-body">
+    
+    <details class="page">
+      <summary>Page 70</summary>
+      <div class="page-body"><pre>@Controller| for MVC | when methods returns views| supports
+(Views+API)
+🎯 What is @Controller?
+It is a specialized annotation in Spring used to mark a class as a web controller, meaning:
+• It handles HTTP requests (like GET, POST)
+• It’s detected and registered as a Spring Bean
+• It is part of the Spring MVC layer
+• Return view name by default
+• Return both view and data
+• Return JSON data using @ResponseBody annotations
+
+🔹  Why this is used instead of @RestController?
+when application is primarily view-based (MVC) i.e. backend is responsible to determine
+which file to be rendered.
+
+@Controller (views + APIs together)
+Controller → for UI</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 71</summary>
+      <div class="page-body"><pre>RestController → for APIs
+
+✅ 1. What is @Controller (1-line recap)
+@Controller is used to handle web requests and return views
+(HTML/JSP/Thymeleaf/JSON/XML)
+
+🎯 2. Real Use Cases of @Controller
+👉 Use @Controller when you are building traditional web applications (MVC)
+
+🔹 Use Case 1: Returning HTML Pages (MOST COMMON)
+👉 Scenario: Login page, dashboard, UI screens
+@Controller
+public class LoginController {
+
+    @GetMapping(&quot;/login&quot;)
+    public String loginPage() {
+        return &quot;login&quot;;  // login.jsp / login.html
+    }
+}
+✅ Used when:
+You want to render UI
+Returning view names
+
+🔹 Use Case 2: Form Handling (User Input)
+👉 Scenario: User submits a form
+@Controller
+public class UserController {
+
+    @PostMapping(&quot;/register&quot;)
+    public String register(User user) {
+        // process data
+        return &quot;success&quot;;
+    }
+}
+✅ Used for:
+Form submission
+Server-side validation</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 72</summary>
+      <div class="page-body"><pre>🔹 Use Case 3: MVC Pattern (Separation of Concerns)
+👉 Controller acts as:
+Middle layer between View and Service
+Flow:
+User → Controller → Service → DB → Controller → View
+
+🔹 Use Case 4: Returning View + Data (Model)
+@Controller
+public class ProductController {
+
+    @GetMapping(&quot;/products&quot;)
+    public String getProducts(Model model) {
+        model.addAttribute(&quot;items&quot;, productService.getAll());
+        return &quot;products&quot;;
+    }
+}
+✅ Used when:
+You want to send data to UI (JSP/Thymeleaf)
+
+🔹 Use Case 5: Mixed Mode (View + API)
+👉 Sometimes:
+Mostly UI app
+But few endpoints return JSON
+@Controller
+public class MixedController {
+
+    @GetMapping(&quot;/home&quot;)
+    public String home() {
+        return &quot;home&quot;;
+    }
+
+    @GetMapping(&quot;/api/data&quot;)
+    @ResponseBody
+    public String data() {
+        return &quot;JSON data&quot;;</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 73</summary>
+      <div class="page-body"><pre>    }
+}
+❌ When NOT to Use @Controller
+👉 Do NOT use when:
+Building REST APIs only
+👉 Use:
+@RestController
+
+
+🌳 3. Decision Tree (VERY INTERVIEW FRIENDLY)
+Application Type
+│
+├── Traditional Web App (JSP/Thymeleaf)
+│   └── ✅ Use @Controller
+│
+├── REST API (JSON/XML)
+│   └── ✅ Use @RestController
+│
+└── Mixed (UI + API)
+    ├── @Controller + @ResponseBody
+    └── OR split into separate controllers
+
+==============================================
+
+🔍 Let’s Understand the Source Code Line by Line
+
+
+1. @Target({ElementType.TYPE})
+🔸 This means the annotation can be used only on types — like classes or interfaces.
+(You can&#x27;t put @Controller on methods or fields)
+
+
+2. @Retention(RetentionPolicy.RUNTIME)
+🔸 This tells Java to keep this annotation in memory at runtime, so Spring can detect it using
+reflection.
+If it were RetentionPolicy.CLASS, it would be compiled but not available during runtime — which
+Spring needs.</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 74</summary>
+      <div class="page-body"><pre>3. @Documented
+🔸 This means if someone generates Javadoc, this annotation will appear in the documentation
+for the class.
+
+4. @Component
+🔸 This is very important:
+It means @Controller is actually a meta-annotation — it inherits all behavior of @Component.
+✅ So Spring treats a @Controller as a Spring-managed bean, just like a @Component.
+This is why you don&#x27;t need to write both:
+
+e.g
+@Controller  // Implies @Component automatically
+public class UserController { ... }
+
+
+5. public @interface Controller {
+🔸 This declares that you&#x27;re defining a custom annotation called @Controller.
+
+
+6. @AliasFor(annotation = Component.class)
+String value() default &quot;&quot;;
+
+🔸 This is a clever feature:
+• It says: if you write @Controller(&quot;myBean&quot;)
+• That value (&quot;myBean&quot;) will be passed to the @Component as the bean name
+So both of these work the same:
+
+@Controller(&quot;myController&quot;)
+public class MyController { }
+
+@Component(&quot;myController&quot;)
+public class MyController { }
+
+🧠 In Simple Terms:
+The @Controller annotation is:
+• A specialized version of @Component</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 75</summary>
+      <div class="page-body"><pre>• Used to create REST or MVC controllers
+• Helps Spring detect your class as a web handler
+• Can accept an optional bean name with value = &quot;...&quot;
+
+💬 Related Concepts:
+Annotation Role
+@Component Generic Spring-managed bean
+@Service Component for business logic
+@Repository Component for persistence layer
+@Controller Component for handling web/API requests
+
+All of them are @Component at their core — just categorized differently for semantic clarity and
+tooling (like AOP, exception handling, etc.)
+
+✅ Real-Life Usage Example:
+java
+
+@Controller
+public class UserController {
+
+    @GetMapping(&quot;/hello&quot;)
+    public String sayHello() {
+        return &quot;Hello from controller!&quot;;
+    }
+}
+
+Spring will:
+• Detect this class at runtime
+• Register it as a bean
+• Map the /hello path to this method
+
+======
+ Question:
+1. “Can @Controller return JSON?”
+👉 Answer:
+“Yes, but only if we use @ResponseBody on the method. Otherwise, it returns a view name.”</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 76</summary>
+      <div class="page-body"><pre>2. Internal Working (Bonus for Senior Level)
+@Controller is detected by component scanning
+Registered in DispatcherServlet
+
+Methods mapped via @RequestMapping
+Returns:
+View name → resolved by ViewResolver
+Data → only with @ResponseBody
+
+3. “@Controller is used in Spring MVC to handle web requests and return views like JSP or
+Thymeleaf templates. It acts as a bridge between the UI and business logic. It is typically used
+in traditional web applications, whereas for REST APIs we use @RestController.”
+
+4. Since @Controller and @Service both are specializations of @Component, do they behave
+the same internally? If yes, why do we use them separately, and does Spring treat them
+differently in any way?”
+
+✅ Answer (Clear + Structured)
+
+-firstly, spring does not treat it separately at bean creation level
+- secondly, it treates differently at request Handling level(Dispatcher servlet has special handling
+for controller annotation.)
+- Even if @Service doesn’t add behavior today, it’s important for clean architecture and future
+extensibility, especially with AOP and tooling.
+
+
+🧠 1. Core Truth
+“Yes, technically @Controller, @Service, and @Repository are all specializations of
+@Component and has same implementation, so at the core level, Spring treats them as beans
+and manages them in the same way.”
+
+⚙️ 2. Then Why Different Annotations?
+👉 They exist for semantic meaning + additional behavior
+
+🔹 A. Semantic Layer (MOST IMPORTANT)
+@Controller → Web layer
+@Service → Business logic</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 77</summary>
+      <div class="page-body"><pre>@Repository → Data access
+👉 Helps:
+Code readability
+Layered architecture
+Better design understanding
+
+🔹 B. Additional Behavior (REAL DIFFERENCE)
+✅ @Controller
+Registered with Spring MVC (DispatcherServlet)
+Handles HTTP requests
+Works with @RequestMapping, @GetMapping
+
+✅ @Service
+No special framework behavior (currently)
+Used for business logic layer
+Helps tools / AOP (future extensibility)
+
+✅ @Repository (IMPORTANT DIFFERENCE)
+Adds exception translation
+Converts:
+SQLException → DataAccessException
+
+🔹 C. Tooling &amp; AOP Support
+👉 Spring &amp; frameworks use these annotations to:
+Apply AOP (transactions, logging)
+Identify layers automatically
+
+
+
+
+
+🌱 Where Do You Want to Start with Spring?
+Here are some focused paths we can take — let me know what excites you right now:
+
+1️⃣ Spring Core (Foundation of Everything)
+• What is the Spring Framework?
+• How does Dependency Injection (DI) work?</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 78</summary>
+      <div class="page-body"><pre>• What is Inversion of Control (IoC)?
+• @Component, @Autowired, @Bean, @Configuration
+
+2️⃣ Spring Boot (Microservice-Ready Framework)
+• What is Spring Boot?
+• application.properties / application.yml
+• @SpringBootApplication, auto-configuration
+• Building REST APIs quickly
+• Running embedded servers (Tomcat, Jetty)
+
+3️⃣ Spring MVC (REST API Development)
+• @RestController, @GetMapping, @PostMapping
+• Request/Response handling
+• @RequestBody, @PathVariable, @RequestParam
+
+4️⃣ Spring Data JPA (Database Integration)
+• Using repositories (CrudRepository, JpaRepository)
+• @Entity, @Id, @GeneratedValue
+• Writing custom queries
+
+5️⃣ Spring Cloud (Microservices Toolbox)
+• Eureka (Service Registry)
+• Spring Cloud Gateway (API Gateway)
+• Config Server
+• Circuit Breaker (Resilience4j)
+• Feign Clients
+• Sleuth + Zipkin for tracing
+
+6️⃣ Security &amp; Auth
+• Spring Security basics
+• JWT-based authentication
+• OAuth2 support
+• Method-level access control (@PreAuthorize)</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 79</summary>
+      <div class="page-body"><pre>Spring Boot sister Projects
+Spring Data: It simplifies data access from the relational and NoSQL databases.
+Spring Batch: It provides powerful batch processing.
+Spring Security: It is a security framework that provides robust security to applications.
+Spring Social: It supports integration with social networking like LinkedIn.
+Spring Integration: It is an implementation of Enterprise Integration Patterns. It facilitates
+integration with other enterprise applications using lightweight messaging and declarative
+adapters.
+
+
+Spring Hateos
+Spring HAteos:
+- It is a library
+- Here server sends url(hyperlink) in the response json.
+- How to cretae link ContrrollerLinkBuilder, Link, and Resource Support
+-provides Link builder API to create links pointing to MVC controller methods
+- example
+Suppose, we have requested a GET request for localhost:8080/users/1, it returns the details of
+user id 1. Along with this, it also returns a field called link that contains a link
+(localhost:8080/users) of all users so that consumers can retrieve all the users. This concept is
+called HATEOAS.
+
+
+
+
+
+Controller(for view based application) vs RestController(return</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 80</summary>
+      <div class="page-body"><pre>response for HTTP body)=@Controller + @ResponseBody
+Controller:
+🔹 1. @Controller(views + APIs together)
+Generic: package org.springframework.stereotype
+
+@Controller is mainly used for traditional MVC applications where methods return
+views(view/file name). It can also return response body data using @ResponseBody, so it can
+support mixed use cases,
+
+🧠 Characteristics:
+
+Returns view names (home, profile, etc.)
+Used in traditional web apps
+Can return data too, but you have to explicitly add @ResponseBody
+
+🔹 2. @RestController(=@Controller + @ResponseBody)
+HTTP: package org.springframework.web.bind.annotation;
+A shortcut annotation that is equal to:
+@Controller + @ResponseBody
+
+It is used in RESTful APIs, where you return JSON or XML directly in the HTTP response body
+— not views.
+
+🧠 Characteristics:
+• Every method returns data directly (auto-converted to JSON/XML)
+• Commonly used in API development
+• Makes @ResponseBody automatic for all methods
+
+
+
+Spring Security
+Delegation: assignmenet, giving
+
+DelegatingFilterProxy : It is a class responsible to filter https request.</pre></div>
+    </details>
+    
+  </div>
+</details>
+
+<details class="topic" id="topic-16">
+  <summary><span class="topic-num">16</span>16. Spring AOP &amp; Cross-Cutting Concerns <span class="meta">Pages 81–83</span></summary>
+  <div class="topic-body">
+    
+    <details class="page">
+      <summary>Page 81</summary>
+      <div class="page-body"><pre>Annotations AOP
+@component
+@aspect
+@enable
+
+@before
+@after
+@afterthrowing
+@AfterReturning
+@Around
+
+
+AOP
+- focus on breaking down program logic into distinct parts called so-called concerns
+- AOP breaks the program logic into distinct parts called concerns
+-  increase modularity by cross-cutting concerns.</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 82</summary>
+      <div class="page-body"><pre>Cross- cutting concern
+A cross-cutting concern is a concern that can affect the whole application and should be
+centralized in one location in code as possible, such as transaction management,
+authentication, logging, security etc.
+
+
+Microservices
+combination of smaller services that work cohesively together for larger, application-wide
+functionality
+
+
+Autowire Problems</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 83</summary>
+      <div class="page-body"><pre>4. Error safe autowiring with ‘required=false’
+@Autowired (required=false)
+@Qualifier (&quot;finance&quot;)
+private DepartmentBean departmentBean;
+
+
+5. Excluding a bean from autowiring
+By default, autowiring scan and matches all bean definitions in scope.
+
+Using ‘autowire-candidate‘ as false totally exclude a bean from being an autowire candidate. It
+totally exclude that specific bean definition from being available to the autowiring infrastructure.
+
+
+Spring Bean Autowire by X
+The autowiring functionality has four modes. These are ‘no‘, ‘byName‘, ‘byType‘ and
+‘constructor‘.
+• The default autowire mode in XML configuration is no.
+• The default autowire mode in java configuration is byType.
+
+Autowiring modes(Xml Configuration)
+Note: Annotation injection is performed before XML injection
+
+The below mention modes are defined in XML only.
+You can use byType or constructor autowiring mode to wire arrays and other typed-collections.
+
+@Autowired annotation always works with bean, not primitives. You cannot autowire so-called
+simple properties such as primitives, Strings, and Classes.
+
+1. no
+This option is default for spring framework and it means that autowiring is OFF. You have to
+explicitly set the dependencies using &lt;property&gt; tags in bean definitions.
+
+2. byName(not default setter injection)
+This option enables the dependency injection based on bean names. When autowiring a
+property in bean, property name is used for searching a matching bean definition in
+configuration file. If such bean is found, it is injected in property. If no such bean is found, a error
+is raised.</pre></div>
+    </details>
+    
+  </div>
+</details>
+
+<details class="topic" id="topic-17">
+  <summary><span class="topic-num">17</span>17. Autowiring Modes &amp; @Resource <span class="meta">Pages 84–86</span></summary>
+  <div class="topic-body">
+    
+    <details class="page">
+      <summary>Page 84</summary>
+      <div class="page-body"><pre>&lt;bean id=&quot;employee&quot; class=&quot;com.howtodoinjava.demo.beans.EmployeeBean&quot;
+autowire=&quot;byName&quot;&gt;
+
+3. byType(Default setter injection)
+• if there is exactly one bean of the property type in the container.
+• If there is more than one, a fatal exception is thrown, and this indicates that you may not use
+byType autowiring for that bean.
+• If there are no matching beans, nothing happens; the property is not set. If this is not desirable,
+setting the dependency-check=&quot;objects&quot; attribute value specifies that an error should be thrown
+in this case.
+
+• Note:  If you are using @Autowired annotation, then you do not need to provide autowire
+attribute. By default, @Autowired annotation uses byType autowiring.
+
+&lt;bean id=&quot;employee&quot; class=&quot;com.howtodoinjava.autowire.byType.EmployeeBean&quot;
+autowire=&quot;byType&quot;&gt;
+
+4. constructor
+
+Autowiring by constructor is similar to byType, but applies to constructor arguments. In autowire
+enabled bean, it will look for class type of constructor arguments, and then do a autowire bytype
+on all constructor arguments. Please note that if there isn’t exactly one bean of the constructor
+argument type in the container, a fatal error is raised.
+
+&lt;bean id=&quot;employee&quot; class=&quot;com.test.EmployeeBean&quot;autowire=&quot;constructor&quot;&gt;
+
+
+Autowire Annotations
+Autowiring by Annotations:
+Unable autowire annotation firstly.
+&lt;context:annotation-config /&gt;
+
+2.2.1. @Autowired on properties
+When @Autowired is used on properties, it is equivalent to autowiring by ‘byType‘ in
+configuration file.
+@Autowired</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 85</summary>
+      <div class="page-body"><pre>    private DepartmentBean departmentBean;
+
+2.2.2. @Autowired on property setters
+When @Autowired is used on setters, it is also equivalent to autowiring by ‘byType‘ in
+configuration file.
+    @Autowired
+    public void setDepartmentBean(DepartmentBean departmentBean) {
+        this.departmentBean = departmentBean;
+    }
+
+2.2.3. @Autowired on constructors
+When @Autowired is used on bean’s constructor, it is also equivalent to autowiring by
+‘constructor‘ in configuration file.
+
+
+============================================
+ @Qualifier for conflict resolution
+
+When there are two or more beans for same class type, an Error is thrown.
+In this case spring will not be able to choose correct bean to inject into property, and you will
+need to help the container using qualifiers.
+
+To resolve a specific bean using qualifier, we need to use @Qualifier annotation along with
+@Autowired annotation and pass the bean name in annotation parameter.
+
+ @Autowired
+    @Qualifier(&quot;finance&quot;)
+    private DepartmentBean departmentBean;
+
+&lt;!—first  bean of type DepartmentBean--&gt;
+&lt;bean id=&quot;humanResource&quot; class=&quot;com.test.DepartmentBean&quot; /&gt;
+
+
+ &lt;!--Second bean of type DepartmentBean--&gt;
+ &lt;bean id=&quot;finance&quot; class=&quot;com.test.DepartmentBean&quot; /&gt;</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 86</summary>
+      <div class="page-body"><pre>@Component vs @Resource annotations
+Difference between @Component and @Resource annotations
+• @Resource means get me a known resource by name. The name is extracted from the name
+of the annotated setter or field, or it is taken from the name-Parameter.
+
+• @Inject or @Autowired try to wire in a suitable other component by type.
+• @Resource allows you to specify a name of the injected bean
+• @Autowired allows you to mark it as non-mandatory.
+
+@Autowired and @Inject
+1. Matches by Type
+2. Restricts by Qualifiers
+3. Matches by Name
+
+@Resource
+1. Matches by Name
+2. Matches by Type
+3. Restricts by Qualifiers (ignored if match is found by name)
+
+
+@Component(class) and @Bean(method) annotations
+Difference between @Component and @Bean annotations
+
+In Spring, both annotations are quite different.
+
+@Component (Marked with class) used to auto-detect and auto-configure beans using
+classpath scanning. There’s an implicit one-to-one mapping between the annotated class and
+the bean (i.e. one bean per class).
+
+@Bean(Marked with method) is used to explicitly declare a single bean, rather than letting
+Spring do it automatically for us.
+
+Another big difference is that @Component is a class level annotation where as @Bean is a
+method level annotation and ,by default, name of the method serves as the bean name.</pre></div>
+    </details>
+    
+  </div>
+</details>
+
+<details class="topic" id="topic-18">
+  <summary><span class="topic-num">18</span>18. Spring Stereotype Annotations &amp; Repository/Service Details <span class="meta">Pages 87–90</span></summary>
+  <div class="topic-body">
+    
+    <details class="page">
+      <summary>Page 87</summary>
+      <div class="page-body"><pre>Spring – Stereotype annotations(Marker interface annotations)
+Spring – Stereotype annotations
+These are marker annotations. these fulfil a role in an application.
+-reduces the Spring XML configuration
+
+ we will need to use “context:component-scan” tag in our applicationContext.xml file.
+&lt;context:component-scan base-package=&quot;com.howtodoinjava.demo.service&quot; /&gt;
+With @Component, @Repository, @Service and @Controller annotations in place and
+automatic component scanning enabled,
+
+Spring will automatically import the beans into the container and inject to dependencies.
+
+These annotations are called Stereotype annotations as well.
+
+1. Spring bean stereotype annotations
+
+1.1. @Component annotation(This is generic stereotype, all steretype annotations extends
+@component )
+---@Component is a generic stereotype for any Spring-managed component.
+----@Repository, @Service, and @Controller are specializations of @Component for more
+specific use cases, for example, in the persistence, service, and presentation layers,
+respectively.
+
+-----The @Component annotation marks a java class as a bean so the component-scanning
+mechanism of spring can pick it up and pull it into the application context. To use this
+annotation, apply it over class as below:
+
+@Component
+public class EmployeeDAOImpl implements EmployeeDAO {
+ }
+
+1.2. @Repository annotation
+Although above use of @Component is good enough but we can use more suitable annotation
+that provides additional benefits specifically for DAOs i.e. @Repository annotation. The
+@Repository annotation is a specialization of the @Component annotation with similar use and
+functionality. In addition to importing the DAOs into the DI container, it also makes the
+unchecked exceptions (thrown from DAO methods) eligible for translation into Spring</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 88</summary>
+      <div class="page-body"><pre>DataAccessException.
+
+1.3. @Service annotation
+The @Service annotation is also a specialization of the component annotation. It doesn’t
+currently provide any additional behavior over the @Component annotation, but it’s a good idea
+to use @Service over @Component in service-layer classes because it specifies intent better.
+Additionally, tool support and additional behavior might rely on it in the future.
+
+1.4. @Controller annotation
+@Controller annotation marks a class as a Spring Web MVC controller. It too is a @Component
+specialization, so beans marked with it are automatically imported into the DI container. When
+we add the @Controller annotation to a class, we can use another annotation i.e.
+@RequestMapping; to map URLs to instance methods of a class.
+Note the references are of type interfaces. Spring DI container is smart enough to inject the
+correct instance in this case.
+
+
+Spring Life Cycle Example output
+Main program:
+
+@SpringBootApplication
+public class LifeCycle {
+
+    public static void main(String[] args) {
+        System.out.println(&quot;Spring boot applicatin main class method:&quot;);
+
+        var container = SpringApplication.run(LifeCycle.class, args);
+}
+
+2. Bean init and destroy using annotations
+@Component
+public class Battery {
+   public Battery() {
+       System.out.println(&quot;Battery constructor called&quot;);
+   }
+   @PostConstruct</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 89</summary>
+      <div class="page-body"><pre>   public void init() {
+       System.out.println(&quot;Battery init method called&quot;);
+   }
+   @PreDestroy
+   public void destroy() {
+       System.out.println(&quot;Battery destroy method called&quot;);
+   }
+}
+
+3. Bean init and destroy using interfaces
+
+@Component
+public class Car implements InitializingBean, DisposableBean {
+   public Car() {
+       System.out.println(&quot;CarBean constructor called&quot;);
+   }
+   @Override
+   public void afterPropertiesSet() throws Exception {
+       System.out.println(&quot;CarBean afterPropertiesSet method called from interface
+InitializingBean.&quot;);
+   }
+   @Override
+   public void destroy() throws Exception {
+       System.out.println(&quot;CarBean destroy method called from Interface DisposableBean.&quot;);
+   }
+}
+
+4. provide init and destroy via xml.
+
+example:
+&lt;bean id=&quot;tokogerpmasterdatavalidationLabelLocator&quot;
+class=&quot;com.hybris.cockpitng.util.labels.ResourcesLabelLocator&quot;
+     scope=&quot;singleton&quot; init-method=&quot;init&quot; destroy-method=&quot;destroy&quot;
+&gt;</pre></div>
+    </details>
+    
+    <details class="page">
+      <summary>Page 90</summary>
+      <div class="page-body"><pre>Spring: Constructor(position/index + type- thus mandatory
+dependencies ) vs Setter(name)
+Spring:
+
+Constructor(all dependency needed immediately) vs Setter(create instance then inject
+dependency)
+
+Note: constructor tries to inject by order. If in xml we are reversing order like float is first and
+integer is 2nd, then it try to check by type attribute only if it is defined. if not defined- then error
+
+public AContrcutor(int a, float b){
+}
+
+1. Because of using the setter method, setter Injection in more readable than constructor
+injection in Spring configuration file usually applicationContext.xml.
+
+ Since the setter method has name like setReporotService() by reading Spring XML config file
+you know which dependency you are setting. While in constructor injection, since it uses an
+index to inject the dependency, it&#x27;s not as readable as setter injection and you need to refer
+either Java documentation or code to find which index corresponds to which property.
+
+ 2. Setter uses Name of property to inject values,
+ Constructor uses (index + type) i.e position of variable and type of variable in xml.
+
+3. Constructor requires all the fields, otherwise exception.
+Setter can work with partial dependency i.e not all fields declaration is required in xml.
+
+1. Partial dependency: can be injected using setter injection but it is not possible by constructor.
+Suppose there are 3 properties in a class, having 3 arg constructor and setters methods. In
+such case, if you want to pass information for only one property, it is possible by setter method
+only.
+
+2. Overriding: Setter injection overrides the constructor injection. If we use both constructor and
+setter injection, IOC container will use the setter injection.
+3. Changes: We can easily change the value by setter injection. It doesn&#x27;t create a new bean
+instance always like constructor. So setter injection is flexible than constructor injection.</pre></div>
+    </details>
+    
+  </div>
+</details>
+
+<details class="topic" id="topic-19">
+  <summary><span class="topic-num">19</span>19. Spring Annotations — Final Notes <span class="meta">Pages 91–91</span></summary>
+  <div class="topic-body">
+    
+    <details class="page">
+      <summary>Page 91</summary>
+      <div class="page-body"><pre>Spring Annotations
+Annotations:
+
+1. Required
+2. @ComponentScan: It is used when we want to scan a package for beans. It is used with the
+annotation @Configuration. We can also specify the base packages to scan for Spring
+Components.
+
+3. @Component: It is a class-level annotation. It is used to mark a Java class as a bean. A Java
+class annotated with @Component is found during the classpath. The Spring Framework pick it
+up and configure it in the application context as a Spring Bean.
+
+4. @Bean: It is a method-level annotation. It is an alternative of XML &lt;bean&gt; tag. It tells the
+method to produce a bean to be managed by Spring Container.
+
+5. @Controller: The @Controller is a class-level annotation. It is a specialization of
+@Component. It marks a class as a web request handler. It is often used to serve web pages.
+By default, it returns a string that indicates which route to redirect. It is mostly used with
+@RequestMapping annotation.
+
+6. @Service: It is also used at class level. It tells the Spring that class contains the business
+logic.
+
+7. @Repository: It is a class-level annotation. The repository is a DAOs (Data Access Object)
+that access the database directly. The repository does all the operations related to the database.</pre></div>
+    </details>
+    
+  </div>
+</details>
+
+</main>
+<footer>Source: uploaded “Google Keep Document-6.pdf” — 91 pages. Generated as a detailed study/cheat-sheet HTML.</footer>
+<script>
+const topics=[...document.querySelectorAll('.topic')];
+const pages=[...document.querySelectorAll('.page')];
+const search=document.getElementById('search');
+const stats=document.getElementById('stats');
+
+function cleanMarks(root){
+  root.querySelectorAll('mark').forEach(m=>m.replaceWith(document.createTextNode(m.textContent)));
+}
+function escRe(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
+
+function applySearch(){
+  const q=search.value.trim().toLowerCase();
+  let matches=0;
+  topics.forEach(t=>{
+    cleanMarks(t);
+    let topicHit=!q || t.innerText.toLowerCase().includes(q);
+    let visiblePages=0;
+    [...t.querySelectorAll('.page')].forEach(p=>{
+      const hit=!q || p.innerText.toLowerCase().includes(q);
+      p.classList.toggle('hidden',!q && false);
+      if(q && !hit) p.classList.add('hidden'); else p.classList.remove('hidden');
+      if(hit){visiblePages++; matches++;}
+      if(q && hit){
+        p.open=true;
+        const pre=p.querySelector('pre');
+        if(pre){
+          const txt=pre.textContent;
+          const parts=txt.split(new RegExp('('+escRe(q)+')','ig'));
+          pre.innerHTML='';
+          parts.forEach(x=>{
+            if(new RegExp('^'+escRe(q)+'$','i').test(x)){
+              const m=document.createElement('mark');m.textContent=x;pre.appendChild(m);
+            }else pre.appendChild(document.createTextNode(x));
+          });
+        }
+      }
+    });
+    if(q){
+      t.classList.toggle('hidden',visiblePages===0);
+      if(visiblePages>0)t.open=true;
+    }else{
+      t.classList.remove('hidden');
+    }
+  });
+  stats.textContent=q ? `${matches} matching page(s)` : `${topics.length} topic groups • ${pages.length} source pages`;
+}
+document.getElementById('openAll').onclick=()=>{topics.forEach(t=>{if(!t.classList.contains('hidden')){t.open=true;t.querySelectorAll('.page').forEach(p=>p.open=true)}})};
+document.getElementById('closeAll').onclick=()=>{topics.forEach(t=>{t.open=false;t.querySelectorAll('.page').forEach(p=>p.open=false)})};
+search.addEventListener('input',applySearch);
+applySearch();
+</script>
+</body>
+</html>

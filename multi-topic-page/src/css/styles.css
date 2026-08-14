@@ -1,0 +1,98 @@
+:root {
+  --bg-color: #f4f4f4;
+  --text-color: #333;
+  --header-bg: #2563eb;
+  --header-text: #fff;
+  --nav-bg: #fff;
+  --nav-text: #2563eb;
+  --nav-hover-bg: #e0e0e0;
+  --topic-bg: #fff;
+  --topic-border: #ccc;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+header {
+  background-color: var(--header-bg);
+  color: var(--header-text);
+  padding: 20px;
+  text-align: center;
+}
+
+nav {
+  background-color: var(--nav-bg);
+  padding: 10px;
+  text-align: center;
+}
+
+nav a {
+  color: var(--nav-text);
+  margin: 0 15px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+nav a:hover {
+  background-color: var(--nav-hover-bg);
+  border-radius: 5px;
+  padding: 5px;
+}
+
+main {
+   max-width: 800px;
+   margin: 20px auto;
+   padding: 20px;
+   background-color: var(--topic-bg);
+   border: 1px solid var(--topic-border);
+   border-radius: 10px;
+   transition: opacity 0.3s ease-in-out;
+   opacity: 1;
+}
+
+h2 {
+  color: var(--header-bg);
+}
+
+.topic {
+   margin-bottom: 20px;
+   padding: 15px;
+   border: 1px solid var(--topic-border);
+   border-radius: 8px;
+   background-color: #fff;
+}
+
+.topic h3 {
+   margin: 0;
+}
+
+.topic p {
+   margin: 10px 0;
+}
+
+.error {
+   color: #d32f2f;
+   background-color: #ffebee;
+   padding: 15px;
+   border: 1px solid #d32f2f;
+   border-radius: 8px;
+   margin: 20px 0;
+}
+
+.topic-content {
+   animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+   from {
+       opacity: 0;
+   }
+   to {
+       opacity: 1;
+   }
+}

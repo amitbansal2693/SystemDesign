@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Design Interview Q&A - Interactive</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e0e0e0;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 0.95em;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #e8e8e8;
+        }
+
+        .btn-active {
+            background: #667eea;
+            color: white;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .questions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .question-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .question-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .question-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .question-number {
+            background: rgba(255, 255, 255, 0.3);
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .question-title {
+            flex: 1;
+            margin-left: 15px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .toggle-icon {
+            font-size: 1.5em;
+            transition: transform 0.3s;
+        }
+
+        .question-card.expanded .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .question-content {
+            padding: 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .question-card.expanded .question-content {
+            max-height: 2000px;
+        }
+
+        .content-section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::before {
+            content: "▶";
+            transition: transform 0.2s;
+        }
+
+        .content-section.collapsed .section-title::before {
+            transform: rotate(90deg);
+        }
+
+        .section-content {
+            margin-left: 20px;
+            max-height: 500px;
+            overflow: hidden;
+            transition: max-height 0.3s;
+        }
+
+        .content-section.collapsed .section-content {
+            max-height: 0;
+        }
+
+        .bullet-list {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .bullet-list li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .bullet-list li::before {
+            content: "●";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .code-block {
+            background: #f5f5f5;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95em;
+        }
+
+        table th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .mindmap {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .mindmap-node {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+
+        .mindmap-node:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .mindmap-node-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .mindmap-node-content {
+            font-size: 0.85em;
+            line-height: 1.4;
+            opacity: 0.95;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .filter-tag {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 5px 12px;
+            margin: 5px 5px 5px 0;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #ddd;
+        }
+
+        .filter-tag:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .filter-tag.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .highlight {
+            background: #ffd700;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-right: 5px;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .questions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+        }
+
+        .collapse-all-btn {
+            background: #764ba2;
+        }
+
+        .expand-all-btn {
+            background: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 System Design Interview Q&A</h1>
+            <p>20 Critical Questions with Complete Solutions & Code Examples</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">20</div>
+                <div class="stat-label">Questions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">8</div>
+                <div class="stat-label">Categories</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">50+</div>
+                <div class="stat-label">Code Examples</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">100%</div>
+                <div class="stat-label">Interview Ready</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 Search questions by keyword...">
+            </div>
+            <div class="button-group">
+                <button class="btn-primary expand-all-btn" onclick="expandAll()">📖 Expand All</button>
+                <button class="btn-secondary collapse-all-btn" onclick="collapseAll()">📕 Collapse All</button>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="questions-grid" id="questionsContainer"></div>
+        </div>
+
+        <div class="footer">
+            <p>💡 Practice these questions before your system design interview. Good luck! 🚀</p>
+        </div>
+    </div>
+
+    <script>
+        const questionsData = [
+            {
+                id: 1,
+                title: "How to Detect System Slowness? (Traffic Doubles)",
+                category: "Monitoring",
+                sections: {
+                    "Metrics to Monitor": [
+                        "Application Level: Response time (p50, p95, p99), Error rate, Throughput (RPS)",
+                        "JVM (Java): Garbage collection pause time, Heap usage, Thread count, GC frequency",
+                        "Infrastructure: CPU utilization (>70% warning), Memory (heap + non-heap), Network latency, Packet loss",
+                        "Database: Query execution time, Connection pool exhaustion, Lock wait time, Slow query log",
+                        "Cache: Hit ratio drop, Eviction rate, Latency spike (Redis/Memcached)",
+                        "Dependencies: Downstream service latency, Circuit breaker state, Queue depth"
+                    ],
+                    "Action Plan": [
+                        "Set up alerts at 60-70% threshold",
+                        "Use distributed tracing to identify bottleneck layer"
+                    ]
+                }
+            },
+            {
+                id: 2,
+                title: "Design Monitoring & Alerting System for Production",
+                category: "Monitoring",
+                sections: {
+                    "Components": [
+                        "Metrics Collection: Prometheus/Datadog/New Relic (pull-based)",
+                        "Logs Aggregation: ELK/Splunk (centralized logging)",
+                        "Distributed Tracing: Jaeger/Zipkin (end-to-end request tracking)"
+                    ],
+                    "Alerting Rules": [
+                        "P99 latency > 500ms",
+                        "Error rate > 1%",
+                        "GC pause > 100ms",
+                        "DB connection pool > 80%"
+                    ],
+                    "Best Practice": [
+                        "Multi-metric correlation before escalation (prevent alert fatigue)"
+                    ]
+                }
+            },
+            {
+                id: 3,
+                title: "Database Connection Pool Exhaustion - Solution?",
+                category: "Database",
+                sections: {
+                    "Root Causes": [
+                        "Slow queries blocking connections",
+                        "Connection leaks in application code",
+                        "Database too slow to accept new connections"
+                    ],
+                    "Solutions": [
+                        "Immediate: Increase pool size (HikariCP: maximumPoolSize)",
+                        "Investigation: Check slow query log, identify N+1 queries",
+                        "Long-term: Connection pooling, Add statement timeout, Monitor connection hold time, Implement queue timeout"
+                    ],
+                    "Code Example": `HikariDataSource ds = new HikariDataSource();
+ds.setMaximumPoolSize(20);
+ds.setMinimumIdle(5);
+ds.setConnectionTimeout(30000); // 30s
+ds.setIdleTimeout(600000); // 10m
+ds.setMaxLifetime(1800000); // 30m`
+                }
+            },
+            {
+                id: 4,
+                title: "GC Pauses Killing Performance - How to Fix?",
+                category: "Performance Tuning",
+                sections: {
+                    "Diagnosis": [
+                        "Check GC logs: -XX:+PrintGCDetails -XX:+PrintGCDateStamps",
+                        "Identify: Full GC vs Young GC frequency"
+                    ],
+                    "Solutions": [
+                        "Increase heap size (if not causing long pauses)",
+                        "Switch GC algorithm: G1GC/ZGC for low latency, Serial/Parallel for batch jobs",
+                        "Reduce object allocation: Use object pools, StringBuilder",
+                        "Tune generations: -XX:NewRatio=2"
+                    ],
+                    "Formula": "Heap = Peak Live Data × 1.5 + safety margin"
+                }
+            },
+            {
+                id: 5,
+                title: "Redis/Cache Hit Ratio Drops from 95% to 60% - Diagnosis?",
+                category: "Caching",
+                sections: {
+                    "Possible Causes": [
+                        "Eviction policy triggered: LRU/LFU running (memory full)",
+                        "Cache invalidation issue: Stale data or aggressive TTL",
+                        "Working set size increased: Traffic spike with new data patterns",
+                        "Network partition: Read from secondary replica (stale)"
+                    ],
+                    "Response & Fixes": [
+                        "Check memory usage: INFO memory",
+                        "Review eviction logs: CONFIG GET maxmemory-policy",
+                        "Increase Redis memory or optimize key TTL",
+                        "Implement cache warming for critical data"
+                    ]
+                }
+            },
+            {
+                id: 6,
+                title: "Design Database for 10M Users, 1M Concurrent Reads/Sec",
+                category: "Database Architecture",
+                sections: {
+                    "Architecture Overview": [
+                        "Write → Master DB",
+                        "Replication (async, 500ms lag)",
+                        "Read Replicas (3-5 instances)",
+                        "Query Router (application-level routing)"
+                    ],
+                    "Key Decisions": [
+                        "Sharding: By user_id (geographical/hash-based)",
+                        "Cache: Redis for hot user data (profiles, sessions)",
+                        "Replication: Async (faster, eventual consistency acceptable)",
+                        "Indexes: On filter columns (status, created_at), composite indexes",
+                        "Storage Engine: InnoDB (MVCC), proper buffer pool sizing"
+                    ]
+                }
+            },
+            {
+                id: 7,
+                title: "N+1 Query Problem - Detect & Fix",
+                category: "Database Optimization",
+                sections: {
+                    "Problem Example": `// BAD: 1 query to get users, then N queries for each user's orders
+List<Users> users = db.findAll();
+for (User u : users) {
+    u.setOrders(db.findOrdersByUserId(u.getId())); // N queries
+}`,
+                    "Detection Methods": [
+                        "Enable query logging, count by query pattern",
+                        "Use APM tools (New Relic/DataDog) to identify slow transactions",
+                        "Look for repeated queries in distributed traces"
+                    ],
+                    "Solutions": [
+                        "Batch fetch: IN clause to fetch all at once",
+                        "Join: SQL LEFT JOIN with result mapping",
+                        "Lazy loading: Load only when accessed",
+                        "Caching: Store user→orders mapping in Redis"
+                    ]
+                }
+            },
+            {
+                id: 8,
+                title: "How to Scale Write-Heavy System (1M writes/sec)?",
+                category: "Scalability",
+                sections: {
+                    "Architecture Components": [
+                        "Queue: Kafka/RabbitMQ (async processing)",
+                        "Write-Through: Dual write to cache + DB",
+                        "Batch writes: 1000 records per batch, 100ms window",
+                        "Sharding: Partition by key (user_id)",
+                        "Write replicas: Distribute write load across replicas"
+                    ],
+                    "Data Flow": `API → Kafka Producer (async)
+↓
+Message Queue
+↓
+Consumer Pool (4-8 instances)
+↓
+Batch INSERT + Cache update`
+                }
+            },
+            {
+                id: 9,
+                title: "Load Balancer Strategy for Uneven Request Distribution",
+                category: "Load Balancing",
+                sections: {
+                    "Problem": "Some servers get 80% traffic, others 20%",
+                    "Causes & Fixes": [
+                        "Sticky sessions: Use session affinity wisely. Fix: Distribute with hash distribution",
+                        "Server capacity differences: Monitor server health and adjust weights",
+                        "Hot partitions: One server handles all requests for popular user. Fix: Consistent hashing, replica sharding"
+                    ],
+                    "Optimal Algorithm": "Least connections + health check weight adjustment"
+                }
+            },
+            {
+                id: 10,
+                title: "Design Cache-Aside vs Write-Through Pattern",
+                category: "Caching Patterns",
+                sections: {
+                    "Pattern Comparison": `
+Pattern | Pros | Cons | Use Case
+Cache-Aside | Simple, high hit ratio | Cache miss latency, stale data | Read-heavy (user profiles)
+Write-Through | Always fresh | Slower writes, double write | Critical data (payments, inventory)
+Write-Behind | Fast writes | Data loss risk, inconsistency | Analytics, logging`,
+                    "Cache-Aside Code": `public Object get(String key) {
+    Object val = cache.get(key);
+    if (val == null) {
+        val = db.get(key);
+        cache.set(key, val, TTL);
+    }
+    return val;
+}`
+                }
+            },
+            {
+                id: 11,
+                title: "Handle Database Replication Lag (500ms)",
+                category: "Database",
+                sections: {
+                    "Problem": "Read replicas lag behind master",
+                    "Solutions": [
+                        "Critical reads: Route to master (user just updated)",
+                        "Eventual consistency acceptable: Route to replica",
+                        "Read-after-write: Store user preference, read from master for 1 second",
+                        "Versioning: Add version field, client waits for version bump"
+                    ],
+                    "Implementation": `User u = db.update(user); // master
+cache.set("recently_updated:" + u.id, u.version);
+
+// For critical reads
+if (cache.exists("recently_updated:" + u.id)) {
+    return masterDB.get(u.id);
+}`
+                }
+            },
+            {
+                id: 12,
+                title: "Microservices Network Latency Issues",
+                category: "Microservices",
+                sections: {
+                    "Symptoms": "P99 latency 5s, but each service averages 100ms",
+                    "Root Causes": [
+                        "Cascading timeouts (Service A waits for B, B waits for C)",
+                        "Network packet loss/retransmission",
+                        "DNS resolution delay",
+                        "Connection pool starvation"
+                    ],
+                    "Fixes": [
+                        "Timeouts: Set per-service (50ms for internal calls)",
+                        "Circuit breaker: Fail fast instead of waiting",
+                        "Connection pooling: Reuse TCP connections (HTTP keep-alive)",
+                        "DNS caching: Use internal DNS cache (10-30s TTL)",
+                        "Batch requests: GraphQL or internal batch API"
+                    ]
+                }
+            },
+            {
+                id: 13,
+                title: "Design Rate Limiting for API",
+                category: "API Design",
+                sections: {
+                    "Strategy": [
+                        "Per-user: 1000 req/min",
+                        "Per-IP: 5000 req/min",
+                        "Per-endpoint: 10000 req/min"
+                    ],
+                    "Implementation Techniques": [
+                        "Token bucket: Redis, refill at fixed rate",
+                        "Sliding window: Last 60 seconds of requests",
+                        "Fixed window: Simpler, 1% error edge case"
+                    ],
+                    "Code (Redis)": `public boolean isAllowed(String userId) {
+    String key = "ratelimit:" + userId;
+    Long count = redis.incr(key);
+    if (count == 1) {
+        redis.expire(key, 60); // 1 minute window
+    }
+    return count <= 1000;
+}`
+                }
+            },
+            {
+                id: 14,
+                title: "Handle Thundering Herd Problem",
+                category: "Caching",
+                sections: {
+                    "Scenario": "Cache key expires, 10K requests hit DB simultaneously",
+                    "Solutions": [
+                        "Probabilistic early expiration: Refresh at 70% TTL",
+                        "Locking: First request fetches, others wait",
+                        "Longer TTL + versioning: Serve stale while updating async",
+                        "Cache warming: Pre-load before expiry"
+                    ],
+                    "Recommended Approach": `if (cache.timeToLive(key) < TTL * 0.3) {
+    // Async refresh
+    asyncExecutor.submit(() -> refresh(key));
+    return cache.getStale(key);
+}`
+                }
+            },
+            {
+                id: 15,
+                title: "Debugging Memory Leak in Java Application",
+                category: "Performance Tuning",
+                sections: {
+                    "Detection": [
+                        "Heap usage steadily increases despite GC",
+                        "Check: jstat -gc -h10 <pid> 1000 (every 1 second)"
+                    ],
+                    "Tools": [
+                        "jmap -heap <pid>: Heap summary",
+                        "jmap -dump:live,format=b,file=heap.bin <pid>: Dump heap",
+                        "jhat heap.bin: Analyze in browser",
+                        "Eclipse MAT / YourKit profiler"
+                    ],
+                    "Common Causes": [
+                        "Static collections: static List<Object> cache = new ArrayList()",
+                        "Thread pools: ThreadLocal not cleaned",
+                        "Listeners/Callbacks: Not unregistered",
+                        "Cache without eviction policy"
+                    ]
+                }
+            },
+            {
+                id: 16,
+                title: "Design Circuit Breaker Pattern",
+                category: "Design Patterns",
+                sections: {
+                    "States": [
+                        "Closed (normal): Requests pass through",
+                        "Open (failing): Fail fast, don't call service",
+                        "Half-Open (testing): Allow 1 request to test recovery"
+                    ],
+                    "Implementation": `public class CircuitBreaker {
+    private State state = State.CLOSED;
+    private int failureCount = 0;
+    private long lastFailureTime = 0;
+    private static final int THRESHOLD = 5;
+    private static final long TIMEOUT = 60000; // 1 min
+
+    public Object execute(Callable<Object> task) {
+        if (state == State.OPEN) {
+            if (System.currentTimeMillis() - lastFailureTime > TIMEOUT) {
+                state = State.HALF_OPEN;
+            } else {
+                throw new CircuitBreakerOpenException();
+            }
+        }
+
+        try {
+            Object result = task.call();
+            onSuccess();
+            return result;
+        } catch (Exception e) {
+            onFailure();
+            throw e;
+        }
+    }
+}`
+                }
+            },
+            {
+                id: 17,
+                title: "Design High-Availability (HA) System with 99.99% SLA",
+                category: "High Availability",
+                sections: {
+                    "SLA Formula": "Downtime allowed = (1 - 0.9999) × 365 days = 52 minutes/year",
+                    "Architecture": [
+                        "Multi-Region (3 regions)",
+                        "Active-Active (not Active-Passive)",
+                        "Each region: 3-5 availability zones",
+                        "Data replication: 200ms max lag"
+                    ],
+                    "Components": [
+                        "DNS failover: 30-60 second TTL",
+                        "Database: Multi-master (Galera/MongoDB) or async replication",
+                        "Load Balancer: Health checks every 5 seconds",
+                        "Auto-scaling: Spin up in 30 seconds",
+                        "Backup: RTO < 1 hour, RPO < 5 min"
+                    ]
+                }
+            },
+            {
+                id: 18,
+                title: "SAP Commerce Specific: Handle Flash Sale (10x Traffic Spike)",
+                category: "Real-world Scenarios",
+                sections: {
+                    "Challenges": [
+                        "Inventory updated frequently (race conditions)",
+                        "Cart operations increase (DB write heavy)",
+                        "Payment processing bottleneck",
+                        "Product catalog heavy reads"
+                    ],
+                    "Solution": [
+                        "Pre-scale infrastructure (24 hrs before)",
+                        "Queue cart operations → Kafka",
+                        "Batch inventory updates (10s window)",
+                        "Read catalog from Redis cache",
+                        "Separate payment queue (dedicated pool)",
+                        "Feature flag: Disable non-critical features"
+                    ],
+                    "Code Pattern": `// Inventory update - avoid double booking
+public synchronized void decrementInventory(String productId, int qty) {
+    Product p = cache.get(productId);
+    if (p.stock < qty) throw new OutOfStockException();
+    cache.decrement(productId + ":stock", qty);
+    // Async persist to DB
+    eventBus.publish(new InventoryUpdatedEvent(productId, qty));
+}`
+                }
+            },
+            {
+                id: 19,
+                title: "Database Sharding Strategy: Hotspot & Rebalancing",
+                category: "Database Architecture",
+                sections: {
+                    "Sharding Key": "By user_id (good cardinality, stable)",
+                    "Problem": "One shard gets 80% traffic (celebrity user)",
+                    "Solutions": [
+                        "Replica shards: Replicate hot shard across servers",
+                        "Secondary shard: Hash(user_id + nonce) for read-only replicas",
+                        "Consistent hashing: Add virtual nodes to shift load gradually"
+                    ],
+                    "Rebalancing Strategies": [
+                        "Downtime method: Pause writes, migrate, resume",
+                        "Dual-write: New shard + old shard, eventually switch",
+                        "Best: Use managed solution (Vitess, CockroachDB)"
+                    ]
+                }
+            },
+            {
+                id: 20,
+                title: "Observability: Metrics, Logs, Traces (3 Pillars)",
+                category: "Observability",
+                sections: {
+                    "The 3 Pillars": [
+                        "Metrics (Prometheus/Datadog): HTTP requests/sec, GC pause time",
+                        "Logs (ELK/Splunk): Request ID, user_id, error stack trace",
+                        "Traces (Jaeger/Zipkin): Request path across services"
+                    ],
+                    "Critical Correlation": [
+                        "Trace ID = Unique per request",
+                        "Span ID = Service execution",
+                        "Metrics + Logs + Traces = Root cause in 5 minutes"
+                    ],
+                    "Spring Cloud Sleuth Setup": `// Spring Cloud Sleuth (auto-tracing)
+@Autowired private Tracer tracer;
+
+Span span = tracer.startSpan("database-query");
+try {
+    // Query
+} finally {
+    span.finish();
+}
+// Automatically appears in Jaeger UI`
+                }
+            }
+        ];
+
+        function renderQuestions(questions = questionsData) {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+
+            questions.forEach(q => {
+                const card = document.createElement('div');
+                card.className = 'question-card';
+                card.id = `q-${q.id}`;
+
+                const categories = {
+                    'Monitoring': '📊',
+                    'Database': '🗄️',
+                    'Performance Tuning': '⚙️',
+                    'Caching': '💾',
+                    'Database Architecture': '🏗️',
+                    'Database Optimization': '🔍',
+                    'Scalability': '📈',
+                    'Load Balancing': '⚖️',
+                    'Caching Patterns': '🎯',
+                    'Microservices': '🔗',
+                    'API Design': '🔌',
+                    'Design Patterns': '🎨',
+                    'High Availability': '🛡️',
+                    'Real-world Scenarios': '🌍',
+                    'Observability': '👁️'
+                };
+
+                const categoryIcon = categories[q.category] || '🔹';
+
+                card.innerHTML = `
+                    <div class="question-header" onclick="toggleCard(this.closest('.question-card'))">
+                        <div class="question-number">${q.id}</div>
+                        <div class="question-title">${q.title}</div>
+                        <div class="toggle-icon">▼</div>
+                    </div>
+                    <div class="question-content">
+                        <div style="margin-bottom: 15px;">
+                            <span class="tag">${categoryIcon} ${q.category}</span>
+                        </div>
+                        ${generateSections(q.sections)}
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function generateSections(sections) {
+            let html = '';
+            for (const [title, content] of Object.entries(sections)) {
+                if (Array.isArray(content)) {
+                    html += `
+                        <div class="content-section">
+                            <div class="section-title">${title}</div>
+                            <div class="section-content">
+                                <ul class="bullet-list">
+                                    ${content.map(item => `<li>${item}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="content-section">
+                            <div class="section-title">${title}</div>
+                            <div class="section-content">
+                                <div class="code-block">${escapeHtml(content)}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            return html;
+        }
+
+        function toggleCard(card) {
+            card.classList.toggle('expanded');
+        }
+
+        function expandAll() {
+            document.querySelectorAll('.question-card').forEach(card => {
+                card.classList.add('expanded');
+            });
+        }
+
+        function collapseAll() {
+            document.querySelectorAll('.question-card').forEach(card => {
+                card.classList.remove('expanded');
+            });
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('keyup', function(e) {
+            const query = e.target.value.toLowerCase();
+            const cards = document.querySelectorAll('.question-card');
+
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if (text.includes(query)) {
+                    card.style.display = 'block';
+                    if (query.length > 0) {
+                        card.classList.add('expanded');
+                    }
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Add click handlers to section titles for collapsing
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('section-title')) {
+                e.target.closest('.content-section').classList.toggle('collapsed');
+            }
+        });
+
+        // Initial render
+        renderQuestions();
+    </script>
+</body>
+</html>
+

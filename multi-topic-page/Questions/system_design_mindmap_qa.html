@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--surface-0); color: var(--text-primary); }
+
+.container { max-width: 900px; margin: 0 auto; padding: 2rem 1rem; }
+
+.header { text-align: center; margin-bottom: 2rem; }
+.header h1 { font-size: 28px; font-weight: 500; margin-bottom: 0.5rem; }
+.header p { color: var(--text-secondary); font-size: 14px; }
+
+.mindmap-view { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+
+.topic-card {
+  background: var(--surface-2);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-height: 120px;
+  justify-content: center;
+}
+
+.topic-card:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-1);
+  transform: translateY(-2px);
+}
+
+.topic-icon {
+  font-size: 28px;
+  display: inline-block;
+}
+
+.topic-name {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.qa-view { display: none; }
+.qa-view.active { display: block; }
+
+.qa-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.back-btn {
+  background: none;
+  border: 0.5px solid var(--border);
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.back-btn:hover {
+  background: var(--surface-1);
+  border-color: var(--border-strong);
+}
+
+.qa-title {
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.qa-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.qa-pair {
+  background: var(--surface-2);
+  border: 0.5px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.qa-pair:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-1);
+}
+
+.qa-pair.expanded {
+  border-color: var(--border-strong);
+}
+
+.qa-number {
+  display: inline-block;
+  background: var(--fill-accent);
+  color: var(--on-accent);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 28px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-right: 8px;
+}
+
+.question {
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+  padding-left: 36px;
+}
+
+.qa-pair.expanded .answer {
+  max-height: 2000px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 0.5px solid var(--border);
+}
+
+.toggle-icon {
+  display: inline-block;
+  transition: transform 0.3s;
+  margin-left: auto;
+}
+
+.qa-pair.expanded .toggle-icon {
+  transform: rotate(180deg);
+}
+
+.center-content {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>System Design Interview Questions</h1>
+    <p>Navigate through 9 core topics · Click to explore Q&A pairs</p>
+  </div>
+
+  <!-- MINDMAP VIEW -->
+  <div class="mindmap-view" id="mindmapView">
+    <div class="topic-card" onclick="showTopic(0)">
+      <span class="topic-icon">🐌</span>
+      <span class="topic-name">Slowness & Diagnosis</span>
+    </div>
+    <div class="topic-card" onclick="showTopic(1)">
+      <span class="topic-icon">⚖️</span>
+      <span class="topic-name">Trade-offs</span>
+    </div>
+    <div class="topic-card" onclick="showTopic(2)">
+      <span class="topic-icon">🔄</span>
+      <span class="topic-name">Consistency</span>
+    </div>
+    <div class="topic-card" onclick="showTopic(3)">
+      <span class="topic-icon">🌐</span>
+      <span class="topic-name">Service-to-Service</span>
+    </div>
+    <div class="topic-card" onclick="showTopic(4)">
+      <span class="topic-icon">⚡</span>
+      <span class="topic-name">Load Balancer</span>
+    </div>
+    <div class="topic-card" onclick="showTopic(5)">
+      <span class="topic-icon">🔒</span>
+      <span class="topic-name">Concurrency</span>
+    </div>
+    <div class="topic-card" onclick="showTopic(6)">
+      <span class="topic-icon">💾</span>
+      <span class="topic-name">Cache</span>
+    </div>
+    <div class="topic-card" onclick="showTopic(7)">
+      <span class="topic-icon">📢</span>
+      <span class="topic-name">Event-based</span>
+    </div>
+    <div class="topic-card" onclick="showTopic(8)">
+      <span class="topic-icon">🔐</span>
+      <span class="topic-name">Authorization</span>
+    </div>
+  </div>
+
+  <!-- QA VIEWS -->
+  <div class="qa-view active" id="qaView">
+    <div class="qa-header">
+      <button class="back-btn" onclick="showMindmap()">← Back</button>
+      <span id="qaTitle" class="qa-title"></span>
+    </div>
+    <div class="qa-container" id="qaContainer"></div>
+  </div>
+</div>
+
+<script>
+const topics = [
+  {
+    name: "Slowness & Diagnosis",
+    icon: "🐌",
+    questions: [
+      {
+        q: "How do you detect system slowness when traffic doubles?",
+        a: "Monitor key metrics: Response time (p50, p95, p99), Error rate, CPU >70%, Memory utilization, Garbage collection pause time, Network latency, Database query time, Cache hit ratio drop, Connection pool usage. Set alerts at 60% threshold. Use distributed tracing to identify bottleneck layer (API vs DB vs Cache)."
+      },
+      {
+        q: "Traffic spiked 10x overnight. Where do you look first?",
+        a: "1) Check CPU/Memory load - if maxed out, scale horizontally. 2) Look at database: slow queries, connection pool exhaustion. 3) Check cache hit ratio - if dropped, increase Redis memory or warm cache. 4) Network latency - any packet loss? 5) Check downstream dependencies. 6) Review recent deployments - did code change? Use APM tool (DataDog/New Relic) to correlate all signals."
+      },
+      {
+        q: "GC pause time jumped from 50ms to 800ms. Root cause?",
+        a: "Full GC triggered by heap pressure. Check: 1) Heap usage - is it near max? 2) Young generation promotion rate - objects surviving too long. 3) Memory leak - heap grows monotonically? Solutions: increase heap size, switch to G1GC/ZGC (low latency), reduce object allocation, adjust NewRatio for young:old ratio tuning."
+      },
+      {
+        q: "Database connection pool exhausted (100/100 active). What now?",
+        a: "Immediate: Increase pool size temporarily. Investigation: Check slow query log - queries blocking connections. Check connection hold time (should be <1s). Review code for connection leaks (missing close()). Long-term: Set query timeouts, add monitoring alerts at 70% utilization, implement queue timeout in pool config, reduce pool size (ideal: 2x CPU cores), use prepared statements for faster execution."
+      },
+      {
+        q: "Cache hit ratio dropped from 95% to 40% suddenly.",
+        a: "Causes: 1) Eviction policy triggered (LRU/LFU running - memory full). Check Redis memory usage: INFO memory. 2) Aggressive TTL or cache invalidation bug. 3) New data patterns (different user segments). 4) Network partition to cache (read from stale replica). Solution: Increase Redis memory, review eviction policy, implement cache warming for hot keys, extend TTL if acceptable, check replication lag."
+      },
+      {
+        q: "P99 latency is 5s but average is 100ms. How to debug?",
+        a: "High percentile latency = tail latency spike. Check: 1) GC pauses - stop-the-world events. 2) Resource contention - one query locking many rows. 3) Cascading timeouts in microservices. 4) Hotspot partitions - one database shard handles 80% traffic. 5) Packet retransmission. Use distributed tracing with percentile views to isolate which service layer causes spikes. Add circuit breaker to fail fast."
+      },
+      {
+        q: "Database replication lag is 500ms, reads get stale data. Solution?",
+        a: "Route critical reads (user just updated) to master DB. Mark recently-updated records in cache (10s TTL). For normal reads, acceptable eventual consistency - read from replica. Implement version field: client stores version, waits for version bump before next read (ensures read-after-write consistency). Use read-through cache to mask replica lag. Monitor: SHOW SLAVE STATUS; check Seconds_Behind_Master."
+      },
+      {
+        q: "One microservice is slow, blocking all others (cascading timeout).",
+        a: "Service A calls B (50ms timeout) calls C (40ms timeout). If C slow → B times out → A times out → user sees 5s timeout. Solutions: 1) Set timeouts per service (50ms for internal calls, shorter for nested). 2) Add circuit breaker - fail fast after 5 consecutive failures instead of waiting. 3) Implement timeout budgets (don't exceed 100ms total). 4) Use async/queue to decouple. 5) Batch requests instead of sequential calls."
+      },
+      {
+        q: "How do you monitor a system to catch slowness before users complain?",
+        a: "3-pillar observability: 1) Metrics (Prometheus/Datadog) - p99 latency, error rate, CPU, GC pause. 2) Logs (ELK/Splunk) - query execution time, user_id, request path. 3) Traces (Jaeger/Zipkin) - end-to-end request flow across services. Set alerts: p99 > 500ms, error rate > 1%, GC pause > 100ms, DB connection pool > 80%. Use multi-metric correlation (not single alerts) to reduce false positives."
+      },
+      {
+        q: "SAP Commerce flash sale - traffic spike expected 48h. How to prepare?",
+        a: "Pre-event: Scale infrastructure (add 3-5x capacity). Cache catalog in Redis (read-heavy). Queue cart operations to Kafka (async processing). Separate payment processing queue (dedicated pool, rate limit). Batch inventory updates (10s window) to prevent race conditions. Feature flag non-critical features (recommendations, reviews). Monitor: CPU, memory, queue depth, connection pool, GC pause. Post-event: Gradually scale down, analyze bottlenecks."
+      },
+      {
+        q: "How to correlate high latency across metrics, logs, and traces?",
+        a: "Use trace ID linking: Every request gets unique trace ID. Same ID in all logs and trace spans. When p99 latency spike occurs: 1) Find p99 trace in Jaeger. 2) Note trace ID. 3) Search logs with same trace ID to find errors/warnings. 4) Check metrics at same timestamp - any resource spike? 5) Identify slowest span (which service). This 3-pillar correlation gives root cause in minutes instead of hours."
+      },
+      {
+        q: "How to detect N+1 queries under high load?",
+        a: "Symptoms: Query count grows with data set size. Detection: Enable slow query log (log_slow_queries). Query pattern analysis in APM tool (DataDog). Look for repeated queries like SELECT * FROM orders WHERE user_id = ? called 1000x in one transaction. Distributed tracing shows request timeline. Fix: 1) Fetch all at once with IN clause. 2) Use LEFT JOIN. 3) Add indexes on filter columns. 4) Implement caching for results."
+      },
+      {
+        q: "Memory leak detected - heap keeps growing. How to find it?",
+        a: "Tools: jstat -gc -h10 <pid> 1000 (watch heap growth). jmap -dump:live,format=b,file=heap.bin <pid> (heap dump). Eclipse MAT or YourKit (analyze dump). Find: 1) Static collections never cleared. 2) ThreadLocal not cleaned up. 3) Listeners not unregistered. 4) Cache without eviction. Check stack traces of largest objects in dump. Add memory leak fix + test case to prevent regression."
+      },
+      {
+        q: "How to diagnose high CPU utilization (90%+)?",
+        a: "Check: 1) User CPU vs System CPU (top -H). 2) Is it query processing or GC? (jstat -gc). 3) Which thread consuming CPU? (jstack <pid>). 4) Hot method profiling (JFR, YourKit). 5) Check for busy-wait loops (threads spinning). 6) Index missing causing full table scan? 7) Regex operations on large strings? Solutions: Add index, optimize code, reduce data set, scale horizontally, reduce algorithm complexity (O(n²) → O(n))."
+      },
+      {
+        q: "What's the difference between latency spikes and consistent slowness?",
+        a: "Latency spikes (p99 high, p50 normal): GC pause, network retransmit, hot partition spike. Fix: tune GC, add redundancy. Consistent slowness (all percentiles high): Resource exhaustion (CPU maxed, memory full, connection pool exhausted), inefficient query, missing index. Fix: scale hardware, optimize code/queries, add index. Diagnosis: Check if spike is temporary (logs show one event) or ongoing (metrics consistently high). Use histograms to see distribution, not just averages."
+      }
+    ]
+  },
+  {
+    name: "Trade-offs",
+    icon: "⚖️",
+    questions: [
+      {
+        q: "Consistency vs Availability trade-off. Which to choose?",
+        a: "CAP Theorem: Can't guarantee all 3 (Consistency, Availability, Partition tolerance). In network partition: choose CP (consistent) or AP (available). Payment system → CP (money can't disappear). Social media → AP (ok to miss some likes temporarily). Decision: 1) Network partitions inevitable. 2) Choose between stale data (AP) vs unavailable service (CP). Most systems choose AP + eventual consistency (Netflix, Amazon). Event sourcing + reconciliation loops achieve strong consistency in AP."
+      },
+      {
+        q: "Strong consistency vs Eventual consistency. When use which?",
+        a: "Strong consistency (ACID): Read always returns latest write. Latency higher (~50-100ms). Used for: payments, inventory, bank accounts. Eventual consistency: Reads may be stale for a time (seconds). Latency low (~5-10ms). Used for: user profiles, social feeds, comments. Decision factors: 1) Can users tolerate stale data? 2) What's business impact of inconsistency? 3) SLA requirement? Hybrid: Mix - strong for critical, eventual for non-critical."
+      },
+      {
+        q: "Latency vs Throughput. How to optimize both?",
+        a: "Latency: Time for single request (ms). Throughput: Requests per second (RPS). They conflict: Adding concurrency for throughput can increase tail latency. Solution: 1) Connection pooling for throughput without latency penalty. 2) Batching - aggregate 100 requests into 1 query (better throughput, slightly higher latency). 3) Async processing - queue jobs, return immediately. 4) Read replicas for read throughput. 5) Sharding for write throughput. 6) Caching for both. Measure p99 latency + RPS, not just averages."
+      },
+      {
+        q: "Replication lag vs Write latency. How to balance?",
+        a: "Synchronous replication: Slow (master waits for slave ack). Guaranteed durability. Write latency: 50-100ms. Asynchronous replication: Fast (master doesn't wait). Risk data loss on master crash. Write latency: 5-10ms. Compromise: Semi-sync (master waits for 1 of N replicas). For databases: Choose sync for financial, async for logging. For caches: Always async (can rebuild from source). Decision: Durability SLA vs Performance SLA."
+      },
+      {
+        q: "Caching vs Correctness. How to keep data fresh?",
+        a: "Cache-aside: Simple, fast, but stale data until TTL expires. Use for: user profiles (stale ok for 1 min). Write-through: Always fresh, slower writes. Use for: inventory (stale = overbooking). Event-based invalidation: Delete cache key on update (fresher, but complex). Cache versioning: Store version in cache, query DB if version mismatch. Decision: acceptable staleness window (1s? 1m? 1h?) + impact of stale data (money vs UX)."
+      },
+      {
+        q: "Sharding vs Replication. When use each?",
+        a: "Replication: Multiple copies of same data → better availability + read throughput. Sharding: Data split across servers → better write throughput + storage. 1M writes/sec: Need sharding. 1M reads/sec: Replication enough. Hot data (10GB) + 100GB storage: Shard for write capacity. Cold data read only: Replicate. Combined: Shard for writes, replicate each shard for availability. Example: Shard by user_id, each shard has 3 replicas (1 master, 2 slaves)."
+      },
+      {
+        q: "Immediate consistency vs Eventual consistency in distributed DB.",
+        a: "Immediate (strong): Every read sees latest write. Requires consensus protocol (Raft/Paxos). Latency 100ms+. Used by: PostgreSQL replicated, CockroachDB (geo-replicated). Eventual: Replicas catch up asynchronously. Latency 10ms+. Used by: DynamoDB, Cassandra, MongoDB (default). CAP: Immediate = CP. Eventual = AP. Hybrid: Google Cloud Spanner uses atomic clocks for strong consistency with low latency (95th %-ile 65ms)."
+      },
+      {
+        q: "Vertical scaling vs Horizontal scaling. Trade-offs?",
+        a: "Vertical (bigger machine): Easier, no code changes, but limits (can't buy infinite CPU). 10x cost → 2-3x performance. Horizontal (more machines): Complex (distributed systems hard), code must be stateless, but unlimited scale. Decision: Start vertical until hitting limits (~64 CPU, 256GB RAM), then switch horizontal. For Java: Vertical scale hits GC pause problems (long Full GC). Horizontal solves via partition (shard by user_id)."
+      },
+      {
+        q: "Read-heavy vs Write-heavy system design difference.",
+        a: "Read-heavy (10:1 read:write ratio): Cache heavily, multiple read replicas, denormalization ok. Write-heavy (1:10 read:write ratio): Queue writes (Kafka), batch processing, high write throughput DB (ShardedDB, Cassandra). Different bottlenecks: Read-heavy → network BW to cache/DB. Write-heavy → disk I/O for persistence. Hybrid: Separate read + write paths. Example: Write to queue → async batch process → update read cache. Order system (many reads, few writes) vs Analytics (many writes, few reads)."
+      },
+      {
+        q: "Persistence vs Speed. Which to optimize?",
+        a: "Durable write (sync to disk): Slow, safe. Latency 10-50ms. Used for: financial transactions, inventory. Fast write (in-memory, async persist): Quick, risky. Latency <5ms. Used for: cache, analytics, logs. Risk: Server crash = data loss. Compromise: Write-behind (fast return to client, async persist). SLA decision: How much data loss acceptable? <1 second? <1 hour? Trade cost (more hardware for both durability + speed) vs risk."
+      },
+      {
+        q: "Denormalization vs Normalization in schema design.",
+        a: "Normalized: Multiple JOINs to fetch related data. Slower (JOIN cost). Less storage (no duplication). Used: Transactional systems. Denormalized: Duplicate data in one table. Faster (no JOIN). More storage + stale data risk. Used: Analytical, cache. SAP Commerce: Denormalize cart total (redundant but fast checkout). Decision: 1) Is JOIN costly? (yes → denormalize). 2) Is data updated often? (no → safe to denormalize). 3) Can accept stale derived data? (yes → denormalize). Use materialized views for safe denormalization."
+      },
+      {
+        q: "Synchronous RPC vs Asynchronous messaging for inter-service calls.",
+        a: "RPC (REST/gRPC): Immediate response, simple. Latency: Low but adds up in cascades (A→B→C→D = 4 calls). Reliability: If B down, A fails. Async (Kafka/RabbitMQ): Decouple services, reliable (durable queue). Latency: Higher (queue processing delay). Reliability: B can be down, A unaffected. Decision: User-facing (checkout) → RPC (fast feedback). Backend jobs → Async (decouple). Hybrid: RPC for reads, async for writes (event-driven)."
+      },
+      {
+        q: "Perfect consistency vs Performance under failures. How to choose?",
+        a: "Perfect consistency (ACID transactions): Slow, available during normal operations. Breaks under high contention/failures. Performance under failures (BASE, eventual consistency): Fast, survives partitions. Accept temporary inconsistency. Most internet companies: Sacrifice perfect consistency for performance + resilience. Example: AWS DynamoDB allows eventual consistency for better performance. Decision: impact of <1% inconsistency vs downtime cost. Netflix: accepts eventual consistency."
+      },
+      {
+        q: "Real-time response vs Batch processing. When each is better?",
+        a: "Real-time (online): Immediate response to user. Latency <100ms. Cost: high (always-on servers). Used for: search, transactions, live feeds. Batch (offline): Process large volumes periodically. Latency: minutes/hours acceptable. Cost: low (run jobs at night). Used for: analytics, reports, recommendations. Decision: SLA latency requirement. 1-hour delay acceptable? → Batch. <1 second? → Real-time. Hybrid: Batch jobs populate cache, real-time reads from cache."
+      },
+      {
+        q: "Strong typing (static) vs Dynamic typing in API design.",
+        a: "Static (gRPC protobuf): Enforced schema, fast serialization, easy to detect breaking changes. Latency: 1ms (binary protocol). Maintenance: Schema versioning. Dynamic (REST JSON): Flexible, easier evolution. Latency: 5ms (string parsing). Risk: API version mismatch. Decision: Internal service → Static (gRPC, protobuf). Public API → Dynamic (REST, JSON, easier to extend). Java + SAP Commerce: Use gRPC internally for performance, REST externally for compatibility."
+      }
+    ]
+  },
+  {
+    name: "Consistency & Eventual Consistency",
+    icon: "🔄",
+    questions: [
+      {
+        q: "Explain strong consistency vs eventual consistency with examples.",
+        a: "Strong: Read always returns latest write. E.g., after transfer, checking balance always shows new amount. Database: PostgreSQL (ACID), MySQL InnoDB. Latency: 50-100ms (consensus overhead). Eventual: Reads may return stale data temporarily (seconds/minutes). E.g., YouTube views increment asynchronously. Database: DynamoDB, Cassandra. Latency: 5-10ms. Acceptable for: social media, analytics, recommendations. Unacceptable for: payments, inventory."
+      },
+      {
+        q: "How to implement eventual consistency with read-after-write?",
+        a: "Problem: User updates profile, reads get stale data from replica. Solution: 1) Mark recently-written keys in cache. 2) User updates → store write version in cache (10s TTL). 3) User reads → check cache. 4) If key in cache, read from master. Else read from replica. Code: cache.set('recentwrite:' + userId, version, 10s). 5) Next read: if cache hit → read from master. This ensures read-after-write consistency for user while benefiting from replica lag elsewhere."
+      },
+      {
+        q: "How does versioning solve eventual consistency issues?",
+        a: "Add version field (increment on each update). When user updates record: version 1 → version 2. User stores version 2. On read, client checks if version changed. If stale (version 1), wait/retry until version 2. Example: Order status v1 = pending, client waits for v2 (shipped). Helps: 1) Client knows when data stale. 2) Can trigger re-fetch if needed. 3) Concurrent update detection. Used in: optimistic locking, CRDTs (Conflict-free Replicated Data Types)."
+      },
+      {
+        q: "Implement eventual consistency in distributed cache.",
+        a: "Multi-region cache setup: Write to local cache → async replicate to other regions (Kafka event). Issue: Stale reads during propagation (100-500ms lag). Solutions: 1) Client-side cache versioning (track version from master write). 2) Event-based invalidation (publish cache-invalidate event). 3) TTL-based expiry (short TTL like 5s for eventual consistency). 4) Read-through pattern (check master on cache miss). Example: User profile update → write to master → async Kafka event → replicas update. During lag: reads get stale but accept it."
+      },
+      {
+        q: "How to handle conflict resolution in eventual consistency?",
+        a: "Problem: Two users update same record simultaneously in different datacenters → conflict. Resolutions: 1) Last-write-wins: timestamp ordering (simple, may lose data). 2) Version vector: track [dc1:v3, dc2:v2] (detect conflicts). 3) CRDTs (Conflict-free Replicated Data Types): automatic merge (like Google Docs). 4) Application logic: custom merge function (e.g., merge shopping carts by adding both items). Decision: Is conflict acceptable? (social media yes, payment no). CRDTs solve many conflicts automatically."
+      },
+      {
+        q: "Explain CAP theorem in distributed systems.",
+        a: "Consistency (C): All reads see latest write. Availability (A): System always responsive. Partition tolerance (P): Works despite network partitions. Trade-off: Can't have all 3. In partition: Choose CP (consistent but unavailable) or AP (available but inconsistent). Examples: 1) CP: PostgreSQL in single region (no partition = strong consistency). 2) AP: DynamoDB, Cassandra (available everywhere, eventual consistency). Most systems choose AP because partitions inevitable. Strong consistency needs coordination overhead."
+      },
+      {
+        q: "How to achieve consistency in microservices?",
+        a: "Microservices = inherent eventual consistency (decoupled systems). Guarantee consistency via: 1) Saga pattern: Multi-step transaction across services. E.g., order → reserve inventory → charge payment → ship. Compensating transactions on failure (credit payment if ship fails). 2) Event sourcing: Store all changes as events. Replay events to reconstruct current state. 3) 2-phase commit: Coordinator asks all services to prepare, then commit. (Blocking, not recommended). Saga is recommended for microservices (loose coupling, asynchronous)."
+      },
+      {
+        q: "Implement saga pattern for distributed transaction.",
+        a: "Order service: 1) Create order (pending). 2) Call inventory service → reserve items. 3) Call payment service → charge card. 4) Call shipping → dispatch. If any step fails, compensating transactions: If payment fails → release reserved items. If shipping fails → refund payment + release items. Implementation: Orchestration (order service orchestrates) vs Choreography (services trigger via events). Choreography preferred (loosely coupled). Tools: Temporal, Kafka events. Risk: Partial failures are complex to handle."
+      },
+      {
+        q: "How to monitor consistency in eventually consistent system?",
+        a: "Monitor: 1) Replication lag (Seconds_Behind_Master). Alert if >10s. 2) Write-read lag (time from write to readable replica). 3) Event queue depth (how many messages not yet processed). 4) Reconciliation job failures (if you periodically check for consistency). 5) Business metrics divergence (e.g., total inventory across replicas). Use: Datadog, CloudWatch, Prometheus. Set alert if replica lag exceeds acceptable threshold (e.g., 30s). Periodic audit: Run reconciliation query, fix discrepancies."
+      },
+      {
+        q: "Implement read-through cache with eventual consistency.",
+        a: "Pattern: 1) Read request comes → check cache. 2) Cache miss → read from DB → store in cache (TTL 60s) → return. 3) If cache stale (TTL expired) and DB has new data, next read fetches fresh. Eventual consistency: Reads are stale within TTL window. Setup: cache.get(key) → if null: db.get(key) → cache.set(key, value, 60s TTL). Benefit: Fast reads + handles DB slow. Issue: <5 min staleness acceptable for: user profiles, product catalog. Unacceptable for: payment confirmation."
+      },
+      {
+        q: "How does multi-master replication work with eventual consistency?",
+        a: "Setup: Multiple datacenters, each has writable master. Write locally (fast), async replicate to other masters. Advantage: Low latency (no remote master wait). Disadvantage: Conflict risk (concurrent writes to different masters). Resolution: Last-write-wins, version vectors, CRDTs. Example: DynamoDB with global secondary indexes. Challenges: Split-brain (datacenters partitioned, both think they're the master). Solution: Quorum writes (require majority ack before confirming write). Trade: Latency for consistency."
+      },
+      {
+        q: "Implement event-based eventual consistency.",
+        a: "Architecture: 1) Service A writes to DB + publishes event (OrderCreated). 2) Kafka durably stores event. 3) Service B subscribes, processes event asynchronously. 4) Updates its own state. Consistency achieved: Services synchronized via events. If B crashes, replays events on restart. Ordering: Single partition per stream entity (order_id) ensures FIFO ordering. Guarantee: At-least-once delivery (B may process twice, needs idempotency). Implementation: Spring Boot + Kafka + @KafkaListener. Advantage: Decoupled, resilient. Disadvantage: Debugging (distributed, async)."
+      },
+      {
+        q: "How to detect and fix data inconsistency in eventually consistent system?",
+        a: "Detection: 1) Periodic audit job: compare master vs replicas. 2) Sum checks: total amount in replica = total in master? 3) Hash checks: hash of records should match. 4) Row count verification. Fix: 1) Reconciliation job: update mismatch. 2) Event replay: re-run events on stale replica. 3) Snapshot restore: restore replica from master snapshot. 4) Manual fix + monitoring. Example: Inventory service audit: verify stock count across shards = total stock. Frequency: Run hourly for critical data, daily for non-critical. Alert on mismatch >0.01%."
+      },
+      {
+        q: "Eventual consistency in cache invalidation. Best practice?",
+        a: "Problem: Update record in DB. Cache still has old value. Solutions: 1) TTL expiry (cache expires after 60s). Consistent after 60s. 2) Event-based (publish cache-invalidate event on write). Process in <100ms. 3) Lazy deletion (on cache hit, check version → if stale, delete + re-fetch). 4) Cache-through (application writes to cache first, then DB). Best for SAP Commerce: Combination: Event-based invalidation + TTL fallback. Publish CacheInvalidated event on product update → invalidate immediately. TTL 60s as backup (if event lost)."
+      },
+      {
+        q: "Compare pessimistic vs optimistic locking for consistency.",
+        a: "Pessimistic: Lock row before read. No one else can modify. Latency: high (contention). Conflicts: 0. Used for: Concurrency is high (many writers). Optimistic: Read without lock. Before write, check version (SELECT ... WHERE id=? AND version=?). If version changed, retry. Latency: low. Conflicts: only on actual collisions. Used for: Collisions rare. Trade: Optimistic for most systems (better throughput). Pessimistic only if collision risk high. Example: pessimistic = bank transfer (serial), optimistic = user profile update (independent)."
+      }
+    ]
+  },
+  {
+    name: "Service-to-Service Communication",
+    icon: "🌐",
+    questions: [
+      {
+        q: "REST vs gRPC vs Message Queues. When use each?",
+        a: "REST: HTTP/JSON, human-readable, easy debugging, slow (5-10ms per call). Use for: public APIs, browser clients, one-off calls. gRPC: HTTP/2 binary, fast (1-2ms), strict typing, hard debugging. Use for: internal services, high-throughput. Message Queues (Kafka): Async, decoupled, durable. Latency: seconds. Use for: background jobs, resilience to failures. Decision: User-facing (REST), internal high-throughput (gRPC), job processing (Kafka). SAP Commerce: REST for storefront API, gRPC for internal services, Kafka for order events."
+      },
+      {
+        q: "How to handle cascading failures in microservices?",
+        a: "Problem: ServiceA calls B (50ms timeout) calls C (40ms timeout). If C hangs, B timeouts, A timeouts. User sees 5s+ latency. Solutions: 1) Set aggressive timeouts per service (50ms). 2) Circuit breaker: After 5 failures, fail fast (open state) for 30s. 3) Bulkhead isolation: Dedicated thread pools per service (prevent thread starvation). 4) Rate limiting: Throttle requests if downstream slow. 5) Async queue: Don't call directly, queue job. Example: Order service queues payment check, doesn't wait. Implement: Hystrix, Resilience4j (Java). Monitor: timeout errors, circuit breaker state."
+      },
+      {
+        q: "Implement circuit breaker pattern for service resilience.",
+        a: "States: CLOSED (normal, requests pass), OPEN (failing, reject immediately), HALF_OPEN (test recovery). Transitions: CLOSED → OPEN (after 5 failures). OPEN → HALF_OPEN (after 30s timeout). HALF_OPEN → CLOSED (if 1 request succeeds) or OPEN (if fails). Code: Resilience4j @CircuitBreaker(name='paymentService'). Benefit: Fail fast (reject after 100ms instead of waiting 5s). Downside: Service still down, users see errors. Combine with: Retry, fallback (return cached data). Monitoring: Alert on circuit breaker opens."
+      },
+      {
+        q: "How to implement timeout and retry logic correctly?",
+        a: "Timeout: Set per-service (payment 100ms, auth 50ms, db 200ms). Retry: Only on timeout/transient errors (not on 400 Bad Request). Exponential backoff: 1s → 2s → 4s → fail. Max retries: 3. Code: retry 3 times with 100ms exponential backoff. Idempotency: Ensure retries safe (duplicate requests don't duplicate writes). Use idempotency key (UUID). Total timeout budget: Nested calls shouldn't exceed user-facing SLA. Example: 500ms total → A gets 200ms budget, B gets 150ms, C gets 100ms."
+      },
+      {
+        q: "API versioning strategy for backward compatibility.",
+        a: "Strategy 1: URL versioning (/api/v1/users, /api/v2/users). Simple, clear. Issues: duplicate code. Strategy 2: Header versioning (Accept: application/vnd.api+json;version=2). Clean URLs, complex routing. Strategy 3: Accept new fields, ignore old ones (additive only). Best for: internal APIs. Strategy 4: Deprecation headers (Deprecation: true, Sunset: date). Warn clients before shutdown. Best practice: 1) Don't break existing fields. 2) Add new fields as optional. 3) Support 2 versions simultaneously. 4) Deprecation period 6+ months. SAP Commerce: v1 → v2 is additive (cart total optional field)."
+      },
+      {
+        q: "How to design request timeouts in microservices architecture?",
+        a: "Don't set global 30s timeout. Set per-service: Auth → 50ms (local). DB → 100ms (network + query). Payment → 500ms (external). User-facing SLA: 1s. Budget: 300ms for requests, 200ms for failover. Calculate: timeout = p99_latency + margin (2x). Example: If DB p99 = 80ms, set 160ms timeout. Monitor: Timeout errors should be rare (<0.1%). If >1% timeouts, endpoint is unhealthy. Approach: Aggressive timeouts encourage optimization (if 100ms timeout, must optimize queries)."
+      },
+      {
+        q: "Implementing idempotency for retries in payment/checkout.",
+        a: "Problem: Retry charging customer twice (duplicate charge). Solution: Idempotency key (unique ID per operation). On first call: store (key, response) in cache. On retry: check cache, return same response. Code: POST /payments with header Idempotency-Key: uuid. Server: if key exists, return cached response. If new key, process + cache result. Durability: Use persistent cache (Redis + backup DB) so key survives server restart. Retention: Keep 24 hours. SAP Commerce: Implement for cart checkout (prevent duplicate charges). Test: Simulate network timeout, retry, verify single charge."
+      },
+      {
+        q: "How to handle service dependencies and dependency management?",
+        a: "Identify: What services does mine depend on? Create dependency matrix. Failure modes: 1) Hard dependency (checkout needs payment). 2) Soft dependency (personalization optional). Strategy: Hard → circuit breaker + fallback. Soft → degraded mode (skip personalization, show default). Monitoring: Alert if critical dependency unavailable. Governance: Use API gateway to control versions, rate limits. Documentation: API contracts, retry policies, timeout budgets. Testing: Chaos engineering (kill service, verify fallback works). SAP Commerce: Inventory hard dependency, reviews soft (show item without reviews)."
+      },
+      {
+        q: "Implementing authentication/authorization in microservices.",
+        a: "Centralized: API gateway validates JWT token, strips auth headers, passes to services. Services trust headers (X-User-Id, X-Roles). Distributed: Each service validates JWT independently (public key cached). Tradeoffs: Centralized = simpler, gateway becomes bottleneck. Distributed = resilient, each service does work. Recommendation: Hybrid (gateway validates, services cache verification). Implement: OAuth2 for user-facing APIs. mTLS (mutual TLS) for service-to-service (certificate-based auth). Token caching: 15min TTL to reduce auth service load."
+      },
+      {
+        q: "How to monitor cross-service communication?",
+        a: "Tools: Distributed tracing (Jaeger, Zipkin). Every request gets trace ID. Spans for each service call. Latency per service visible. Logs: Include trace ID, span ID in logs. Correlate logs across services. Metrics: Requests per second, latency p95/p99, error rate per endpoint. Breakdown by: caller service, callee service, status code. Alerts: Error rate >1%, latency p99 > threshold, service down. Dashboard: Service dependency graph (shows call patterns). Example: Order → Payment (50ms) → DB (20ms). Can spot if Payment slow."
+      },
+      {
+        q: "Rate limiting in API. How to implement fairly?",
+        a: "Per-user: 1000 requests/min (prevent abuse). Per-IP: 5000 requests/min. Per-endpoint: 10000 requests/min (prevent overload). Implementation: Token bucket in Redis. On request, decrement token count. If 0, reject. Refill at fixed rate. Code: redis.DECR(ratelimit:userId) → if result < 0, reject. Fairness: 1) Gradual degradation (prioritize paying users). 2) Fair queuing (FIFO). 3) Weighted shares (VIP users get 2x quota). Bypass: Internal service-to-service exempt from rate limiting. Monitor: Track rejections, adjust limits if legitimate traffic blocked."
+      },
+      {
+        q: "Implementing request batching for throughput.",
+        a: "Problem: 1000 individual requests = 1000 roundtrips (1s each). Batching: 1 request with 1000 items = 1 roundtrip (faster). Example: Instead of GET /user/1, GET /user/2, ..., send POST /users/batch [1,2,...]. Response: [{id:1, data:..}, ...]. Benefit: Reduce latency overhead, higher throughput. Downside: First item waits for batch to fill (max 100ms window). Code: Accumulate requests for 100ms or 100 items, whichever first. Tradeoff: Accept slight latency for big throughput gain. Use for: Analytics, bulk updates, batch processing."
+      },
+      {
+        q: "Protocol buffers vs JSON for API serialization.",
+        a: "Protocol buffers (gRPC): Binary format, fast (~1MB/s), small size (50% smaller), typed schema enforcement, strict versioning. JSON (REST): Text, slower (~100KB/s), larger size, flexible, human-readable debugging. Decision: Internal services → protobuf (fast, typed). Public APIs → JSON (interop, debugging). Migration: gRPC internally, JSON façade externally (translation layer). SAP Commerce: Product catalog internal (protobuf), storefront API (JSON). Serialization latency: protobuf 1-2ms, JSON 5-10ms for 100KB payload."
+      },
+      {
+        q: "How to ensure reliable communication between services?",
+        a: "Reliability mechanisms: 1) Retries with exponential backoff (transient errors). 2) Circuit breaker (fail fast on repeated failures). 3) Timeouts (don't wait forever). 4) Fallback (serve stale data if service down). 5) Bulkhead (isolated thread pools). 6) Message queue (async, durable). 7) Health checks (detect dead services). 8) Graceful degradation (degrade gracefully, not crash). Redundancy: Multiple instances behind load balancer. If one down, traffic routed to others. Monitoring: Alert on error rate, latency, availability. Test: Chaos engineering (kill instance, verify recovery). SAP Commerce: Order service queues payment check (async), doesn't depend on payment service availability."
+      }
+    ]
+  },
+  {
+    name: "Load Balancer",
+    icon: "⚡",
+    questions: [
+      {
+        q: "Load balancing algorithms: Round-robin vs Least connections.",
+        a: "Round-robin: Distribute to servers in order (1→2→3→1→2). Simple, fair if requests uniform. Issue: If one request slow, next goes to different server. Least connections: Route to server with fewest active connections. Better for long requests. Algorithms: Random, IP hash (sticky sessions), weighted (server capacity). Decision: 1) Are requests uniform? → Round-robin. 2) Connection duration variable? → Least connections. 3) Geo-affinity needed? → IP hash. 4) Server power varies? → Weighted. Monitor: Check distribution (ensure even load). Alert if skew >20%."
+      },
+      {
+        q: "Health checks in load balancer. How to implement?",
+        a: "Types: TCP ping (fastest, just connection test), HTTP GET /health, custom logic (query DB, check cache). Frequency: Check every 5-10 seconds. Timeout: 3-5 seconds. Unhealthy: If 3 consecutive checks fail, mark down. Recovery: Re-enable after 2 consecutive passes. Response: /health endpoint returns 200 OK if all dependencies ok (DB connected, cache available). Return 503 if unhealthy. Load balancer removes from rotation immediately on 503. Monitor: Health check success rate. Alert if >10% servers unhealthy."
+      },
+      {
+        q: "Sticky sessions vs Stateless design. Which is better?",
+        a: "Sticky sessions: Route same user always to same server. Keep session in-memory. Issue: If server crashes, session lost. Scaling difficult. Stateless: No session in server. Store in shared Redis. Any server can serve. Scales easily. Preferred: Stateless (modern, cloud-friendly). Sticky sessions only if: Session huge (avoid network latency). Session changes frequently (avoid serialization). Tradeoff: Sticky = simple, unscalable. Stateless = complex, scalable. SAP Commerce: Cart in Redis (stateless) or sticky session? Redis better (can scale, recover fast). Sticky ok for temporary session."
+      },
+      {
+        q: "Handling uneven load distribution across servers.",
+        a: "Problem: Server 1 gets 80%, server 2 gets 20%. Causes: 1) Sticky sessions (same user to same server, one user active). 2) CPU/disk speeds differ. 3) Hot partition (one data shard on one server). 4) Long requests blocking round-robin. Solutions: 1) Dynamic weighting (if server slow, reduce traffic). 2) Consistent hashing with replicas (distribute hot keys). 3) Least connections algorithm. 4) Add more servers to hot partition (sharding). Monitor: Server load distribution. Alert if >30% skew."
+      },
+      {
+        q: "Implementing auto-scaling based on load.",
+        a: "Metrics: CPU >70%, Memory >80%, RequestsPerSecond >1000. Action: Spin up new instance (takes 30-60s). By then, peak may have passed (delayed response). Recommendations: 1) Predictive scaling (scale before peak, if known). 2) Aggressive scaling (add 3 instances at once, not 1). 3) Cool-down (wait 5 min before scaling down, prevent thrashing). Monitoring: Track scale-up/down events. Ensure smooth (no cascading failures). Test: Load test to find threshold. Cloud providers: AWS ASG, K8s HPA (auto-scale pods)."
+      },
+      {
+        q: "Load balancer as bottleneck. How to scale it?",
+        a: "Single LB can handle ~10K connections/sec. Scale: 1) Multiple LB instances (active-active behind DNS). 2) Global load balancer (GeoDNS routes to nearest region). 3) Service mesh (sidecar proxies distribute load). DNS failover: If primary LB down, DNS switches to secondary (30-60s TTL). Cloud: AWS ELB (managed, auto-scales). Layered: Application LB (L7, understands HTTP) vs Network LB (L4, TCP/UDP). High traffic: Stateless design so any LB can handle requests."
+      },
+      {
+        q: "Connection pooling in load balancer.",
+        a: "Reuse connections to backend servers (avoid 3-way handshake overhead). Pool size: 2x server CPU cores typical. Timeout: Close idle >2 min. Benefits: Latency reduced 5-10%, throughput increased 2-3x. Monitoring: Track: active connections, idle connections, connection reuse rate. Alert if reuse <50% (connections not reused effectively). Issue: If client disconnects abruptly, connection stale in pool → detect via keep-alive. LB must clean dead connections periodically."
+      },
+      {
+        q: "Session affinity (sticky sessions) implementation.",
+        a: "Cookie-based: LB sets cookie (LB_ID=server2). Client returns cookie, LB routes to same server. IP-based: Hash client IP → server mapping. Least intrusive. Tradeoffs: Affinity limits scaling (uneven load). Without affinity, stateless design (session in Redis). Implementation: LB-level (easier, all protocols) vs application-level (more control). Issue: If server crashes, client rerouted to different server, session lost (unless Redis). Recommendation: Use Redis for session, no sticky sessions. Sticky only for backward compat."
+      },
+      {
+        q: "Handling gradual deployment with load balancer.",
+        a: "Canary deployment: Route 10% to new version, 90% to old. Monitor: Error rate, latency, business metrics. Ramp: 10% → 25% → 50% → 100%. If error rate spikes, rollback immediately. Load balancer: Weight-based routing (route 90% to v1, 10% to v2). Blue-green: Run v1 + v2 in parallel. Switch LB from v1 to v2 (instant cutover). Rollback: Switch back to v1. Monitoring: Track error rate, latency by version. Alert if degradation."
+      },
+      {
+        q: "Load balancer handling SSL/TLS termination.",
+        a: "Terminate SSL at LB (decrypt), proxy plain HTTP to backend. Benefit: Offload CPU-intensive decryption from app servers. Latency: Negligible (LB handles). Challenge: Backend doesn't see client IP directly (use X-Forwarded-For header). Monitoring: SSL handshake time (should be <10ms). Renegotiation frequency (avoid, expensive). Certificate management: Rotate LB cert every 90 days. Backend: Don't re-encrypt (LB to backend plain HTTP is ok for internal network). SAP Commerce: Terminate SSL at LB, backend HTTP only."
+      },
+      {
+        q: "Load balancer for geographical distribution.",
+        a: "Global LB (GeoDNS): Client in US → US LB, Client in EU → EU LB. Latency improvement: ~50-100ms faster (no cross-ocean latency). Implementation: AWS Route 53, Cloudflare. Replication: Data must sync across regions (200-500ms lag acceptable). Consistency: eventual (users in different regions see slightly different data temporarily). Failover: If US LB down, failover to EU (add latency, better than down). Monitoring: Latency by region, error rates, replication lag."
+      },
+      {
+        q: "How to detect and fix uneven request distribution?",
+        a: "Detection: Monitor requests per server. If A=1000/s, B=500/s, C=500/s → skew 50%. Causes: 1) Load balancing algorithm issue. 2) Server performance differs. 3) Sticky sessions (one user active). 4) Consistent hashing problem. Fixes: 1) Change algorithm (round-robin → least connections). 2) Rebalance (add capacity to slow server). 3) Remove sticky sessions (use Redis). 4) Re-hash consistent hashing (add server, recompute). Test: Load test with varied request sizes, verify distribution."
+      },
+      {
+        q: "Connection draining during deployment.",
+        a: "Graceful shutdown: 1) Mark server as draining (stop accepting new connections). 2) Wait for existing connections to finish (max 30s). 3) Close remaining connections. 4) Shut down server. Benefit: No requests lost during deployment. Implementation: SIGTERM handler in app. Stop accepting requests, finish in-flight, exit. LB detects (health check fails), routes to others. Monitor: Track drain time, dropped requests. Alert if >100ms requests are slow (drain timeout expires)."
+      },
+      {
+        q: "Rate limiting at load balancer vs application level.",
+        a: "LB-level: Reject before reaching app (cheaper). Global limit, harder per-user enforcement. App-level: Per-user limits (fairness). More granular (per-endpoint). Hybrid: LB enforces global (prevent DDoS), app enforces per-user. Recommendation: LB handles DDoS (10K req/s threshold), app handles fair use (1K req/s per user). Implementation: LB can't see user identity (app token), so limited to IP-based limiting. Combine: WAF for DDoS, app for rate limiting."
+      }
+    ]
+  },
+  {
+    name: "Concurrency",
+    icon: "🔒",
+    questions: [
+      {
+        q: "Race conditions vs Deadlocks. How to detect and prevent?",
+        a: "Race condition: Two threads modify shared data simultaneously → inconsistent state. Detection: Set field = 5. Thread A reads 5, increments to 6. Thread B reads 5, increments to 6. Expected 7, got 6. Prevention: Lock (mutex), atomic operations, CAS (compare-and-swap). Deadlock: Thread A locks X, waits for Y. Thread B locks Y, waits for X. Both blocked forever. Detection: Thread dump (jstack pid), look for circular waits. Prevention: Lock ordering (always lock X before Y), timeouts, no nested locks. SAP Commerce: Inventory update = race condition risk. Use DB transaction + lock."
+      },
+      {
+        q: "Optimistic vs Pessimistic locking. When use each?",
+        a: "Pessimistic: Lock row before read. SELECT FOR UPDATE. Exclusive access, no conflicts. Latency: High (contention). Optimistic: Read without lock. Before write, check version hasn't changed. If changed, retry. Latency: Low (no contention). Conflicts: Detected on write. Decision: Pessimistic if conflicts frequent (many writers). Optimistic if rare. Example: User profile (rare conflicts) → optimistic. Inventory (frequent updates) → pessimistic. Database: MySQL InnoDB supports both. Optimistic in app (check version field), pessimistic in SQL (SELECT FOR UPDATE)."
+      },
+      {
+        q: "Implement optimistic locking in Java.",
+        a: "Add version field to entity: @Version Long version. JPA handles increment on update. Query: SELECT * WHERE id = ? AND version = ?. If version mismatch (someone updated), throw OptimisticLockException. Catch, retry. Code: try { entity.name = 'new'; repository.save(entity); } catch (OptimisticLockException) { retry(); }. Benefit: No locking overhead. Downside: Conflicts cause retries (reduce throughput under contention). Tuning: Catch exception, exponential backoff before retry (prevent thundering herd). Monitor: Retry rate (if >10%, switch to pessimistic)."
+      },
+      {
+        q: "Deadlock detection and prevention in databases.",
+        a: "Detection: Database logs deadlock occurrences (log: ERROR 1213 Deadlock found). Tools: Percona Toolkit (MySQL). Prevention: 1) Lock ordering (always lock table A, then B). 2) Shorter transactions (release locks faster). 3) Lower isolation level (REPEATABLE_READ instead of SERIALIZABLE). 4) Indexes (reduce rows locked). 5) Batch updates (fewer operations). 6) No user input inside transaction (lock time minimal). Test: Simulate with concurrent threads, verify no deadlock. Monitor: Deadlock frequency, if >1/hour, optimize."
+      },
+      {
+        q: "Thread pool sizing for optimal concurrency.",
+        a: "IO-bound (network, DB calls): Pool size = 2x CPU cores. Many threads waiting for IO. CPU-bound (processing): Pool size = CPU cores. More threads waste context switch time. Decision: Java server = mix (requests, DB calls, processing). Estimate 20% CPU, 80% IO → pool size = 20x CPU cores. Monitor: Queue depth (if >100, increase pool or optimize). Thread utilization (if <50%, maybe oversized). Adjust: If latency increases with more threads → context switch overhead (reduce). If queue backlog grows → increase. Formula: Pool size ≈ (Required throughput / Request duration) + buffer."
+      },
+      {
+        q: "Avoid synchronization bottlenecks in high-concurrency systems.",
+        a: "Synchronized block: Only one thread at a time (locks competing threads). Bottleneck if high contention. Solutions: 1) Fine-grained locking (lock only needed fields, not whole object). 2) Lock-free data structures (AtomicInteger, ConcurrentHashMap). 3) Sharding (multiple locks for different partitions). 4) Avoid shared state (thread-local storage). Example: Instead of synchronized List, use CopyOnWriteArrayList (reads don't lock). Monitor: Thread contention (jstack output, threads waiting on locks). If many BLOCKED threads, reduce synchronization scope."
+      },
+      {
+        q: "Implementing thread-safe singleton pattern.",
+        a: "Naive: public static Singleton INSTANCE = new Singleton(). Race condition if constructor slow. Double-checked locking: if (INSTANCE == null) { synchronized(Singleton.class) { if (INSTANCE == null) INSTANCE = new Singleton(); } }. Still risky (JVM reordering). Best: Eager initialization: public static final Singleton INSTANCE = new Singleton(). Or, Java enum: public enum Singleton { INSTANCE; }. Enum thread-safe guaranteed. Bill Pugh: private static class SingletonHolder { static Singleton INSTANCE = new Singleton(); }. Lazy + safe."
+      },
+      {
+        q: "Lock-free concurrency with atomic operations.",
+        a: "AtomicInteger, AtomicReference use CAS (compare-and-swap). No locks, hardware-level atomic. Benefit: No context switches, no lock contention. Code: AtomicInteger counter = new AtomicInteger(0); counter.incrementAndGet(). More efficient than: synchronized(lock) { counter++; }. Use for: Counters, flags, simple state. Avoid for: Complex operations (multiple fields). Monitoring: Lock-free means high concurrency, but spin-lock in CAS can use CPU. For extreme concurrency, sharding + atomic per shard better."
+      },
+      {
+        q: "How to avoid thread starvation and deadlock.",
+        a: "Starvation: Low-priority thread never gets CPU (high-priority hogs). Prevention: No priority-based scheduling (Java threads should have same priority). Deadlock: See earlier Q. Prevention: 1) Timeout on locks (lock timeout 100ms). 2) Lock ordering. 3) No nested locks. 4) Resource allocation graph (analyze, detect cycles). Testing: Stress test with load, verify no freezes. Monitor: Thread states (jstack). If many WAITING threads, investigate."
+      },
+      {
+        q: "Implementing producer-consumer pattern for concurrency.",
+        a: "Queue: Thread-safe blocking queue (BlockingQueue). Producer: put(item) (blocks if full). Consumer: take() (blocks if empty). Benefits: Decoupling, backpressure (producer slows if queue full). Code: BlockingQueue<Item> queue = new LinkedBlockingQueue(100). Producer: queue.put(item). Consumer: Item x = queue.take(). Monitoring: Queue size (if full, producer blocking). If empty, consumer blocking. Alert if queue size consistently high (consumer slow). Scaling: Multiple consumers (thread pool) process in parallel."
+      },
+      {
+        q: "ConcurrentHashMap vs Hashtable vs HashMap. When use each?",
+        a: "HashMap: Not thread-safe, fastest. Use single-threaded. Hashtable: Thread-safe (all methods synchronized), slow (whole table locked). Legacy, avoid. ConcurrentHashMap: Thread-safe, fast. Locks segments (not whole table). Use for multi-threaded. Java 8+: Default, no contention for reads. Benchmarks: ConcurrentHashMap 10x faster than Hashtable under load. Decision: Multi-threaded → ConcurrentHashMap. Single-threaded → HashMap. Array of HashMaps = poor-man's sharding (multiple locks)."
+      },
+      {
+        q: "Volatile vs Synchronized for shared variables.",
+        a: "Synchronized: Lock-based, enforces mutual exclusion + visibility. Slow (~100ns per access). Volatile: No locking, only visibility (memory barrier). Fast (~10ns). Use volatile for: Simple flags, counters, references where only visibility matters. Example: volatile boolean shutdown = false; synchronized for: Complex state, multiple operations. Difference: Volatile ensures read sees latest write (not cached), but non-atomic operations still race. Synchronized ensures atomicity + visibility."
+      },
+      {
+        q: "Monitor and profile concurrency issues in production.",
+        a: "Tools: jstack (thread dump), jconsole (thread graph), YourKit profiler (contention profiling). Metrics: Thread count, lock wait time, context switches (top -o %SYSTEM), lock hold time. Alerts: Thread count growing (leak?), lock contention >10% (bottleneck). Diagnosis: jstack output shows threads (RUNNABLE, BLOCKED, WAITING). If many BLOCKED on lock, optimize locking. Profile: Lock profiling shows which locks contended, change algorithm. Latency: Add latency histogram per operation, identify tail latency (lock contention likely culprit)."
+      }
+    ]
+  },
+  {
+    name: "Cache",
+    icon: "💾",
+    questions: [
+      {
+        q: "Cache-aside vs Write-through vs Write-behind patterns.",
+        a: "Cache-aside: Application manually fetch from DB if cache miss. Simple, stale data risk. Write-through: Update cache + DB synchronously. Always fresh, slow writes. Write-behind: Update cache immediately (fast), async DB (risky - data loss if cache crashes). Decision: Read-heavy → cache-aside. Critical data → write-through. High throughput → write-behind. Example: User profile (cache-aside), inventory (write-through), analytics (write-behind). SAP Commerce: Product catalog (cache-aside, ok to be stale). Cart (write-through, must be consistent)."
+      },
+      {
+        q: "Cache hit ratio drops. How to diagnose and fix?",
+        a: "Causes: 1) Memory full (eviction triggered). 2) TTL too short. 3) Working set size increased (new data patterns). 4) Invalidation bug (flushing cache too often). 5) Network partition (replica stale). Detection: Monitor hit ratio. Alert if <90% (should be 95%+). Check Redis: INFO stats (hits, misses). Check memory usage: INFO memory. Fixes: 1) Increase cache size. 2) Extend TTL. 3) Implement cache warming (pre-load). 4) Optimize keys (don't cache everything). 5) Fix invalidation logic."
+      },
+      {
+        q: "Thundering herd problem. How to solve?",
+        a: "Problem: Cache key expires, 10K requests hit DB simultaneously (overload). Solution 1: Probabilistic early refresh. Refresh key at 70% TTL before expiry. Solution 2: Locking. First request fetches + locks. Others wait for result. Solution 3: Stale-while-revalidate. Serve stale value, async refresh. Solution 4: Cache warming. Pre-load before expiry. Recommended: Combination. Refresh early (async) + serve stale while refreshing. Code: if (ttl < TTL * 0.3) asyncRefresh(key); return cache.get(key)."
+      },
+      {
+        q: "Design cache invalidation strategy.",
+        a: "TTL-based: Expire after 60s. Simple, eventual consistency. Event-based: Publish cache-invalidate event on data change. Fast, requires event infrastructure. Manual: Application explicitly invalidates. Precise, easy to miss cases. Lazy: On cache hit, check version (if stale, delete + re-fetch). Hybrid: Event-based + TTL fallback. Recommended: Event-based for critical data (inventory), TTL for non-critical (user profile). Monitoring: Invalidation rate (alerts if anomaly). Cache hit ratio after invalidation (should recover quickly)."
+      },
+      {
+        q: "Eviction policies: LRU vs LFU vs TTL.",
+        a: "LRU (Least Recently Used): Evict oldest accessed item. Good for temporal locality (recent data more likely accessed). LFU (Least Frequently Used): Evict least popular. Good for skewed access (few items accessed often). TTL: Evict after timeout. Simple, predictable. Decision: Temporal pattern (recent = hot) → LRU. Long-tail (some items very hot) → LFU. Expiring data (time-sensitive) → TTL. Redis: MAXMEMORY_POLICY=allkeys-lru (default). Monitor: Eviction rate (if >1%, cache too small). Hit ratio (LRU better than LFU for most workloads)."
+      },
+      {
+        q: "Cache warming strategy for fast startup.",
+        a: "Problem: Cold cache = low hit ratio on startup, high latency. Solution: Pre-load hot keys. Trigger: 1) Scheduled job (nightly, load top products). 2) Lazy loading (first request loads + pre-loads related). 3) Backup/snapshot restore (save cache snapshot, restore on restart). Implementation: Load top 100 products by sales. Background job weekly. For shopping carts: Load users' last 10 items. Monitoring: Hit ratio during startup (should reach >90% within 5min). Measure time-to-95%-hit-ratio."
+      },
+      {
+        q: "Distributed cache consistency across regions.",
+        a: "Setup: US cache, EU cache, both redis. Writes go to US cache (source of truth). Async replicate to EU (lag 100-500ms). Reads from local cache (fast). Consistency: Eventual (US→EU lag). Solutions: 1) Event-based invalidation (publish event → invalidate all regions). 2) Version tracking (check version, re-fetch if stale). 3) Read-through (read from master on cache miss). Monitoring: Replication lag (alert if >5min). Hit ratio divergence (if EU hit ratio <<US, replication stuck). Test: Simulate network partition, verify eventual convergence."
+      },
+      {
+        q: "Cache sizing and capacity planning.",
+        a: "Formula: Hot data size = Working set size (data frequently accessed). Size cache >= working set. Example: 100M products, but only 10K popular. Cache 10K items. Estimate: Monitor DB queries (top 100 queries = hot). Calculate size. Add 50% buffer. Example: Hot items = 5GB, cache 7.5GB. Monitor: Hit ratio (if increasing cache → hit ratio plateaus at 90%, working set understood). Cost: 1GB cache = $100-200/month. ROI: Check latency improvement vs cost."
+      },
+      {
+        q: "Handle cache stampede (dogs) problem.",
+        a: "Problem: Multiple keys expire at once, all requests hit DB. Solution 1: Stagger expiry (randomize TTL ±10%). Solution 2: Refresh before expiry (refresh at 70% TTL). Solution 3: Lock (first request refreshes, others wait). Solution 4: Batch refresh (refresh multiple keys together). Recommended: Combination (stagger + early refresh). Code: ttl = base_ttl + random(-10%, +10%). if (ttl < base_ttl * 0.3) asyncRefresh()."
+      },
+      {
+        q: "Redis vs Memcached. Which to choose?",
+        a: "Memcached: Simple, fast, volatile (no persistence). Good for: Session store, simple cache. Redis: Rich data types (list, set, hash), persistence, pub/sub, Lua scripting. Good for: Session, rate limiting, queue, leaderboard, cache. Decision: Complex operations → Redis. Simple cache → Memcached. Redis dominates now. Features: Redis persistence (RDB snapshots every 1h, AOF log writes). Monitoring: Memory usage, hit ratio, eviction rate. Latency: Both <5ms locally, 10-20ms over network."
+      },
+      {
+        q: "Implement cache with fallback to database.",
+        a: "Pattern (read-through): 1) Check cache. 2) If hit, return. 3) If miss, query DB. 4) Store in cache (TTL 60s). 5) Return. Code: value = cache.get(key) || db.query(key); cache.set(key, value, 60s). Resilience: If cache down (network error), fallback to DB directly. If DB slow, serve stale from cache. Monitoring: Cache hit ratio, DB query count (should drop with cache), latency distribution (should bimodal: 5ms cache hit, 50ms DB miss). Add circuit breaker: if cache errors >10%, disable caching (use DB directly)."
+      },
+      {
+        q: "Cache-related performance anti-patterns.",
+        a: "1) Cache miss stampede: See earlier Q. 2) Cache aside logic wrong: Cache old value (not invalidating). 3) Large cache values: Serialize 10MB object (slow). 4) Hot keys: One key accessed by 1000 req/sec (bottleneck). 5) No TTL: Memory leak (cache grows forever). 6) Replicate stale data: Invalidation event lost. 7) No monitoring: Hit ratio unknown. Fixes: 1) Invalidation strategy. 2) TTL always. 3) Monitor hit ratio. 4) Shard hot keys. 5) Circuit breaker for cache errors. SAP Commerce: Don't cache entire cart (update laggy). Cache cart ID → items separately."
+      },
+      {
+        q: "Hot key handling in cache.",
+        a: "Problem: One product (iPhone) accessed by 10K req/sec. Single cache server can't handle. Solution 1: Replicate hot key (multiple cache copies). Hash client ID → replica. 2) Local cache (each server has local copy). 3) CDN (edge locations cache). 4) Read-through pattern (many layers). Recommended: Local cache layer (app server) + Redis. Most reads hit local cache. Local miss → Redis. Redis miss → DB. Monitoring: Track access frequency per key. Replicate if >1000 req/sec. Test: Simulate hot key, verify no latency increase."
+      },
+      {
+        q: "Cache encoding and serialization overhead.",
+        a: "Serialization: Java object → bytes (JSON, protobuf, Java serialization). Latency: JSON 5-10ms, protobuf 1-2ms per 100KB. Deserialization: Bytes → object. Same latency. Options: 1) JSON (human-readable, slower). 2) Protobuf (binary, fast). 3) MessagePack (binary, simpler than protobuf). 4) Java serialization (JVM only, security risk). Decision: Internal cache (protobuf). External API (JSON). Monitoring: Serialization latency (should be <1% of request latency). Example: 50ms request, serialization should be <0.5ms."
+      }
+    ]
+  },
+  {
+    name: "Event-based Architecture",
+    icon: "📢",
+    questions: [
+      {
+        q: "Event-driven architecture vs RPC. When use each?",
+        a: "RPC (REST/gRPC): Synchronous, immediate response. Used for: reads, user-facing requests. Latency: low. Coupling: tight (caller needs callee). Events (Kafka/RabbitMQ): Asynchronous, decoupled. Used for: writes, background jobs. Latency: seconds acceptable. Coupling: loose (publisher doesn't know subscribers). Hybrid: User submits order (RPC) → service publishes OrderCreated event → other services process async. Decision: If SLA requires fast response → RPC. If eventual consistency ok → events. SAP Commerce: Checkout sync (RPC for payment), order processing async (events)."
+      },
+      {
+        q: "Event sourcing pattern. How to implement?",
+        a: "Idea: Store all changes as events. Current state = replay all events from start. Advantage: Full history, audit trail, can replay to fix bugs. Example: Order created → item added → payment approved → shipped. Events: OrderCreated(order_id), ItemAdded(order_id, item), PaymentApproved(order_id). State: Replay events, derive current state (Order object). Implementation: Event store (log of events), snapshots (save state every 1000 events), projections (views). Tools: EventStore, Kafka log. Downside: Complexity, eventual consistency."
+      },
+      {
+        q: "Kafka vs RabbitMQ for event streaming.",
+        a: "Kafka: Append-only log, durable (disk-backed), scalable (partitions), exactly-once semantics (tricky). Good for: High volume (millions events/sec), event stream processing. RabbitMQ: Message queue, ACK-based delivery, routing (exchange + binding). Good for: Traditional queue, request-reply patterns, lower volume. Decision: Streaming → Kafka. Task queue → RabbitMQ. SAP Commerce: Order events (Kafka), payment retries (RabbitMQ maybe, but Kafka simpler now). Kafka dominates for modern systems."
+      },
+      {
+        q: "Implement event sourcing with snapshots.",
+        a: "Problem: Replaying all events slow if order has 10K events. Solution: Snapshots. Every 1000 events, save current state. On replay: start from latest snapshot, replay remaining events (faster). Example: Order events 1-10000. Snapshot at 1000 (state at event 1000). Replay 1001-10000 (not full 10000). Frequency: Every 1000 events or every 1 hour. Storage: Snapshot store separate from event log. Consistency: Snapshot + events must stay in sync. Test: Restore from snapshot, verify matches full replay."
+      },
+      {
+        q: "Event ordering guarantees in distributed systems.",
+        a: "Per-partition ordering: Events for same key (order_id) processed in order. Kafka: Single partition per key. RabbitMQ: Single queue per entity type. Global ordering: All events ordered globally (hard, expensive). Decision: Most systems don't need global order. Order-specific events must be ordered (per-order-id). User-specific events in order (per-user-id). Implementation: Partition by entity ID. Monitoring: Check lag between partition (should be balanced). Monitor out-of-order deliveries (should be 0 if single partition)."
+      },
+      {
+        q: "Handling duplicate events in event-driven systems.",
+        a: "Problem: Event published twice (network retry), subscriber processes twice. Solution 1: Idempotent consumers (process same event twice = same result). Easier. Solution 2: Deduplication (store event ID, skip if seen). More complex. Best practice: Idempotent. Code: Event has ID. Consumer: if (eventStore.exists(eventId)) return; (check before processing). Guarantee: At-least-once delivery (Kafka default). Subscriber must handle duplicates. Monitor: Duplicate event rate (measure in logs). Alert if too high (upstream issue)."
+      },
+      {
+        q: "Dead letter queue for failed event processing.",
+        a: "Setup: Event → Consumer. If consumer throws exception, move to DLQ. DLQ: Store for later inspection. Retry: Move back to main queue after human inspection/fix. Example: Order event, if inventory service down, move to DLQ. Later, inventory back → admin moves from DLQ to main. Monitoring: DLQ size (alert if >100). Process rate (how fast clearing). Configure: Max retries 3 (exponential backoff), then → DLQ. Tools: Kafka → separate topic for DLQ. Spring Kafka handles (DeadLetterPublishingRecoverer)."
+      },
+      {
+        q: "Event schema evolution. How to handle compatibility?",
+        a: "Problem: New fields added to event, old consumers don't understand. Solution 1: Optional fields (new code adds, old code ignores). Backward compatible. Solution 2: Schema registry (Confluent). Define schema versions. Client negotiates (supports multiple versions). Solution 3: Versioned events (OrderCreatedV1, OrderCreatedV2). Both coexist. Best: Schema registry + optional fields. Kafka: Protobuf/Avro with registry. Monitoring: Schema compatibility checks (detect breaking changes). Test: Old and new versions in same pipeline."
+      },
+      {
+        q: "Ensuring exactly-once event processing semantics.",
+        a: "Levels: At-most-once (lose events), At-least-once (duplicate events), Exactly-once (perfect). Kafka default: At-least-once (consumers commit offset after processing). Exactly-once: Idempotent + transactional. Idempotent: Deduplicate (store processed event ID). Transactional: Write event result to DB in atomic transaction. If crashes before commit → replay. Risk: Exactly-once has overhead. Most systems: At-least-once + idempotent consumers. SAP Commerce: Idempotent order processing (same event processed twice = same result)."
+      },
+      {
+        q: "Implementing CQRS (Command Query Responsibility Segregation).",
+        a: "Idea: Separate read model from write model. Write: Normalize schema (update order). Publish event. Event: Async update read model (denormalized, optimized for queries). Read: Query read model (fast). Benefit: Scale reads/writes independently, optimize each. Tradeoff: Complexity, eventual consistency. Example: Write order (normalized). Event → Update read cache (denormalized view). Query cache for dashboard (fast). Event sourcing + CQRS common combo."
+      },
+      {
+        q: "Event retry and backoff strategy.",
+        a: "Retry logic: Linear (retry at 1s, 2s, 3s), exponential (1s, 2s, 4s, 8s), fixed (always 1s). Exponential preferred (avoid thundering herd). Max retries: 3-5. Total delay: 1s + 2s + 4s = 7s max. Jitter: Add randomness (1s ± 100ms) to spread retries. Circuit breaker: If all 3 retries fail, circuit open for 30s (don't retry). Recovery: Periodic retry of DLQ items (once per hour check if service recovered). Monitoring: Retry rate per event type, DLQ size, success rate after retry."
+      },
+      {
+        q: "Event monitoring and observability in streaming.",
+        a: "Metrics: Events per second (throughput), lag (consumer lag = latest offset - consumer offset), error rate. Lag alert: If lag >1min, consumer slow or down. Tools: Kafka metrics, Prometheus. Logs: Log each event (ID, key, timestamp). Distributed tracing: Trace event across services (same trace ID). Example: OrderCreated event → Inventory service consumes → Shipping consumes (shared trace ID). Alert: If event not processed within 5min → escalate."
+      },
+      {
+        q: "Implementing transaction-outbox pattern.",
+        a: "Problem: Update DB + publish event. If publish fails after DB update → inconsistency. Solution: Outbox pattern. 1) Write order to DB + write to outbox table (same transaction). 2) Separate process polls outbox, publishes events. 3) On success, mark as published. Guarantee: If DB crash, outbox has events (replay on recovery). Consistency: No lost events. Downside: Extra table + polling. Tools: Debezium (reads DB log, publishes events). SAP Commerce: Order service writes order + OrderCreated event in transaction. Background job publishes from outbox."
+      }
+    ]
+  },
+  {
+    name: "Authorization",
+    icon: "🔐",
+    questions: [
+      {
+        q: "OAuth2 vs JWT vs Session-based auth. Which to use?",
+        a: "Session-based: Server stores sessions, user sends session ID in cookie. Stateful, secure, simple. Good for: Web apps. JWT (JSON Web Token): Self-contained token (user ID, roles in token). Stateless, scales easily. Good for: APIs, microservices. OAuth2: Third-party auth (login via Google/GitHub). Good for: Integration with external providers. Decision: Web app → session. APIs → JWT. Third-party integration → OAuth2. Hybrid: Combine (OAuth2 for login, JWT for API). Latency: Session requires DB lookup (~5ms). JWT validates signature locally (<1ms)."
+      },
+      {
+        q: "JWT security: Token expiry, refresh tokens, revocation.",
+        a: "Access token: Short-lived (15min). Signed with secret. Refresh token: Long-lived (30 days). Stored securely (httpOnly cookie). Revocation: 1) Blacklist (store revoked token IDs in DB). 2) Token versioning (version in token, increment on logout). Security: 1) Store secret safely (AWS Secrets Manager). 2) Use strong algorithm (RS256 with RSA, not HS256 with shared secret). 3) Validate expiry (check exp claim). 4) Check signature. Risk: Token leak (attacker uses token until expiry). Mitigation: Short expiry, refresh token rotation."
+      },
+      {
+        q: "Implement role-based access control (RBAC).",
+        a: "Roles: Admin, User, Guest. Permissions: Create, Read, Update, Delete. Mapping: Role → Permissions. In code: @Secured('ROLE_ADMIN') or if (hasRole('ADMIN')) { ... }. Storage: 1) In token (JWT payload). 2) In DB (role table). In token: Fast (no DB lookup). Issue: Role change requires new token. In DB: Flexible (change immediately). Issue: DB lookup on every request. Hybrid: Cache in Redis (1min TTL). Recommended: Simple roles in JWT, complex permissions in DB + cache."
+      },
+      {
+        q: "API key authentication. How to implement securely?",
+        a: "API key: Long random string (e.g., sk-12345abcde). Client sends in header (Authorization: Bearer key). Server: Hash key (store hash in DB, not plaintext). On request: Hash provided key, compare with DB hash. Rotation: Invalidate old key, generate new. Expiry: Keys expire after 90 days (force rotation). Security: 1) Store hash only. 2) Use long random key (256-bit). 3) Rate limit per key. 4) Monitor unusual activity (key from new IP). Monitoring: Alert if key used from multiple IPs simultaneously (stolen key)."
+      },
+      {
+        q: "Multi-tenancy and authorization. Isolation strategy.",
+        a: "Row-level isolation: Customer A data in rows with tenant_id=A. Query filter: SELECT * WHERE tenant_id = ? (add filter always). Schema isolation: Separate schema per tenant (SchemaA.orders, SchemaB.orders). Database isolation: Separate DB per tenant. Tradeoff: Row-level = cheap, risky (forget filter → data leak). Schema/DB = safe, expensive (more infra). Recommended: Row-level + strict enforcement (ORM filters, code review). Test: Try to access other tenant's data (should be blocked). SAP Commerce: Store A data vs Store B data (tenant filter in queries)."
+      },
+      {
+        q: "Authorization caching for performance.",
+        a: "Problem: Check permissions on every request (DB lookup). Slow. Solution: Cache permissions in Redis (5min TTL). Check local first, miss → query auth service. Risk: Permission change takes 5min to propagate. Tradeoff: Accept 5min lag. For critical: No caching (always DB check). Monitoring: Cache hit ratio (should be 90%+). Permission change latency (max 5min). Test: Change user role, verify propagation within 5min."
+      },
+      {
+        q: "Fine-grained authorization with attribute-based access control (ABAC).",
+        a: "RBAC: Admin can delete user. ABAC: Admin can delete user if created by same admin and created <30 days ago. Attributes: User (id, role, dept), Resource (owner, created_date), Action (delete). Policy: IF user.role=admin AND resource.owner=user.id AND (now - resource.created) < 30 days THEN allow DELETE. Complexity: High (flexible but hard to test). Implementation: Policy engine (AWS IAM, HashiCorp Sentinel). When to use: Complex authorization rules (compliance, multi-org). Simpler: Stick to RBAC."
+      },
+      {
+        q: "Cross-origin resource sharing (CORS) and authentication.",
+        a: "Problem: Browser blocks request from different origin (prevent CSRF). Solution: CORS header (Access-Control-Allow-Origin: https://trusted.com). Auth: Token in Authorization header (not cookie, more secure for APIs). Preflight: OPTIONS request checks permissions before actual request. Implementation: Spring @CrossOrigin or filter. Config: Whitelist origins (don't allow *). Allow credentials (httpOnly cookies if session-based). Monitoring: CORS errors (browser blocks → user sees blank page). Test: Cross-origin requests with auth token."
+      },
+      {
+        q: "OAuth2 authorization code flow (3-legged OAuth).",
+        a: "Flow: 1) User clicks 'Login via Google'. 2) Redirect to Google (with client_id, redirect_uri). 3) User authorizes. 4) Google redirects to your app (with authorization code). 5) Backend exchanges code for token (with secret key). 6) Backend stores token (refresh user session). Benefit: Password never shared with app. Google handles security. Stages: Frontend (steps 1-4), Backend (step 5). Tokens: Access token (short-lived), refresh token (long-lived). Tools: Spring Security OAuth2, Auth0, AWS Cognito."
+      },
+      {
+        q: "Microservices authorization. How to handle across services?",
+        a: "Centralized: API Gateway validates JWT token. Strips auth headers. Passes user info (X-User-Id, X-Roles) to services. Services trust headers (risky if internal network compromised). Distributed: Each service validates JWT independently (public key cached). Overhead per service. Hybrid: Gateway validates, services cache verification (1min TTL). Trust: Use mTLS (mutual TLS) for internal calls (certificate-based auth). Recommendation: Hybrid approach. Gateway validates user token. Services use mTLS for service-to-service. Store user info in context (Spring Security principal)."
+      },
+      {
+        q: "Preventing privilege escalation vulnerabilities.",
+        a: "Risk: User modifies token (change role from User to Admin). Solution: 1) Sign token (JWT signature prevents tampering). 2) Validate signature on every request. 3) No sensitive data in cookie (httlOnly cookie). 4) Check permissions server-side (don't trust client). 5) Audit logs (log permission changes). 6) No sequential IDs (user_id=1, user_id=2, attacker guesses). Use UUIDs. Testing: Try to elevate privileges (modify token, change role). Should fail. Try insecure direct object references (access other user's data). Should fail."
+      },
+      {
+        q: "Implementing SAML for enterprise single sign-on (SSO).",
+        a: "SAML: XML-based, for enterprise. Flow: 1) User accesses app. 2) App redirects to IdP (identity provider, e.g., Okta). 3) User authenticates. 4) IdP sends SAML response (XML with user info). 5) App creates session. Benefit: Central authentication (one password for many apps). Complexity: High (XML parsing, XML signatures). When: Enterprise/B2B (requirement). Consumer/B2C: Use OAuth2. Implementation: Spring Security SAML2 plugin. Tools: Okta, Azure AD, Auth0 support SAML."
+      },
+      {
+        q: "Audit logging for authorization and security.",
+        a: "Log: Who (user_id), Did what (action), When (timestamp), Resource (order_id), Result (success/denied), Reason (if denied). Storage: Immutable audit log (don't delete, append-only). Retention: 1+ year (compliance). Queries: Find all Admin actions in Jan. Find all failed login attempts. Tools: ELK, Splunk, Datadog. Alerts: Unusual patterns (user accessing >100 orders/min → potential data exfil). Review: Monthly audit of permission changes. Test: Simulate compliance audit, verify logs complete."
+      }
+    ]
+  }
+];
+
+function showTopic(index) {
+  document.getElementById('mindmapView').style.display = 'none';
+  const view = document.getElementById('qaView');
+  view.classList.add('active');
+  
+  const topic = topics[index];
+  document.getElementById('qaTitle').textContent = topic.name;
+  
+  const container = document.getElementById('qaContainer');
+  container.innerHTML = '';
+  
+  topic.questions.forEach((qa, idx) => {
+    const div = document.createElement('div');
+    div.className = 'qa-pair';
+    div.innerHTML = `
+      <div class="question">
+        <span class="qa-number">${idx + 1}</span>
+        <div class="center-content">
+          <span>${qa.q}</span>
+          <span class="toggle-icon">▼</span>
+        </div>
+      </div>
+      <div class="answer">${qa.a}</div>
+    `;
+    
+    div.addEventListener('click', function() {
+      this.classList.toggle('expanded');
+    });
+    
+    container.appendChild(div);
+  });
+}
+
+function showMindmap() {
+  document.getElementById('mindmapView').style.display = 'grid';
+  document.getElementById('qaView').classList.remove('active');
+}
+</script>
+</body>
+</html>

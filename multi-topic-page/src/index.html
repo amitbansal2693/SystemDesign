@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>📚 My Learning Hub</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            color: #1a1a1a;
+            min-height: 100vh;
+        }
+
+        /* ── TOP BAR ── */
+        .topbar {
+            background: #2563eb;
+            color: white;
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .topbar h1 {
+            font-size: 20px;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .topbar .home-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.4);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: none;
+        }
+
+        .topbar .home-btn:hover { background: rgba(255,255,255,0.3); }
+        .topbar .home-btn.visible { display: inline-block; }
+
+        .topbar .breadcrumb {
+            font-size: 14px;
+            opacity: 0.9;
+            display: none;
+        }
+
+        .topbar .breadcrumb.visible { display: inline; }
+
+        /* ── HOME VIEW ── */
+        .home-view {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .home-view.hidden { display: none; }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #2563eb;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title span { font-size: 24px; }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .card:hover {
+            border-color: #2563eb;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.12);
+        }
+
+        .card-icon {
+            font-size: 32px;
+            flex-shrink: 0;
+            width: 48px;
+            height: 48px;
+            background: #eff6ff;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-info { flex: 1; min-width: 0; }
+
+        .card-title {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 4px;
+            color: #1a1a1a;
+            word-wrap: break-word;
+        }
+
+        .card-desc {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .card-badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-top: 6px;
+        }
+
+        .badge-blue { background: #dbeafe; color: #1d4ed8; }
+        .badge-green { background: #dcfce7; color: #15803d; }
+        .badge-purple { background: #f3e8ff; color: #7c3aed; }
+        .badge-orange { background: #ffedd5; color: #c2410c; }
+
+        /* ── CONTENT VIEW (iframe) ── */
+        .content-view {
+            display: none;
+            width: 100%;
+            height: calc(100vh - 52px);
+        }
+
+        .content-view.active {
+            display: block;
+        }
+
+        .content-view iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* ── SEARCH ── */
+        .search-bar {
+            margin-bottom: 24px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            background: white;
+            transition: border-color 0.2s;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* ── STATS ── */
+        .stats-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 14px 20px;
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2563eb;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── FOOTER ── */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #aaa;
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+            .cards-grid { grid-template-columns: 1fr; }
+            .topbar h1 { font-size: 16px; }
+            .stats-bar { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+        <button class="home-btn" id="homeBtn" onclick="goHome()">← Home</button>
+        <h1 id="pageTitle">📚 My Learning Hub</h1>
+        <span class="breadcrumb" id="breadcrumb"></span>
+    </div>
+
+    <!-- HOME VIEW -->
+    <div class="home-view" id="homeView">
+
+        <!-- SEARCH -->
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="🔍 Search topics...">
+        </div>
+
+        <!-- STATS -->
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-number" id="totalCount">0</div>
+                <div class="stat-label">Total Topics</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number" id="resourceCount">0</div>
+                <div class="stat-label">Cheat Sheets</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number" id="questionCount">0</div>
+                <div class="stat-label">Q&A Pages</div>
+            </div>
+        </div>
+
+        <!-- QUESTIONS SECTION -->
+        <div class="section-title"><span>🎯</span> Interview Q&A</div>
+        <div class="cards-grid" id="questionsGrid"></div>
+
+        <!-- RESOURCES SECTION -->
+        <div class="section-title"><span>📖</span> Cheat Sheets & Notes</div>
+        <div class="cards-grid" id="resourcesGrid"></div>
+
+        <div class="footer">📚 My Learning Hub · Keep adding topics!</div>
+    </div>
+
+    <!-- CONTENT VIEW (SPA iframe) -->
+    <div class="content-view" id="contentView">
+        <iframe id="contentFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+    </div>
+
+    <script>
+        // ── TOPIC DATA ──
+        const questions = [
+            {
+                file: "../Questions/system_design_mindmap_qa_v2.html",
+                title: "System Design Q&A (v2)",
+                desc: "9 topics, mindmap, formatted answers",
+                icon: "🏗️",
+                badge: "badge-blue",
+                badgeText: "IMPROVED"
+            },
+            {
+                file: "../Questions/system_design_mindmap_qa.html",
+                title: "System Design Q&A (v1)",
+                desc: "9 topics with collapsible Q&A pairs",
+                icon: "🐌",
+                badge: "badge-purple",
+                badgeText: "ORIGINAL"
+            },
+            {
+                file: "../Questions/java_collections_deep_dive.html",
+                title: "Java Collections Deep Dive",
+                desc: "Internals, resizing, collisions, comparisons, code",
+                icon: "☕",
+                badge: "badge-green",
+                badgeText: "12 TOPICS"
+            },
+            {
+                file: "../Questions/interactive_qa.html",
+                title: "System Design Interactive Q&A",
+                desc: "20 questions with expandable cards",
+                icon: "💡",
+                badge: "badge-orange",
+                badgeText: "20 Q&A"
+            },
+            {
+                file: "../Questions/Microservices.html",
+                title: "Microservices Deep Dive",
+                desc: "Microservices architecture, patterns, communication",
+                icon: "🔗",
+                badge: "badge-green",
+                badgeText: "NEW"
+            }
+        ];
+
+        const resources = [
+            {
+                file: "../Resource/Architecture_Complete_CheatSheet.html",
+                title: "Architecture Complete Cheat Sheet",
+                desc: "Full architecture reference",
+                icon: "🏛️"
+            },
+            {
+                file: "../Resource/Design_Concept_COMPLETE_No_Details_Missed.html",
+                title: "Design Concepts Complete",
+                desc: "All design concepts, no details missed",
+                icon: "📐"
+            },
+            {
+                file: "../Resource/Design_Concept_Complete_Hierarchical_Cheat_Sheet.html",
+                title: "Design Concepts Hierarchical",
+                desc: "Hierarchical cheat sheet of design concepts",
+                icon: "🗂️"
+            },
+            {
+                file: "../Resource/Design_Pattern.html",
+                title: "Design Patterns",
+                desc: "Gang of Four design patterns",
+                icon: "🎨"
+            },
+            {
+                file: "../Resource/Design_Patterns_Complete_Hierarchical_Notes.html",
+                title: "Design Patterns Hierarchical Notes",
+                desc: "Complete hierarchical pattern notes",
+                icon: "📊"
+            },
+            {
+                file: "../Resource/Design_Patterns_Learning_Flow(3).html",
+                title: "Design Patterns Learning Flow",
+                desc: "Step-by-step learning path",
+                icon: "🔄"
+            },
+            {
+                file: "../Resource/Hibernate_JPA_learning_flow.html",
+                title: "Hibernate & JPA Learning Flow",
+                desc: "ORM, entities, queries, caching",
+                icon: "🗄️"
+            },
+            {
+                file: "../Resource/Oops_DesignPattern.html",
+                title: "OOPs & Design Patterns",
+                desc: "Object-oriented principles + patterns",
+                icon: "🧱"
+            },
+            {
+                file: "../Resource/SystemDesign_20_Questions_Interactive_CheatSheet.html",
+                title: "System Design 20 Questions",
+                desc: "Interactive cheat sheet",
+                icon: "📝"
+            },
+            {
+                file: "../Resource/System_Design_Byte_by_Go_Complete_Architect_Notes.html",
+                title: "System Design Architect Notes",
+                desc: "Byte-by-byte complete notes",
+                icon: "📓"
+            },
+            {
+                file: "../Resource/advanced_spring_spring_boot_cheat_sheet.html",
+                title: "Advanced Spring & Spring Boot",
+                desc: "Spring framework cheat sheet",
+                icon: "🍃"
+            },
+            {
+                file: "../Resource/microservices_learning_cheat_sheet.html",
+                title: "Microservices Cheat Sheet",
+                desc: "Microservices architecture patterns",
+                icon: "🔗"
+            },
+            {
+                file: "../Resource/spring_security_cheat_sheet.html",
+                title: "Spring Security Cheat Sheet",
+                desc: "Auth, JWT, OAuth2, CORS, CSRF",
+                icon: "🔐"
+            }
+        ];
+
+        // ── RENDER CARDS ──
+        function renderCards(items, containerId, badgeDefault) {
+            const grid = document.getElementById(containerId);
+            grid.innerHTML = '';
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.setAttribute('data-title', item.title.toLowerCase());
+                card.setAttribute('data-desc', (item.desc || '').toLowerCase());
+                card.onclick = () => openContent(item.file, item.title);
+
+                let badgeHtml = '';
+                if (item.badge && item.badgeText) {
+                    badgeHtml = `<div class="card-badge ${item.badge}">${item.badgeText}</div>`;
+                } else if (badgeDefault) {
+                    badgeHtml = `<div class="card-badge ${badgeDefault}">CHEAT SHEET</div>`;
+                }
+
+                card.innerHTML = `
+                    <div class="card-icon">${item.icon}</div>
+                    <div class="card-info">
+                        <div class="card-title">${item.title}</div>
+                        <div class="card-desc">${item.desc || ''}</div>
+                        ${badgeHtml}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // ── OPEN CONTENT (SPA) ──
+        function openContent(file, title) {
+            document.getElementById('homeView').classList.add('hidden');
+            document.getElementById('contentView').classList.add('active');
+            document.getElementById('contentFrame').src = file;
+            document.getElementById('homeBtn').classList.add('visible');
+            document.getElementById('breadcrumb').classList.add('visible');
+            document.getElementById('breadcrumb').textContent = title;
+            document.getElementById('pageTitle').textContent = title;
+            window.scrollTo(0, 0);
+        }
+
+        // ── GO HOME ──
+        function goHome() {
+            document.getElementById('homeView').classList.remove('hidden');
+            document.getElementById('contentView').classList.remove('active');
+            document.getElementById('contentFrame').src = '';
+            document.getElementById('homeBtn').classList.remove('visible');
+            document.getElementById('breadcrumb').classList.remove('visible');
+            document.getElementById('pageTitle').textContent = '📚 My Learning Hub';
+        }
+
+        // ── SEARCH ──
+        document.getElementById('searchInput').addEventListener('input', function () {
+            const q = this.value.toLowerCase();
+            document.querySelectorAll('.card').forEach(card => {
+                const title = card.getAttribute('data-title') || '';
+                const desc = card.getAttribute('data-desc') || '';
+                card.style.display = (title.includes(q) || desc.includes(q)) ? 'flex' : 'none';
+            });
+        });
+
+        // ── KEYBOARD: ESC to go home ──
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') goHome();
+        });
+
+        // ── INIT ──
+        renderCards(questions, 'questionsGrid');
+        renderCards(resources, 'resourcesGrid', 'badge-purple');
+
+        document.getElementById('totalCount').textContent = questions.length + resources.length;
+        document.getElementById('resourceCount').textContent = resources.length;
+        document.getElementById('questionCount').textContent = questions.length;
+    </script>
+</body>
+</html>

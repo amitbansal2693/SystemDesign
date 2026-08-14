@@ -1,0 +1,692 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hibernate & JPA — Learning Flow</title><style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#64748b;--accent:#2563eb;--border:#dbe3ee;--soft:#f8fafc;--dark:#0f172a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.6}
+header{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.head{max-width:1200px;margin:auto;padding:18px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+h1{margin:0;font-size:25px}.sub{color:var(--muted);font-size:13px;margin-top:3px}
+.controls{display:flex;gap:8px;flex-wrap:wrap}
+input{padding:10px 12px;border:1px solid var(--border);border-radius:9px;width:290px;max-width:75vw}
+button{padding:9px 12px;border:1px solid var(--border);background:#fff;border-radius:9px;font-weight:700;cursor:pointer}
+main{max-width:1200px;margin:24px auto;padding:0 15px}
+.hero,.chapter{background:var(--card);border:1px solid var(--border);border-radius:15px;margin-bottom:13px}
+.hero{padding:20px}.hero h2{margin:0 0 8px;font-size:20px}
+.flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:9px;margin-top:14px}
+.flow div{background:var(--soft);border:1px solid var(--border);border-radius:10px;padding:11px}
+.chapter{overflow:hidden}
+.chapter summary{list-style:none;cursor:pointer;padding:17px 19px;font-size:18px;font-weight:800;display:flex;gap:10px;align-items:center}
+.chapter summary::-webkit-details-marker{display:none}.chapter summary:before{content:"▶";font-size:11px;color:var(--accent)}
+.chapter[open] summary:before{transform:rotate(90deg)}
+.num{font-family:monospace;background:#eaf1ff;color:var(--accent);padding:3px 7px;border-radius:6px;font-size:12px}
+.body{border-top:1px solid var(--border);padding:4px 21px 24px}
+h3{margin:24px 0 8px;font-size:20px}h4{margin:18px 0 6px;font-size:16px}
+p{margin:8px 0}li{margin:4px 0}
+table{width:100%;border-collapse:collapse;margin:13px 0}
+th,td{border:1px solid var(--border);padding:9px;vertical-align:top;text-align:left}th{background:#eef2f7}
+pre{white-space:pre-wrap;overflow:auto}
+.diagram{background:var(--soft);border:1px dashed #b9c5d2;border-radius:9px;padding:12px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px}
+.big-diagram{background:var(--dark);color:#e5e7eb;border-radius:11px;padding:15px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px}
+.code{background:#111827;color:#e5e7eb;border-radius:10px;padding:14px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px}
+.note{font-weight:600}.callout{background:#eff6ff;border-left:4px solid var(--accent);padding:11px 13px;border-radius:7px}
+.hidden{display:none!important}mark{background:#fde68a}
+footer{max-width:1200px;margin:25px auto;padding:0 15px 40px;color:var(--muted);font-size:12px}
+@media(max-width:700px){.head{position:static}input{width:100%}}
+</style></head>
+<body>
+<header><div class="head"><div><h1>Hibernate & JPA — Learning Flow</h1><div class="sub">Re-structured for learning and interview preparation — grouped by concepts, not source page order.</div></div>
+<div class="controls"><input id="q" placeholder="Search EntityManager, N+1, cache..."><button id="open">Open all</button><button id="close">Close all</button></div></div></header>
+<main>
+<section class="hero">
+<h2>How this document is organized</h2>
+<p>The original material repeats the same concepts across multiple pages. This version groups those repetitions into one continuous learning path: <strong>ORM → JPA → Hibernate → Entity → EntityManager → Persistence Context → Lifecycle → Transactions → Dirty Checking → Fetching → N+1 → Caching → Locking → Querying → complete flow → interview revision.</strong></p>
+<div class="flow">
+<div><b>1. Foundation</b><br>Why ORM exists and how JPA/Hibernate relate.</div>
+<div><b>2. Core engine</b><br>Entity, EntityManager and Persistence Context.</div>
+<div><b>3. Entity behavior</b><br>Lifecycle, transactions and dirty checking.</div>
+<div><b>4. Performance</b><br>Fetching, N+1 and caching.</div>
+<div><b>5. Concurrency</b><br>Optimistic and pessimistic locking.</div>
+<div><b>6. Interview flow</b><br>Connect all concepts into one mental model.</div>
+</div>
+</section>
+<details class="chapter"><summary><span class="num">01</span>Foundation: ORM → JPA → Hibernate</summary><div class="body">
+<h3>Start with the big picture</h3>
+<p>The document's central relationship is: <strong>ORM is the concept, JPA is the specification/rulebook, and Hibernate is the implementation/engine.</strong> This relationship should be understood before learning EntityManager, Persistence Context, fetching, caching or transactions.</p>
+<pre class="big-diagram">ORM (Concept / Technique)
+        ↓
+JPA (Specification / Rules)
+        ↓
+Hibernate (Implementation / ORM Engine)
+        ↓
+SQL
+        ↓
+Database</pre>
+
+<h3>ORM — Object Relational Mapping</h3>
+<p>ORM maps Java objects to relational database structures. The source describes the mapping as:</p>
+<table>
+<tr><th>Java / Object World</th><th>Relational World</th></tr>
+<tr><td>Class</td><td>Table</td></tr>
+<tr><td>Object</td><td>Row</td></tr>
+<tr><td>Field</td><td>Column</td></tr>
+</table>
+<p>The problem ORM solves is the <strong>object-relational impedance mismatch</strong>: Java works with objects, relationships and inheritance, while relational databases work with tables, rows and columns.</p>
+
+<h3>Why ORM is needed</h3>
+<p>Without ORM, JDBC requires boilerplate connection handling, prepared statements and manual SQL. The source identifies productivity, maintainability and data-conversion problems as key motivations for ORM.</p>
+
+<h3>How ORM works</h3>
+<pre class="diagram">Java Object
+   ↓
+ORM
+   ↓
+SQL
+   ↓
+Database
+
+Database
+   ↓
+ORM
+   ↓
+Java Object</pre>
+
+<h3>Hibernate — the implementation</h3>
+<p>Hibernate implements JPA and performs the actual ORM work: it reads entity metadata, generates SQL, executes it and converts database results back into Java objects. The source explicitly summarizes the relationship as <strong>JPA = WHAT to do; Hibernate = HOW it is done.</strong></p>
+
+<h3>When ORM is not the best choice</h3>
+<p>The source recommends considering JDBC/native SQL for complex reporting queries, very large bulk operations, highly performance-critical systems and stored-procedure-heavy systems.</p>
+</div></details><details class="chapter"><summary><span class="num">02</span>JPA: The Standard API and Specification</summary><div class="body">
+<h3>What is JPA?</h3>
+<p>JPA (Jakarta Persistence API) is a specification that standardizes annotations, interfaces and contracts for persistence. It defines APIs such as <code>EntityManager</code> and annotations such as <code>@Entity</code> and <code>@Id</code>.</p>
+
+<h3>Why JPA exists</h3>
+<p>Before a common specification, ORM providers exposed different APIs. JPA reduces vendor lock-in by giving application code a standard API while an implementation such as Hibernate performs the work.</p>
+
+<pre class="big-diagram">Application Code
+       ↓
+JPA API / Contracts
+       ↓
+Hibernate
+       ↓
+SQL
+       ↓
+Database</pre>
+
+<h3>JPA does not do the work itself</h3>
+<p>The source repeatedly emphasizes that JPA defines <strong>what/how the persistence API should behave</strong>; it does not itself generate SQL or execute database operations. Hibernate implements the JPA contracts.</p>
+
+<h3>Core JPA API examples</h3>
+<pre class="code">EntityManager em;
+
+em.persist(entity);             // CREATE
+em.find(Employee.class, 1);     // READ
+em.merge(entity);               // UPDATE / reattach state
+em.remove(entity);              // DELETE
+em.createQuery(...);            // JPQL</pre>
+
+<h3>Interview mental model</h3>
+<pre class="diagram">ORM = Concept
+JPA = Standard rules + API
+Hibernate = Actual implementation / engine</pre>
+</div></details><details class="chapter"><summary><span class="num">03</span>Entity and EntityManager: The Core Building Blocks</summary><div class="body">
+<h3>Entity — WHAT is mapped?</h3>
+<p>An entity is a Java class mapped to a database table using JPA annotations.</p>
+<pre class="code">@Entity
+@Table(name = "employee")
+public class Employee {
+    @Id
+    private int id;
+    private String name;
+    private double salary;
+}</pre>
+
+<pre class="diagram">Employee class → EMPLOYEE table
+id             → id column
+name           → name column
+salary         → salary column</pre>
+
+<h3>What happens when Hibernate sees an Entity?</h3>
+<ol>
+<li>Hibernate scans the entity classes.</li>
+<li>It reads annotations such as <code>@Entity</code>, <code>@Table</code> and <code>@Id</code>.</li>
+<li>It builds metadata.</li>
+<li>It can create/validate database structures depending on configuration.</li>
+</ol>
+
+<h3>EntityManager — WHO manages the entity?</h3>
+<p><code>EntityManager</code> is the JPA API responsible for entity lifecycle operations and CRUD interaction with the persistence context.</p>
+
+<pre class="big-diagram">Developer
+   ↓
+EntityManager
+   ↓
+Persistence Context
+   ↓
+Hibernate
+   ↓
+SQL
+   ↓
+Database</pre>
+
+<h3>The four essential operations</h3>
+<table>
+<tr><th>Operation</th><th>EntityManager call</th><th>Core idea</th></tr>
+<tr><td>Create</td><td><code>persist()</code></td><td>Add entity to persistence context</td></tr>
+<tr><td>Read</td><td><code>find()</code></td><td>Check context, otherwise query DB</td></tr>
+<tr><td>Update</td><td>Modify managed entity</td><td>Dirty checking detects change</td></tr>
+<tr><td>Delete</td><td><code>remove()</code></td><td>Mark entity for deletion</td></tr>
+</table>
+
+<h3>EntityManagerFactory vs EntityManager</h3>
+<p>The source introduces the distinction here. Keep the mental model simple: <strong>EntityManagerFactory creates/manages EntityManager instances; EntityManager performs persistence operations for a persistence context.</strong></p>
+</div></details><details class="chapter"><summary><span class="num">04</span>Persistence Context: The Internal Engine</summary><div class="body">
+<h3>The most important internal concept</h3>
+<p>The source describes the persistence context as <strong>memory + cache + change tracker</strong>. It stores entity objects and tracks their changes.</p>
+
+<pre class="big-diagram">Persistence Context
+= Map&lt;ID, Entity&gt; + Change Tracker</pre>
+
+<h3>Why it matters</h3>
+<ul>
+<li>It checks whether an entity is already loaded before hitting the database.</li>
+<li>It keeps managed entities in memory.</li>
+<li>It tracks modifications.</li>
+<li>It enables dirty checking.</li>
+<li>It coordinates changes that are eventually synchronized with the database.</li>
+</ul>
+
+<h3>READ flow with find()</h3>
+<pre class="diagram">em.find(Employee.class, 1)
+        ↓
+Check Persistence Context
+   ┌────┴────┐
+  FOUND    NOT FOUND
+   ↓           ↓
+return      SELECT DB
+object         ↓
+(no DB)     create object
+              ↓
+        store in context
+              ↓
+          return object</pre>
+
+<p>The source gives the identity example: two <code>find()</code> calls for the same entity within the same persistence context return the same managed object instance.</p>
+
+<h3>CREATE flow</h3>
+<pre class="diagram">new Employee()
+      ↓
+Transient
+      ↓ persist()
+Persistence Context
+      ↓
+Managed
+      ↓ commit / flush
+INSERT SQL
+      ↓
+Database</pre>
+
+<h3>UPDATE flow</h3>
+<pre class="diagram">Managed Entity
+      ↓
+Modify Java object
+      ↓
+Change tracked
+      ↓
+Dirty Checking
+      ↓
+flush / commit
+      ↓
+UPDATE SQL</pre>
+
+<h3>DELETE flow</h3>
+<pre class="diagram">Managed Entity
+      ↓
+remove()
+      ↓
+Removed state
+      ↓
+flush / commit
+      ↓
+DELETE SQL</pre>
+</div></details><details class="chapter"><summary><span class="num">05</span>Entity Lifecycle: Transient → Managed → Detached → Removed</summary><div class="body">
+<h3>Why lifecycle comes after Persistence Context</h3>
+<p>Entity lifecycle describes the states an object moves through while interacting with JPA. The source emphasizes that dirty checking, persist and remove depend on the entity's state.</p>
+
+<pre class="big-diagram">TRANSIENT
+   │ persist()
+   ▼
+MANAGED
+   │ detach() / context ends
+   ▼
+DETACHED
+
+MANAGED
+   │ remove()
+   ▼
+REMOVED</pre>
+
+<h3>1. Transient</h3>
+<p>A newly created Java object exists only in memory. It is not in the database and is not tracked.</p>
+<pre class="code">Employee emp = new Employee();
+emp.setName("Raj");</pre>
+
+<h3>2. Managed / Persistent</h3>
+<p>The entity is inside the persistence context and tracked by EntityManager. Dirty checking works in this state.</p>
+<pre class="code">em.persist(emp);
+Employee emp = em.find(Employee.class, 1);</pre>
+
+<h3>3. Detached</h3>
+<p>The object still exists, but it is no longer tracked by the persistence context. Changes made to it are not automatically synchronized.</p>
+<pre class="code">em.detach(emp);
+// or the persistence context ends</pre>
+
+<h3>4. Removed</h3>
+<p>The managed entity is marked for deletion. The delete is synchronized with the database when the context is flushed/transaction commits.</p>
+<pre class="code">em.remove(emp);</pre>
+</div></details><details class="chapter"><summary><span class="num">06</span>Transactions and Flush: When Memory Becomes SQL</summary><div class="body">
+<h3>Transaction — the unit of work</h3>
+<p>The source defines a transaction as a unit of work where changes are committed together or rolled back together so data remains consistent.</p>
+
+<pre class="diagram">Transaction
+   ├── all operations succeed → COMMIT
+   └── error → ROLLBACK</pre>
+
+<h3>Connect transactions with the persistence context</h3>
+<p>This is the key learning flow: the persistence context holds changes in memory; the transaction provides the boundary in which those changes are synchronized with the database.</p>
+
+<pre class="big-diagram">EntityManager
+      ↓
+Persistence Context
+      ↓
+Transaction COMMIT
+      ↓
+FLUSH
+      ↓
+SQL Execution
+      ↓
+Database</pre>
+
+<h3>Example</h3>
+<pre class="code">@Transactional
+public void createEmployee() {
+    Employee emp = new Employee();
+    emp.setName("Raj");
+    em.persist(emp);
+    emp.setName("Rahul");
+}</pre>
+
+<p>The source's flow: transaction starts → persist adds the object to the context → the name change is tracked → SQL is not necessarily executed immediately → commit flushes the context → SQL is executed.</p>
+
+<h3>What is flush?</h3>
+<p><strong>Flush = synchronize the persistence context with the database.</strong> Hibernate generates and executes the SQL needed to make the database reflect the current managed state.</p>
+
+<h3>Rollback</h3>
+<p>If an error causes rollback, the transaction's database changes are discarded. The source's example shows a persisted entity followed by a runtime exception resulting in no committed INSERT.</p>
+
+<h3>Spring's @Transactional</h3>
+<p>The source describes Spring as opening the transaction, executing the method, and then committing or rolling back depending on the outcome.</p>
+
+<div class="callout"><strong>Interview line:</strong> “A transaction in JPA defines a unit of work where changes made in the persistence context are flushed to the database on commit. If an error occurs, the transaction is rolled back to maintain data consistency.”</div>
+</div></details><details class="chapter"><summary><span class="num">07</span>Dirty Checking: Automatic Update Detection</summary><div class="body">
+<h3>What is dirty checking?</h3>
+<p>Dirty checking means JPA automatically detects changes made to a <strong>managed</strong> entity and synchronizes those changes with the database without an explicit update query.</p>
+
+<pre class="big-diagram">Load Entity
+    ↓
+Persistence Context
+    ↓
+Modify Object
+    ↓
+Dirty Checking
+    ↓
+Generate UPDATE
+    ↓
+Flush / Commit
+    ↓
+Database</pre>
+
+<h3>Example</h3>
+<pre class="code">Employee emp = em.find(Employee.class, 1);
+emp.setName("Rahul");
+
+// No em.update(emp) is required.</pre>
+
+<h3>What happens internally?</h3>
+<ol>
+<li>Entity is loaded into the persistence context.</li>
+<li>JPA/Hibernate keeps track of its managed state.</li>
+<li>The application modifies the object.</li>
+<li>Hibernate detects the difference.</li>
+<li>At flush/commit, it generates the required UPDATE SQL.</li>
+</ol>
+
+<h3>When does it work?</h3>
+<p><strong>Only for managed entities.</strong> A transient or detached object is not automatically dirty-checked.</p>
+
+<div class="callout"><strong>Memory anchor:</strong> Persistence Context stores the object → Dirty Checking watches the managed object → Flush/Commit turns the detected change into SQL.</div>
+</div></details><details class="chapter"><summary><span class="num">08</span>Fetching: LAZY vs EAGER</summary><div class="body">
+<h3>What is fetching?</h3>
+<p>Fetching defines <strong>when related entities are loaded</strong> from the database.</p>
+
+<h3>EAGER</h3>
+<p>EAGER means related data is loaded immediately when the entity is loaded.</p>
+<pre class="diagram">Load Employee
+    ↓
+Employee + related Address
+    ↓
+Available immediately</pre>
+<p>Advantage: simple access to required related data. Risk: data may be loaded even when it is not needed, increasing memory use and database work.</p>
+
+<h3>LAZY</h3>
+<p>LAZY means related data is loaded when it is actually accessed.</p>
+<pre class="diagram">Load Employee
+    ↓
+Employee only
+    ↓
+getAddresses()
+    ↓
+DB query / proxy initialization</pre>
+<p>This can reduce unnecessary data loading, especially for large collections, but it introduces the possibility of additional database queries.</p>
+
+<h3>Default relationship behavior in the source</h3>
+<table>
+<tr><th>Relationship</th><th>Source-listed default</th></tr>
+<tr><td><code>@OneToMany</code></td><td>LAZY</td></tr>
+<tr><td><code>@ManyToOne</code></td><td>EAGER</td></tr>
+</table>
+
+<h3>Senior-level insight</h3>
+<p>LAZY is not automatically “better”. It avoids unnecessary loading but must be designed carefully to avoid N+1 queries. EAGER can be convenient but can load too much data.</p>
+</div></details><details class="chapter"><summary><span class="num">09</span>N+1 Query Problem: The Performance Trap</summary><div class="body">
+<h3>Problem statement</h3>
+<p>The N+1 problem occurs when one query fetches the main entities and then an additional query is executed for each entity to load related data.</p>
+
+<pre class="big-diagram">1 query → Employees
+N queries → Addresses
+──────────────────────
+N + 1 queries ❌</pre>
+
+<h3>Concrete example from the source</h3>
+<pre class="code">List&lt;Employee&gt; employees = em.findAll();
+
+for (Employee e : employees) {
+    e.getAddresses();
+}</pre>
+
+<p>For 3 employees, the source shows:</p>
+<pre class="diagram">1 × SELECT employees
+3 × SELECT address WHERE emp_id = ?
+────────────────────────────
+4 queries total</pre>
+
+<p>For 100 employees, this becomes 101 queries.</p>
+
+<h3>Why it hurts</h3>
+<ul><li>Too many database calls.</li><li>Network overhead.</li><li>Higher latency.</li><li>Potentially severe production performance problems.</li></ul>
+
+<h3>Connection with LAZY fetching</h3>
+<p>The source connects N+1 mainly with lazy loading: each related collection is loaded separately when accessed.</p>
+
+<div class="callout"><strong>Interview answer:</strong> “The N+1 problem occurs when one query fetches a list of entities and additional queries are executed for each entity to fetch related data, causing unnecessary database calls and performance degradation.”</div>
+</div></details><details class="chapter"><summary><span class="num">10</span>Caching: First-Level vs Second-Level</summary><div class="body">
+<h3>Why caching?</h3>
+<p>The source's core idea is simple: database access is relatively expensive, while memory access is fast. Caching keeps frequently accessed data in memory to reduce repeated database calls.</p>
+
+<pre class="big-diagram">EntityManager
+     ↓
+First-Level Cache
+(Persistence Context)
+     ↓
+Second-Level Cache
+(optional / shared)
+     ↓
+Database</pre>
+
+<h3>First-Level Cache</h3>
+<p>The first-level cache is the persistence context itself and is associated with an EntityManager.</p>
+<pre class="code">Employee e1 = em.find(Employee.class, 1);
+Employee e2 = em.find(Employee.class, 1);</pre>
+<p>The first call may hit the database. The second lookup can return the entity already present in the persistence context.</p>
+
+<h3>Second-Level Cache</h3>
+<p>The second-level cache is shared across persistence contexts/EntityManagers and can allow subsequent requests to avoid a database hit.</p>
+<pre class="diagram">Request 1 → DB → Second-Level Cache
+Request 2 → Cache → no DB hit</pre>
+
+<p>The source says second-level caching is optional and requires configuration. It lists Ehcache, Redis and Hazelcast as examples of technologies associated with caching.</p>
+
+<h3>Key difference</h3>
+<table>
+<tr><th>First Level</th><th>Second Level</th></tr>
+<tr><td>Persistence Context</td><td>Shared cache</td></tr>
+<tr><td>Scoped to EntityManager / persistence context</td><td>Across persistence contexts</td></tr>
+<tr><td>Automatic</td><td>Optional/configured</td></tr>
+</table>
+</div></details><details class="chapter"><summary><span class="num">11</span>Concurrency: Optimistic vs Pessimistic Locking</summary><div class="body">
+<h3>Why locking?</h3>
+<p>Locking is used to prevent data inconsistency when multiple users access or modify the same data simultaneously.</p>
+
+<table>
+<tr><th>Optimistic Locking</th><th>Pessimistic Locking</th></tr>
+<tr><td>No database row lock during normal editing</td><td>Locks the database row</td></tr>
+<tr><td>Uses <code>@Version</code></td><td>Uses database locking such as <code>FOR UPDATE</code></td></tr>
+<tr><td>Detects conflict while saving</td><td>Prevents conflict before another update proceeds</td></tr>
+<tr><td>Higher concurrency</td><td>Lower concurrency</td></tr>
+<tr><td>Good when conflicts are rare</td><td>Good when conflicts are common</td></tr>
+</table>
+
+<h3>Optimistic Locking</h3>
+<p>The source describes optimistic locking as assuming conflicts are rare. Hibernate uses a version field and checks whether the row changed before applying the update.</p>
+<pre class="code">@Entity
+public class Recipe {
+    @Id
+    private Long id;
+
+    @Version
+    private Integer version;
+}</pre>
+<p>If another transaction changes the same row first, the later update can fail and the application/user may need to retry.</p>
+
+<h3>Pessimistic Locking</h3>
+<p>Pessimistic locking assumes conflicts are likely. The row is locked when the update starts, so another transaction attempting to modify it waits until the first transaction commits or rolls back.</p>
+<pre class="code">@Lock(LockModeType.PESSIMISTIC_WRITE)
+Optional&lt;Recipe&gt; findById(Long id);</pre>
+
+<pre class="diagram">User A
+  ↓
+Acquire DB row lock
+  ↓
+Update
+  ↓
+Commit / Rollback
+  ↓
+Release lock
+  ↓
+User B continues</pre>
+
+<h3>Decision rule</h3>
+<p><strong>Optimistic:</strong> conflicts are uncommon; prefer concurrency and detect conflicts at save time. <strong>Pessimistic:</strong> conflicts are common or immediate exclusivity is important; lock the row.</p>
+</div></details><details class="chapter"><summary><span class="num">12</span>JPQL and Querying: Where It Fits</summary><div class="body">
+<h3>JPQL</h3>
+<p>The source's overall roadmap places JPQL under querying data and describes it as <strong>object-based queries</strong>.</p>
+
+<pre class="diagram">Application
+   ↓
+JPQL
+   ↓
+JPA / EntityManager
+   ↓
+Hibernate
+   ↓
+SQL
+   ↓
+Database</pre>
+
+<p>The important mental model is that JPQL works with entity types and their fields rather than directly treating the database as the primary abstraction.</p>
+
+<h3>When to step outside ORM abstractions</h3>
+<p>The source's senior-level guidance is to consider native SQL/JDBC when queries are highly complex, operations are massive/bulk-oriented, performance is critical, or the system relies heavily on stored procedures.</p>
+</div></details><details class="chapter"><summary><span class="num">13</span>Putting Everything Together: One Complete JPA/Hibernate Flow</summary><div class="body">
+<h3>The complete architecture</h3>
+<pre class="big-diagram">Developer / Spring Service
+          ↓
+      @Transactional
+          ↓
+      EntityManager
+          ↓
+   Persistence Context
+   ├── First-Level Cache
+   ├── Managed Entities
+   └── Change Tracking
+          ↓
+     Hibernate
+   ├── Dirty Checking
+   ├── Fetching
+   ├── SQL Generation
+   └── Optional 2nd-Level Cache
+          ↓
+       Database
+   ├── Tables
+   ├── Transactions
+   └── Row Locks</pre>
+
+<h3>Complete CRUD mental model</h3>
+<pre class="diagram">CREATE
+new object
+  ↓
+persist()
+  ↓
+Managed
+  ↓
+INSERT at flush/commit
+
+READ
+find()
+  ↓
+Persistence Context?
+ ├─ yes → return object
+ └─ no → SELECT DB → store → return
+
+UPDATE
+Managed object
+  ↓
+modify fields
+  ↓
+Dirty Checking
+  ↓
+UPDATE at flush/commit
+
+DELETE
+Managed object
+  ↓
+remove()
+  ↓
+Removed
+  ↓
+DELETE at flush/commit</pre>
+
+<h3>Performance layer</h3>
+<pre class="diagram">Fetching
+  ├── LAZY → load when accessed
+  └── EAGER → load immediately
+
+Caching
+  ├── First Level → Persistence Context
+  └── Second Level → shared optional cache
+
+N+1
+  └── watch for repeated related-data queries
+
+Bulk / complex SQL
+  └── consider native SQL / JDBC</pre>
+
+<h3>Concurrency layer</h3>
+<pre class="diagram">Multiple users update same data
+          ↓
+     Choose strategy
+       ├── Optimistic
+       │    └── @Version
+       └── Pessimistic
+            └── DB row lock</pre>
+</div></details><details class="chapter"><summary><span class="num">14</span>Interview Revision: Questions and One-Line Answers</summary><div class="body">
+<h3>Foundation</h3>
+<ul>
+<li><strong>What is ORM?</strong> A technique that maps Java objects to relational database structures.</li>
+<li><strong>What is JPA?</strong> A specification that standardizes persistence APIs and contracts.</li>
+<li><strong>What is Hibernate?</strong> An ORM framework/implementation that implements JPA and performs the actual persistence work.</li>
+<li><strong>ORM vs JPA vs Hibernate?</strong> ORM = concept, JPA = specification/API, Hibernate = implementation/engine.</li>
+</ul>
+
+<h3>Core components</h3>
+<ul>
+<li><strong>What is an Entity?</strong> A Java class mapped to a database table using JPA annotations.</li>
+<li><strong>What is EntityManager?</strong> A JPA interface for entity lifecycle and CRUD operations through the persistence context.</li>
+<li><strong>What is Persistence Context?</strong> A managed set/cache of entity instances plus change tracking.</li>
+<li><strong>What is EntityManagerFactory?</strong> The factory responsible for creating EntityManagers.</li>
+</ul>
+
+<h3>Lifecycle and transactions</h3>
+<ul>
+<li>What are the four entity states?</li>
+<li>When does dirty checking work?</li>
+<li>What is flush?</li>
+<li>What is the difference between flush and commit?</li>
+<li>Why is <code>@Transactional</code> important?</li>
+<li>What happens when a transaction rolls back?</li>
+</ul>
+
+<h3>Performance</h3>
+<ul>
+<li>LAZY vs EAGER?</li>
+<li>What is the N+1 problem?</li>
+<li>Why can LAZY loading cause N+1?</li>
+<li>First-level vs second-level cache?</li>
+<li>When should native SQL be preferred?</li>
+</ul>
+
+<h3>Concurrency</h3>
+<ul>
+<li>Why do we need locking?</li>
+<li>Optimistic vs pessimistic locking?</li>
+<li>How does <code>@Version</code> work?</li>
+<li>When would you choose pessimistic locking?</li>
+</ul>
+
+<h3>Master mental model</h3>
+<pre class="big-diagram">ORM
+ ↓
+JPA
+ ↓
+Hibernate
+ ↓
+EntityManager
+ ↓
+Persistence Context
+ ↓
+Lifecycle + Dirty Checking + Cache
+ ↓
+Transaction / Flush
+ ↓
+SQL
+ ↓
+Database
+
+Performance:
+Fetching + N+1 + Caching
+
+Concurrency:
+Optimistic / Pessimistic Locking</pre>
+</div></details>
+</main>
+<footer>Based on the uploaded “Google Keep Document-9.pdf”. Content is regrouped into a learning flow while preserving the source's terminology, examples, mental models and hierarchy-style diagrams rather than following the original page sequence.</footer>
+<script>
+const cs=[...document.querySelectorAll('.chapter')], q=document.getElementById('q');
+function clear(c){c.querySelectorAll('mark').forEach(m=>m.replaceWith(document.createTextNode(m.textContent)))}
+function filter(){
+ const x=q.value.toLowerCase().trim();
+ cs.forEach(c=>{clear(c);let hit=!x||c.innerText.toLowerCase().includes(x);c.classList.toggle('hidden',!hit);if(x&&hit)c.open=true});
+}
+q.addEventListener('input',filter);
+document.getElementById('open').onclick=()=>cs.forEach(c=>{if(!c.classList.contains('hidden'))c.open=true});
+document.getElementById('close').onclick=()=>cs.forEach(c=>c.open=false);
+</script></body></html>
