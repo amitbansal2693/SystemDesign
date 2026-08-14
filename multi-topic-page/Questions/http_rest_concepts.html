@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HTTP & REST API Concepts</title>
+<style>
+:root { --surface-0:#fafafa; --surface-1:#f0f0f0; --surface-2:#fff; --border:#e0e0e0; --border-strong:#bbb; --text-primary:#1a1a1a; --text-secondary:#555; --fill-accent:#2563eb; --on-accent:#fff; --radius:8px; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--surface-0); color:var(--text-primary); }
+.container { max-width:920px; margin:0 auto; padding:2rem 1rem; }
+.header { text-align:center; margin-bottom:2rem; }
+.header h1 { font-size:28px; font-weight:500; margin-bottom:.5rem; }
+.header p { color:var(--text-secondary); font-size:14px; }
+.mindmap-view { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; }
+.topic-card { background:var(--surface-2); border:2px solid var(--border); border-radius:12px; padding:16px; cursor:pointer; transition:all .2s; text-align:center; display:flex; flex-direction:column; align-items:center; gap:8px; min-height:120px; justify-content:center; }
+.topic-card:hover { border-color:var(--fill-accent); background:var(--surface-1); transform:translateY(-2px); box-shadow:0 4px 12px rgba(37,99,235,.12); }
+.topic-icon { font-size:28px; } .topic-name { font-weight:500; font-size:14px; line-height:1.3; }
+.qa-view { display:none; } .qa-view.active { display:block; }
+.qa-header { display:flex; align-items:center; gap:12px; margin-bottom:2rem; padding-bottom:1rem; border-bottom:.5px solid var(--border); }
+.back-btn { background:none; border:.5px solid var(--border); padding:8px 12px; border-radius:var(--radius); cursor:pointer; color:var(--text-primary); font-size:14px; transition:all .2s; }
+.back-btn:hover { background:var(--surface-1); border-color:var(--border-strong); }
+.qa-title { font-size:24px; font-weight:500; }
+.qa-container { display:flex; flex-direction:column; gap:16px; }
+.qa-pair { background:var(--surface-2); border:.5px solid var(--border); border-radius:12px; padding:16px; cursor:pointer; transition:all .2s; }
+.qa-pair:hover { border-color:var(--border-strong); background:var(--surface-1); }
+.qa-pair.expanded { border-color:var(--fill-accent); }
+.qa-number { display:inline-block; background:var(--fill-accent); color:var(--on-accent); width:28px; height:28px; border-radius:50%; text-align:center; line-height:28px; font-size:12px; font-weight:500; margin-right:8px; flex-shrink:0; }
+.question { font-weight:500; font-size:15px; color:var(--text-primary); margin-bottom:8px; display:flex; align-items:flex-start; gap:8px; }
+.answer { max-height:0; overflow:hidden; transition:max-height .4s ease; color:var(--text-secondary); font-size:14px; line-height:1.7; padding-left:36px; }
+.qa-pair.expanded .answer { max-height:12000px; margin-top:12px; padding-top:12px; border-top:.5px solid var(--border); }
+.toggle-icon { display:inline-block; transition:transform .3s; margin-left:auto; flex-shrink:0; }
+.qa-pair.expanded .toggle-icon { transform:rotate(180deg); }
+.center-content { display:flex; gap:12px; align-items:center; width:100%; }
+.answer h4 { color:var(--text-primary); font-size:13px; font-weight:600; margin:14px 0 6px; text-transform:uppercase; letter-spacing:.5px; }
+.answer h4:first-child { margin-top:0; }
+.answer p { margin:6px 0; }
+.answer ul { list-style:none; margin:6px 0; padding:0; }
+.answer ul li { position:relative; padding:4px 0 4px 18px; }
+.answer ul li::before { content:"•"; position:absolute; left:2px; color:var(--fill-accent); font-weight:bold; }
+.answer .flow-chart { background:var(--surface-1); border:1px solid var(--border); border-radius:8px; padding:14px 16px; margin:10px 0; font-family:'SF Mono','Fira Code',monospace; font-size:12.5px; line-height:1.8; white-space:pre; overflow-x:auto; }
+.answer .highlight { background:#fff3cd; padding:10px 14px; border-radius:6px; margin:10px 0; border-left:3px solid #ffc107; }
+.answer code { background:var(--surface-1); padding:2px 6px; border-radius:4px; font-size:13px; }
+.answer table { width:100%; border-collapse:collapse; margin:10px 0; font-size:13px; }
+.answer table th,.answer table td { border:1px solid var(--border); padding:8px 12px; text-align:left; }
+.answer table th { background:var(--surface-1); font-weight:600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header" id="mainHeader">
+    <h1>🌐 HTTP & REST API Concepts</h1>
+    <p>6 topics — REST Principles, HTTP Status Codes, Caching, Pagination, Versioning, Connection Pooling</p>
+  </div>
+
+  <div class="mindmap-view" id="topicGrid">
+    <div class="topic-card" onclick="showTopic('rest')"><span class="topic-icon">🔌</span><span class="topic-name">REST Principles</span></div>
+    <div class="topic-card" onclick="showTopic('status')"><span class="topic-icon">🚥</span><span class="topic-name">HTTP Status Codes</span></div>
+    <div class="topic-card" onclick="showTopic('caching')"><span class="topic-icon">💾</span><span class="topic-name">HTTP Caching</span></div>
+    <div class="topic-card" onclick="showTopic('pagination')"><span class="topic-icon">📄</span><span class="topic-name">Pagination & Filtering</span></div>
+    <div class="topic-card" onclick="showTopic('versioning')"><span class="topic-icon">🏷️</span><span class="topic-name">API Versioning</span></div>
+    <div class="topic-card" onclick="showTopic('pooling')"><span class="topic-icon">♻️</span><span class="topic-name">REST API Connection Pooling</span></div>
+  </div>
+
+  <!-- REST -->
+  <div class="qa-view" id="topic-rest">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">🔌 REST Principles</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">Core REST Principles<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <ul>
+            <li><strong>Client-Server</strong> — separation of client (UI) and server (data/logic)</li>
+            <li><strong>Stateless</strong> — server stores no session state; each request contains all info needed</li>
+            <li><strong>Cacheable</strong> — clients & intermediaries (browser, CDN) can cache responses</li>
+            <li><strong>Uniform Interface</strong> — standard way to access data (GET, POST, PUT, DELETE)</li>
+            <li><strong>Layered System</strong> — client is unaware of multiple layers (LB, security, cache, DB)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">Is HTTP mandatory for REST?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>No. Any protocol that supports REST principles can be used, but HTTP is the most common.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">3</span><div class="center-content">How does REST improve scalability?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <ul>
+            <li><strong>Statelessness</strong> — reduces server memory (no session storage)</li>
+            <li><strong>Cacheability</strong> — decreases server load</li>
+            <li><strong>Layered System</strong> — components scaled independently</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">4</span><div class="center-content">REST Pros & Cons<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>Pros</h4>
+          <ul><li>Simple — follows standard HTTP conventions</li><li>Cache-friendly — relies on HTTP caching mechanisms</li><li>Widely supported</li></ul>
+          <h4>Cons</h4>
+          <ul><li>Over-fetching / under-fetching — can't control response shape from client</li><li>Complex to fetch nested data (multiple API calls)</li><li>Versioning issues — schema changes require versioned endpoints</li></ul>
+          <h4>When to use</h4>
+          <p>Simple, well-structured resources. Content-heavy APIs where caching matters.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- HTTP Status -->
+  <div class="qa-view" id="topic-status">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">🚥 HTTP Status Codes</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">4xx — Client Errors ("It's not me, it's you")<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <table>
+            <tr><th>Code</th><th>Meaning</th></tr>
+            <tr><td>400</td><td><strong>Bad Request</strong> — garbled syntax</td></tr>
+            <tr><td>401</td><td><strong>Unauthorized</strong> — need to log in first</td></tr>
+            <tr><td>403</td><td><strong>Forbidden</strong> — authenticated but not allowed</td></tr>
+            <tr><td>404</td><td><strong>Not Found</strong> — page moved, deleted, or never existed</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">5xx — Server Errors ("It's not you, it's me")<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <table>
+            <tr><th>Code</th><th>Meaning</th></tr>
+            <tr><td>500</td><td><strong>Internal Server Error</strong> — catch-all, something broke</td></tr>
+            <tr><td>502</td><td><strong>Bad Gateway</strong> — middleman got invalid response from upstream</td></tr>
+            <tr><td>503</td><td><strong>Service Unavailable</strong> — overloaded or maintenance</td></tr>
+            <tr><td>504</td><td><strong>Gateway Timeout</strong> — middleman waited too long</td></tr>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- HTTP Caching -->
+  <div class="qa-view" id="topic-caching">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">💾 HTTP Caching in APIs</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">What is HTTP Caching?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Store responses temporarily so the client doesn't make repeated requests. Improves performance, reduces server load, saves bandwidth.</p>
+          <h4>Types</h4>
+          <ul>
+            <li><strong>Client-Side Cache</strong> — browser/API client stores responses</li>
+            <li><strong>Proxy Cache</strong> — CDN stores responses</li>
+            <li><strong>Server Cache</strong> — backend stores in Redis, database</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">Cache-Control Directives<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <table>
+            <tr><th>Directive</th><th>Meaning</th></tr>
+            <tr><td><code>public</code></td><td>Anyone can cache (browser, proxy, CDN)</td></tr>
+            <tr><td><code>private</code></td><td>Only browser can cache</td></tr>
+            <tr><td><code>max-age=86400</code></td><td>Fresh for 1 day</td></tr>
+            <tr><td><code>no-cache</code></td><td>Always validate with origin before serving</td></tr>
+            <tr><td><code>must-revalidate</code></td><td>Once stale, re-check with server</td></tr>
+          </table>
+          <h4>Putting It Together</h4>
+          <p>Client request: <code>no-cache</code> → "validate before use."</p>
+          <p>Server response: <code>public, max-age=86400, must-revalidate</code> → cacheable for 1 day, must revalidate after expiry.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="qa-view" id="topic-pagination">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">📄 Pagination & Filtering</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">Pagination<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>Problem</h4>
+          <p>10,000 recipes → <code>GET /recipes</code> returning all is slow, memory-heavy, network-heavy.</p>
+          <h4>Solution</h4>
+          <div class="flow-chart">GET /recipes?page=1&size=20
+
+Response:
+{
+  "content": [...20 recipes...],
+  "page": 1,
+  "size": 20,
+  "totalPages": 500
+}</div>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">Filtering<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>Problem</h4>
+          <p>Client wants only vegetarian recipes. Without filtering, client has to filter itself.</p>
+          <h4>Solution</h4>
+          <div class="flow-chart">GET /recipes?category=Vegetarian
+GET /recipes?difficulty=Easy
+GET /recipes?caloriesLessThan=500</div>
+          <p>Server returns only matching records.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Versioning -->
+  <div class="qa-view" id="topic-versioning">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">🏷️ API Versioning</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">Why API Versioning?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>Problem</h4>
+          <p>v1 returns <code>{"name":"Pizza"}</code>, then you change to <code>{"recipeName":"Pizza"}</code>. Existing mobile apps using "name" break.</p>
+          <h4>Solution — Keep multiple versions</h4>
+          <p><strong>URL Versioning:</strong></p>
+          <div class="flow-chart">/api/v1/recipes
+/api/v2/recipes</div>
+          <p><strong>Header Versioning:</strong></p>
+          <div class="flow-chart">Accept: application/vnd.company.v2+json</div>
+          <p>Old clients use v1, new clients use v2.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- REST API Pooling -->
+  <div class="qa-view" id="topic-pooling">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">♻️ REST API Connection Pooling</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">Why Pooling in REST?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Creating a TCP connection is expensive (handshake + TLS + OS resources). Without pooling: 100 requests → 100 connections ❌. With pooling: 100 requests → reuse ~10 connections ✅.</p>
+          <div class="highlight">Pooling reuses <strong>TCP connections</strong>, NOT requests, NOT threads.</div>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">How the Pool Works<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <div class="flow-chart">Pool = [Conn1, Conn2, Conn3, Conn4, Conn5]
+
+1. Request comes
+2. Ask pool → get existing connection (or create new)
+3. Execute request
+4. Return connection to pool
+
+Pool full? Next request WAITs (connectionRequestTimeout)</div>
+          <h4>Configuration</h4>
+          <div class="flow-chart">.setMaxConnTotal(20)    // total connections across all hosts
+.setMaxConnPerRoute(10) // max connections per single host</div>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">3</span><div class="center-content">HTTP Versions & Keep-Alive<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <table>
+            <tr><th>Version</th><th>Behavior</th></tr>
+            <tr><td>HTTP/1.0</td><td>Open → Close after each request ❌ Slow</td></tr>
+            <tr><td>HTTP/1.1</td><td><code>Connection: keep-alive</code> → reuse connection ✅ Needs pooling</td></tr>
+            <tr><td>HTTP/2</td><td>Multiplexing — multiple requests on same connection ✅ Reduces need for pooling</td></tr>
+          </table>
+          <p>gRPC uses HTTP/2 — that's why it's faster ⚡</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">4</span><div class="center-content">Spring Boot Implementation<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <div class="flow-chart">// Step 1: Create HttpClient with pool
+CloseableHttpClient httpClient = HttpClients.custom()
+    .setMaxConnTotal(10)
+    .setMaxConnPerRoute(5)
+    .build();
+
+// Step 2: Use with RestTemplate
+HttpComponentsClientHttpRequestFactory factory =
+    new HttpComponentsClientHttpRequestFactory(httpClient);
+RestTemplate restTemplate = new RestTemplate(factory);</div>
+          <h4>Full System View</h4>
+          <div class="flow-chart">Client → HTTP Connection Pool → REST API → DB Connection Pool → Database</div>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">5</span><div class="center-content">Interview Answer<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <div class="highlight">"REST APIs typically use HTTP/1.1 with keep-alive connections, allowing reuse of TCP connections. On the client side, connection pooling is used to efficiently manage multiple requests, while HTTP/2 further improves performance by multiplexing multiple requests over a single connection."</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+<script>
+function showTopic(id) { document.getElementById('topicGrid').style.display='none'; document.getElementById('mainHeader').style.display='none'; document.getElementById('topic-'+id).classList.add('active'); }
+function goBack() { document.querySelectorAll('.qa-view').forEach(v=>v.classList.remove('active')); document.getElementById('topicGrid').style.display=''; document.getElementById('mainHeader').style.display=''; }
+</script>
+</body>
+</html>
+

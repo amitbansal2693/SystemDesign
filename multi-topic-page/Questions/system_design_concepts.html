@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>System Design Core Concepts</title>
+<style>
+:root {
+  --surface-0: #fafafa;
+  --surface-1: #f0f0f0;
+  --surface-2: #ffffff;
+  --border: #e0e0e0;
+  --border-strong: #bbb;
+  --text-primary: #1a1a1a;
+  --text-secondary: #555;
+  --fill-accent: #2563eb;
+  --on-accent: #fff;
+  --radius: 8px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--surface-0); color: var(--text-primary); }
+.container { max-width: 920px; margin: 0 auto; padding: 2rem 1rem; }
+.header { text-align: center; margin-bottom: 2rem; }
+.header h1 { font-size: 28px; font-weight: 500; margin-bottom: 0.5rem; }
+.header p { color: var(--text-secondary); font-size: 14px; }
+.mindmap-view { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+.topic-card { background: var(--surface-2); border: 2px solid var(--border); border-radius: 12px; padding: 16px; cursor: pointer; transition: all 0.2s; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: 120px; justify-content: center; }
+.topic-card:hover { border-color: var(--fill-accent); background: var(--surface-1); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37,99,235,0.12); }
+.topic-icon { font-size: 28px; display: inline-block; }
+.topic-name { font-weight: 500; font-size: 14px; line-height: 1.3; }
+.qa-view { display: none; }
+.qa-view.active { display: block; }
+.qa-header { display: flex; align-items: center; gap: 12px; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 0.5px solid var(--border); }
+.back-btn { background: none; border: 0.5px solid var(--border); padding: 8px 12px; border-radius: var(--radius); cursor: pointer; color: var(--text-primary); font-size: 14px; transition: all 0.2s; }
+.back-btn:hover { background: var(--surface-1); border-color: var(--border-strong); }
+.qa-title { font-size: 24px; font-weight: 500; }
+.qa-container { display: flex; flex-direction: column; gap: 16px; }
+.qa-pair { background: var(--surface-2); border: 0.5px solid var(--border); border-radius: 12px; padding: 16px; cursor: pointer; transition: all 0.2s; }
+.qa-pair:hover { border-color: var(--border-strong); background: var(--surface-1); }
+.qa-pair.expanded { border-color: var(--fill-accent); }
+.qa-number { display: inline-block; background: var(--fill-accent); color: var(--on-accent); width: 28px; height: 28px; border-radius: 50%; text-align: center; line-height: 28px; font-size: 12px; font-weight: 500; margin-right: 8px; flex-shrink: 0; }
+.question { font-weight: 500; font-size: 15px; color: var(--text-primary); margin-bottom: 8px; display: flex; align-items: flex-start; gap: 8px; }
+.answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; color: var(--text-secondary); font-size: 14px; line-height: 1.7; padding-left: 36px; }
+.qa-pair.expanded .answer { max-height: 12000px; margin-top: 12px; padding-top: 12px; border-top: 0.5px solid var(--border); }
+.toggle-icon { display: inline-block; transition: transform 0.3s; margin-left: auto; flex-shrink: 0; }
+.qa-pair.expanded .toggle-icon { transform: rotate(180deg); }
+.center-content { display: flex; gap: 12px; align-items: center; width: 100%; }
+.answer h4 { color: var(--text-primary); font-size: 13px; font-weight: 600; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+.answer h4:first-child { margin-top: 0; }
+.answer p { margin: 6px 0; }
+.answer ul { list-style: none; margin: 6px 0; padding: 0; }
+.answer ul li { position: relative; padding: 4px 0 4px 18px; }
+.answer ul li::before { content: "•"; position: absolute; left: 2px; color: var(--fill-accent); font-weight: bold; }
+.answer .flow-chart { background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; margin: 10px 0; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12.5px; line-height: 1.8; white-space: pre; overflow-x: auto; }
+.answer .highlight { background: #fff3cd; padding: 10px 14px; border-radius: 6px; margin: 10px 0; border-left: 3px solid #ffc107; }
+.answer code { background: var(--surface-1); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+.answer table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+.answer table th, .answer table td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+.answer table th { background: var(--surface-1); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header" id="mainHeader">
+    <h1>🧠 System Design Core Concepts</h1>
+    <p>11 topics — Back-of-Envelope, Consistent Hashing, Rate Limiting, Proxies, Pooling, Idempotency & more</p>
+  </div>
+
+  <!-- TOPIC GRID -->
+  <div class="mindmap-view" id="topicGrid">
+    <div class="topic-card" onclick="showTopic('boe')"><span class="topic-icon">🧮</span><span class="topic-name">Back-of-Envelope Estimation</span></div>
+    <div class="topic-card" onclick="showTopic('consistent-hashing')"><span class="topic-icon">🔗</span><span class="topic-name">Consistent Hashing</span></div>
+    <div class="topic-card" onclick="showTopic('rate-limiting')"><span class="topic-icon">🚦</span><span class="topic-name">Rate Limiting</span></div>
+    <div class="topic-card" onclick="showTopic('idempotency')"><span class="topic-icon">🔁</span><span class="topic-name">Idempotency</span></div>
+    <div class="topic-card" onclick="showTopic('put-patch')"><span class="topic-icon">📝</span><span class="topic-name">PUT vs PATCH & Idempotency Keys</span></div>
+    <div class="topic-card" onclick="showTopic('proxy')"><span class="topic-icon">🔀</span><span class="topic-name">Forward & Reverse Proxy</span></div>
+    <div class="topic-card" onclick="showTopic('pooling')"><span class="topic-icon">♻️</span><span class="topic-name">Connection Pooling</span></div>
+    <div class="topic-card" onclick="showTopic('spof')"><span class="topic-icon">🛑</span><span class="topic-name">Single Point of Failure</span></div>
+    <div class="topic-card" onclick="showTopic('tradeoffs')"><span class="topic-icon">⚖️</span><span class="topic-name">Trade-offs</span></div>
+    <div class="topic-card" onclick="showTopic('concurrency')"><span class="topic-icon">⚡</span><span class="topic-name">Concurrency vs Parallelism</span></div>
+    <div class="topic-card" onclick="showTopic('spread')"><span class="topic-icon">📈</span><span class="topic-name">Parallel Data Fetching</span></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- TOPIC: Back-of-Envelope Estimation -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="qa-view" id="topic-boe">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">🧮 Back-of-Envelope Estimation</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">What is Back-of-Envelope Estimation?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Quick calculations to estimate scale, capacity, and performance <strong>without exact numbers</strong>. Think: "Rough idea is enough — not exact precision."</p>
+          <h4>Before building a system, ask</h4>
+          <ul><li>How many users?</li><li>How much data?</li><li>How many requests per second?</li></ul>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">Cheat Sheet — Powers & Units<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>Memory Units</h4>
+          <div class="flow-chart">1 KB = 10³       1 MB = 10⁶
+1 GB = 10⁹       1 TB = 10¹²       1 PB = 10¹⁵</div>
+          <h4>Time</h4>
+          <p><code>1 day = 86 400 seconds</code></p>
+          <p><code>RPS = Total Requests / 86 400</code></p>
+          <h4>Trick</h4>
+          <p>Every +10 power ≈ ×1000</p>
+          <p><code>1M × 1MB ≈ 1TB</code> (useful shortcut)</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">3</span><div class="center-content">Latency Numbers Every Programmer Should Know<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <table><tr><th>Operation</th><th>Latency</th></tr>
+            <tr><td>CPU Cache</td><td>~1 ns</td></tr>
+            <tr><td>RAM</td><td>~100 ns</td></tr>
+            <tr><td>SSD</td><td>~100 µs</td></tr>
+            <tr><td>Network</td><td>~100 ms</td></tr>
+          </table>
+          <div class="highlight">Network is ~1 million times slower than memory.</div>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">4</span><div class="center-content">Availability — Nines<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <table><tr><th>Availability</th><th>Downtime / year</th></tr>
+            <tr><td>99%</td><td>~3.65 days</td></tr>
+            <tr><td>99.9%</td><td>~8.7 hours</td></tr>
+            <tr><td>99.99%</td><td>~52 min</td></tr>
+            <tr><td>99.999%</td><td>~5 min</td></tr>
+          </table>
+          <div class="highlight">"5 nines = highly reliable system"</div>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">5</span><div class="center-content">Worked Example — Instagram<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>Step 1 — Users</h4>
+          <p>100M users, 10% active → <strong>10M DAU</strong></p>
+          <h4>Step 2 — RPS</h4>
+          <p>10 requests/user → 100M requests/day → <code>100M / 86 400 ≈ 1K RPS</code></p>
+          <h4>Step 3 — Storage</h4>
+          <p>2M uploads/day × 1MB = <strong>2TB/day</strong></p>
+          <p>2TB × 365 ≈ <strong>730TB/year</strong></p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">6</span><div class="center-content">Worked Example — Twitter<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>Given</h4>
+          <p>300M monthly users, 50% DAU → 150M. Each user → 2 tweets/day (1KB). 10% tweets have media (1MB).</p>
+          <h4>Write Storage/day</h4>
+          <p>Text: 300M × 1KB ≈ 300GB/day</p>
+          <p>Media: 30M × 1MB ≈ <strong>30TB/day</strong> (media dominates)</p>
+          <h4>Storage over time</h4>
+          <p>30TB × 365 ≈ 11PB/year → 55PB over 5 years</p>
+          <h4>Read RPS</h4>
+          <p>100 views/tweet → 300M × 100 = 30B reads/day → <strong>~350K RPS</strong></p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">7</span><div class="center-content">Worked Example — URL Shortener<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>Given</h4>
+          <p>100M new URLs/day, each 500 bytes, 10 accesses/URL/day.</p>
+          <h4>Storage</h4>
+          <p>100M × 500B = 50GB/day → <strong>18TB/year</strong></p>
+          <h4>Read RPS</h4>
+          <p>100M × 10 = 1B reads/day → <code>10⁹ / 86 400 ≈ 10–12K RPS</code></p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">8</span><div class="center-content">Worked Example — YouTube Bandwidth<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>100M users × 5 videos × 10MB = 50MB/user → <strong>5PB/day</strong></p>
+          <p>Bandwidth: 5PB / 86 400 ≈ <strong>~50–60 GB/s</strong></p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- TOPIC: Consistent Hashing -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="qa-view" id="topic-consistent-hashing">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">🔗 Consistent Hashing</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">What is Consistent Hashing and why do we need it?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Consistent Hashing is a technique that minimizes data redistribution when nodes are added or removed. In regular hash-based partitioning (<code>key % N</code>), changing N requires moving almost all data. Consistent Hashing arranges nodes on a virtual ring so that only a small fraction of keys need to be reassigned.</p>
+          <h4>Use Cases</h4>
+          <ul><li>Distributed caching (Memcached, Redis Cluster)</li><li>Database sharding</li><li>Load balancing across servers</li><li>Content Delivery Networks (CDN)</li></ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- TOPIC: Rate Limiting -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="qa-view" id="topic-rate-limiting">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">🚦 Rate Limiting</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">What is Rate Limiting?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Rate limiting prevents overuse or abuse of a system by limiting the number of requests over a period of time. It protects APIs, controls load, and improves security.</p>
+          <h4>We Track</h4>
+          <ul><li>Who is making the request (user / IP / API key)</li><li>How many requests they've made</li><li>In what time window (per second / minute / hour)</li></ul>
+          <h4>Implementation</h4>
+          <p>Store a counter per user/IP with a timestamp. On each request, check the limit for the current window. Use Redis or Memcached for performance.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">Fixed Window Counter<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Count requests within a fixed time window (e.g., per minute). Deny any more once the limit is hit.</p>
+          <h4>Problem</h4>
+          <p>Burst traffic at the window boundary can bypass the limit — a user can send max requests at the end of one window and at the start of the next.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">3</span><div class="center-content">Sliding Window Log<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Log timestamps of each request. On each new request, check how many requests were made in the last T seconds.</p>
+          <h4>Advantage</h4><p>Blocks bursts regardless of minute boundaries — more accurate.</p>
+          <h4>Disadvantage</h4><p>Needs to store a list of timestamps per user — memory heavy at scale.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">4</span><div class="center-content">Sliding Window Counter<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>A hybrid approach. Uses <code>Map&lt;TimeBucket, Count&gt;</code> to track request counts. For each request, calculate which time bucket it belongs to and increase the count. Before processing, remove expired buckets and check the total.</p>
+          <p>Better accuracy than fixed window, less memory than sliding window log.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">5</span><div class="center-content">Token Bucket<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Each user gets a bucket with tokens (e.g., 10). Tokens refill over time (e.g., 1/sec). Each request consumes 1 token. No tokens = wait or reject.</p>
+          <h4>Advantage</h4><p>Allows short bursts while enforcing a sustained average rate.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">6</span><div class="center-content">Leaky Bucket<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Requests go into a queue (bucket). They "leak" out at a constant rate. If the bucket is full → reject new requests.</p>
+          <h4>Result</h4><p>Smooth, consistent request processing. No bursts allowed. Ideal for background jobs, message queues.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- TOPIC: Idempotency -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="qa-view" id="topic-idempotency">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">🔁 Idempotency</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">What is Idempotency?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>An HTTP method is idempotent if making the same request multiple times produces the same final result as making it once. Repeating the request does not cause additional changes to the resource.</p>
+          <table><tr><th>Method</th><th>Idempotent?</th></tr>
+            <tr><td>GET</td><td>✅ Yes</td></tr>
+            <tr><td>PUT</td><td>✅ Yes</td></tr>
+            <tr><td>DELETE</td><td>✅ Yes</td></tr>
+            <tr><td>POST</td><td>❌ No (can create multiple resources)</td></tr>
+            <tr><td>PATCH</td><td>✅ Usually (if it sets values), but not always (e.g., incrementing a counter)</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">POST, PUT & PATCH — Examples<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>POST — Create</h4>
+          <div class="flow-chart">POST /users
+{ "name": "John", "email": "john@example.com" }
+→ 201 Created, Location: /users/101
+Sending twice → two users created → NOT idempotent</div>
+          <h4>PUT — Replace entire resource</h4>
+          <div class="flow-chart">PUT /users/101
+{ "name": "Johnny", "email": "johnny@example.com", "age": 31 }
+Sending 10 times → same final state → idempotent</div>
+          <h4>PATCH — Partial update</h4>
+          <div class="flow-chart">PATCH /users/101
+{ "email": "johnny@example.com" }
+Only specified field changes; rest unchanged</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- TOPIC: PUT vs PATCH & Idempotency Keys -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="qa-view" id="topic-put-patch">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">📝 PUT vs PATCH & Idempotency Keys</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">Where do we need Idempotency?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Use idempotency when repeating an operation can create an unwanted business side effect.</p>
+          <ul><li>Payment creation</li><li>Order creation</li><li>Money transfer</li><li>Booking / reservation</li><li>Subscription creation</li><li>Inventory updates</li><li>Message processing</li><li>Creating customer / account</li></ul>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">HTTP Idempotency vs Idempotency Key<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>HTTP-level idempotency</h4>
+          <p>HTTP defines GET, PUT, DELETE, HEAD, OPTIONS as idempotent. Idempotency is about the intended effect of repeating the request.</p>
+          <h4>Idempotency Key</h4>
+          <p>For operations like <code>POST /payments</code> which create new resources, we add:</p>
+          <div class="flow-chart">Idempotency-Key: abc-123</div>
+          <p>The server recognizes: "This is the same logical operation I've already seen."</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">3</span><div class="center-content">How to determine & use the Idempotency Key?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>The <strong>client</strong> generates a unique key for each logical business operation. The same key must be reused on retries.</p>
+          <div class="flow-chart">✅ Correct:  Attempt 1 → key=A, Attempt 2 → key=A
+❌ Wrong:    Attempt 1 → key=A, Attempt 2 → key=B</div>
+          <h4>Request Fingerprint</h4>
+          <p>Additionally calculate <code>hash(method + endpoint + body)</code> and store alongside the key to detect misuse.</p>
+          <h4>Same Key + Different Request → 409 Conflict</h4>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">4</span><div class="center-content">What does the server store?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <table><tr><th>Field</th><th>Example</th></tr>
+            <tr><td>Idempotency Key</td><td>abc-123</td></tr>
+            <tr><td>Request Hash</td><td>XYZ789</td></tr>
+            <tr><td>Status</td><td>COMPLETED</td></tr>
+            <tr><td>HTTP Status</td><td>201</td></tr>
+            <tr><td>Response Body</td><td>{"paymentId":"P1001","status":"SUCCESS"}</td></tr>
+            <tr><td>TTL</td><td>24 hours</td></tr>
+          </table>
+          <p>Redis for fast tracking; database when stronger durability is needed.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">5</span><div class="center-content">Interview Summary — Key Rules<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <ul>
+            <li><strong>1 Idempotency-Key = 1 logical operation</strong></li>
+            <li>Same key + same request → return existing result</li>
+            <li>Same key + different request → reject (409)</li>
+            <li>Concurrent same key → atomic lock, only one executes</li>
+            <li>Payment timeout → don't assume failure → reconcile before retrying</li>
+          </ul>
+          <h4>Idempotency vs Retry vs Circuit Breaker</h4>
+          <ul>
+            <li><strong>Retry</strong> — try the request again</li>
+            <li><strong>Idempotency</strong> — make sure retry doesn't create duplicate business effect</li>
+            <li><strong>Circuit Breaker</strong> — stop calls when a dependency is repeatedly failing</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- TOPIC: Proxy -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="qa-view" id="topic-proxy">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">🔀 Forward & Reverse Proxy</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">What is a Proxy?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>A proxy is an intermediate server that sits between a client and another server, forwarding requests and responses.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">Forward Proxy<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Used by the <strong>client</strong> to communicate with the internet while hiding the client's identity.</p>
+          <div class="flow-chart">[Client] → [Forward Proxy] → [Internet Server]</div>
+          <h4>Purpose</h4>
+          <ul><li>Hide client IP (anonymity)</li><li>Control internet access</li><li>Bypass geo-restrictions</li><li>Content filtering & monitoring</li></ul>
+          <h4>Tools</h4>
+          <p>Squid Proxy, Privoxy, commercial VPNs, Bright Data, Smartproxy</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">3</span><div class="center-content">Reverse Proxy<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Used by the <strong>server</strong> to control and route traffic to backend systems while hiding them from the client.</p>
+          <div class="flow-chart">[Client] → [Reverse Proxy] → [Internal Servers]</div>
+          <h4>Purpose</h4>
+          <ul><li>Load balancing</li><li>SSL termination (handle HTTPS encryption)</li><li>Caching static content</li><li>Security / firewall</li><li>Routing to microservices</li><li>DDoS protection</li></ul>
+          <h4>Tools</h4>
+          <p>NGINX, HAProxy, Apache HTTP Server, Cloudflare, AWS ALB</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- TOPIC: Pooling -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="qa-view" id="topic-pooling">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">♻️ Connection Pooling</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">Why does pooling exist?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Creating a new resource (DB connection, TCP connection) for every request is expensive. With 1000 req/sec, that means 1000 new connections — the system crashes.</p>
+          <div class="highlight"><strong>Core Idea:</strong> Don't create new resources → reuse existing ones.</div>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">How does a connection pool work?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <div class="flow-chart">Request comes
+    ↓
+Ask pool: "Give me connection"
+    ↓
+Use connection
+    ↓
+Return connection to pool</div>
+          <h4>Pool Empty?</h4>
+          <ul><li>Wait ⏳</li><li>Fail ❌</li><li>Create new (rare)</li></ul>
+          <h4>Spring Boot</h4>
+          <p>Uses <strong>HikariCP</strong> (default DB pool): <code>spring.datasource.hikari.maximum-pool-size=10</code></p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">3</span><div class="center-content">System Design View<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <div class="flow-chart">Client
+  ↓
+Rate Limiter 🚫   ← controls traffic
+  ↓
+Service
+  ↓
+Connection Pool 🔄 ← controls resources
+  ↓
+Database</div>
+          <h4>Quick Test</h4>
+          <p>10 requests, pool size = 5 → First 5 get connections, next 5 wait or fail.</p>
+          <div class="highlight"><strong>One-Line:</strong> Pooling = reuse expensive resources instead of recreating them.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- TOPIC: SPOF -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="qa-view" id="topic-spof">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">🛑 Single Point of Failure</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">What is a SPOF?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Any one component that, if it fails, can bring down the entire system. <em>"If this one thing goes down, everything breaks."</em></p>
+          <h4>Common Examples</h4>
+          <ul><li>Single Database Server</li><li>Single Cache Server (Redis)</li><li>Single Application Node</li><li>Single Load Balancer</li><li>Single Power Supply</li></ul>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">Why is SPOF a problem & how to solve it?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>Problems</h4>
+          <ul><li>Downtime — system unavailable</li><li>Data loss</li><li>Revenue loss & frustrated users</li><li>Scalability bottlenecks</li></ul>
+          <h4>Solutions — Design for Redundancy</h4>
+          <ul><li><strong>Replication</strong> — replicas for DBs, caches</li><li><strong>Clustering</strong> — group nodes together</li><li><strong>Failover</strong> — auto switch to backup on failure</li><li><strong>LB Redundancy</strong> — active-passive or active-active</li><li><strong>Distributed Architecture</strong> — spread across zones/regions</li></ul>
+          <h4>Example: Redis SPOF</h4>
+          <p>One Redis server → if it crashes, app slows or fails. Solution: <strong>Redis Sentinel</strong> or <strong>Redis Cluster</strong> for automatic failover.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- TOPIC: Trade-offs -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="qa-view" id="topic-tradeoffs">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">⚖️ Trade-offs in System Design</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">How to explain a trade-off in an interview?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <div class="flow-chart">Requirement → Possible Options → Chosen Solution
+    → Benefits → Trade-offs → Why Acceptable</div>
+          <h4>Example</h4>
+          <p><strong>Requirement:</strong> Read-heavy app (millions of reads). <strong>Solution:</strong> Redis Cache.</p>
+          <p><strong>Benefits:</strong> Faster response, reduced DB load.</p>
+          <p><strong>Trade-off:</strong> Stale data, cache invalidation complexity.</p>
+          <p><strong>Why OK:</strong> Product info changes infrequently.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">Performance vs Consistency<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Use Redis Cache → faster API response, reduced DB load. Trade-off: cached data may become stale, invalidation is complex.</p>
+          <p><em>Real examples: Amazon product pages, news websites, e-commerce catalogs.</em></p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">3</span><div class="center-content">Availability vs Consistency (CAP)<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>Prioritize Consistency</h4>
+          <p>Every user sees latest data. Trade-off: system may reject requests during failures. <em>Use for: Banking, payments.</em></p>
+          <h4>Prioritize Availability</h4>
+          <p>System stays online. Trade-off: some users may see outdated data. <em>Use for: Facebook, Instagram, Twitter.</em></p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">4</span><div class="center-content">Read vs Write Performance<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Create DB indexes → faster SELECT. Trade-off: INSERT, UPDATE, DELETE become slower, extra storage needed.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">5</span><div class="center-content">Simplicity vs Flexibility (Monolith vs Microservices)<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>Monolith</h4>
+          <p>Easy to develop, test, debug, deploy. Trade-off: hard to scale individual modules, full redeploy needed.</p>
+          <h4>Microservices</h4>
+          <p>Independent deployment & scaling, fault isolation. Trade-off: distributed system complexity, network latency, service discovery.</p>
+          <div class="highlight">"For a small startup → monolith. As the app grows → microservices."</div>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">6</span><div class="center-content">Sync vs Async Communication<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>Synchronous</h4>
+          <p>Immediate response, easier to debug. Trade-off: higher latency, tighter coupling.</p>
+          <h4>Asynchronous (Kafka, RabbitMQ)</h4>
+          <p>Faster API response, better scalability, loose coupling. Trade-off: eventual consistency, complex error handling.</p>
+          <div class="flow-chart">Sync:  Create Order → Send Email → Generate Invoice → Return
+Async: Create Order → Publish Event → Return 200 OK
+       Background: Email, Inventory, Invoice services</div>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">7</span><div class="center-content">Other Common Trade-offs<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <ul>
+            <li><strong>Scalability vs Cost</strong> — horizontal scaling = more infra cost but better scalability</li>
+            <li><strong>Security vs UX</strong> — MFA = better protection but extra login step</li>
+            <li><strong>Normalization vs Performance</strong> — normalized = less duplication; denormalized = faster reads</li>
+            <li><strong>Storage vs Speed</strong> — caching = faster access but more memory, stale data risk</li>
+            <li><strong>Strong vs Eventual Consistency</strong> — strong = latest data, higher latency; eventual = high availability, lower latency</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- TOPIC: Concurrency vs Parallelism -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="qa-view" id="topic-concurrency">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">⚡ Concurrency vs Parallelism</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">What is the difference?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>Concurrency</h4>
+          <p>Dealing with multiple tasks at the same time by interleaving execution. Tasks may not run simultaneously — they take turns on a single core.</p>
+          <h4>Parallelism</h4>
+          <p>Actually executing multiple tasks at the same instant on multiple CPU cores.</p>
+          <div class="highlight">Concurrency = structure (managing many tasks). Parallelism = execution (running many tasks simultaneously).</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- TOPIC: Parallel Data Fetching -->
+  <!-- ═══════════════════════════════════════════ -->
+  <div class="qa-view" id="topic-spread">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">📈 Parallel Data Fetching & Early Permission Filtering</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">Architecture Concept<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>Key Ideas</h4>
+          <ul>
+            <li><strong>Early permission filtering</strong> + distributed authorization — permissions evaluated early in the pipeline</li>
+            <li>Unauthorized data filtered <em>before</em> ranking & aggregation → reduces unnecessary processing</li>
+            <li><strong>Parallel data pollination</strong> — fetching data concurrently</li>
+          </ul>
+          <h4>Result</h4>
+          <ul><li>More reliable search</li><li>Fewer authorization failures</li><li>Better consistency under load</li></ul>
+          <h4>Interview Statement</h4>
+          <p><em>"We redesigned the search pipeline to use parallel data pollination and early permission evaluation. By distributing permission checks across the search flow and fetching data concurrently, we reduced unnecessary processing and improved both latency and reliability."</em></p>
+          <h4>Resume Bullets</h4>
+          <ul>
+            <li>Improved search performance by ~500ms by introducing parallel data fetching and early permission filtering</li>
+            <li>Reduced search latency through parallelized data aggregation and optimized permission evaluation</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showTopic(id) {
+  document.getElementById('topicGrid').style.display = 'none';
+  document.getElementById('mainHeader').style.display = 'none';
+  document.getElementById('topic-' + id).classList.add('active');
+}
+function goBack() {
+  document.querySelectorAll('.qa-view').forEach(v => v.classList.remove('active'));
+  document.getElementById('topicGrid').style.display = '';
+  document.getElementById('mainHeader').style.display = '';
+}
+</script>
+</body>
+</html>
+

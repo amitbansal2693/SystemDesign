@@ -261,11 +261,23 @@
                 <div class="stat-number" id="questionCount">0</div>
                 <div class="stat-label">Q&A Pages</div>
             </div>
+            <div class="stat">
+                <div class="stat-number" id="techCount">0</div>
+                <div class="stat-label">Technology</div>
+            </div>
         </div>
 
         <!-- QUESTIONS SECTION -->
         <div class="section-title"><span>🎯</span> Interview Q&A</div>
         <div class="cards-grid" id="questionsGrid"></div>
+
+        <!-- TECHNOLOGY SECTION -->
+        <div class="section-title"><span>💻</span> Technology Deep Dive</div>
+        <div class="cards-grid" id="techGrid"></div>
+
+        <!-- KEEP NOTES SECTION -->
+        <div class="section-title"><span>📌</span> Keep Notes</div>
+        <div class="cards-grid" id="keepNotesGrid"></div>
 
         <!-- RESOURCES SECTION -->
         <div class="section-title"><span>📖</span> Cheat Sheets & Notes</div>
@@ -313,14 +325,100 @@
                 icon: "💡",
                 badge: "badge-orange",
                 badgeText: "20 Q&A"
+            }
+        ];
+
+        const keepNotes = [
+            {
+                file: "../Questions/system_design_concepts.html",
+                title: "Core Concepts Deep Dive",
+                desc: "BOE, Consistent Hashing, Rate Limiting, Proxy, Pooling, Idempotency, SPOF, Trade-offs",
+                icon: "🧠",
+                badge: "badge-blue",
+                badgeText: "11 TOPICS"
             },
+            {
+                file: "../Questions/database_concepts.html",
+                title: "Database Concepts",
+                desc: "Indexing, Sharding, Partitioning — internals & trade-offs",
+                icon: "🗄️",
+                badge: "badge-green",
+                badgeText: "3 TOPICS"
+            },
+            {
+                file: "../Questions/design_principles.html",
+                title: "Design Principles",
+                desc: "SOLID, DRY, KISS, YAGNI, CAP Theorem",
+                icon: "🧱",
+                badge: "badge-purple",
+                badgeText: "3 TOPICS"
+            },
+            {
+                file: "../Questions/http_rest_concepts.html",
+                title: "HTTP & REST Concepts",
+                desc: "REST Principles, Status Codes, Caching, Pagination, Versioning, Connection Pooling",
+                icon: "🌐",
+                badge: "badge-orange",
+                badgeText: "6 TOPICS"
+            },
+            {
+                file: "../Questions/microservices_patterns.html",
+                title: "Microservices Patterns Deep Dive",
+                desc: "Resilience, Circuit Breaker, Bulkhead, Saga, CQRS, Service Mesh, Discovery, Data Mgmt",
+                icon: "🔗",
+                badge: "badge-blue",
+                badgeText: "10 TOPICS"
+            },
+            {
+                file: "../Questions/networking_concepts.html",
+                title: "Networking & Load Balancing",
+                desc: "ALB vs NLB vs Gateway, DNS & Geo Routing, Private IPs, Multi-Region Architecture",
+                icon: "🌍",
+                badge: "badge-green",
+                badgeText: "3 TOPICS"
+            },
+            {
+                file: "../Questions/security_jwt.html",
+                title: "Security — JWT Authentication",
+                desc: "Token format, creation, validation, stateless auth, best practices",
+                icon: "🔐",
+                badge: "badge-orange",
+                badgeText: "8 Q&A"
+            }
+        ];
+
+        const technology = [
             {
                 file: "../Questions/Microservices.html",
                 title: "Microservices Deep Dive",
-                desc: "Microservices architecture, patterns, communication",
+                desc: "12 topics: Architecture, Communication, API Gateway, Resilience, Data, Events, Security, Observability, Deployment, Patterns",
                 icon: "🔗",
                 badge: "badge-green",
-                badgeText: "NEW"
+                badgeText: "12 TOPICS"
+            },
+            {
+                file: "../Resource/advanced_spring_spring_boot_cheat_sheet.html",
+                title: "Advanced Spring & Spring Boot",
+                desc: "Spring framework cheat sheet",
+                icon: "🍃",
+                badge: "badge-blue",
+                badgeText: "SPRING"
+            },
+            {
+                file: "../Resource/spring_security_cheat_sheet.html",
+                title: "Spring Security Cheat Sheet",
+                desc: "Auth, JWT, OAuth2, CORS, CSRF",
+                icon: "🔐",
+                badge: "badge-orange",
+                badgeText: "SECURITY"
+            },
+            {
+                file: "../Questions/JPA.html",
+                title: "JPA Deep Dive",
+                desc: "JPA, Hibernate, ORM, entities, relationships, queries",
+                icon: "🗄️",
+                badge: "badge-purple",
+                badgeText: "JPA"
             }
         ];
 
@@ -386,22 +484,10 @@
                 icon: "📓"
             },
             {
-                file: "../Resource/advanced_spring_spring_boot_cheat_sheet.html",
-                title: "Advanced Spring & Spring Boot",
-                desc: "Spring framework cheat sheet",
-                icon: "🍃"
-            },
-            {
                 file: "../Resource/microservices_learning_cheat_sheet.html",
                 title: "Microservices Cheat Sheet",
                 desc: "Microservices architecture patterns",
                 icon: "🔗"
-            },
-            {
-                file: "../Resource/spring_security_cheat_sheet.html",
-                title: "Spring Security Cheat Sheet",
-                desc: "Auth, JWT, OAuth2, CORS, CSRF",
-                icon: "🔐"
             }
         ];
 
@@ -474,11 +560,14 @@
 
         // ── INIT ──
         renderCards(questions, 'questionsGrid');
+        renderCards(technology, 'techGrid');
+        renderCards(keepNotes, 'keepNotesGrid');
         renderCards(resources, 'resourcesGrid', 'badge-purple');
 
-        document.getElementById('totalCount').textContent = questions.length + resources.length;
+        document.getElementById('totalCount').textContent = questions.length + technology.length + keepNotes.length + resources.length;
         document.getElementById('resourceCount').textContent = resources.length;
         document.getElementById('questionCount').textContent = questions.length;
+        document.getElementById('techCount').textContent = technology.length;
     </script>
 </body>
 </html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Security — JWT Authentication</title>
+<style>
+:root { --surface-0:#fafafa; --surface-1:#f0f0f0; --surface-2:#fff; --border:#e0e0e0; --border-strong:#bbb; --text-primary:#1a1a1a; --text-secondary:#555; --fill-accent:#2563eb; --on-accent:#fff; --radius:8px; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--surface-0); color:var(--text-primary); }
+.container { max-width:920px; margin:0 auto; padding:2rem 1rem; }
+.header { text-align:center; margin-bottom:2rem; }
+.header h1 { font-size:28px; font-weight:500; margin-bottom:.5rem; }
+.header p { color:var(--text-secondary); font-size:14px; }
+.qa-container { display:flex; flex-direction:column; gap:16px; }
+.qa-pair { background:var(--surface-2); border:.5px solid var(--border); border-radius:12px; padding:16px; cursor:pointer; transition:all .2s; }
+.qa-pair:hover { border-color:var(--border-strong); background:var(--surface-1); }
+.qa-pair.expanded { border-color:var(--fill-accent); }
+.qa-number { display:inline-block; background:var(--fill-accent); color:var(--on-accent); width:28px; height:28px; border-radius:50%; text-align:center; line-height:28px; font-size:12px; font-weight:500; margin-right:8px; flex-shrink:0; }
+.question { font-weight:500; font-size:15px; color:var(--text-primary); margin-bottom:8px; display:flex; align-items:flex-start; gap:8px; }
+.answer { max-height:0; overflow:hidden; transition:max-height .4s ease; color:var(--text-secondary); font-size:14px; line-height:1.7; padding-left:36px; }
+.qa-pair.expanded .answer { max-height:12000px; margin-top:12px; padding-top:12px; border-top:.5px solid var(--border); }
+.toggle-icon { display:inline-block; transition:transform .3s; margin-left:auto; flex-shrink:0; }
+.qa-pair.expanded .toggle-icon { transform:rotate(180deg); }
+.center-content { display:flex; gap:12px; align-items:center; width:100%; }
+.answer h4 { color:var(--text-primary); font-size:13px; font-weight:600; margin:14px 0 6px; text-transform:uppercase; letter-spacing:.5px; }
+.answer h4:first-child { margin-top:0; }
+.answer p { margin:6px 0; }
+.answer ul { list-style:none; margin:6px 0; padding:0; }
+.answer ul li { position:relative; padding:4px 0 4px 18px; }
+.answer ul li::before { content:"•"; position:absolute; left:2px; color:var(--fill-accent); font-weight:bold; }
+.answer .flow-chart { background:var(--surface-1); border:1px solid var(--border); border-radius:8px; padding:14px 16px; margin:10px 0; font-family:'SF Mono','Fira Code',monospace; font-size:12.5px; line-height:1.8; white-space:pre; overflow-x:auto; }
+.answer .highlight { background:#fff3cd; padding:10px 14px; border-radius:6px; margin:10px 0; border-left:3px solid #ffc107; }
+.answer code { background:var(--surface-1); padding:2px 6px; border-radius:4px; font-size:13px; }
+.answer table { width:100%; border-collapse:collapse; margin:10px 0; font-size:13px; }
+.answer table th,.answer table td { border:1px solid var(--border); padding:8px 12px; text-align:left; }
+.answer table th { background:var(--surface-1); font-weight:600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>🔐 Security — JWT Authentication</h1>
+    <p>Stateless authentication, token structure, creation, validation & best practices</p>
+  </div>
+
+  <div class="qa-container">
+
+    <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+      <div class="question"><span class="qa-number">1</span><div class="center-content">What is JWT?<span class="toggle-icon">▼</span></div></div>
+      <div class="answer">
+        <p>JWT (JSON Web Token) is a compact, URL-safe token for <strong>stateless authentication</strong>. Instead of storing sessions on the server, the client sends the token with every request.</p>
+        <p>It contains user claims (username, roles) and is digitally signed to prevent tampering.</p>
+        <h4>Advantages</h4>
+        <ul><li>✅ Stateless — no server session storage</li><li>✅ Scalable — works across multiple servers</li><li>✅ Great for Microservices</li><li>✅ Faster request processing</li></ul>
+        <h4>Disadvantages</h4>
+        <ul><li>❌ Difficult logout (token remains valid until expiry)</li><li>❌ Token expiration management required</li></ul>
+      </div>
+    </div>
+
+    <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+      <div class="question"><span class="qa-number">2</span><div class="center-content">JWT Token Format<span class="toggle-icon">▼</span></div></div>
+      <div class="answer">
+        <div class="flow-chart">xxxxx.yyyyy.zzzzz
+  ↑       ↑       ↑
+Header  Payload  Signature</div>
+        <h4>1. Header</h4>
+        <div class="flow-chart">{"alg": "HS256", "typ": "JWT"}</div>
+        <h4>2. Payload (Claims)</h4>
+        <div class="flow-chart">{
+  "sub": "amit",        // subject — who the token is for
+  "role": "ADMIN",
+  "iat": 1722144000,    // issued at
+  "exp": 1722147600     // expiration
+}</div>
+        <h4>Standard Claims</h4>
+        <table>
+          <tr><th>Claim</th><th>Meaning</th></tr>
+          <tr><td><code>iss</code></td><td>Issuer — who created the token</td></tr>
+          <tr><td><code>sub</code></td><td>Subject — who it's for</td></tr>
+          <tr><td><code>exp</code></td><td>Expiration time</td></tr>
+          <tr><td><code>iat</code></td><td>Issued at</td></tr>
+          <tr><td><code>nbf</code></td><td>Not valid before</td></tr>
+          <tr><td><code>jti</code></td><td>JWT ID</td></tr>
+        </table>
+        <h4>3. Signature</h4>
+        <div class="flow-chart">a. Define secret key
+b. Encode: base64UrlEncode(header) + "." + base64UrlEncode(payload)
+c. Sign: HMAC_SHA256(encodedData, secretKey)</div>
+      </div>
+    </div>
+
+    <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+      <div class="question"><span class="qa-number">3</span><div class="center-content">How JWT is Created (Spring Security)<span class="toggle-icon">▼</span></div></div>
+      <div class="answer">
+        <div class="flow-chart">1. User sends username + password to /login
+2. Spring Security authenticates (AuthenticationManager + UserDetailsService + PasswordEncoder)
+3. Collect claims: username (sub), roles, issued at, expiration
+4. Create Header (algorithm + type)
+5. Create Payload (claims)
+6. Base64URL encode header + payload
+7. Generate signature using secret key
+8. Final JWT = Header.Payload.Signature
+9. Return to client</div>
+        <h4>Code Example</h4>
+        <div class="flow-chart">String token = Jwts.builder()
+    .subject(username)
+    .claim("role", role)
+    .issuedAt(new Date())
+    .expiration(expiryDate)
+    .signWith(secretKey)
+    .compact();</div>
+      </div>
+    </div>
+
+    <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+      <div class="question"><span class="qa-number">4</span><div class="center-content">Complete Authentication Flow<span class="toggle-icon">▼</span></div></div>
+      <div class="answer">
+        <div class="flow-chart">1. User logs in (username + password)
+2. Server verifies → generates JWT
+3. Client stores token
+4. Every subsequent request:
+   Authorization: Bearer &lt;JWT&gt;
+5. Server validates signature + expiration
+6. Access granted ✅</div>
+      </div>
+    </div>
+
+    <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+      <div class="question"><span class="qa-number">5</span><div class="center-content">Is JWT encrypted?<span class="toggle-icon">▼</span></div></div>
+      <div class="answer">
+        <p><strong>No.</strong> JWT is Base64URL <em>encoded</em>, not encrypted. Anyone can decode the header and payload.</p>
+        <p>The <strong>signature</strong> protects against <em>modification</em> (tampering), not reading.</p>
+        <div class="highlight">JWTs are <strong>decoded and verified</strong>, not decrypted. The server decodes the payload and checks the signature using the secret key.</div>
+      </div>
+    </div>
+
+    <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+      <div class="question"><span class="qa-number">6</span><div class="center-content">Why doesn't the server trust the client?<span class="toggle-icon">▼</span></div></div>
+      <div class="answer">
+        <p>The client can modify or forge a token. Every incoming JWT must be verified for:</p>
+        <ul><li>Signature validity</li><li>Expiration (<code>exp</code> claim — JJWT auto-validates)</li><li>Issuer (optional)</li><li>Audience (optional)</li></ul>
+        <p>JWT is verified inside the <strong>Spring Security Filter Chain</strong>.</p>
+        <p>Invalid/expired JWT → <strong>401 Unauthorized</strong></p>
+      </div>
+    </div>
+
+    <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+      <div class="question"><span class="qa-number">7</span><div class="center-content">Why is JWT called Stateless?<span class="toggle-icon">▼</span></div></div>
+      <div class="answer">
+        <p>The server does not store user session data. Every request contains all required authentication information inside the JWT itself.</p>
+      </div>
+    </div>
+
+    <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+      <div class="question"><span class="qa-number">8</span><div class="center-content">Best Practices<span class="toggle-icon">▼</span></div></div>
+      <div class="answer">
+        <ul>
+          <li>Use <strong>HTTPS</strong></li>
+          <li>Keep access tokens <strong>short-lived</strong> (e.g., 15 minutes)</li>
+          <li>Use <strong>refresh tokens</strong></li>
+          <li>Store refresh tokens securely (<strong>HttpOnly cookies</strong>)</li>
+          <li>Never store passwords or sensitive data in JWT claims</li>
+          <li>Validate signature and expiration on <strong>every request</strong></li>
+          <li>Rotate signing keys periodically</li>
+          <li>Consider <strong>RS256</strong> for distributed systems (services only need public key to verify)</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
+

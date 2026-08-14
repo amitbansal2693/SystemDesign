@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Database Concepts</title>
+<style>
+:root { --surface-0:#fafafa; --surface-1:#f0f0f0; --surface-2:#fff; --border:#e0e0e0; --border-strong:#bbb; --text-primary:#1a1a1a; --text-secondary:#555; --fill-accent:#2563eb; --on-accent:#fff; --radius:8px; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--surface-0); color:var(--text-primary); }
+.container { max-width:920px; margin:0 auto; padding:2rem 1rem; }
+.header { text-align:center; margin-bottom:2rem; }
+.header h1 { font-size:28px; font-weight:500; margin-bottom:.5rem; }
+.header p { color:var(--text-secondary); font-size:14px; }
+.mindmap-view { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; }
+.topic-card { background:var(--surface-2); border:2px solid var(--border); border-radius:12px; padding:16px; cursor:pointer; transition:all .2s; text-align:center; display:flex; flex-direction:column; align-items:center; gap:8px; min-height:120px; justify-content:center; }
+.topic-card:hover { border-color:var(--fill-accent); background:var(--surface-1); transform:translateY(-2px); box-shadow:0 4px 12px rgba(37,99,235,.12); }
+.topic-icon { font-size:28px; }
+.topic-name { font-weight:500; font-size:14px; line-height:1.3; }
+.qa-view { display:none; }
+.qa-view.active { display:block; }
+.qa-header { display:flex; align-items:center; gap:12px; margin-bottom:2rem; padding-bottom:1rem; border-bottom:.5px solid var(--border); }
+.back-btn { background:none; border:.5px solid var(--border); padding:8px 12px; border-radius:var(--radius); cursor:pointer; color:var(--text-primary); font-size:14px; transition:all .2s; }
+.back-btn:hover { background:var(--surface-1); border-color:var(--border-strong); }
+.qa-title { font-size:24px; font-weight:500; }
+.qa-container { display:flex; flex-direction:column; gap:16px; }
+.qa-pair { background:var(--surface-2); border:.5px solid var(--border); border-radius:12px; padding:16px; cursor:pointer; transition:all .2s; }
+.qa-pair:hover { border-color:var(--border-strong); background:var(--surface-1); }
+.qa-pair.expanded { border-color:var(--fill-accent); }
+.qa-number { display:inline-block; background:var(--fill-accent); color:var(--on-accent); width:28px; height:28px; border-radius:50%; text-align:center; line-height:28px; font-size:12px; font-weight:500; margin-right:8px; flex-shrink:0; }
+.question { font-weight:500; font-size:15px; color:var(--text-primary); margin-bottom:8px; display:flex; align-items:flex-start; gap:8px; }
+.answer { max-height:0; overflow:hidden; transition:max-height .4s ease; color:var(--text-secondary); font-size:14px; line-height:1.7; padding-left:36px; }
+.qa-pair.expanded .answer { max-height:12000px; margin-top:12px; padding-top:12px; border-top:.5px solid var(--border); }
+.toggle-icon { display:inline-block; transition:transform .3s; margin-left:auto; flex-shrink:0; }
+.qa-pair.expanded .toggle-icon { transform:rotate(180deg); }
+.center-content { display:flex; gap:12px; align-items:center; width:100%; }
+.answer h4 { color:var(--text-primary); font-size:13px; font-weight:600; margin:14px 0 6px; text-transform:uppercase; letter-spacing:.5px; }
+.answer h4:first-child { margin-top:0; }
+.answer p { margin:6px 0; }
+.answer ul { list-style:none; margin:6px 0; padding:0; }
+.answer ul li { position:relative; padding:4px 0 4px 18px; }
+.answer ul li::before { content:"•"; position:absolute; left:2px; color:var(--fill-accent); font-weight:bold; }
+.answer .flow-chart { background:var(--surface-1); border:1px solid var(--border); border-radius:8px; padding:14px 16px; margin:10px 0; font-family:'SF Mono','Fira Code',monospace; font-size:12.5px; line-height:1.8; white-space:pre; overflow-x:auto; }
+.answer .highlight { background:#fff3cd; padding:10px 14px; border-radius:6px; margin:10px 0; border-left:3px solid #ffc107; }
+.answer code { background:var(--surface-1); padding:2px 6px; border-radius:4px; font-size:13px; }
+.answer table { width:100%; border-collapse:collapse; margin:10px 0; font-size:13px; }
+.answer table th,.answer table td { border:1px solid var(--border); padding:8px 12px; text-align:left; }
+.answer table th { background:var(--surface-1); font-weight:600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header" id="mainHeader">
+    <h1>🗄️ Database Concepts</h1>
+    <p>3 topics — Indexing, Sharding, Partitioning</p>
+  </div>
+
+  <div class="mindmap-view" id="topicGrid">
+    <div class="topic-card" onclick="showTopic('indexing')"><span class="topic-icon">📇</span><span class="topic-name">Indexing</span></div>
+    <div class="topic-card" onclick="showTopic('sharding')"><span class="topic-icon">🍰</span><span class="topic-name">Sharding</span></div>
+    <div class="topic-card" onclick="showTopic('partitioning')"><span class="topic-icon">📦</span><span class="topic-name">Partitioning</span></div>
+  </div>
+
+  <!-- INDEXING -->
+  <div class="qa-view" id="topic-indexing">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">📇 Indexing</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">What is a Database Index?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>An index is a separate data structure (usually a <strong>B+ Tree</strong>) that stores indexed column values along with pointers to the corresponding table rows, allowing the database to find data quickly without scanning the entire table.</p>
+          <h4>Trade-off</h4>
+          <table><tr><th>Faster</th><th>Slower</th></tr>
+            <tr><td>SELECT, WHERE, JOIN, ORDER BY</td><td>INSERT, UPDATE, DELETE</td></tr>
+          </table>
+          <p>Extra storage is required to store the index data structure.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">How does an index work internally?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>Without Index</h4>
+          <p><code>SELECT * FROM Users WHERE UserId = 205;</code> → checks every row → <strong>O(n)</strong></p>
+          <h4>After creating index</h4>
+          <div class="flow-chart">CREATE INDEX idx_userid ON Users(UserId);
+
+       205
+      /     \
+   150       300
+   /
+101
+
+Each value stores a pointer to the actual row.</div>
+          <div class="flow-chart">Search Tree → Find 205 → Follow Pointer → Read Row #2</div>
+          <p>Time complexity: <strong>O(log n)</strong></p>
+          <div class="highlight">The index does NOT store the complete row — only indexed values + pointers.</div>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">3</span><div class="center-content">B+ Tree vs Inverted Index<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p><strong>B+ Tree</strong> — for structured data (IDs, dates, salaries). Used by relational databases.</p>
+          <p><strong>Inverted Index</strong> — maps each word (token) to documents containing that word. Used by search engines (Solr, Elasticsearch) for full-text search.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">4</span><div class="center-content">Interview Answer (30 seconds)<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <div class="highlight">"An index is a separate data structure, usually a B+ Tree, created on one or more columns. It stores the indexed values and pointers to the actual table rows. Instead of scanning the entire table, the database searches the index first and then directly accesses the matching row. This improves read performance from roughly O(n) to O(log n), at the cost of additional storage and slower insert, update, and delete operations."</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SHARDING -->
+  <div class="qa-view" id="topic-sharding">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">🍰 Sharding</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">What is Sharding?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Sharding splits large datasets into smaller chunks — called <strong>shards</strong> — stored across multiple databases/servers. Each shard holds a subset of data and is usually independent.</p>
+          <h4>Analogy</h4>
+          <p>Dividing 1000 students into rooms by name: Room 1 (A–F), Room 2 (G–L), Room 3 (M–Z). Each room manages a portion.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">How does sharding work?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Define a <strong>shard key</strong> — a field used to decide which shard each record belongs to (e.g., user_id, region, tenant).</p>
+          <h4>Types</h4>
+          <ul>
+            <li><strong>Horizontal Sharding</strong> — each shard contains rows. Most common. E.g., Users 1–1000 in one shard, 1001–2000 in another.</li>
+            <li><strong>Vertical Sharding</strong> — split by columns/features. E.g., one shard for profile info, another for transactions.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">3</span><div class="center-content">Benefits & Challenges<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>Benefits</h4>
+          <ul><li>Scalability — spread the load</li><li>Performance — queries faster on smaller datasets</li><li>Availability — one shard down doesn't take everything down</li></ul>
+          <h4>Challenges</h4>
+          <ul><li>Complex queries — joins across shards are hard</li><li>Rebalancing — hot shards need splitting</li><li>Shard key design — bad key = uneven distribution</li><li>Cross-shard transactions — tricky</li><li>Operational complexity — backups, migrations</li></ul>
+          <h4>When to Use</h4>
+          <p>✅ DB too big for one server, queries slowing down, hit I/O limits.</p>
+          <p>❌ Don't shard too early — start with vertical scaling or replication first.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PARTITIONING -->
+  <div class="qa-view" id="topic-partitioning">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">📦 Partitioning</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">Partitioning Criteria<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>1. Key / Hash-Based</h4>
+          <p>Apply a hash function to a key attribute (e.g., <code>ID % 100</code>). Ensures uniform allocation. Problem: adding servers requires redistribution → use <strong>Consistent Hashing</strong> as a workaround.</p>
+          <h4>2. List Partitioning</h4>
+          <p>Each partition assigned a list of values. E.g., Nordic countries (Iceland, Norway, Sweden, Finland, Denmark) in one partition.</p>
+          <h4>3. Round-Robin</h4>
+          <p>Tuple <code>i</code> assigned to partition <code>i mod n</code>. Simple, ensures uniform distribution.</p>
+          <h4>4. Composite</h4>
+          <p>Combine schemes — e.g., first list partitioning then hash-based. Consistent hashing is a composite of hash + list.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">Common Problems of Data Partitioning<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>Joins & Denormalization</h4>
+          <p>Joins across partitions on different machines are not performance efficient. Workaround: denormalize so queries can run from a single table (at the cost of data inconsistency).</p>
+          <h4>Referential Integrity</h4>
+          <p>Most RDBMS don't support foreign keys across different database servers. Applications must enforce integrity in code and run cleanup jobs for dangling references.</p>
+          <h4>Rebalancing</h4>
+          <p>Reasons: uneven data distribution, too much load on a partition. Rebalancing without downtime is extremely difficult. Directory-based partitioning helps but creates a new SPOF (the lookup service).</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+<script>
+function showTopic(id) { document.getElementById('topicGrid').style.display='none'; document.getElementById('mainHeader').style.display='none'; document.getElementById('topic-'+id).classList.add('active'); }
+function goBack() { document.querySelectorAll('.qa-view').forEach(v=>v.classList.remove('active')); document.getElementById('topicGrid').style.display=''; document.getElementById('mainHeader').style.display=''; }
+</script>
+</body>
+</html>
+

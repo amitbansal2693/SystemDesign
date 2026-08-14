@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Principles — SOLID & CAP</title>
+<style>
+:root { --surface-0:#fafafa; --surface-1:#f0f0f0; --surface-2:#fff; --border:#e0e0e0; --border-strong:#bbb; --text-primary:#1a1a1a; --text-secondary:#555; --fill-accent:#2563eb; --on-accent:#fff; --radius:8px; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--surface-0); color:var(--text-primary); }
+.container { max-width:920px; margin:0 auto; padding:2rem 1rem; }
+.header { text-align:center; margin-bottom:2rem; }
+.header h1 { font-size:28px; font-weight:500; margin-bottom:.5rem; }
+.header p { color:var(--text-secondary); font-size:14px; }
+.mindmap-view { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; }
+.topic-card { background:var(--surface-2); border:2px solid var(--border); border-radius:12px; padding:16px; cursor:pointer; transition:all .2s; text-align:center; display:flex; flex-direction:column; align-items:center; gap:8px; min-height:120px; justify-content:center; }
+.topic-card:hover { border-color:var(--fill-accent); background:var(--surface-1); transform:translateY(-2px); box-shadow:0 4px 12px rgba(37,99,235,.12); }
+.topic-icon { font-size:28px; }
+.topic-name { font-weight:500; font-size:14px; line-height:1.3; }
+.qa-view { display:none; } .qa-view.active { display:block; }
+.qa-header { display:flex; align-items:center; gap:12px; margin-bottom:2rem; padding-bottom:1rem; border-bottom:.5px solid var(--border); }
+.back-btn { background:none; border:.5px solid var(--border); padding:8px 12px; border-radius:var(--radius); cursor:pointer; color:var(--text-primary); font-size:14px; transition:all .2s; }
+.back-btn:hover { background:var(--surface-1); border-color:var(--border-strong); }
+.qa-title { font-size:24px; font-weight:500; }
+.qa-container { display:flex; flex-direction:column; gap:16px; }
+.qa-pair { background:var(--surface-2); border:.5px solid var(--border); border-radius:12px; padding:16px; cursor:pointer; transition:all .2s; }
+.qa-pair:hover { border-color:var(--border-strong); background:var(--surface-1); }
+.qa-pair.expanded { border-color:var(--fill-accent); }
+.qa-number { display:inline-block; background:var(--fill-accent); color:var(--on-accent); width:28px; height:28px; border-radius:50%; text-align:center; line-height:28px; font-size:12px; font-weight:500; margin-right:8px; flex-shrink:0; }
+.question { font-weight:500; font-size:15px; color:var(--text-primary); margin-bottom:8px; display:flex; align-items:flex-start; gap:8px; }
+.answer { max-height:0; overflow:hidden; transition:max-height .4s ease; color:var(--text-secondary); font-size:14px; line-height:1.7; padding-left:36px; }
+.qa-pair.expanded .answer { max-height:12000px; margin-top:12px; padding-top:12px; border-top:.5px solid var(--border); }
+.toggle-icon { display:inline-block; transition:transform .3s; margin-left:auto; flex-shrink:0; }
+.qa-pair.expanded .toggle-icon { transform:rotate(180deg); }
+.center-content { display:flex; gap:12px; align-items:center; width:100%; }
+.answer h4 { color:var(--text-primary); font-size:13px; font-weight:600; margin:14px 0 6px; text-transform:uppercase; letter-spacing:.5px; }
+.answer h4:first-child { margin-top:0; }
+.answer p { margin:6px 0; }
+.answer ul { list-style:none; margin:6px 0; padding:0; }
+.answer ul li { position:relative; padding:4px 0 4px 18px; }
+.answer ul li::before { content:"•"; position:absolute; left:2px; color:var(--fill-accent); font-weight:bold; }
+.answer .flow-chart { background:var(--surface-1); border:1px solid var(--border); border-radius:8px; padding:14px 16px; margin:10px 0; font-family:'SF Mono','Fira Code',monospace; font-size:12.5px; line-height:1.8; white-space:pre; overflow-x:auto; }
+.answer .highlight { background:#fff3cd; padding:10px 14px; border-radius:6px; margin:10px 0; border-left:3px solid #ffc107; }
+.answer code { background:var(--surface-1); padding:2px 6px; border-radius:4px; font-size:13px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header" id="mainHeader">
+    <h1>🧱 Design Principles</h1>
+    <p>SOLID, DRY, KISS, YAGNI & CAP Theorem</p>
+  </div>
+
+  <div class="mindmap-view" id="topicGrid">
+    <div class="topic-card" onclick="showTopic('solid')"><span class="topic-icon">🧱</span><span class="topic-name">SOLID Principles</span></div>
+    <div class="topic-card" onclick="showTopic('general')"><span class="topic-icon">📏</span><span class="topic-name">DRY, KISS, YAGNI</span></div>
+    <div class="topic-card" onclick="showTopic('cap')"><span class="topic-icon">🔺</span><span class="topic-name">CAP Theorem</span></div>
+  </div>
+
+  <!-- SOLID -->
+  <div class="qa-view" id="topic-solid">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">🧱 SOLID Principles</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">Overview<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>5 OOP design principles intended to make software more understandable, flexible, and maintainable.</p>
+          <div class="flow-chart">S — Single Responsibility   → one class, one role
+O — Open/Closed            → extend, don't modify
+L — Liskov Substitution    → child replaces parent safely
+I — Interface Segregation  → smaller, specific interfaces
+D — Dependency Inversion   → depend on abstractions</div>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">S — Single Responsibility Principle (SRP)<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>One class should have only one reason to change — one responsibility or job.</p>
+          <p><strong>Example:</strong> A <code>User</code> class handles user data storage, but NOT email notifications. Email logic belongs in a separate <code>NotificationService</code>.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">3</span><div class="center-content">O — Open/Closed Principle (OCP)<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Classes should be <strong>open for extension</strong> but <strong>closed for modification</strong>. Reuse existing code by extending behavior.</p>
+          <p><strong>Example:</strong> Instead of modifying <code>PaymentProcessor</code>, create a new <code>CreditCardPaymentProcessor</code> class that extends it.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">4</span><div class="center-content">L — Liskov Substitution Principle (LSP)<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>A subclass should be able to replace its parent class without changing the correctness or expected behavior of the application.</p>
+          <p>If B IS-A A, then object of B should replace object of A without changing program behavior.</p>
+          <p><strong>Example:</strong> A <code>Rectangle</code> should be substitutable for a <code>Square</code>. If replacing parent with child causes unexpected behavior, inheritance is incorrect and LSP is violated.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">5</span><div class="center-content">I — Interface Segregation Principle (ISP)<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Create <strong>smaller, more specific interfaces</strong> rather than large, general-purpose ones. Clients should not be forced to implement methods they don't use.</p>
+          <p><strong>Example:</strong> Separate <code>AuthenticationInterface</code> from <code>UserManagementInterface</code>.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">6</span><div class="center-content">D — Dependency Inversion Principle (DIP)<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>High-level modules should not depend on low-level modules — both should depend on <strong>abstractions</strong>.</p>
+          <p><strong>Example:</strong> Inject a <code>DatabaseConnection</code> interface into a service class instead of directly instantiating a database connection object.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DRY, KISS, YAGNI -->
+  <div class="qa-view" id="topic-general">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">📏 DRY, KISS, YAGNI</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">DRY — Don't Repeat Yourself<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Every piece of logic should have a single, unambiguous representation in your codebase.</p>
+          <h4>❌ Bad</h4>
+          <div class="flow-chart">double calculateTaxForInvoice(double amount) { return amount * 0.18; }
+double calculateTaxForProduct(double amount) { return amount * 0.18; }</div>
+          <h4>✅ Good</h4>
+          <div class="flow-chart">private static final double TAX_RATE = 0.18;
+double calculateTax(double amount) { return amount * TAX_RATE; }</div>
+          <p>In Spring: reuse services instead of duplicating logic in controllers.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">KISS — Keep It Simple, Stupid<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>The simplest working solution is usually the best. Don't build generic frameworks for problems that don't exist yet. Avoid excessive abstraction layers. Simplicity reduces bugs and onboarding time.</p>
+          <h4>❌ Overengineered</h4>
+          <div class="flow-chart">return Optional.ofNullable("Hello")
+  .map(String::toUpperCase)
+  .filter(s -> s.length() > 0)
+  .orElseThrow(() -> new RuntimeException("Empty!"));</div>
+          <h4>✅ Simple</h4>
+          <div class="flow-chart">return "HELLO";</div>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">3</span><div class="center-content">YAGNI — You Aren't Gonna Need It<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Don't add functionality until it's actually required by the business. Every line of code has a maintenance cost. Build iteratively — add when justified by a user story or metric.</p>
+          <p>Avoid speculative "future-proofing."</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CAP -->
+  <div class="qa-view" id="topic-cap">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">🔺 CAP Theorem</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">What is the CAP Theorem?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>In a distributed system, you can only guarantee <strong>two out of three</strong> properties:</p>
+          <ul>
+            <li><strong>Consistency (C)</strong> — every read receives the most recent write</li>
+            <li><strong>Availability (A)</strong> — every request receives a response (not guaranteed to be the latest)</li>
+            <li><strong>Partition Tolerance (P)</strong> — the system continues to operate despite network partitions</li>
+          </ul>
+          <div class="highlight">Since network partitions are inevitable in distributed systems, the real choice is between <strong>CP</strong> (consistency + partition tolerance) and <strong>AP</strong> (availability + partition tolerance).</div>
+          <h4>CP Systems</h4>
+          <p>Banking, payment systems, stock trading — correctness over availability.</p>
+          <h4>AP Systems</h4>
+          <p>Social media (Facebook, Instagram, Twitter), DNS, Amazon product reviews — availability over strict consistency.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+<script>
+function showTopic(id) { document.getElementById('topicGrid').style.display='none'; document.getElementById('mainHeader').style.display='none'; document.getElementById('topic-'+id).classList.add('active'); }
+function goBack() { document.querySelectorAll('.qa-view').forEach(v=>v.classList.remove('active')); document.getElementById('topicGrid').style.display=''; document.getElementById('mainHeader').style.display=''; }
+</script>
+</body>
+</html>
+

@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Microservices Patterns Deep Dive</title>
+<style>
+:root { --surface-0:#fafafa; --surface-1:#f0f0f0; --surface-2:#fff; --border:#e0e0e0; --border-strong:#bbb; --text-primary:#1a1a1a; --text-secondary:#555; --fill-accent:#2563eb; --on-accent:#fff; --radius:8px; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--surface-0); color:var(--text-primary); }
+.container { max-width:920px; margin:0 auto; padding:2rem 1rem; }
+.header { text-align:center; margin-bottom:2rem; }
+.header h1 { font-size:28px; font-weight:500; margin-bottom:.5rem; }
+.header p { color:var(--text-secondary); font-size:14px; }
+.mindmap-view { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; }
+.topic-card { background:var(--surface-2); border:2px solid var(--border); border-radius:12px; padding:16px; cursor:pointer; transition:all .2s; text-align:center; display:flex; flex-direction:column; align-items:center; gap:8px; min-height:120px; justify-content:center; }
+.topic-card:hover { border-color:var(--fill-accent); background:var(--surface-1); transform:translateY(-2px); box-shadow:0 4px 12px rgba(37,99,235,.12); }
+.topic-icon { font-size:28px; } .topic-name { font-weight:500; font-size:14px; line-height:1.3; }
+.qa-view { display:none; } .qa-view.active { display:block; }
+.qa-header { display:flex; align-items:center; gap:12px; margin-bottom:2rem; padding-bottom:1rem; border-bottom:.5px solid var(--border); }
+.back-btn { background:none; border:.5px solid var(--border); padding:8px 12px; border-radius:var(--radius); cursor:pointer; color:var(--text-primary); font-size:14px; transition:all .2s; }
+.back-btn:hover { background:var(--surface-1); border-color:var(--border-strong); }
+.qa-title { font-size:24px; font-weight:500; }
+.qa-container { display:flex; flex-direction:column; gap:16px; }
+.qa-pair { background:var(--surface-2); border:.5px solid var(--border); border-radius:12px; padding:16px; cursor:pointer; transition:all .2s; }
+.qa-pair:hover { border-color:var(--border-strong); background:var(--surface-1); }
+.qa-pair.expanded { border-color:var(--fill-accent); }
+.qa-number { display:inline-block; background:var(--fill-accent); color:var(--on-accent); width:28px; height:28px; border-radius:50%; text-align:center; line-height:28px; font-size:12px; font-weight:500; margin-right:8px; flex-shrink:0; }
+.question { font-weight:500; font-size:15px; color:var(--text-primary); margin-bottom:8px; display:flex; align-items:flex-start; gap:8px; }
+.answer { max-height:0; overflow:hidden; transition:max-height .4s ease; color:var(--text-secondary); font-size:14px; line-height:1.7; padding-left:36px; }
+.qa-pair.expanded .answer { max-height:15000px; margin-top:12px; padding-top:12px; border-top:.5px solid var(--border); }
+.toggle-icon { display:inline-block; transition:transform .3s; margin-left:auto; flex-shrink:0; }
+.qa-pair.expanded .toggle-icon { transform:rotate(180deg); }
+.center-content { display:flex; gap:12px; align-items:center; width:100%; }
+.answer h4 { color:var(--text-primary); font-size:13px; font-weight:600; margin:14px 0 6px; text-transform:uppercase; letter-spacing:.5px; }
+.answer h4:first-child { margin-top:0; }
+.answer p { margin:6px 0; }
+.answer ul { list-style:none; margin:6px 0; padding:0; }
+.answer ul li { position:relative; padding:4px 0 4px 18px; }
+.answer ul li::before { content:"•"; position:absolute; left:2px; color:var(--fill-accent); font-weight:bold; }
+.answer .flow-chart { background:var(--surface-1); border:1px solid var(--border); border-radius:8px; padding:14px 16px; margin:10px 0; font-family:'SF Mono','Fira Code',monospace; font-size:12.5px; line-height:1.8; white-space:pre; overflow-x:auto; }
+.answer .highlight { background:#fff3cd; padding:10px 14px; border-radius:6px; margin:10px 0; border-left:3px solid #ffc107; }
+.answer code { background:var(--surface-1); padding:2px 6px; border-radius:4px; font-size:13px; }
+.answer table { width:100%; border-collapse:collapse; margin:10px 0; font-size:13px; }
+.answer table th,.answer table td { border:1px solid var(--border); padding:8px 12px; text-align:left; }
+.answer table th { background:var(--surface-1); font-weight:600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header" id="mainHeader">
+    <h1>🔗 Microservices Patterns</h1>
+    <p>10 topics — Resilience, Data Management, Service Discovery, Service Mesh, Saga, CQRS & more</p>
+  </div>
+
+  <div class="mindmap-view" id="topicGrid">
+    <div class="topic-card" onclick="showTopic('overview')"><span class="topic-icon">🗺️</span><span class="topic-name">Patterns Overview</span></div>
+    <div class="topic-card" onclick="showTopic('resilience')"><span class="topic-icon">🛡️</span><span class="topic-name">Resilience Patterns</span></div>
+    <div class="topic-card" onclick="showTopic('circuit')"><span class="topic-icon">⚡</span><span class="topic-name">Circuit Breaker</span></div>
+    <div class="topic-card" onclick="showTopic('bulkhead')"><span class="topic-icon">🚢</span><span class="topic-name">Bulkhead Pattern</span></div>
+    <div class="topic-card" onclick="showTopic('saga')"><span class="topic-icon">🔄</span><span class="topic-name">Saga Pattern</span></div>
+    <div class="topic-card" onclick="showTopic('cqrs')"><span class="topic-icon">📊</span><span class="topic-name">CQRS</span></div>
+    <div class="topic-card" onclick="showTopic('data')"><span class="topic-icon">🗄️</span><span class="topic-name">Data Management Patterns</span></div>
+    <div class="topic-card" onclick="showTopic('discovery')"><span class="topic-icon">🔍</span><span class="topic-name">Service Discovery</span></div>
+    <div class="topic-card" onclick="showTopic('mesh')"><span class="topic-icon">🕸️</span><span class="topic-name">Service Mesh</span></div>
+    <div class="topic-card" onclick="showTopic('sidecar')"><span class="topic-icon">🏎️</span><span class="topic-name">Sidecar Proxy</span></div>
+  </div>
+
+  <!-- ═════════ OVERVIEW ═════════ -->
+  <div class="qa-view" id="topic-overview">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">🗺️ Top 10 Microservices Patterns</span></div>
+    <div class="qa-container">
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">All 10 Patterns at a Glance<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <table>
+            <tr><th>#</th><th>Pattern</th><th>Purpose</th></tr>
+            <tr><td>1</td><td>API Gateway</td><td>Single entry point — auth, throttling, routing</td></tr>
+            <tr><td>2</td><td>Circuit Breaker</td><td>Stop calling failing services</td></tr>
+            <tr><td>3</td><td>Service Registry</td><td>Maintain list of live services</td></tr>
+            <tr><td>4</td><td>Service Mesh</td><td>Infrastructure for service-to-service communication</td></tr>
+            <tr><td>5</td><td>Event-Driven</td><td>Async communication via events (Kafka, RabbitMQ)</td></tr>
+            <tr><td>6</td><td>Saga</td><td>Distributed transactions with compensation</td></tr>
+            <tr><td>7</td><td>Bulkhead</td><td>Isolate failures — compartmentalize resources</td></tr>
+            <tr><td>8</td><td>Sidecar</td><td>Helper containers for logging, monitoring, proxying</td></tr>
+            <tr><td>9</td><td>CQRS</td><td>Separate read and write operations</td></tr>
+            <tr><td>10</td><td>Strangler</td><td>Gradually migrate monolith → microservices</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════ RESILIENCE ═════════ -->
+  <div class="qa-view" id="topic-resilience">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">🛡️ Resilience Patterns</span></div>
+    <div class="qa-container">
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">What are Resilience Patterns?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Design patterns that help microservices continue functioning even when services are slow, unavailable, or fail.</p>
+          <table>
+            <tr><th>Pattern</th><th>Purpose</th></tr>
+            <tr><td>Timeout</td><td>Don't wait forever — stop after threshold</td></tr>
+            <tr><td>Retry</td><td>Retry temporary failures</td></tr>
+            <tr><td>Circuit Breaker</td><td>Stop calling a failing service</td></tr>
+            <tr><td>Fallback</td><td>Return alternative response</td></tr>
+            <tr><td>Bulkhead</td><td>Isolate resources to contain failures</td></tr>
+            <tr><td>Rate Limiter</td><td>Protect from excessive requests</td></tr>
+            <tr><td>Idempotency</td><td>Ensure retries don't create duplicates</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">Retry Pattern<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Automatically retry a failed request when the failure is temporary (network glitch, service starting up, short DB lock).</p>
+          <div class="flow-chart">Attempt 1 → Failed
+Attempt 2 → Failed
+Attempt 3 → Success ✅</div>
+          <h4>Trade-offs</h4>
+          <ul><li>✅ Handles transient failures, improves success rate</li><li>❌ Can increase latency, may overload a failing service</li></ul>
+          <p><strong>Tools:</strong> Resilience4j Retry, Spring Retry</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">3</span><div class="center-content">Timeout Pattern<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Set a maximum waiting time. If no response → cancel and return error/fallback.</p>
+          <h4>Trade-offs</h4>
+          <ul><li>✅ Prevents thread exhaustion, faster failure detection</li><li>❌ Too short → rejects valid requests; too long → poor performance</li></ul>
+          <p><strong>Tools:</strong> WebClient, RestTemplate, OpenFeign, Resilience4j TimeLimiter</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">4</span><div class="center-content">Fallback Pattern<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>When primary service is unavailable, return: cached data, default value, friendly message, or alternative service.</p>
+          <h4>Trade-offs</h4>
+          <ul><li>✅ Better UX, improved availability, graceful degradation</li><li>❌ Users may see stale/incomplete data, added complexity</li></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════ CIRCUIT BREAKER ═════════ -->
+  <div class="qa-view" id="topic-circuit">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">⚡ Circuit Breaker</span></div>
+    <div class="qa-container">
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">What is a Circuit Breaker?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Stops sending requests to a failing service for a period, preventing repeated failures and allowing recovery.</p>
+          <h4>Problem without it</h4>
+          <p>Order Service calls Payment Service (down) → all requests wait until timeout → threads blocked → entire Order Service becomes slow/unavailable.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">Three States<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <div class="flow-chart">CLOSED ──→ OPEN ──→ HALF-OPEN ──→ CLOSED
+  │           │          │            │
+  Failure     Timeout    Success      ✅
+  threshold   period     threshold</div>
+          <h4>1. Closed (Normal)</h4>
+          <p>All requests pass through. Failures monitored. If failure rate exceeds threshold (e.g., 50% of last 10) → transition to Open.</p>
+          <h4>2. Open (Blocking)</h4>
+          <p>Rejects all requests immediately — returns fallback or exception. Remains open for configured timeout (e.g., 10s). Then → Half-Open.</p>
+          <h4>3. Half-Open (Testing)</h4>
+          <p>Limited test requests allowed. If successful → back to Closed. If they fail → back to Open.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">3</span><div class="center-content">Trade-offs & Tools<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>Advantages</h4>
+          <ul><li>Prevents cascading failures</li><li>Faster failure response</li><li>Reduces unnecessary network calls</li><li>Gives failing services time to recover</li></ul>
+          <h4>Disadvantages</h4>
+          <ul><li>Additional configuration</li><li>Wrong thresholds may block healthy services</li></ul>
+          <p><strong>Tools:</strong> Resilience4j, Spring Cloud Circuit Breaker</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════ BULKHEAD ═════════ -->
+  <div class="qa-view" id="topic-bulkhead">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">🚢 Bulkhead Pattern</span></div>
+    <div class="qa-container">
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">What is the Bulkhead Pattern?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Isolates resources (thread pools, connection pools) into separate compartments so that failure in one part doesn't affect others.</p>
+          <div class="highlight">Named after watertight compartments in ships — if one floods, the rest stay dry.</div>
+          <h4>Problem</h4>
+          <p>All services share one thread pool → Notification Service slow → occupies all threads → Payment & Order also fail.</p>
+          <h4>Solution</h4>
+          <div class="flow-chart">Order Thread Pool      — 50 threads
+Payment Thread Pool    — 20 threads
+Notification Thread Pool — 10 threads
+
+Notification slow? Only its 10 threads affected.
+Orders & Payments continue normally.</div>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">Types & Implementation<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>1. Thread Pool Bulkhead (Most Common)</h4>
+          <p>Each service gets its own thread pool. Used heavily in Spring Boot.</p>
+          <h4>2. Semaphore Bulkhead</h4>
+          <p>Limit concurrent requests (e.g., max 10). 11th request → rejected immediately.</p>
+          <h4>Spring Boot</h4>
+          <div class="flow-chart">@Bulkhead(name = "paymentService", type = Bulkhead.Type.THREADPOOL)</div>
+          <h4>Trade-offs</h4>
+          <ul><li>✅ Prevents cascading failures, protects critical services</li><li>❌ Resources may be underutilized, pool size needs tuning</li></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════ SAGA ═════════ -->
+  <div class="qa-view" id="topic-saga">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">🔄 Saga Pattern</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">What is the Saga Pattern?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>A distributed transaction pattern that maintains business consistency across multiple microservices <strong>without</strong> a global database transaction. The business transaction is divided into a sequence of local transactions, each with a <strong>compensating transaction</strong>.</p>
+          <h4>Problem</h4>
+          <p>In microservices, each service owns its DB — can't use one ACID transaction across all.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">How it works — Success & Failure<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>Success Flow</h4>
+          <div class="flow-chart">Create Order ✅ → Reserve Inventory ✅ → Process Payment ✅ → Confirm Order ✅</div>
+          <h4>Failure → Compensating Transactions</h4>
+          <div class="flow-chart">Create Order ✅ → Reserve Inventory ✅ → Payment ❌
+                                          ↓
+                                   Release Inventory
+                                          ↓
+                                     Cancel Order</div>
+          <div class="highlight"><strong>Important:</strong> Compensation ≠ DB rollback. It's another business transaction (e.g., Refund Payment, Release Inventory).</div>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">3</span><div class="center-content">Choreography vs Orchestration<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>Choreography — No central coordinator</h4>
+          <p>Services communicate through events. Each listens and decides what to do next.</p>
+          <div class="flow-chart">OrderCreated → Kafka → Inventory → InventoryReserved → Kafka → Payment</div>
+          <ul><li>✅ Decentralized, no SPOF, good for simple workflows</li><li>❌ Hard to understand in complex systems, difficult debugging</li></ul>
+
+          <h4>Orchestration — Central Saga Orchestrator</h4>
+          <p>Orchestrator controls the workflow, telling each service what to do.</p>
+          <div class="flow-chart">         Saga Orchestrator
+          /      |       \
+       Order  Inventory  Payment</div>
+          <ul><li>✅ Easy to understand, centralized control, easier monitoring</li><li>❌ Orchestrator = additional component, can become bottleneck</li></ul>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">4</span><div class="center-content">Saga + Idempotency + Transactional Outbox<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>Saga + Idempotency</h4>
+          <p>Messages can be delivered more than once. Consumers must be idempotent — check event/message ID, ignore if already processed.</p>
+          <h4>Saga + Transactional Outbox</h4>
+          <div class="flow-chart">DB Transaction:
+  ├── Update Order
+  └── Insert Outbox Event
+       ↓ COMMIT
+Outbox Publisher → Kafka</div>
+          <p>Ensures if DB commits, the event is not lost (even if Kafka is temporarily unavailable).</p>
+          <h4>Saga + Eventual Consistency</h4>
+          <p>For a short period, different services may show different states. Eventually all converge.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">5</span><div class="center-content">Interview Answer<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <div class="highlight">"Saga is a pattern for managing distributed business transactions across microservices where each service has its own local transaction and database. Instead of using a global transaction, the Saga coordinates a sequence of local transactions. If a later step fails, compensating transactions are executed for the previously completed steps. It can be implemented using choreography (events) or orchestration (central coordinator). The main challenges are eventual consistency, compensation logic, duplicate events, and workflow visibility. I would combine Saga with idempotent consumers, transactional outbox, retries, and observability."</div>
+          <h4>When NOT to use</h4>
+          <p>If the operation can be contained within a single service and database → prefer a normal local transaction. Introduce Saga only when the distributed workflow actually requires it.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════ CQRS ═════════ -->
+  <div class="qa-view" id="topic-cqrs">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">📊 CQRS</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">What is CQRS?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p><strong>Command Query Responsibility Segregation</strong> — separates write operations (Commands) from read operations (Queries), allowing each to be optimized and scaled independently.</p>
+          <div class="flow-chart">Application
+    ┌──────┴──────┐
+Command            Query
+    ↓                ↓
+Write Model        Read Model
+    ↓                ↓
+Write DB           Read DB</div>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">Problem it Solves<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Read and write requirements are often very different:</p>
+          <table><tr><th>Write Side</th><th>Read Side</th></tr>
+            <tr><td>Complex validation, transactions, business rules</td><td>Fast queries, aggregated data, search/filtering</td></tr>
+          </table>
+          <p>Using the same model for both makes the system unnecessarily complicated.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">3</span><div class="center-content">CQRS with Event-Driven Architecture<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <div class="flow-chart">Command → Write Service → Write DB
+                              ↓ Event
+                         Kafka / RabbitMQ
+                              ↓
+                     Read Model Updater → Read DB → Query</div>
+          <h4>Important</h4>
+          <p>CQRS does NOT necessarily mean two databases. You can use the same DB with separate models.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">4</span><div class="center-content">Advantages & Drawbacks<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>Advantages</h4>
+          <ul><li>Independent optimization of read/write</li><li>Independent scaling (10K reads + 100 writes → scale reads)</li><li>Pre-computed/aggregated read models</li><li>Different tech per side (PostgreSQL for writes, Elasticsearch for reads)</li></ul>
+          <h4>Drawbacks</h4>
+          <ul><li>Increased complexity (two models + sync)</li><li>Eventual consistency — small delay between write and read update</li><li>More infrastructure (message broker, event processing, retry/error handling)</li><li>Must handle duplicate/out-of-order events</li></ul>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">5</span><div class="center-content">CQRS vs Event Sourcing vs CRUD<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <table>
+            <tr><th>Concept</th><th>What it does</th></tr>
+            <tr><td>CQRS</td><td>Separates commands and queries</td></tr>
+            <tr><td>Event Sourcing</td><td>Stores state changes as events</td></tr>
+            <tr><td>CRUD</td><td>Same model for read and write</td></tr>
+          </table>
+          <p>CQRS and Event Sourcing are often used together but are independent concepts.</p>
+          <h4>When to use CQRS</h4>
+          <ul><li>Read/write workloads significantly different</li><li>Read performance is critical</li><li>Complex business/write logic</li><li>Independent scaling needed</li></ul>
+          <h4>When NOT to use</h4>
+          <p>Simple CRUD — don't introduce CQRS just because you're building microservices.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════ DATA MANAGEMENT ═════════ -->
+  <div class="qa-view" id="topic-data">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">🗄️ Data Management Patterns</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">Database per Service ⭐⭐⭐⭐⭐<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Each microservice owns its own database. Other services access data through APIs or events — not by querying the DB directly.</p>
+          <h4>Advantages</h4>
+          <ul><li>Loose coupling, independent deployment & scaling</li><li>Technology flexibility (MySQL for one, MongoDB for another)</li><li>Clear data ownership, better security</li></ul>
+          <h4>Disadvantages</h4>
+          <ul><li>No cross-service joins</li><li>Distributed transactions are difficult</li><li>Data duplication may be needed</li></ul>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">Shared Database (Anti-Pattern)<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Multiple services share one database. Initially convenient (easy joins, ACID) but creates tight coupling, no clear ownership, schema changes affect all, hard to scale independently.</p>
+          <div class="highlight">Generally considered an anti-pattern in true microservices architecture.</div>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">3</span><div class="center-content">Event Sourcing ⭐⭐⭐⭐<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Instead of storing latest state, store <strong>every business event</strong>. Current state rebuilt by replaying events.</p>
+          <div class="flow-chart">Account Created → Deposit $500 → Deposit $700 → Withdraw $300
+Current Balance = $900 (rebuilt from events)</div>
+          <h4>Advantages</h4>
+          <ul><li>Complete audit history</li><li>Supports temporal queries ("balance yesterday?")</li><li>Easy event replay, better debugging</li></ul>
+          <h4>Disadvantages</h4>
+          <ul><li>Complex implementation</li><li>Schema evolution must be managed</li><li>Rebuilding state slower without snapshots</li></ul>
+          <p><strong>Tools:</strong> Axon Framework, EventStoreDB, Spring Kafka</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">4</span><div class="center-content">Transactional Outbox ⭐⭐⭐⭐⭐<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>Problem</h4>
+          <p>Order Service saves to DB ✅ then publishes to Kafka ❌ (Kafka down) → order exists but no event published → data inconsistency.</p>
+          <h4>Solution</h4>
+          <div class="flow-chart">DB Transaction:
+  ├── Save business data
+  └── Save event to Outbox table
+       ↓ COMMIT
+Background process → Read Outbox → Publish to Kafka → Mark processed</div>
+          <p>If DB commits, the event is guaranteed not to be lost.</p>
+          <h4>Trade-off</h4>
+          <p>Duplicate events possible → consumers should be idempotent.</p>
+          <p><strong>Tools:</strong> Debezium (CDC), Kafka Connect</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════ SERVICE DISCOVERY ═════════ -->
+  <div class="qa-view" id="topic-discovery">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">🔍 Service Discovery</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">Why Service Discovery?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>In microservices, services are deployed dynamically — IPs change due to K8s, Docker, auto-scaling. Hardcoding addresses is not practical.</p>
+          <p><strong>Solution:</strong> A Service Registry. When a service starts, it registers. Others query the registry to find current locations.</p>
+          <p><strong>Examples:</strong> Eureka, Consul, Zookeeper, Kubernetes DNS</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">Client-side vs Server-side Discovery<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>Client-side Discovery</h4>
+          <p>Client queries the registry, gets instances, selects one using load-balancing algorithm, sends request directly.</p>
+          <ul><li>✅ No extra proxy, lower latency, intelligent client-side LB</li><li>❌ Discovery logic in every client, more complex clients</li></ul>
+          <p><strong>Tools:</strong> Netflix Eureka Client, Spring Cloud LoadBalancer</p>
+
+          <h4>Server-side Discovery</h4>
+          <p>Client sends to API Gateway / LB, which queries registry and forwards to an instance.</p>
+          <ul><li>✅ Simpler clients, centralized discovery & LB</li><li>❌ Additional infrastructure, extra hop latency</li></ul>
+          <p><strong>Tools:</strong> Spring Cloud Gateway, NGINX, K8s Service/Ingress</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════ SERVICE MESH ═════════ -->
+  <div class="qa-view" id="topic-mesh">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">🕸️ Service Mesh</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">What is a Service Mesh?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>An infrastructure layer that manages service-to-service communication using <strong>sidecar proxies</strong>, providing traffic management, security, observability, and resiliency <strong>without changing application code</strong>.</p>
+          <div class="highlight">Service Mesh is a design pattern; Istio is its implementation.</div>
+          <h4>Problem it solves</h4>
+          <p>In large architectures, every service needs secure communication, retries, timeouts, LB, monitoring, circuit breaking → implementing in every service = duplicate code, inconsistent implementations.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">Architecture — Sidecar + Control Plane<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <h4>Sidecar Proxy (Data Plane)</h4>
+          <p>Runs alongside every service, intercepts all traffic. Handles: routing, LB, retry, circuit breaker, timeout, mTLS, metrics.</p>
+          <p><strong>Examples:</strong> Envoy, Linkerd Proxy</p>
+          <h4>Control Plane</h4>
+          <p>Manages & configures all sidecars. Handles: traffic policies, security policies, certificate management, service discovery.</p>
+          <p><strong>Examples:</strong> Istio, Linkerd</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">3</span><div class="center-content">Features & Use Cases<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <table>
+            <tr><th>Category</th><th>Features</th></tr>
+            <tr><td>Traffic Management</td><td>Routing, LB, canary releases, blue-green, traffic splitting</td></tr>
+            <tr><td>Security</td><td>mTLS, authentication, authorization, certificate mgmt</td></tr>
+            <tr><td>Observability</td><td>Distributed tracing, metrics, logging, monitoring</td></tr>
+            <tr><td>Resilience</td><td>Retry, circuit breaker, timeout, fault injection</td></tr>
+          </table>
+          <h4>When to use</h4>
+          <ul><li>Large, complex microservice architectures</li><li>Security is a priority (mTLS)</li><li>Need advanced traffic management</li></ul>
+          <h4>Trade-offs</h4>
+          <ul><li>✅ No code changes, centralized management, built-in observability</li><li>❌ Additional infrastructure, higher resource usage, learning curve, slight latency increase</li></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════ SIDECAR PROXY ═════════ -->
+  <div class="qa-view" id="topic-sidecar">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">🏎️ Sidecar Proxy</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">What is a Sidecar Proxy?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>A small service that runs alongside your main application, handling all networking tasks. Called "sidecar" like a motorcycle sidecar — works alongside the primary service.</p>
+          <p>Each microservice in a Service Mesh has its own sidecar proxy. Instead of handling network communication directly, the sidecar takes over.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">How it Works<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <div class="flow-chart">Service A → A's Sidecar Proxy → B's Sidecar Proxy → Service B
+                                    ↑ mTLS encryption ↑</div>
+          <h4>Responsibilities</h4>
+          <ul>
+            <li><strong>Traffic Management</strong> — load balancing, retries, timeouts</li>
+            <li><strong>Security (mTLS)</strong> — both services verify identity & encrypt traffic</li>
+            <li><strong>Observability</strong> — collects latency, success/failure metrics → monitoring tools</li>
+            <li><strong>Routing</strong> — uses rules from Control Plane (e.g., 90% stable, 10% canary)</li>
+          </ul>
+          <h4>Internal Working</h4>
+          <ul>
+            <li>Injected into K8s pod, intercepts traffic via iptables</li>
+            <li>Service discovery via Control Plane</li>
+            <li>Metrics sent to Prometheus/Grafana without code changes</li>
+          </ul>
+          <p><strong>Popular Proxies:</strong> Envoy (most common, used in Istio), Linkerd-proxy, HAProxy</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+function showTopic(id) { document.getElementById('topicGrid').style.display='none'; document.getElementById('mainHeader').style.display='none'; document.getElementById('topic-'+id).classList.add('active'); }
+function goBack() { document.querySelectorAll('.qa-view').forEach(v=>v.classList.remove('active')); document.getElementById('topicGrid').style.display=''; document.getElementById('mainHeader').style.display=''; }
+</script>
+</body>
+</html>
+

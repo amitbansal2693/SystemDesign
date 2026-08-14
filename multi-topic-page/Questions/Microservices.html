@@ -1,802 +1,958 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Microservices Interview Questions</title>
+<style>
+:root {
+  --surface-0: #fafafa;
+  --surface-1: #f0f0f0;
+  --surface-2: #ffffff;
+  --border: #e0e0e0;
+  --border-strong: #bbb;
+  --text-primary: #1a1a1a;
+  --text-secondary: #555;
+  --fill-accent: #2563eb;
+  --on-accent: #fff;
+  --radius: 8px;
+}
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--surface-0);
-      color: var(--text-primary);
-    }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--surface-0); color: var(--text-primary); }
 
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 2rem 1rem;
-    }
+.container { max-width: 920px; margin: 0 auto; padding: 2rem 1rem; }
 
-    .header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
+.header { text-align: center; margin-bottom: 2rem; }
+.header h1 { font-size: 28px; font-weight: 500; margin-bottom: 0.5rem; }
+.header p { color: var(--text-secondary); font-size: 14px; }
 
-    .header h1 {
-      font-size: 28px;
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-    }
+.mindmap-view { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
 
-    .header p {
-      color: var(--text-secondary);
-      font-size: 14px;
-    }
+.topic-card {
+  background: var(--surface-2);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-height: 120px;
+  justify-content: center;
+}
 
-    .mindmap-view {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 12px;
-    }
+.topic-card:hover {
+  border-color: var(--fill-accent);
+  background: var(--surface-1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37,99,235,0.12);
+}
 
-    .topic-card {
-      background: var(--surface-2);
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      padding: 16px;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      min-height: 120px;
-      justify-content: center;
-    }
+.topic-icon { font-size: 28px; display: inline-block; }
+.topic-name { font-weight: 500; font-size: 14px; line-height: 1.3; }
 
-    .topic-card:hover {
-      border-color: var(--border-strong);
-      background: var(--surface-1);
-      transform: translateY(-2px);
-    }
+.qa-view { display: none; }
+.qa-view.active { display: block; }
 
-    .topic-icon {
-      font-size: 28px;
-      display: inline-block;
-    }
+.qa-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 0.5px solid var(--border);
+}
 
-    .topic-name {
-      font-weight: 500;
-      font-size: 14px;
-      line-height: 1.3;
-    }
+.back-btn {
+  background: none;
+  border: 0.5px solid var(--border);
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: all 0.2s;
+}
 
-    .qa-view {
-      display: none;
-    }
+.back-btn:hover { background: var(--surface-1); border-color: var(--border-strong); }
 
-    .qa-view.active {
-      display: block;
-    }
+.qa-title { font-size: 24px; font-weight: 500; }
 
-    .qa-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 2rem;
-      padding-bottom: 1rem;
-      border-bottom: 0.5px solid var(--border);
-    }
+.qa-container { display: flex; flex-direction: column; gap: 16px; }
 
-    .back-btn {
-      background: none;
-      border: 0.5px solid var(--border);
-      padding: 8px 12px;
-      border-radius: var(--radius);
-      cursor: pointer;
-      color: var(--text-primary);
-      font-size: 14px;
-      transition: all 0.2s;
-    }
+.qa-pair {
+  background: var(--surface-2);
+  border: 0.5px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
 
-    .back-btn:hover {
-      background: var(--surface-1);
-      border-color: var(--border-strong);
-    }
+.qa-pair:hover { border-color: var(--border-strong); background: var(--surface-1); }
+.qa-pair.expanded { border-color: var(--fill-accent); }
 
-    .qa-title {
-      font-size: 24px;
-      font-weight: 500;
-    }
+.qa-number {
+  display: inline-block;
+  background: var(--fill-accent);
+  color: var(--on-accent);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 28px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
 
-    .qa-container {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
+.question {
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
 
-    .qa-pair {
-      background: var(--surface-2);
-      border: 0.5px solid var(--border);
-      border-radius: 12px;
-      padding: 16px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
+.answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.7;
+  padding-left: 36px;
+}
 
-    .qa-pair:hover {
-      border-color: var(--border-strong);
-      background: var(--surface-1);
-    }
+.qa-pair.expanded .answer {
+  max-height: 8000px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 0.5px solid var(--border);
+}
 
-    .qa-pair.expanded {
-      border-color: var(--border-strong);
-    }
+.toggle-icon {
+  display: inline-block;
+  transition: transform 0.3s;
+  margin-left: auto;
+  flex-shrink: 0;
+}
 
-    .qa-number {
-      display: inline-block;
-      background: var(--fill-accent);
-      color: var(--on-accent);
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      text-align: center;
-      line-height: 28px;
-      font-size: 12px;
-      font-weight: 500;
-      margin-right: 8px;
-    }
+.qa-pair.expanded .toggle-icon { transform: rotate(180deg); }
 
-    .question {
-      font-weight: 500;
-      font-size: 15px;
-      color: var(--text-primary);
-      margin-bottom: 8px;
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-    }
+.center-content {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+}
 
-    .answer {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.3s;
-      color: var(--text-secondary);
-      font-size: 14px;
-      line-height: 1.6;
-      padding-left: 36px;
-    }
+.answer h4 {
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  margin: 14px 0 6px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.answer h4:first-child { margin-top: 0; }
+.answer p { margin: 6px 0; }
+.answer ul { list-style: none; margin: 6px 0; padding: 0; }
+.answer ul li { position: relative; padding: 4px 0 4px 18px; }
+.answer ul li::before { content: "•"; position: absolute; left: 2px; color: var(--fill-accent); font-weight: bold; }
 
-    .qa-pair.expanded .answer {
-      max-height: 3000px;
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 0.5px solid var(--border);
-    }
+.answer .flow-chart {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 10px 0;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 12.5px;
+  line-height: 1.8;
+  white-space: pre;
+  overflow-x: auto;
+  color: var(--text-primary);
+}
 
-    .toggle-icon {
-      display: inline-block;
-      transition: transform 0.3s;
-      margin-left: auto;
-    }
+.answer .mindmap { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.answer .mindmap .node { background: var(--fill-accent); color: white; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 500; display: inline-block; }
+.answer .mindmap .node.alt { background: #7c3aed; }
+.answer .mindmap .node.green { background: #16a34a; }
+.answer .mindmap .node.orange { background: #ea580c; }
+.answer .mindmap .node.red { background: #dc2626; }
 
-    .qa-pair.expanded .toggle-icon {
-      transform: rotate(180deg);
-    }
+.answer .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; vertical-align: middle; margin-right: 4px; }
+.answer .badge-blue { background: #dbeafe; color: #1d4ed8; }
+.answer .badge-green { background: #dcfce7; color: #15803d; }
+.answer .badge-red { background: #fee2e2; color: #dc2626; }
+.answer .badge-orange { background: #ffedd5; color: #c2410c; }
+.answer .badge-purple { background: #f3e8ff; color: #7c3aed; }
 
-    .center-content {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      width: 100%;
-    }
-  </style>
+.answer .tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 10px 0; }
+.answer .tbl th { background: var(--fill-accent); color: white; padding: 7px 10px; text-align: left; font-weight: 500; }
+.answer .tbl td { padding: 6px 10px; border-bottom: 1px solid var(--border); }
+.answer .tbl tr:hover td { background: #f5f5f5; }
+
+.answer .tip { background: #eff6ff; border-left: 3px solid var(--fill-accent); padding: 8px 12px; margin: 10px 0; border-radius: 0 6px 6px 0; font-size: 13px; }
+.answer .warn { background: #fef3c7; border-left: 3px solid #f59e0b; padding: 8px 12px; margin: 10px 0; border-radius: 0 6px 6px 0; font-size: 13px; }
+.answer code { background: #f1f5f9; padding: 1px 5px; border-radius: 3px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; }
+
+.answer .interview-answer {
+  background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+  border: 1px solid #bbf7d0;
+  border-left: 4px solid #22c55e;
+  border-radius: 0 8px 8px 0;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: #1a1a1a;
+  font-style: italic;
+}
+.answer .interview-answer::before {
+  content: "🎤 Interview Answer: ";
+  font-style: normal;
+  font-weight: 600;
+  color: #16a34a;
+}
+</style>
 </head>
-
 <body>
 
 <div class="container">
-
   <div class="header">
-    <h1>Hibernate & JPA Interview Notes</h1>
-    <p>Navigate through 9 core topics · Click to explore Q&A pairs</p>
+    <h1>Microservices Interview Questions</h1>
+    <p>Navigate through 12 core topics · Click to explore Q&A pairs · With interview answers</p>
   </div>
 
-  <!-- MINDMAP VIEW -->
   <div class="mindmap-view" id="mindmapView">
-
-    <div class="topic-card" onclick="showTopic(0)">
-      <span class="topic-icon">🏗️</span>
-      <span class="topic-name">Foundation</span>
-    </div>
-
-    <div class="topic-card" onclick="showTopic(1)">
-      <span class="topic-icon">🧩</span>
-      <span class="topic-name">Core Building Blocks</span>
-    </div>
-
-    <div class="topic-card" onclick="showTopic(2)">
-      <span class="topic-icon">🧠</span>
-      <span class="topic-name">Persistence Context</span>
-    </div>
-
-    <div class="topic-card" onclick="showTopic(3)">
-      <span class="topic-icon">🔄</span>
-      <span class="topic-name">Entity Lifecycle</span>
-    </div>
-
-    <div class="topic-card" onclick="showTopic(4)">
-      <span class="topic-icon">🔗</span>
-      <span class="topic-name">Relationships</span>
-    </div>
-
-    <div class="topic-card" onclick="showTopic(5)">
-      <span class="topic-icon">⚡</span>
-      <span class="topic-name">Fetching & Performance</span>
-    </div>
-
-    <div class="topic-card" onclick="showTopic(6)">
-      <span class="topic-icon">💳</span>
-      <span class="topic-name">Transactions</span>
-    </div>
-
-    <div class="topic-card" onclick="showTopic(7)">
-      <span class="topic-icon">🔎</span>
-      <span class="topic-name">JPQL & Advanced</span>
-    </div>
-
-    <div class="topic-card" onclick="showTopic(8)">
-      <span class="topic-icon">⚙️</span>
-      <span class="topic-name">Hibernate Deep Dive</span>
-    </div>
-
+    <div class="topic-card" onclick="showTopic(0)"><span class="topic-icon">🏗️</span><span class="topic-name">Architecture Basics</span></div>
+    <div class="topic-card" onclick="showTopic(1)"><span class="topic-icon">🌐</span><span class="topic-name">Communication</span></div>
+    <div class="topic-card" onclick="showTopic(2)"><span class="topic-icon">🚪</span><span class="topic-name">API Gateway</span></div>
+    <div class="topic-card" onclick="showTopic(3)"><span class="topic-icon">🔍</span><span class="topic-name">Service Discovery</span></div>
+    <div class="topic-card" onclick="showTopic(4)"><span class="topic-icon">🔌</span><span class="topic-name">Resilience Patterns</span></div>
+    <div class="topic-card" onclick="showTopic(5)"><span class="topic-icon">🗄️</span><span class="topic-name">Data Management</span></div>
+    <div class="topic-card" onclick="showTopic(6)"><span class="topic-icon">📢</span><span class="topic-name">Event-Driven</span></div>
+    <div class="topic-card" onclick="showTopic(7)"><span class="topic-icon">🔐</span><span class="topic-name">Security</span></div>
+    <div class="topic-card" onclick="showTopic(8)"><span class="topic-icon">📊</span><span class="topic-name">Observability</span></div>
+    <div class="topic-card" onclick="showTopic(9)"><span class="topic-icon">🚀</span><span class="topic-name">Deployment</span></div>
+    <div class="topic-card" onclick="showTopic(10)"><span class="topic-icon">📐</span><span class="topic-name">Design Patterns</span></div>
+    <div class="topic-card" onclick="showTopic(11)"><span class="topic-icon">⚡</span><span class="topic-name">Performance</span></div>
   </div>
 
-  <!-- QA VIEWS -->
   <div class="qa-view" id="qaView">
-
     <div class="qa-header">
       <button class="back-btn" onclick="showMindmap()">← Back</button>
       <span id="qaTitle" class="qa-title"></span>
     </div>
-
     <div class="qa-container" id="qaContainer"></div>
-
   </div>
-
 </div>
 
 <script>
-
-  const topics = [
-
-    {
-      name: "Foundation",
-      icon: "🏗️",
-      questions: [
-
-        {
-          q: "What is ORM?",
-          a: "ORM = Object Relational Mapping.<br><br>It is a technique that maps Java objects to database tables.<br><br>Java → Database<br>Class → Table<br>Object → Row<br>Field → Column<br><br>ORM acts as a translator layer:<br>Java Object → ORM → SQL → Database<br>Database → ORM → Java Object"
-        },
-
-        {
-          q: "Why is ORM needed?",
-          a: "Before ORM, developers used JDBC and manually wrote SQL.<br><br>Problems:<br>• Too much boilerplate code<br>• Manual SQL writing<br>• Error-prone<br>• Hard to maintain<br><br>With ORM, you work with objects and Hibernate handles SQL generation."
-        },
-
-        {
-          q: "What is Object-Relational Impedance Mismatch?",
-          a: "Java uses objects while relational databases use tables. Mapping between these two models is not natural.<br><br>Example:<br><br>Java:<br>class Employee {<br>String name;<br>Address address;<br>}<br><br>Database:<br>EMPLOYEE table<br>ADDRESS table<br><br>This difference between the object-oriented world and relational world is called impedance mismatch."
-        },
-
-        {
-          q: "What is JPA?",
-          a: "JPA = Java Persistence API.<br><br>JPA is a specification or rulebook for:<br>• Mapping Java objects to database tables<br>• Performing CRUD operations<br>• Managing object lifecycle<br><br>JPA does NOT perform the actual database work. It defines how the work should be done."
-        },
-
-        {
-          q: "Why is JPA needed?",
-          a: "Different ORM tools historically had different APIs. This could create vendor lock-in and make switching implementations difficult.<br><br>JPA provides one standard API such as EntityManager that can work with different implementations.<br><br>JPA = abstraction over ORM tools."
-        },
-
-        {
-          q: "What is Hibernate?",
-          a: "Hibernate is an ORM framework and implementation of JPA.<br><br>It is a Java library that:<br>• Implements JPA<br>• Converts Java objects to SQL<br>• Interacts with the database<br>• Performs SQL generation<br>• Provides caching and dirty checking<br>• Supports lazy loading"
-        },
-
-        {
-          q: "What is the relationship between ORM, JPA and Hibernate?",
-          a: "ORM = Concept / technique<br>JPA = Specification / rules<br>Hibernate = Implementation / engine<br><br>Simple mental model:<br><br>ORM → Idea<br>JPA → Rules<br>Hibernate → Actual implementation<br><br>The notes summarize this as:<br>ORM (Concept)<br>↓<br>JPA (Specification / Rules)<br>↓<br>Hibernate (Implementation / Tool)"
-        },
-
-        {
-          q: "What is the most important difference between JPA and Hibernate?",
-          a: "JPA defines what should be done through standard APIs and rules.<br><br>Hibernate implements those rules and performs the actual work, including SQL generation and database interaction.<br><br>JPA = WHAT to do<br>Hibernate = HOW to do"
-        },
-
-        {
-          q: "How does the complete JPA/Hibernate flow work?",
-          a: "Your Java code<br>↓<br>JPA / EntityManager<br>↓<br>Persistence Context<br>↓<br>Hibernate ORM engine<br>↓<br>SQL<br>↓<br>Database<br><br>Example:<br>Employee emp = em.find(Employee.class, 1);<br><br>Hibernate ultimately generates the required SQL and interacts with the database."
-        }
-
-      ]
-    },
-
-    {
-      name: "Core Building Blocks",
-      icon: "🧩",
-      questions: [
-
-        {
-          q: "What is an Entity?",
-          a: "An Entity is a Java class mapped to a database table using JPA annotations.<br><br>Example:<br><br>@Entity<br>@Table(name = \"employee\")<br>public class Employee {<br>    @Id<br>    private int id;<br>    private String name;<br>    private double salary;<br>}<br><br>Mapping:<br>Employee class → EMPLOYEE table<br>id → id column<br>name → name column<br>salary → salary column"
-        },
-
-        {
-          q: "What happens when Hibernate starts with Entity classes?",
-          a: "The notes describe the following high-level flow:<br><br>1. Application starts<br>2. Hibernate scans @Entity classes<br>3. Hibernate reads annotations such as @Table and @Id<br>4. Hibernate builds metadata<br>5. Tables can be created if configured<br><br>So an Entity acts as the structure and mapping definition."
-        },
-
-        {
-          q: "What is EntityManager?",
-          a: "EntityManager is a JPA API object/interface responsible for managing entities, their lifecycle and CRUD operations by interacting with the persistence context.<br><br>Simple mental model:<br>Entity → WHAT<br>EntityManager → WHO manages it<br>Hibernate → HOW it is executed"
-        },
-
-        {
-          q: "What are the important EntityManager CRUD operations?",
-          a: "Create:<br>em.persist(emp);<br><br>Read:<br>em.find(...);<br><br>Update:<br>em.merge(emp);<br><br>Delete:<br>em.remove(emp);"
-        },
-
-        {
-          q: "What happens internally when persist() is called?",
-          a: "Example:<br><br>Employee emp = new Employee();<br>emp.setId(1);<br>emp.setName(\"Raj\");<br>em.persist(emp);<br><br>Flow:<br>1. EntityManager receives the object<br>2. Object is stored in the Persistence Context<br>3. Entity becomes Managed<br>4. Hibernate prepares/generates the SQL<br>5. Database operation occurs as part of the transaction/flush flow"
-        },
-
-        {
-          q: "Why is EntityManager needed?",
-          a: "The notes describe EntityManager as handling responsibilities that developers should not manage manually:<br><br>• Performing entity CRUD operations<br>• Managing entity lifecycle<br>• Interacting with the persistence context<br>• Tracking objects<br><br>This avoids directly managing all database interaction and object state."
-        },
-
-        {
-          q: "Does EntityManager immediately hit the database for every operation?",
-          a: "Not necessarily.<br><br>The notes emphasize that EntityManager works with the Persistence Context. Changes can remain in memory and SQL can be executed when the transaction commits or when a flush is required.<br><br>Mental model:<br>Developer → EntityManager → Persistence Context → Hibernate → SQL → Database"
-        },
-
-        {
-          q: "What is EntityManagerFactory vs EntityManager?",
-          a: "The provided notes identify the topic 'EntityManagerFactory vs EntityManager', but the detailed comparison is not developed in the source material provided. Therefore, no additional comparison has been added here."
-        }
-
-      ]
-    },
-
-    {
-      name: "Persistence Context",
-      icon: "🧠",
-      questions: [
-
-        {
-          q: "What is Persistence Context?",
-          a: "Persistence Context is the memory area where JPA/Hibernate keeps managed entity objects and tracks their changes.<br><br>The notes simplify it as:<br><br>Persistence Context = Map&lt;ID, Entity&gt; + Change Tracker<br><br>It acts as a cache and tracks entity state changes."
-        },
-
-        {
-          q: "Is Persistence Context just a queue?",
-          a: "No. The notes specifically describe it as a cache that stores entity objects and tracks their changes.<br><br>For reads, it checks the cache first.<br>For create/update/delete operations, it tracks changes in memory and synchronizes them with the database during flush/commit."
-        },
-
-        {
-          q: "How does find() interact with the Persistence Context?",
-          a: "Example:<br><br>Employee emp = em.find(Employee.class, 1);<br><br>Step 1: Check the Persistence Context.<br><br>If the entity is already present:<br>→ Return the object<br>→ No database hit<br><br>If it is not present:<br>→ Generate SELECT SQL<br>→ Hit database<br>→ Create Employee object<br>→ Store it in Persistence Context<br>→ Return object"
-        },
-
-        {
-          q: "Why can two find() calls return the same object instance?",
-          a: "Example:<br><br>Employee e1 = em.find(Employee.class, 1);<br>Employee e2 = em.find(Employee.class, 1);<br><br>System.out.println(e1 == e2);<br><br>The notes explain that both lookups use the same Persistence Context entry, so the same managed object instance can be returned."
-        },
-
-        {
-          q: "How does CREATE work through the Persistence Context?",
-          a: "Example:<br><br>Employee emp = new Employee();<br>em.persist(emp);<br><br>Flow:<br>Transient object<br>↓<br>persist()<br>↓<br>Stored in Persistence Context<br>↓<br>Marked Managed<br>↓<br>INSERT during commit/flush"
-        },
-
-        {
-          q: "How does UPDATE work through the Persistence Context?",
-          a: "Example:<br><br>Employee emp = em.find(Employee.class, 1);<br>emp.setName(\"Rahul\");<br><br>Flow:<br>1. Entity is already Managed<br>2. Object is modified<br>3. Persistence Context tracks the change<br>4. No explicit update call is required according to the notes<br>5. UPDATE is generated during commit/flush"
-        },
-
-        {
-          q: "How does DELETE work through the Persistence Context?",
-          a: "Example:<br><br>Employee emp = em.find(Employee.class, 1);<br>em.remove(emp);<br><br>Flow:<br>1. Entity must be Managed<br>2. remove() marks it as Removed<br>3. Entity remains associated with the Persistence Context until commit<br>4. DELETE is executed at commit/flush"
-        },
-
-        {
-          q: "What is the complete CRUD mental model?",
-          a: "CREATE:<br>persist() → store in map → INSERT at commit<br><br>READ:<br>check map → otherwise DB → store in map<br><br>UPDATE:<br>modify object → tracked → UPDATE at commit<br><br>DELETE:<br>mark removed → DELETE at commit"
-        }
-
-      ]
-    },
-
-    {
-      name: "Entity Lifecycle",
-      icon: "🔄",
-      questions: [
-
-        {
-          q: "What is Entity Lifecycle?",
-          a: "Entity lifecycle defines the different states an object goes through while interacting with the database.<br><br>The notes summarize the flow as:<br><br>Transient → Managed → Detached → Removed"
-        },
-
-        {
-          q: "What is the Transient state?",
-          a: "Transient means the object exists only in Java memory.<br><br>Example:<br><br>Employee emp = new Employee();<br>emp.setName(\"Raj\");<br><br>State:<br>Only in memory ✅<br>Database ❌<br>Tracked ❌"
-        },
-
-        {
-          q: "What is the Managed/Persistent state?",
-          a: "A Managed entity is inside the Persistence Context and is tracked by EntityManager.<br><br>Examples:<br><br>em.persist(emp);<br><br>or<br><br>Employee emp = em.find(Employee.class, 1);<br><br>State:<br>In memory ✅<br>Tracked ✅<br>Database synchronization happens automatically through the persistence mechanism.<br><br>Dirty checking works in this state."
-        },
-
-        {
-          q: "What is the Detached state?",
-          a: "A Detached entity still exists as an object but is no longer tracked by the Persistence Context.<br><br>Example:<br><br>em.detach(emp);<br><br>The notes also describe transaction/session completion as a point where an entity can become detached.<br><br>State:<br>Object exists ✅<br>Tracked ❌<br>Changes are not automatically saved ❌"
-        },
-
-        {
-          q: "What is the Removed state?",
-          a: "Removed means the entity has been marked for deletion.<br><br>Example:<br><br>em.remove(emp);<br><br>The entity is marked for deletion and the DELETE operation occurs during commit/flush."
-        },
-
-        {
-          q: "Why is understanding Entity Lifecycle important?",
-          a: "Because important JPA behavior depends on the entity state.<br><br>The notes emphasize:<br>• Dirty checking works in the Managed state<br>• Remove applies to a managed entity<br>• persist() changes a new/transient object into a managed entity<br><br>So you must know what state your object is currently in."
-        },
-
-        {
-          q: "What is the complete Entity Lifecycle flow?",
-          a: "Transient<br>↓ persist()<br>Managed<br>↓ detach()<br>Detached<br>↓ remove()<br>Removed"
-        }
-
-      ]
-    },
-
-    {
-      name: "Relationships",
-      icon: "🔗",
-      questions: [
-
-        {
-          q: "What relationship types are listed in the Hibernate/JPA roadmap?",
-          a: "The notes list four relationship types:<br><br>• OneToOne<br>• OneToMany<br>• ManyToOne<br>• ManyToMany"
-        },
-
-        {
-          q: "What is the role of Relationships in JPA?",
-          a: "Relationships belong to the Data Modeling section of the notes and represent how entities relate to one another.<br><br>The provided source lists OneToOne, OneToMany, ManyToOne and ManyToMany, but does not provide detailed explanations or examples for each relationship."
-        },
-
-        {
-          q: "Are detailed relationship examples included in the provided notes?",
-          a: "The roadmap identifies relationships as an important Hibernate/JPA topic, but the detailed content available in the source focuses mainly on lifecycle, persistence context, fetching, transactions, caching and dirty checking. No additional relationship behavior has been invented here."
-        }
-
-      ]
-    },
-
-    {
-      name: "Fetching & Performance",
-      icon: "⚡",
-      questions: [
-
-        {
-          q: "What is Fetching in JPA?",
-          a: "Fetching defines how related data is loaded from the database.<br><br>The two approaches in the notes are:<br>• EAGER<br>• LAZY"
-        },
-
-        {
-          q: "What is EAGER fetching?",
-          a: "EAGER means related data is loaded immediately.<br><br>The notes use the idea:<br>\"Load everything NOW\"<br><br>Example concept:<br>Employee is loaded → Address is also loaded.<br><br>Problem:<br>Even if the related data is not needed, it may still be loaded, increasing memory usage and potentially hurting performance."
-        },
-
-        {
-          q: "What is LAZY fetching?",
-          a: "LAZY means related data is loaded only when it is accessed.<br><br>Example:<br><br>Employee emp = em.find(Employee.class, 1);<br><br>The employee is loaded first.<br><br>Later:<br><br>emp.getAddresses();<br><br>The related data is loaded when accessed.<br><br>The notes describe the relationship as a proxy until the data is needed."
-        },
-
-        {
-          q: "What is the difference between LAZY and EAGER?",
-          a: "EAGER → load immediately<br>LAZY → load on demand<br><br>Analogy from the notes:<br>EAGER = order burger + fries + drink together.<br>LAZY = order burger first and fries later when needed."
-        },
-
-        {
-          q: "What default fetching behavior is mentioned in the notes?",
-          a: "The notes state:<br><br>@OneToMany → LAZY<br>@ManyToOne → EAGER"
-        },
-
-        {
-          q: "When should LAZY fetching be considered?",
-          a: "The notes recommend LAZY for:<br>• Large data<br>• Collections<br>• Performance-sensitive scenarios<br><br>The reason is that related data is loaded only when needed."
-        },
-
-        {
-          q: "When should EAGER fetching be considered?",
-          a: "The notes suggest EAGER when related data is small and always needed.<br><br>The trade-off is that EAGER can overload the application if unnecessary related data is loaded."
-        },
-
-        {
-          q: "What is the N+1 query problem?",
-          a: "N+1 happens when one query fetches the main entities and then N additional queries fetch related data for each entity.<br><br>Formula:<br><br>1 query → main data<br>+<br>N queries → related data<br>= N + 1 queries"
-        },
-
-        {
-          q: "Can you explain N+1 with the Employee/Address example?",
-          a: "Suppose three employees are loaded:<br><br>SELECT * FROM employee;<br><br>Then code accesses addresses for every employee:<br><br>SELECT * FROM address WHERE emp_id = 1;<br>SELECT * FROM address WHERE emp_id = 2;<br>SELECT * FROM address WHERE emp_id = 3;<br><br>Total:<br>1 + 3 = 4 queries.<br><br>For 100 employees, the notes show the problem as 101 queries."
-        },
-
-        {
-          q: "Why is N+1 a performance problem?",
-          a: "The notes identify three major problems:<br><br>• Too many database calls<br>• Slow performance<br>• Network overhead<br><br>The core issue is that related data is fetched one-by-one rather than efficiently together."
-        },
-
-        {
-          q: "What is the senior-level insight about LAZY vs EAGER?",
-          a: "LAZY is generally good for performance because data is loaded only when needed, but it can lead to N+1 queries.<br><br>EAGER is simpler because data is loaded immediately, but it can overload the system by loading data that may not be required."
-        },
-
-        {
-          q: "What is Dirty Checking?",
-          a: "Dirty checking means JPA automatically detects changes made to a managed entity and synchronizes those changes with the database without explicitly writing an update query.<br><br>Simple mental model:<br>You change object → JPA notices → DB updated"
-        },
-
-        {
-          q: "How does Dirty Checking work internally?",
-          a: "The notes describe this sequence:<br><br>1. Entity is loaded into the Persistence Context<br>2. JPA keeps the original state<br>3. You modify the object<br>4. JPA compares old and new state<br>5. If changed, Hibernate generates an UPDATE query<br><br>Example SQL:<br>UPDATE employee SET name = 'Rahul' WHERE id = 1;"
-        },
-
-        {
-          q: "When does Dirty Checking work?",
-          a: "Dirty checking works when the entity is in the Managed state inside the Persistence Context.<br><br>Transient example:<br>Employee emp = new Employee();<br>emp.setName(\"Rahul\");<br>→ No dirty checking because the entity is not managed.<br><br>Managed example:<br>Employee emp = em.find(Employee.class, 1);<br>emp.setName(\"Rahul\");<br>→ Dirty checking works."
-        },
-
-        {
-          q: "When does the UPDATE actually happen with Dirty Checking?",
-          a: "The notes emphasize that the UPDATE does not happen immediately when the Java field is changed.<br><br>The UPDATE occurs during transaction commit/flush.<br><br>Persistence Context<br>↓<br>Dirty Checking<br>↓<br>SQL generated<br>↓<br>Commit/flush"
-        }
-
-      ]
-    },
-
-    {
-      name: "Transactions",
-      icon: "💳",
-      questions: [
-
-        {
-          q: "What is a Transaction in JPA?",
-          a: "A transaction is a unit of work where database operations are completed as one logical operation.<br><br>Either:<br>✅ Everything succeeds<br>❌ Everything fails and rolls back<br><br>The notes use a bank transfer analogy: if money is deducted but the second step fails, the first step must also be rolled back."
-        },
-
-        {
-          q: "Why are Transactions needed?",
-          a: "Without transactions, one database operation could succeed while another fails, leaving inconsistent data.<br><br>Example:<br>INSERT succeeds<br>UPDATE fails<br>→ inconsistent state<br><br>With a transaction:<br>All succeed → COMMIT<br>Any failure → ROLLBACK"
-        },
-
-        {
-          q: "How does a Transaction connect with the Persistence Context?",
-          a: "The Persistence Context stores and tracks changes in memory.<br><br>The transaction controls when those changes are flushed to the database.<br><br>Mental model:<br>EntityManager<br>↓<br>Persistence Context<br>↓<br>Transaction COMMIT<br>↓<br>FLUSH<br>↓<br>SQL Execution"
-        },
-
-        {
-          q: "What happens in this transaction example?",
-          a: "@Transactional<br>public void createEmployee() {<br>    Employee emp = new Employee();<br>    emp.setName(\"Raj\");<br>    em.persist(emp);<br>    emp.setName(\"Rahul\");<br>}<br><br>According to the notes:<br>1. Transaction starts<br>2. persist() stores the entity in Persistence Context<br>3. Name change is tracked<br>4. SQL is not immediately executed<br>5. Transaction commits<br>6. Hibernate flushes and executes the required SQL"
-        },
-
-        {
-          q: "What is Flush?",
-          a: "Flush means synchronizing the Persistence Context with the database.<br><br>Persistence Context<br>↓<br>SQL<br>↓<br>Database<br><br>The notes state that flushing can happen automatically on transaction commit and sometimes before queries."
-        },
-
-        {
-          q: "What is Rollback?",
-          a: "Rollback means undoing the transaction's database changes when an error occurs.<br><br>Example:<br><br>@Transactional<br>public void createEmployee() {<br>    em.persist(emp);<br>    throw new RuntimeException();<br>}<br><br>The notes describe the result as:<br>NO INSERT ❌<br>Everything discarded"
-        },
-
-        {
-          q: "How do CRUD operations behave with Transactions?",
-          a: "CREATE:<br>persist() → stored in Persistence Context → INSERT at commit<br><br>READ:<br>find() → may hit DB immediately → stored in Persistence Context<br><br>UPDATE:<br>modify object → tracked → UPDATE at commit<br><br>DELETE:<br>remove() → marked deleted → DELETE at commit"
-        },
-
-        {
-          q: "Who manages transactions in Spring?",
-          a: "The notes use Spring's @Transactional annotation.<br><br>Example:<br><br>@Transactional<br>public void process() {<br>    // all DB operations inside this method<br>}<br><br>The notes describe Spring as:<br>1. Opening the transaction<br>2. Executing the method<br>3. Committing or rolling back"
-        },
-
-        {
-          q: "What is the final transaction mental model?",
-          a: "EntityManager<br>↓<br>Persistence Context (stores changes)<br>↓<br>Transaction COMMIT<br>↓<br>FLUSH<br>↓<br>SQL Execution"
-        }
-
-      ]
-    },
-
-    {
-      name: "JPQL & Advanced",
-      icon: "🔎",
-      questions: [
-
-        {
-          q: "What is JPQL?",
-          a: "The Hibernate/JPA roadmap identifies JPQL as the object-based query mechanism under the QUERYING DATA section.<br><br>The provided source does not contain detailed JPQL syntax or examples, so no additional syntax has been added."
-        },
-
-        {
-          q: "What advanced concepts are listed in the notes?",
-          a: "The notes identify these advanced concepts:<br><br>• N+1 Problem<br>• Dirty Checking<br>• Caching<br>• First Level Cache<br>• Second Level Cache"
-        },
-
-        {
-          q: "What is Caching?",
-          a: "Caching means storing data in memory so the application does not repeatedly hit the database.<br><br>Simple mental model:<br>Already fetched data → reuse from memory<br>→ Avoid unnecessary DB calls"
-        },
-
-        {
-          q: "What are the two JPA cache levels discussed?",
-          a: "The notes describe:<br><br>1. First Level Cache → Persistence Context<br>2. Second Level Cache → shared across the application"
-        },
-
-        {
-          q: "What is First Level Cache?",
-          a: "First Level Cache is the Persistence Context.<br><br>Example:<br><br>Employee e1 = em.find(Employee.class, 1);<br>Employee e2 = em.find(Employee.class, 1);<br><br>The first call can hit the database. The second lookup can return the entity from memory within the same EntityManager/Persistence Context."
-        },
-
-        {
-          q: "What is the scope of First Level Cache?",
-          a: "The notes describe First Level Cache as scoped to the same EntityManager/Persistence Context.<br><br>Once that context/transaction lifecycle ends, the cache is no longer available in that same form."
-        },
-
-        {
-          q: "What is Second Level Cache?",
-          a: "Second Level Cache is a shared cache that can store database entities beyond a single EntityManager/session and can be shared across multiple EntityManagers.<br><br>The notes give EHCache as an example and also mention Redis and Hazelcast as Hibernate cache support options."
-        },
-
-        {
-          q: "Is Second Level Cache enabled by default?",
-          a: "The notes state:<br><br>Second-level cache is NOT enabled by default ❌<br>It needs configuration ✅"
-        },
-
-        {
-          q: "What is the First Level vs Second Level Cache difference?",
-          a: "First Level Cache:<br>• Persistence Context<br>• Scoped to the EntityManager/context<br>• Automatic<br><br>Second Level Cache:<br>• Shared across the application<br>• Available across multiple EntityManagers<br>• Optional<br>• Requires configuration"
-        },
-
-        {
-          q: "What is the cache lookup flow?",
-          a: "The notes describe the following flow:<br><br>EntityManager<br>↓<br>First Level Cache / Persistence Context<br>↓<br>Second Level Cache (optional)<br>↓<br>Database<br><br>Step 1: Check First Level Cache<br>Step 2: If not found, check Second Level Cache<br>Step 3: If not found, hit DB<br>Step 4: Store the result in caches"
-        }
-
-      ]
-    },
-
-    {
-      name: "Hibernate Deep Dive",
-      icon: "⚙️",
-      questions: [
-
-        {
-          q: "How does Hibernate implement JPA?",
-          a: "The notes explain that Hibernate implements JPA interfaces.<br><br>Example:<br><br>EntityManager em = ...;<br><br>Internally, Hibernate can work with its own Session implementation and generates SQL to perform the database operation.<br><br>You write → JPA API<br>Hibernate executes → SQL"
-        },
-
-        {
-          q: "What happens internally when an Entity is read?",
-          a: "Example:<br><br>Employee emp = em.find(Employee.class, 1);<br><br>Flow:<br>1. EntityManager checks Persistence Context<br>2. If not found, Hibernate generates SELECT SQL<br>3. Database returns the row<br>4. Hibernate creates the Employee object<br>5. Object is stored in Persistence Context<br>6. Object is returned"
-        },
-
-        {
-          q: "What is the complete Hibernate architecture described in the notes?",
-          a: "Application Code<br>↓<br>EntityManager (JPA API)<br>↓<br>Persistence Context (memory tracking)<br>↓<br>Hibernate (ORM engine)<br>↓<br>Database<br><br>Key components:<br>EntityManager → performs operations<br>Persistence Context → tracks objects<br>Entities → mapped classes"
-        },
-
-        {
-          q: "How does Hibernate convert Java operations into SQL?",
-          a: "Example:<br><br>em.persist(emp);<br><br>JPA defines the persist operation.<br>Hibernate implements the behavior.<br>Hibernate generates the required SQL.<br>The database executes the SQL.<br><br>Flow:<br>Java Object → JPA → Hibernate → SQL → Database"
-        },
-
-        {
-          q: "What are the advantages of ORM mentioned in the notes?",
-          a: "The notes list:<br><br>✔ Productivity<br>• No SQL writing in most cases<br><br>✔ Maintainability<br>• Cleaner code<br><br>✔ Database independence<br>• Ability to switch databases such as MySQL → PostgreSQL<br><br>✔ Object-oriented approach<br>• Work with objects rather than directly working with tables"
-        },
-
-        {
-          q: "What are the disadvantages of ORM?",
-          a: "The notes identify:<br><br>❗ Performance overhead<br>ORM can generate extra queries.<br><br>❗ Less control over SQL<br>Complex queries can be harder to optimize.<br><br>❗ Learning curve<br>Features such as lazy loading and caching can create hidden behavior."
-        },
-
-        {
-          q: "When should JDBC or Native SQL be considered instead of ORM?",
-          a: "The notes recommend JDBC or Native SQL for:<br><br>• Complex reporting queries<br>• Bulk operations involving millions of rows<br>• Performance-critical systems<br>• Systems heavily dependent on stored procedures"
-        },
-
-        {
-          q: "What is the before-vs-after ORM example?",
-          a: "Without ORM:<br><br>String sql = \"SELECT * FROM employee WHERE id = ?\";<br>ResultSet rs = ps.executeQuery();<br><br>With ORM:<br><br>Employee emp = entityManager.find(Employee.class, 1);<br><br>The notes highlight the second approach as cleaner and requiring less manual SQL."
-        },
-
-        {
-          q: "Why can't objects simply be stored directly in a relational database?",
-          a: "The notes explain that relational databases understand structured data in tables, rather than object concepts such as methods, inheritance and direct references.<br><br>Therefore, objects are converted into rows and columns through ORM mapping."
-        },
-
-        {
-          q: "What is the final interview answer for JPA vs Hibernate?",
-          a: "“JPA is a specification that standardizes ORM in Java. It defines how objects should be mapped to relational tables and provides a common API like EntityManager. Hibernate is an implementation of JPA that executes these operations by generating SQL queries.”"
-        },
-
-        {
-          q: "What optional deep-dive topics are listed in the roadmap?",
-          a: "The roadmap lists:<br><br>9.1 Hibernate Internals<br>9.2 Performance Tuning<br>9.3 Native SQL Edge Cases<br><br>The source material provided does not contain detailed notes for these three sections, so no unsupported details have been added."
-        }
-
-      ]
-    }
-
-  ];
-
-  function showTopic(index) {
-
-    document.getElementById('mindmapView').style.display = 'none';
-
-    const view = document.getElementById('qaView');
-    view.classList.add('active');
-
-    const topic = topics[index];
-
-    document.getElementById('qaTitle').textContent = topic.name;
-
-    const container = document.getElementById('qaContainer');
-    container.innerHTML = '';
-
-    topic.questions.forEach((qa, idx) => {
-
-      const div = document.createElement('div');
-
-      div.className = 'qa-pair';
-
-      div.innerHTML = `
-        <div class="question">
-          <span class="qa-number">${idx + 1}</span>
-          <div class="center-content">
-            <span>${qa.q}</span>
-            <span class="toggle-icon">▼</span>
-          </div>
+const topics = [
+  // ─── 0: ARCHITECTURE BASICS ───
+  {
+    name: "Architecture Basics",
+    icon: "🏗️",
+    questions: [
+      { q: "What are microservices? How are they different from monolith?",
+        a: `<div class="interview-answer">Microservices is an architectural style where an application is composed of small, independent services that communicate over the network. Each service owns its own database and can be deployed independently. For example, in an e-commerce app, we'd have separate services for Orders, Products, Payments, and Users — each with its own database, deployed separately, and scaling independently.</div>
+<h4>📊 Comparison</h4>
+<table class="tbl">
+  <tr><th></th><th>Monolith</th><th>Microservices</th></tr>
+  <tr><td><b>Deployment</b></td><td>Single unit</td><td>Independent per service</td></tr>
+  <tr><td><b>Database</b></td><td>Shared DB</td><td>Database per service</td></tr>
+  <tr><td><b>Scaling</b></td><td>Scale entire app</td><td>Scale individual service</td></tr>
+  <tr><td><b>Team</b></td><td>One large team</td><td>Small teams per service</td></tr>
+  <tr><td><b>Tech stack</b></td><td>Single stack</td><td>Polyglot (mix languages)</td></tr>
+  <tr><td><b>Failure</b></td><td>Entire app down</td><td>Partial degradation</td></tr>
+</table>
+<div class="flow-chart">Monolith:
+┌─────────────────────────────┐
+│ UI + Orders + Products +    │
+│ Payments + Users + DB       │
+└─────────────────────────────┘
+
+Microservices:
+┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐
+│Orders│ │Produc│ │Paymen│ │Users │
+│  DB  │ │  DB  │ │  DB  │ │  DB  │
+└──────┘ └──────┘ └──────┘ └──────┘</div>` },
+      { q: "When should you NOT use microservices?",
+        a: `<div class="interview-answer">Microservices add complexity — distributed tracing, eventual consistency, network failures. For a small team of 3-5 developers building an MVP, a monolith is faster to develop and deploy. We once started with microservices for a small project and spent 60% of our time on infrastructure instead of features. The rule is: start monolith, split when you feel the pain of scaling or team coordination.</div>
+<h4>❌ Don't use when</h4>
+<ul>
+  <li><b>Small team</b> (&lt;5 devs) — overhead too high</li>
+  <li><b>MVP / Prototype</b> — need to move fast</li>
+  <li><b>Simple domain</b> — no clear service boundaries</li>
+  <li><b>No DevOps maturity</b> — need CI/CD, monitoring, containers</li>
+  <li><b>Tight coupling</b> — services can't be independent</li>
+</ul>
+<div class="tip">💡 <b>Martin Fowler:</b> "Don't start with microservices. Start monolith, then decompose."</div>` },
+      { q: "How do you decompose a monolith into microservices?",
+        a: `<div class="interview-answer">I use Domain-Driven Design (DDD) to identify bounded contexts. For example, in our e-commerce monolith, we identified Order Management, Inventory, Payment, and User Management as distinct domains. We started by extracting the Payment service first because it had the clearest boundary and highest independent scaling need. We used the Strangler Fig pattern — new features go to the microservice, old code gradually migrates.</div>
+<h4>📋 Decomposition Strategies</h4>
+<table class="tbl">
+  <tr><th>Strategy</th><th>How</th><th>Example</th></tr>
+  <tr><td><b>By business domain</b></td><td>DDD bounded contexts</td><td>Orders, Payments, Users</td></tr>
+  <tr><td><b>By subdomain</b></td><td>Core vs Supporting</td><td>Core: Orders, Supporting: Notifications</td></tr>
+  <tr><td><b>By team</b></td><td>Conway's Law</td><td>Team owns service end-to-end</td></tr>
+</table>
+<h4>🔄 Strangler Fig Pattern</h4>
+<div class="flow-chart">Phase 1: Monolith handles everything
+Phase 2: New feature → Microservice, old → Monolith
+Phase 3: Gradually migrate old features
+Phase 4: Monolith retired ✅</div>
+<div class="warn">⚠️ Don't decompose by technical layer (UI service, DB service) — decompose by business capability</div>` },
+      { q: "What is Domain-Driven Design (DDD) and bounded contexts?",
+        a: `<div class="interview-answer">DDD is about modeling software based on the business domain. A bounded context is a boundary where a particular domain model applies. For example, "Product" means different things in different contexts — in the Catalog context it has name, description, images; in the Inventory context it has stock count and warehouse location. Each bounded context becomes a microservice with its own model.</div>
+<h4>📐 Key DDD Concepts</h4>
+<div class="mindmap">
+  <span class="node">Bounded Context</span>
+  <span class="node alt">Aggregate Root</span>
+  <span class="node green">Entity</span>
+  <span class="node orange">Value Object</span>
+  <span class="node red">Domain Event</span>
+  <span class="node">Ubiquitous Language</span>
+</div>
+<div class="flow-chart">E-commerce Bounded Contexts:
+┌──────────┐  ┌──────────┐  ┌──────────┐
+│  Catalog  │  │ Ordering │  │ Shipping │
+│           │  │          │  │          │
+│ Product:  │  │ Product: │  │ Product: │
+│ name,     │  │ id,      │  │ id,      │
+│ images,   │  │ quantity, │  │ weight,  │
+│ price     │  │ price    │  │ dims     │
+└──────────┘  └──────────┘  └──────────┘
+  Different models for "Product" in each context!</div>` },
+      { q: "What is the ideal size of a microservice?",
+        a: `<div class="interview-answer">There's no fixed LOC count. A microservice should be small enough that one team (5-8 people) can own it, and it can be rewritten in 2 weeks. More importantly, it should have a single responsibility — one business capability. Our Payment service is 5000 lines, our Notification service is 800 lines. Both are correctly sized because each does one thing well.</div>
+<h4>📏 Sizing Guidelines</h4>
+<ul>
+  <li><span class="badge badge-blue">1</span> <b>Single responsibility</b> — does one business thing</li>
+  <li><span class="badge badge-green">2</span> <b>One team</b> — 5-8 developers own it</li>
+  <li><span class="badge badge-orange">3</span> <b>Independent deploy</b> — deploy without coordinating</li>
+  <li><span class="badge badge-purple">4</span> <b>Own database</b> — no shared tables</li>
+  <li><span class="badge badge-red">5</span> <b>2-week rewrite</b> — small enough to throw away</li>
+</ul>
+<div class="warn">⚠️ Too small = "nanoservices" → too many network calls, overhead. Too big = mini-monolith.</div>` }
+    ]
+  },
+
+  // ─── 1: COMMUNICATION ───
+  {
+    name: "Communication",
+    icon: "🌐",
+    questions: [
+      { q: "Synchronous vs Asynchronous communication between services.",
+        a: `<div class="interview-answer">For our checkout flow where the user is waiting, I use synchronous REST — the Order service calls Payment and waits for a response. But for sending order confirmation emails, I publish an OrderCreated event to Kafka. The Email service picks it up asynchronously. If the Email service is down, the order still succeeds. The rule: synchronous for user-facing, async for everything else.</div>
+<table class="tbl">
+  <tr><th></th><th>Synchronous</th><th>Asynchronous</th></tr>
+  <tr><td><b>Protocol</b></td><td>REST, gRPC</td><td>Kafka, RabbitMQ</td></tr>
+  <tr><td><b>Latency</b></td><td>5-50ms</td><td>Seconds-minutes</td></tr>
+  <tr><td><b>Coupling</b></td><td>Tight (both must be up)</td><td>Loose (producer doesn't wait)</td></tr>
+  <tr><td><b>Use for</b></td><td>Reads, user-facing</td><td>Writes, background tasks</td></tr>
+</table>
+<div class="flow-chart">Synchronous:
+  Order ──REST──► Payment (waits for response)
+
+Asynchronous:
+  Order ──publish──► Kafka ──consume──► Email
+  (Order doesn't wait for Email)</div>` },
+      { q: "REST vs gRPC for inter-service communication.",
+        a: `<div class="interview-answer">For our public-facing API, I use REST with JSON because it's universal — any client can consume it. But for internal service-to-service calls between our Order and Inventory services, I use gRPC. It reduced our inter-service latency from 8ms to 2ms and payload size by 50% because of binary serialization with Protobuf. The typed schema also catches breaking changes at compile time.</div>
+<table class="tbl">
+  <tr><th></th><th>REST</th><th>gRPC</th></tr>
+  <tr><td><b>Format</b></td><td>JSON (text)</td><td>Protobuf (binary)</td></tr>
+  <tr><td><b>Protocol</b></td><td>HTTP/1.1</td><td>HTTP/2 (multiplexing)</td></tr>
+  <tr><td><b>Latency</b></td><td>5-10ms</td><td>1-3ms</td></tr>
+  <tr><td><b>Streaming</b></td><td>❌</td><td>✅ Bidirectional</td></tr>
+  <tr><td><b>Schema</b></td><td>OpenAPI (optional)</td><td>Protobuf (enforced)</td></tr>
+  <tr><td><b>Best for</b></td><td>Public APIs</td><td>Internal services</td></tr>
+</table>` },
+      { q: "How to handle inter-service communication failures?",
+        a: `<div class="interview-answer">I use a combination of timeouts, retries with exponential backoff, and circuit breakers. For example, our Order service calls Payment with a 200ms timeout. If Payment fails 5 times in a row, the circuit breaker opens and we fail fast for 30 seconds instead of waiting. We also use a fallback — return a cached response or queue the request for later processing.</div>
+<div class="mindmap">
+  <span class="node">⏱️ Timeouts</span>
+  <span class="node alt">🔄 Retries</span>
+  <span class="node green">🔌 Circuit Breaker</span>
+  <span class="node orange">🧱 Bulkhead</span>
+  <span class="node red">📦 Fallback</span>
+</div>
+<div class="flow-chart">Request → Service B
+  ├── Success ✅
+  └── Failure
+       ├── Retry 1 (1s wait)
+       ├── Retry 2 (2s wait)
+       ├── Retry 3 (4s wait)
+       └── All failed → Circuit OPEN
+            → Fail fast for 30s
+            → Return fallback/cached data</div>
+<div class="tip">💡 <b>Tools:</b> Resilience4j (Java), Hystrix (deprecated), Polly (.NET)</div>` },
+      { q: "What is service mesh? When do you need it?",
+        a: `<div class="interview-answer">A service mesh handles all the cross-cutting concerns of inter-service communication — retries, timeouts, mTLS, load balancing, observability — at the infrastructure level. Instead of adding Resilience4j to every service, Istio's sidecar proxy handles it automatically. We adopted Istio when we hit 50+ services and couldn't maintain consistent resilience patterns across all teams.</div>
+<div class="flow-chart">Without Service Mesh:
+  Service A ───────────► Service B
+  (app code handles retries, TLS, metrics)
+
+With Service Mesh (Istio):
+  Service A → [Envoy Proxy] ──► [Envoy Proxy] → Service B
+               (sidecar)          (sidecar)
+  Proxy handles: mTLS, retries, metrics, tracing</div>
+<table class="tbl">
+  <tr><th>Feature</th><th>Without Mesh</th><th>With Mesh</th></tr>
+  <tr><td>mTLS</td><td>Manual cert management</td><td>Automatic</td></tr>
+  <tr><td>Retries</td><td>Code in each service</td><td>Config in mesh</td></tr>
+  <tr><td>Tracing</td><td>Add to each service</td><td>Automatic</td></tr>
+  <tr><td>Canary deploy</td><td>Complex LB rules</td><td>Traffic splitting</td></tr>
+</table>
+<div class="warn">⚠️ Don't add service mesh for &lt;10 services. Overhead not worth it.</div>` }
+    ]
+  },
+
+  // ─── 2: API GATEWAY ───
+  {
+    name: "API Gateway",
+    icon: "🚪",
+    questions: [
+      { q: "What is an API Gateway and why do you need it?",
+        a: `<div class="interview-answer">An API Gateway is the single entry point for all client requests. Instead of the client calling 5 different services directly, it calls the gateway which routes, authenticates, rate-limits, and forwards requests. For example, our mobile app calls api.mysite.com/orders — the gateway validates the JWT, checks rate limits, and routes to the Order service. Without it, every service would need to handle auth, CORS, and rate limiting individually.</div>
+<div class="flow-chart">Without Gateway:
+  Client → Order Service (needs auth, CORS, rate limit)
+  Client → Product Service (needs auth, CORS, rate limit)
+  Client → Payment Service (needs auth, CORS, rate limit)
+
+With Gateway:
+  Client → API Gateway → Order Service
+                       → Product Service
+                       → Payment Service
+  Gateway handles: Auth, CORS, Rate Limit, Routing</div>
+<h4>📋 Gateway Responsibilities</h4>
+<div class="mindmap">
+  <span class="node">🔐 Authentication</span>
+  <span class="node alt">🚦 Rate Limiting</span>
+  <span class="node green">🔀 Routing</span>
+  <span class="node orange">📊 Logging</span>
+  <span class="node red">🔄 Request Transform</span>
+  <span class="node">📦 Response Aggregation</span>
+</div>` },
+      { q: "API Gateway vs Load Balancer — what's the difference?",
+        a: `<div class="interview-answer">The Gateway decides WHICH service handles the request — /orders goes to Order Service, /products goes to Product Service. The Load Balancer decides WHICH instance of that service handles it — Order-1, Order-2, or Order-3. In our architecture, the client hits the API Gateway, which routes to the right service, and the ALB in front of each service distributes across instances.</div>
+<table class="tbl">
+  <tr><th></th><th>API Gateway</th><th>Load Balancer</th></tr>
+  <tr><td><b>Decides</b></td><td>Which service</td><td>Which instance</td></tr>
+  <tr><td><b>Auth</b></td><td>✅ JWT, OAuth2</td><td>❌</td></tr>
+  <tr><td><b>Rate limiting</b></td><td>✅</td><td>❌</td></tr>
+  <tr><td><b>Routing</b></td><td>Path/header based</td><td>Round-robin/least-conn</td></tr>
+  <tr><td><b>Transform</b></td><td>✅ Request/Response</td><td>❌</td></tr>
+</table>
+<div class="flow-chart">Client → Gateway → /orders → ALB → Order-1 / Order-2 / Order-3
+                 → /products → ALB → Product-1 / Product-2</div>` },
+      { q: "BFF (Backend for Frontend) pattern.",
+        a: `<div class="interview-answer">Different clients need different data shapes. Our mobile app needs a compact product response (name, price, thumbnail), while the web app needs full details (reviews, recommendations, related products). Instead of one generic API, we create a BFF per client type. The Mobile BFF aggregates and trims data for mobile, the Web BFF returns richer responses. This keeps each client's API optimized.</div>
+<div class="flow-chart">Mobile App → Mobile BFF → Order Service
+                        → Product Service (compact response)
+
+Web App   → Web BFF    → Order Service
+                        → Product Service (full response)
+                        → Review Service
+                        → Recommendation Service</div>
+<div class="tip">💡 <b>BFF = API Gateway + client-specific aggregation.</b> Each frontend team owns their BFF.</div>` },
+      { q: "Popular API Gateway tools — comparison.",
+        a: `<div class="interview-answer">For Spring-based microservices, I use Spring Cloud Gateway because it integrates natively with Spring Security and Eureka. For cloud-native on AWS, I use AWS API Gateway with Lambda authorizers. For high-performance needs or Kubernetes, Kong or Envoy are better choices because they handle millions of requests with lower latency.</div>
+<table class="tbl">
+  <tr><th>Tool</th><th>Best For</th><th>Language</th></tr>
+  <tr><td><b>Spring Cloud Gateway</b></td><td>Spring ecosystem</td><td>Java</td></tr>
+  <tr><td><b>Kong</b></td><td>Plugin-based, K8s</td><td>Lua/Go</td></tr>
+  <tr><td><b>AWS API Gateway</b></td><td>Serverless, AWS</td><td>Managed</td></tr>
+  <tr><td><b>Envoy</b></td><td>Service mesh, high-perf</td><td>C++</td></tr>
+  <tr><td><b>NGINX</b></td><td>Simple reverse proxy</td><td>C</td></tr>
+</table>` }
+    ]
+  },
+
+  // ─── 3: SERVICE DISCOVERY ───
+  {
+    name: "Service Discovery",
+    icon: "🔍",
+    questions: [
+      { q: "What is service discovery and why is it needed?",
+        a: `<div class="interview-answer">In microservices, services scale up and down dynamically — instances come and go. Service discovery solves the problem of "where is Order Service running right now?" Instead of hardcoding IPs, services register themselves with a registry (like Eureka), and clients query the registry to find available instances. When we auto-scale from 3 to 10 instances, the registry automatically knows about all 10.</div>
+<div class="flow-chart">Without Service Discovery:
+  Order Service → hardcoded IP 10.0.1.5:8080 → Payment
+  (breaks when Payment moves or scales!)
+
+With Service Discovery:
+  1. Payment registers: "I'm at 10.0.1.5:8080"
+  2. Order asks registry: "Where is Payment?"
+  3. Registry returns: [10.0.1.5, 10.0.1.6, 10.0.1.7]
+  4. Order picks one ✅</div>` },
+      { q: "Client-side vs Server-side service discovery.",
+        a: `<div class="interview-answer">With client-side discovery (Eureka + Ribbon), the Order service fetches the list of Payment instances from the registry and picks one itself using round-robin or weighted algorithms. With server-side discovery (AWS ALB), the client just calls a DNS name and the load balancer picks the instance. We use client-side in Spring Cloud and server-side in Kubernetes (kube-proxy).</div>
+<table class="tbl">
+  <tr><th></th><th>Client-side</th><th>Server-side</th></tr>
+  <tr><td><b>Discovery</b></td><td>Client queries registry</td><td>LB/proxy queries registry</td></tr>
+  <tr><td><b>Load balancing</b></td><td>In client (Ribbon)</td><td>In LB (ALB, NGINX)</td></tr>
+  <tr><td><b>Example</b></td><td>Eureka + Ribbon</td><td>K8s Service, AWS ALB</td></tr>
+  <tr><td><b>Pros</b></td><td>No single point of failure</td><td>Simple client code</td></tr>
+  <tr><td><b>Cons</b></td><td>Client complexity</td><td>LB can be bottleneck</td></tr>
+</table>` },
+      { q: "Eureka vs Consul vs Kubernetes DNS.",
+        a: `<div class="interview-answer">For Spring Cloud, Eureka is the natural choice — it integrates with Feign, Ribbon, and Spring Boot seamlessly. For multi-language environments, Consul is better because it's language-agnostic and includes health checking and key-value storage. In Kubernetes, you don't need either — K8s DNS gives you service discovery out of the box via Service objects.</div>
+<table class="tbl">
+  <tr><th></th><th>Eureka</th><th>Consul</th><th>K8s DNS</th></tr>
+  <tr><td><b>Language</b></td><td>Java/Spring</td><td>Any</td><td>Any</td></tr>
+  <tr><td><b>Health check</b></td><td>Heartbeat</td><td>HTTP/TCP/script</td><td>Readiness probe</td></tr>
+  <tr><td><b>KV store</b></td><td>❌</td><td>✅</td><td>ConfigMap</td></tr>
+  <tr><td><b>Best for</b></td><td>Spring Cloud</td><td>Multi-lang, hybrid</td><td>K8s native</td></tr>
+</table>` }
+    ]
+  },
+
+  // ─── 4: RESILIENCE PATTERNS ───
+  {
+    name: "Resilience Patterns",
+    icon: "🔌",
+    questions: [
+      { q: "Circuit Breaker pattern — how does it work?",
+        a: `<div class="interview-answer">It's like an electrical circuit breaker. When our Payment service starts failing, after 5 consecutive failures the circuit "opens" and we immediately return a fallback response instead of waiting for timeout. After 30 seconds, we let one request through (half-open). If it succeeds, the circuit closes and normal traffic resumes. This prevents cascading failures — without it, a slow Payment service would bring down the entire checkout flow.</div>
+<div class="flow-chart">States:
+  CLOSED (normal) ─── requests pass through
+       │ 5 failures
+  OPEN (failing) ──── reject immediately (100ms)
+       │ 30s timeout
+  HALF-OPEN (test) ── allow 1 request
+       ├── Success → CLOSED ✅
+       └── Failure → OPEN 🔴</div>
+<div class="tip">💡 <b>Resilience4j config:</b> failureRateThreshold=50, waitDuration=30s, slidingWindowSize=10</div>` },
+      { q: "Bulkhead pattern — isolate failures.",
+        a: `<div class="interview-answer">Bulkhead isolates different service calls into separate thread pools. For example, our Order service calls Payment (pool of 10 threads) and Inventory (pool of 10 threads). If Payment is slow and consumes all its 10 threads, the Inventory pool is unaffected — those calls still work. Without bulkhead, Payment's slowness would exhaust all shared threads and block Inventory calls too.</div>
+<div class="flow-chart">Without Bulkhead:
+  [Shared Pool: 20 threads]
+  Payment slow → uses 18 threads → Inventory blocked! 💥
+
+With Bulkhead:
+  [Payment Pool: 10 threads] → Payment slow → uses 10 threads
+  [Inventory Pool: 10 threads] → Still works ✅</div>
+<table class="tbl">
+  <tr><th>Type</th><th>How</th><th>Use</th></tr>
+  <tr><td><b>Thread pool</b></td><td>Separate pools per dependency</td><td>Default</td></tr>
+  <tr><td><b>Semaphore</b></td><td>Limit concurrent calls</td><td>Lightweight</td></tr>
+</table>` },
+      { q: "Retry pattern with exponential backoff and jitter.",
+        a: `<div class="interview-answer">When a call to Payment fails with a 503, I retry with exponential backoff: wait 1s, then 2s, then 4s. I add jitter (random ±500ms) so that if 1000 clients retry simultaneously, they don't all hit the server at the same time. Max 3 retries, and only on transient errors (5xx, timeout) — never retry 400 Bad Request. Each retry includes the same idempotency key to prevent duplicate processing.</div>
+<div class="flow-chart">Call fails → Retry 1 (1s + jitter)
+          → Retry 2 (2s + jitter)
+          → Retry 3 (4s + jitter)
+          → Give up → Fallback</div>
+<h4>⚠️ Rules</h4>
+<ul>
+  <li>Only retry <b>transient errors</b> (5xx, timeout)</li>
+  <li>Never retry <b>4xx</b> (client error)</li>
+  <li>Always use <b>idempotency key</b></li>
+  <li>Max retries: <b>3</b></li>
+  <li>Add <b>jitter</b> to prevent thundering herd</li>
+</ul>` },
+      { q: "Timeout pattern — how to set timeouts correctly?",
+        a: `<div class="interview-answer">I set per-service timeouts based on their p99 latency × 2. Our Auth service responds in 20ms p99, so timeout = 50ms. Payment responds in 200ms p99, so timeout = 500ms. Never use a global 30-second timeout — that's how cascading failures start. I also set a total request budget: the entire user request must complete within 2 seconds, so I allocate budgets per downstream call.</div>
+<table class="tbl">
+  <tr><th>Service</th><th>p99 Latency</th><th>Timeout</th></tr>
+  <tr><td>Auth</td><td>20ms</td><td>50ms</td></tr>
+  <tr><td>Inventory</td><td>50ms</td><td>100ms</td></tr>
+  <tr><td>Payment</td><td>200ms</td><td>500ms</td></tr>
+  <tr><td>External (3rd party)</td><td>500ms</td><td>2s</td></tr>
+</table>
+<div class="warn">⚠️ <b>Formula:</b> timeout = p99_latency × 2. If &gt;1% timeouts → service is unhealthy.</div>` },
+      { q: "Graceful degradation — how to handle partial failures?",
+        a: `<div class="interview-answer">When our Recommendation service is down, the product page should still load — just without recommendations. We categorize dependencies as hard (must have) and soft (nice to have). Payment is hard — checkout fails without it. Recommendations are soft — we show "Popular Products" as a fallback. This keeps 95% of the user experience working even when parts of the system are down.</div>
+<table class="tbl">
+  <tr><th>Dependency</th><th>Type</th><th>Fallback</th></tr>
+  <tr><td>Payment</td><td><span class="badge badge-red">Hard</span></td><td>Queue for later, show "processing"</td></tr>
+  <tr><td>Inventory</td><td><span class="badge badge-red">Hard</span></td><td>Return "check availability"</td></tr>
+  <tr><td>Recommendations</td><td><span class="badge badge-green">Soft</span></td><td>Show popular products</td></tr>
+  <tr><td>Reviews</td><td><span class="badge badge-green">Soft</span></td><td>Hide section</td></tr>
+  <tr><td>Analytics</td><td><span class="badge badge-green">Soft</span></td><td>Drop event silently</td></tr>
+</table>` }
+    ]
+  },
+
+  // ─── 5: DATA MANAGEMENT ───
+  {
+    name: "Data Management",
+    icon: "🗄️",
+    questions: [
+      { q: "Database per service pattern — why and how?",
+        a: `<div class="interview-answer">Each microservice must own its data — no shared databases. Our Order service uses PostgreSQL for transactional data, our Product search uses Elasticsearch, and our Session service uses Redis. If two services share a database, they're coupled — changing a table schema requires coordinating both teams. The trade-off is data duplication and eventual consistency, which we handle with events.</div>
+<div class="flow-chart">❌ Shared Database (anti-pattern):
+  Order Service ──┐
+                  ├──► Shared DB  (coupled!)
+  Product Service ─┘
+
+✅ Database per Service:
+  Order Service   → PostgreSQL (orders, order_items)
+  Product Service → Elasticsearch (catalog, search)
+  Session Service → Redis (sessions, carts)</div>` },
+      { q: "Saga pattern for distributed transactions.",
+        a: `<div class="interview-answer">When a user places an order, we need to create an order, reserve inventory, and charge payment — across 3 services. We can't use a single ACID transaction. Instead, we use a Saga: each service does its step and publishes an event. If Payment fails, we publish a compensating event to release the reserved inventory. We use choreography (events) for simple flows and orchestration (central coordinator) for complex ones.</div>
+<h4>📋 Saga: Place Order</h4>
+<div class="flow-chart">Happy Path:
+  1️⃣  Order Service: Create order (PENDING)
+  2️⃣  Inventory Service: Reserve items → InventoryReserved
+  3️⃣  Payment Service: Charge card → PaymentApproved
+  4️⃣  Order Service: Confirm order ✅
+
+Compensation (Payment fails):
+  3️⃣  Payment fails → PaymentFailed event
+  2️⃣  Inventory Service: Release items (compensate)
+  1️⃣  Order Service: Cancel order (compensate)</div>
+<table class="tbl">
+  <tr><th></th><th>Choreography</th><th>Orchestration</th></tr>
+  <tr><td><b>Control</b></td><td>Events (decentralized)</td><td>Central coordinator</td></tr>
+  <tr><td><b>Coupling</b></td><td>Loose</td><td>Coordinator knows all steps</td></tr>
+  <tr><td><b>Best for</b></td><td>Simple flows (3-4 steps)</td><td>Complex flows (5+ steps)</td></tr>
+</table>` },
+      { q: "CQRS pattern — separate read and write models.",
+        a: `<div class="interview-answer">Our product catalog has 10:1 read-to-write ratio. Reads need denormalized data with joins across categories, reviews, and pricing. Writes are simple inserts. With CQRS, writes go to a normalized PostgreSQL database, and an event updates a denormalized read model in Elasticsearch. Reads are 10x faster because there are no JOINs, and we can scale read and write sides independently.</div>
+<div class="flow-chart">WRITE side:
+  Command → Validate → Write to PostgreSQL → Publish event
+
+EVENT:
+  Event → Update read model (Elasticsearch, denormalized)
+
+READ side:
+  Query → Read from Elasticsearch → Fast response ✅</div>
+<div class="tip">💡 CQRS adds complexity. Only use when read/write patterns are very different.</div>` },
+      { q: "How to handle data consistency across services?",
+        a: `<div class="interview-answer">We accept eventual consistency for most things. When a user updates their profile in the User service, the Order service might show the old name for a few seconds — that's fine. For critical paths like payments, we use the Saga pattern with compensating transactions. We also run hourly reconciliation jobs to detect and fix any inconsistencies between services.</div>
+<table class="tbl">
+  <tr><th>Pattern</th><th>Consistency</th><th>Use Case</th></tr>
+  <tr><td><b>Event-driven</b></td><td>Eventual (100ms-5s)</td><td>Profile updates, notifications</td></tr>
+  <tr><td><b>Saga</b></td><td>Eventual with compensate</td><td>Orders, payments</td></tr>
+  <tr><td><b>2PC</b></td><td>Strong</td><td>❌ Avoid in microservices</td></tr>
+  <tr><td><b>Outbox pattern</b></td><td>Guaranteed delivery</td><td>Critical events</td></tr>
+</table>` }
+    ]
+  },
+
+  // ─── 6: EVENT-DRIVEN ───
+  {
+    name: "Event-Driven",
+    icon: "📢",
+    questions: [
+      { q: "Event-driven architecture in microservices.",
+        a: `<div class="interview-answer">Instead of services calling each other directly, they communicate through events. When Order Service creates an order, it publishes an OrderCreated event to Kafka. Inventory, Payment, Email, and Analytics services all subscribe to this event and react independently. This decouples services — Order doesn't know or care who's listening. If we add a new Loyalty Points service, we just subscribe to the same event without touching Order Service.</div>
+<div class="flow-chart">Order Service publishes: OrderCreated
+    ↓ (Kafka)
+  ├── Inventory → Reserve items
+  ├── Payment → Charge card
+  ├── Email → Send confirmation
+  ├── Analytics → Track order
+  └── (future) Loyalty → Award points</div>` },
+      { q: "Transactional Outbox pattern — solve dual-write problem.",
+        a: `<div class="interview-answer">The dual-write problem: we need to update the database AND publish an event. If we do DB first and Kafka fails, the event is lost. If Kafka first and DB fails, we have a phantom event. The Outbox pattern solves this: write the order AND the event to an outbox table in the same database transaction. A separate process reads the outbox and publishes to Kafka. This guarantees both happen or neither does.</div>
+<div class="flow-chart">❌ Dual-write (unreliable):
+  1. Write to DB ✅
+  2. Publish to Kafka ❌ (fails!)
+  → Event lost!
+
+✅ Outbox pattern:
+  1. BEGIN TX
+     INSERT INTO orders (...)
+     INSERT INTO outbox (event_data)
+     COMMIT ✅
+  2. Outbox poller reads outbox → Publishes to Kafka
+  3. Marks as published ✅</div>
+<div class="tip">💡 <b>Debezium</b> can read the DB transaction log (CDC) instead of polling — more efficient.</div>` },
+      { q: "Event sourcing vs Event-driven — what's the difference?",
+        a: `<div class="interview-answer">Event-driven means services communicate via events — OrderCreated triggers downstream processing. Event sourcing means we store state as a sequence of events instead of current state. With event sourcing, the Order entity doesn't have a "status" column — instead, we replay events: OrderCreated → ItemAdded → PaymentApproved → OrderShipped to derive the current status. Event-driven is a communication pattern; event sourcing is a storage pattern.</div>
+<table class="tbl">
+  <tr><th></th><th>Event-Driven</th><th>Event Sourcing</th></tr>
+  <tr><td><b>What</b></td><td>Communication pattern</td><td>Storage pattern</td></tr>
+  <tr><td><b>Events</b></td><td>Notifications between services</td><td>Source of truth for state</td></tr>
+  <tr><td><b>State</b></td><td>Stored normally in DB</td><td>Derived by replaying events</td></tr>
+  <tr><td><b>Complexity</b></td><td>Medium</td><td>High</td></tr>
+  <tr><td><b>Use when</b></td><td>Decoupling services</td><td>Audit trail, undo, replay</td></tr>
+</table>` },
+      { q: "Idempotency in event consumers — preventing duplicates.",
+        a: `<div class="interview-answer">Kafka guarantees at-least-once delivery, meaning the same event might be delivered twice — a network glitch during consumer acknowledgement. If our Payment consumer processes a charge event twice, the customer gets charged twice. We prevent this by storing a processed event ID: before processing, check if eventId exists in our processed_events table. If yes, skip. If no, process and record the ID. This makes the consumer idempotent.</div>
+<div class="flow-chart">Consumer receives event (id: evt-123)
+  ↓
+Check: SELECT FROM processed_events WHERE id = 'evt-123'
+  ├── EXISTS → Skip (already processed) ✅
+  └── NOT EXISTS
+       → Process event
+       → INSERT INTO processed_events (id: 'evt-123')
+       → Commit ✅</div>` }
+    ]
+  },
+
+  // ─── 7: SECURITY ───
+  {
+    name: "Security",
+    icon: "🔐",
+    questions: [
+      { q: "Authentication and authorization in microservices.",
+        a: `<div class="interview-answer">We handle auth at the API Gateway level. The gateway validates the JWT token, extracts user info and roles, and forwards them as headers to downstream services. Individual services don't need to call the auth server — they trust the gateway. For service-to-service calls, we use mTLS — each service has a certificate, and they mutually authenticate. This way, the Payment service knows the request is genuinely from the Order service, not an attacker.</div>
+<div class="flow-chart">Client → JWT Token → API Gateway
+  ├── Validate JWT ✅
+  ├── Extract: userId, roles
+  ├── Forward: X-User-Id, X-Roles headers
+  ↓
+Internal Services (trust gateway)
+  Service A ──mTLS──► Service B
+  (mutual certificate verification)</div>` },
+      { q: "JWT vs OAuth2 vs API Keys in microservices.",
+        a: `<div class="interview-answer">For user authentication, we use OAuth2 (authorization code flow) — the user logs in via Google or our auth server and gets a JWT access token. The JWT is self-contained: the gateway verifies the signature locally without calling the auth server, which is critical for low latency. For third-party API access, we issue API keys with rate limits. For internal service-to-service, we use mTLS certificates. <br>JWT tells you WHAT the token looks like. OAuth2 tells you HOW authorization is obtained and used.<br>JWT: User → Login → Your Auth Server → JWT → User → Your API
+<br>OAuth2: User → Your App → Authorization Server → Access Token → Your App → Resource API</div>
+<table class="tbl">
+  <tr><th>Method</th><th>Use Case</th><th>Latency</th></tr>
+  <tr><td><b>JWT</b></td><td>User → API calls</td><td>&lt;1ms (local verify)</td></tr>
+  <tr><td><b>OAuth2</b></td><td>Login flow (Google, SSO)</td><td>Varies</td></tr>
+  <tr><td><b>API Key</b></td><td>Third-party integrations</td><td>&lt;1ms (lookup)</td></tr>
+  <tr><td><b>mTLS</b></td><td>Service-to-service</td><td>~1ms (cert verify)</td></tr>
+</table>` },
+      { q: "Zero Trust security model in microservices.",
+        a: `<div class="interview-answer">Zero Trust means "never trust, always verify" — even internal service calls are authenticated and authorized. Every service-to-service call uses mTLS, every request carries auth context, and network policies restrict which services can talk to which. Our Payment service only accepts calls from Order and Refund services — all other services are blocked at the network level. This limits the blast radius if one service is compromised.</div>
+<ul>
+  <li><span class="badge badge-blue">1</span> <b>mTLS everywhere</b> — even internal calls</li>
+  <li><span class="badge badge-green">2</span> <b>Network policies</b> — whitelist allowed callers</li>
+  <li><span class="badge badge-orange">3</span> <b>Least privilege</b> — service only accesses what it needs</li>
+  <li><span class="badge badge-purple">4</span> <b>Rotate secrets</b> — certificates every 24h</li>
+  <li><span class="badge badge-red">5</span> <b>Audit everything</b> — log every access</li>
+</ul>` }
+    ]
+  },
+
+  // ─── 8: OBSERVABILITY ───
+  {
+    name: "Observability",
+    icon: "📊",
+    questions: [
+      { q: "Three pillars of observability — Metrics, Logs, Traces.",
+        a: `<div class="interview-answer">When a user reports "checkout is slow," I need all three pillars. Metrics tell me WHAT — p99 latency spiked to 3s. Traces tell me WHERE — the Payment span took 2.8s. Logs tell me WHY — Payment service logged "connection pool exhausted." The trace ID links all three: I find the slow trace in Jaeger, search the same ID in ELK for errors, and check Prometheus metrics at that timestamp.</div>
+<table class="tbl">
+  <tr><th>Pillar</th><th>Tool</th><th>Answers</th></tr>
+  <tr><td><b>Metrics</b></td><td>Prometheus, Grafana</td><td>WHAT is happening (p99, RPS, CPU)</td></tr>
+  <tr><td><b>Logs</b></td><td>ELK, Splunk</td><td>WHY it happened (errors, stack traces)</td></tr>
+  <tr><td><b>Traces</b></td><td>Jaeger, Zipkin</td><td>WHERE it's slow (which service, span)</td></tr>
+</table>
+<div class="flow-chart">User: "Checkout is slow"
+  ↓
+Metrics: p99 = 3s at 14:30 (WHAT)
+  ↓
+Traces: Payment span = 2.8s (WHERE)
+  ↓
+Logs: trace-id:abc → "Connection pool exhausted" (WHY)
+  ↓
+Root cause found in 5 minutes ✅</div>` },
+      { q: "Distributed tracing — how does it work?",
+        a: `<div class="interview-answer">When a request enters our system, the API Gateway generates a unique trace ID (e.g., trace-abc-123). Every service passes this ID downstream. Each service creates a "span" with start/end timestamps. Jaeger collects all spans and assembles a timeline showing: Gateway (2ms) → Order (5ms) → Inventory (3ms) → Payment (200ms). I can immediately see Payment is the bottleneck.</div>
+<div class="flow-chart">Trace ID: abc-123
+┌─ Gateway ─────────── 2ms ──┐
+│  ├─ Order Service ── 5ms   │
+│  │  ├─ Inventory ── 3ms    │
+│  │  └─ Payment ─── 200ms 🔴│ ← bottleneck!
+│  └─ Email ───────── 1ms    │
+└─────────────────────────────┘
+Total: 211ms</div>
+<div class="tip">💡 <b>Spring Cloud Sleuth</b> auto-injects trace IDs. <b>Micrometer Tracing</b> is the modern replacement.</div>` },
+      { q: "Health checks and readiness probes.",
+        a: `<div class="interview-answer">We expose two endpoints: /health/liveness and /health/readiness. Liveness tells Kubernetes "am I alive?" — if it returns 503, K8s restarts the pod. Readiness tells the load balancer "can I handle traffic?" — during startup, the DB connection pool isn't ready yet, so readiness returns 503 and the LB doesn't send traffic. Once everything is initialized, readiness returns 200 and traffic flows in.</div>
+<table class="tbl">
+  <tr><th></th><th>Liveness</th><th>Readiness</th></tr>
+  <tr><td><b>Question</b></td><td>Is the process alive?</td><td>Can it handle requests?</td></tr>
+  <tr><td><b>Failure action</b></td><td>Restart pod</td><td>Stop sending traffic</td></tr>
+  <tr><td><b>Checks</b></td><td>Process running</td><td>DB connected, cache warm</td></tr>
+</table>` },
+      { q: "Centralized logging in microservices.",
+        a: `<div class="interview-answer">With 50 microservices each writing logs locally, debugging is impossible. We ship all logs to a centralized ELK stack. Every log line includes the trace ID, service name, and timestamp. When a user reports an issue, I search by trace ID and see the entire request flow across all services. We use structured JSON logging — not plain text — so we can filter and aggregate efficiently.</div>
+<div class="flow-chart">Service A → Filebeat → Logstash → Elasticsearch → Kibana
+Service B → Filebeat ─┘                                    ↑
+Service C → Filebeat ─┘                              Search by trace-id
+
+Log format (JSON):
+{
+  "traceId": "abc-123",
+  "service": "order-service",
+  "level": "ERROR",
+  "message": "Payment timeout",
+  "timestamp": "2026-08-14T10:30:00Z"
+}</div>` }
+    ]
+  },
+
+  // ─── 9: DEPLOYMENT ───
+  {
+    name: "Deployment",
+    icon: "🚀",
+    questions: [
+      { q: "Blue-Green vs Canary vs Rolling deployment.",
+        a: `<div class="interview-answer">For our Payment service (critical), I use blue-green: deploy the new version alongside the old, test it, then switch traffic instantly. For our Product service (less critical), I use canary: route 5% of traffic to the new version, monitor errors for 10 minutes, then gradually increase to 100%. Rolling updates are the K8s default — replace pods one by one — good for most services.</div>
+<table class="tbl">
+  <tr><th>Strategy</th><th>How</th><th>Rollback</th><th>Best For</th></tr>
+  <tr><td><b>Blue-Green</b></td><td>Run both, switch DNS</td><td>Instant (switch back)</td><td>Critical services</td></tr>
+  <tr><td><b>Canary</b></td><td>5% → 25% → 100%</td><td>Route back to old</td><td>Gradual confidence</td></tr>
+  <tr><td><b>Rolling</b></td><td>Replace pods 1 by 1</td><td>Rollback command</td><td>Default (K8s)</td></tr>
+</table>` },
+      { q: "CI/CD pipeline for microservices.",
+        a: `<div class="interview-answer">Each microservice has its own CI/CD pipeline — independent build, test, and deploy. When a developer pushes to the Order service repo, it triggers: compile → unit tests → integration tests → build Docker image → push to registry → deploy to staging → automated smoke tests → deploy to production. Each service can deploy multiple times a day without coordinating with other teams.</div>
+<div class="flow-chart">Git Push → Build → Unit Tests → Integration Tests
+    ↓
+Docker Build → Push to ECR
+    ↓
+Deploy to Staging → Smoke Tests
+    ↓
+Deploy to Production (canary 5%)
+    ↓
+Monitor 10min → Promote to 100% ✅</div>` },
+      { q: "Containerization with Docker and Kubernetes.",
+        a: `<div class="interview-answer">Each microservice is packaged as a Docker container — same image runs on dev laptop and production. Kubernetes orchestrates these containers: auto-scaling (HPA scales from 3 to 20 pods based on CPU), self-healing (restarts crashed pods), service discovery (K8s DNS), and rolling updates. Our Order service has a Deployment with 3 replicas, an HPA that scales to 20 at peak, and a Service for internal DNS.</div>
+<div class="flow-chart">Dockerfile → Docker Image → Push to ECR
+    ↓
+K8s Deployment (3 replicas)
+    ├── Pod 1 (Order Service)
+    ├── Pod 2 (Order Service)
+    └── Pod 3 (Order Service)
+    ↓
+HPA: CPU > 70% → Scale to 20 pods
+Service: order-service.default.svc.cluster.local</div>` }
+    ]
+  },
+
+  // ─── 10: DESIGN PATTERNS ───
+  {
+    name: "Design Patterns",
+    icon: "📐",
+    questions: [
+      { q: "Strangler Fig pattern — migrate from monolith.",
+        a: `<div class="interview-answer">Named after the strangler fig tree that grows around a host tree and eventually replaces it. We used this to migrate our e-commerce monolith. First, we put a proxy in front of the monolith. New features (like the recommendation engine) were built as microservices. The proxy routes /recommendations to the new service, everything else to the monolith. Over 18 months, we migrated service by service until the monolith was empty and retired.</div>
+<div class="flow-chart">Phase 1: Proxy → Monolith (100%)
+Phase 2: Proxy → /recommendations → New Service
+                → everything else → Monolith
+Phase 3: Proxy → /orders → New Service
+                → /products → New Service
+                → remaining → Monolith
+Phase 4: Monolith retired ✅</div>` },
+      { q: "Sidecar pattern — extend service without code changes.",
+        a: `<div class="interview-answer">A sidecar is a helper container that runs alongside your main service in the same pod. For example, instead of adding logging, metrics, and mTLS code to every service, we deploy an Envoy sidecar that handles all of that transparently. The service just does business logic; the sidecar handles cross-cutting concerns. Istio service mesh is built entirely on this pattern.</div>
+<div class="flow-chart">Pod:
+┌──────────────────────────────┐
+│ ┌──────────┐  ┌────────────┐ │
+│ │  Order    │  │  Envoy     │ │
+│ │  Service  │←→│  Sidecar   │ │
+│ │ (business)│  │ (mTLS,     │ │
+│ │           │  │  metrics,  │ │
+│ │           │  │  tracing)  │ │
+│ └──────────┘  └────────────┘ │
+└──────────────────────────────┘</div>` },
+      { q: "Ambassador pattern — proxy for external services.",
+        a: `<div class="interview-answer">When our service calls an external payment provider API, we don't call it directly. We use an ambassador container that handles retries, circuit breaking, and protocol translation. If the payment provider changes their API version, we only update the ambassador, not the main service. It's like having an embassy handle all foreign affairs so the main government doesn't deal with external complexity directly.</div>
+<div class="flow-chart">Service → Ambassador → External Payment API
+           (retries, circuit breaker, auth, logging)</div>` },
+      { q: "Anti-corruption layer — protect from external models.",
+        a: `<div class="interview-answer">When integrating with a legacy system or third-party API that has a messy data model, I create an anti-corruption layer (ACL) that translates between their model and ours. For example, our legacy ERP system represents products with 50 fields and weird naming. The ACL maps only the 10 fields we need into our clean Product model. If the ERP changes, we only update the ACL, not our entire service.</div>
+<div class="flow-chart">Our Service → Anti-Corruption Layer → Legacy ERP
+              (translates messy model     (50 fields,
+               to clean model)            weird names)
+
+ACL converts:
+  ERP.PROD_NM → Product.name
+  ERP.PRC_AMT → Product.price
+  ERP.STK_QTY → Product.stockCount</div>` }
+    ]
+  },
+
+  // ─── 11: PERFORMANCE ───
+  {
+    name: "Performance",
+    icon: "⚡",
+    questions: [
+      { q: "How to scale microservices — horizontal vs vertical?",
+        a: `<div class="interview-answer">Microservices are designed for horizontal scaling — add more instances behind a load balancer. Our Order service runs 3 instances normally and scales to 20 during Black Friday. Each instance is stateless; sessions are in Redis. We rarely scale vertically because it has limits and causes GC issues in Java. The key is: stateless services + external state (Redis, DB) = easy horizontal scaling.</div>
+<div class="flow-chart">Normal load:
+  LB → Order-1, Order-2, Order-3
+
+Black Friday:
+  LB → Order-1...Order-20 (auto-scaled)
+
+K8s HPA config:
+  minReplicas: 3
+  maxReplicas: 20
+  targetCPU: 70%</div>` },
+      { q: "Caching strategies in microservices.",
+        a: `<div class="interview-answer">We use multi-tier caching. The API Gateway caches static responses (product catalog) at the edge. Each service has a local Caffeine cache for frequently accessed data (user preferences, 0.01ms). For shared data like product prices, we use a distributed Redis cache (1ms). Cache invalidation is event-driven — when the Product service updates a price, it publishes a PriceChanged event and all consumers invalidate their cache.</div>
+<div class="flow-chart">Request flow:
+  1. CDN / Gateway cache → HIT? Return (1ms) ✅
+  2. Local cache (Caffeine) → HIT? Return (0.01ms) ✅
+  3. Redis cache → HIT? Return (1ms) ✅
+  4. Database → Query (5-50ms) → Cache result → Return
+
+Invalidation:
+  Product Service → PriceChanged event → Kafka
+    → Order Service: invalidate local + Redis cache
+    → Search Service: update Elasticsearch</div>` },
+      { q: "Rate limiting in microservices — per user, per service.",
+        a: `<div class="interview-answer">We implement rate limiting at two levels. At the API Gateway, we limit per-user to 1000 requests/minute and per-IP to 5000 requests/minute to prevent abuse. Internally, each service has its own rate limits to protect against noisy neighbors — if the Analytics service starts making 10K calls/sec to the Product service, the Product service throttles it to protect other consumers like the Order service.</div>
+<table class="tbl">
+  <tr><th>Level</th><th>Limit</th><th>Purpose</th></tr>
+  <tr><td><b>Gateway (per user)</b></td><td>1,000/min</td><td>Prevent abuse</td></tr>
+  <tr><td><b>Gateway (per IP)</b></td><td>5,000/min</td><td>DDoS protection</td></tr>
+  <tr><td><b>Service (per caller)</b></td><td>500/min</td><td>Noisy neighbor protection</td></tr>
+</table>
+<div class="tip">💡 Use <b>Token Bucket</b> in Redis: <code>INCR + EXPIRE</code>. Return <code>429 Too Many Requests</code> when exceeded.</div>` },
+      { q: "Database optimization for microservices.",
+        a: `<div class="interview-answer">Each service picks the right database for its access pattern. Our Order service uses PostgreSQL for ACID transactions. Product search uses Elasticsearch for full-text search. Session storage uses Redis for sub-millisecond reads. User graph (followers, friends) uses Neo4j. The key optimization per service: proper indexes, connection pooling (HikariCP, 2× CPU cores), read replicas for read-heavy services, and query pagination.</div>
+<table class="tbl">
+  <tr><th>Service</th><th>Database</th><th>Why</th></tr>
+  <tr><td>Orders</td><td>PostgreSQL</td><td>ACID transactions</td></tr>
+  <tr><td>Product Search</td><td>Elasticsearch</td><td>Full-text search</td></tr>
+  <tr><td>Sessions</td><td>Redis</td><td>Sub-ms reads</td></tr>
+  <tr><td>Analytics</td><td>ClickHouse</td><td>Column-oriented, fast aggregation</td></tr>
+  <tr><td>Social Graph</td><td>Neo4j</td><td>Graph relationships</td></tr>
+</table>` }
+    ]
+  }
+];
+
+function showTopic(index) {
+  document.getElementById('mindmapView').style.display = 'none';
+  const view = document.getElementById('qaView');
+  view.classList.add('active');
+  const topic = topics[index];
+  document.getElementById('qaTitle').textContent = topic.icon + ' ' + topic.name;
+  const container = document.getElementById('qaContainer');
+  container.innerHTML = '';
+  topic.questions.forEach((qa, idx) => {
+    const div = document.createElement('div');
+    div.className = 'qa-pair';
+    div.innerHTML = `
+      <div class="question">
+        <span class="qa-number">${idx + 1}</span>
+        <div class="center-content">
+          <span>${qa.q}</span>
+          <span class="toggle-icon">▼</span>
         </div>
+      </div>
+      <div class="answer">${qa.a}</div>`;
+    div.addEventListener('click', function() { this.classList.toggle('expanded'); });
+    container.appendChild(div);
+  });
+}
 
-        <div class="answer">${qa.a}</div>
-      `;
-
-      div.addEventListener('click', function() {
-        this.classList.toggle('expanded');
-      });
-
-      container.appendChild(div);
-
-    });
-
-  }
-
-  function showMindmap() {
-
-    document.getElementById('mindmapView').style.display = 'grid';
-
-    document.getElementById('qaView').classList.remove('active');
-
-  }
-
+function showMindmap() {
+  document.getElementById('mindmapView').style.display = 'grid';
+  document.getElementById('qaView').classList.remove('active');
+}
 </script>
-
 </body>
 </html>
 

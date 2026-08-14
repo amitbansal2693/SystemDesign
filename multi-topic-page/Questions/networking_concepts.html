@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Networking — Load Balancers, DNS & Architecture</title>
+<style>
+:root { --surface-0:#fafafa; --surface-1:#f0f0f0; --surface-2:#fff; --border:#e0e0e0; --border-strong:#bbb; --text-primary:#1a1a1a; --text-secondary:#555; --fill-accent:#2563eb; --on-accent:#fff; --radius:8px; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--surface-0); color:var(--text-primary); }
+.container { max-width:920px; margin:0 auto; padding:2rem 1rem; }
+.header { text-align:center; margin-bottom:2rem; }
+.header h1 { font-size:28px; font-weight:500; margin-bottom:.5rem; }
+.header p { color:var(--text-secondary); font-size:14px; }
+.mindmap-view { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; }
+.topic-card { background:var(--surface-2); border:2px solid var(--border); border-radius:12px; padding:16px; cursor:pointer; transition:all .2s; text-align:center; display:flex; flex-direction:column; align-items:center; gap:8px; min-height:120px; justify-content:center; }
+.topic-card:hover { border-color:var(--fill-accent); background:var(--surface-1); transform:translateY(-2px); box-shadow:0 4px 12px rgba(37,99,235,.12); }
+.topic-icon { font-size:28px; } .topic-name { font-weight:500; font-size:14px; line-height:1.3; }
+.qa-view { display:none; } .qa-view.active { display:block; }
+.qa-header { display:flex; align-items:center; gap:12px; margin-bottom:2rem; padding-bottom:1rem; border-bottom:.5px solid var(--border); }
+.back-btn { background:none; border:.5px solid var(--border); padding:8px 12px; border-radius:var(--radius); cursor:pointer; color:var(--text-primary); font-size:14px; transition:all .2s; }
+.back-btn:hover { background:var(--surface-1); border-color:var(--border-strong); }
+.qa-title { font-size:24px; font-weight:500; }
+.qa-container { display:flex; flex-direction:column; gap:16px; }
+.qa-pair { background:var(--surface-2); border:.5px solid var(--border); border-radius:12px; padding:16px; cursor:pointer; transition:all .2s; }
+.qa-pair:hover { border-color:var(--border-strong); background:var(--surface-1); }
+.qa-pair.expanded { border-color:var(--fill-accent); }
+.qa-number { display:inline-block; background:var(--fill-accent); color:var(--on-accent); width:28px; height:28px; border-radius:50%; text-align:center; line-height:28px; font-size:12px; font-weight:500; margin-right:8px; flex-shrink:0; }
+.question { font-weight:500; font-size:15px; color:var(--text-primary); margin-bottom:8px; display:flex; align-items:flex-start; gap:8px; }
+.answer { max-height:0; overflow:hidden; transition:max-height .4s ease; color:var(--text-secondary); font-size:14px; line-height:1.7; padding-left:36px; }
+.qa-pair.expanded .answer { max-height:15000px; margin-top:12px; padding-top:12px; border-top:.5px solid var(--border); }
+.toggle-icon { display:inline-block; transition:transform .3s; margin-left:auto; flex-shrink:0; }
+.qa-pair.expanded .toggle-icon { transform:rotate(180deg); }
+.center-content { display:flex; gap:12px; align-items:center; width:100%; }
+.answer h4 { color:var(--text-primary); font-size:13px; font-weight:600; margin:14px 0 6px; text-transform:uppercase; letter-spacing:.5px; }
+.answer h4:first-child { margin-top:0; }
+.answer p { margin:6px 0; }
+.answer ul { list-style:none; margin:6px 0; padding:0; }
+.answer ul li { position:relative; padding:4px 0 4px 18px; }
+.answer ul li::before { content:"•"; position:absolute; left:2px; color:var(--fill-accent); font-weight:bold; }
+.answer .flow-chart { background:var(--surface-1); border:1px solid var(--border); border-radius:8px; padding:14px 16px; margin:10px 0; font-family:'SF Mono','Fira Code',monospace; font-size:12.5px; line-height:1.8; white-space:pre; overflow-x:auto; }
+.answer .highlight { background:#fff3cd; padding:10px 14px; border-radius:6px; margin:10px 0; border-left:3px solid #ffc107; }
+.answer code { background:var(--surface-1); padding:2px 6px; border-radius:4px; font-size:13px; }
+.answer table { width:100%; border-collapse:collapse; margin:10px 0; font-size:13px; }
+.answer table th,.answer table td { border:1px solid var(--border); padding:8px 12px; text-align:left; }
+.answer table th { background:var(--surface-1); font-weight:600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header" id="mainHeader">
+    <h1>🌐 Networking & Load Balancing</h1>
+    <p>3 topics — ALB vs NLB vs API Gateway, DNS & Geo Routing, Private IPs & Architecture</p>
+  </div>
+
+  <div class="mindmap-view" id="topicGrid">
+    <div class="topic-card" onclick="showTopic('alb')"><span class="topic-icon">⚖️</span><span class="topic-name">ALB vs NLB vs API Gateway</span></div>
+    <div class="topic-card" onclick="showTopic('dns')"><span class="topic-icon">🌍</span><span class="topic-name">DNS & Geo Routing</span></div>
+    <div class="topic-card" onclick="showTopic('privateip')"><span class="topic-icon">🔒</span><span class="topic-name">Private IPs & Architecture</span></div>
+  </div>
+
+  <!-- ALB vs NLB vs Gateway -->
+  <div class="qa-view" id="topic-alb">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">⚖️ ALB vs NLB vs API Gateway</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">When do you need what?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <table>
+            <tr><th>Scenario</th><th>Use</th></tr>
+            <tr><td>Single app, single instance</td><td>Nothing needed</td></tr>
+            <tr><td>Single app, multiple instances</td><td>ALB / NLB</td></tr>
+            <tr><td>Multiple services, single instance each</td><td>API Gateway</td></tr>
+            <tr><td>Multiple services + multiple instances</td><td>Gateway + Load Balancer</td></tr>
+          </table>
+          <div class="highlight"><strong>Key Interview Answer:</strong> Gateway decides <em>which service</em> handles the request; Load Balancer decides <em>which instance</em> of that service handles it.</div>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">ALB vs NLB<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <table>
+            <tr><th></th><th>ALB</th><th>NLB</th></tr>
+            <tr><td>Layer</td><td>Layer 7 (Application)</td><td>Layer 4 (Transport)</td></tr>
+            <tr><td>Understands</td><td>HTTP/HTTPS, URL paths, headers</td><td>TCP/UDP, IP + Port</td></tr>
+            <tr><td>Routing</td><td>Path-based, host-based</td><td>Network-level</td></tr>
+            <tr><td>Use when</td><td>HTTP traffic, app-aware routing</td><td>High throughput, low latency, static IP</td></tr>
+          </table>
+          <p>Both are part of AWS ELB. <code>ALB → L7 → HTTP</code> vs <code>NLB → L4 → TCP/UDP</code></p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">3</span><div class="center-content">API Gateway — What it adds<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Gateway provides broader API management beyond just routing:</p>
+          <ul><li>Authentication & Authorization</li><li>Rate limiting</li><li>API versioning</li><li>Request transformation</li><li>API policies</li></ul>
+          <div class="flow-chart">ALB      → Traffic / Target balancing
+Gateway  → API management</div>
+          <p>You can have <strong>both</strong>: <code>Client → Gateway → ALB → Instances</code></p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">4</span><div class="center-content">Gateway + Service Discovery<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>If Gateway has service discovery, a separate LB may not be needed — Gateway can discover instances and do client-side load balancing.</p>
+          <div class="highlight">"We don't necessarily need a separate LB. The gateway can perform discovery and instance selection. A separate LB is useful for infrastructure-level distribution, centralized health checks, or cloud-managed traffic."</div>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">5</span><div class="center-content">Internal Service Communication<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>Not every service call needs to go through Gateway. Internal options:</p>
+          <div class="flow-chart">Order → Discovery → Payment         (direct)
+Order → Internal LB → Payment      (load balanced)
+Order → Kafka/RabbitMQ → Payment   (async)</div>
+          <div class="highlight">"I would keep the API Gateway as the client-facing entry point rather than forcing all internal traffic through it."</div>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">6</span><div class="center-content">Multi-Region Architecture<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <div class="flow-chart">Users → Global DNS → US Gateway → ALB → US1/US2
+                     → EU Gateway → ALB → EU1/EU2
+                     → Asia Gateway → ALB → AS1/AS2</div>
+          <h4>Four key questions</h4>
+          <table>
+            <tr><th>Component</th><th>Decides</th></tr>
+            <tr><td>Global DNS</td><td>WHICH REGION?</td></tr>
+            <tr><td>Gateway</td><td>WHICH SERVICE/API?</td></tr>
+            <tr><td>Service Discovery</td><td>WHERE ARE INSTANCES?</td></tr>
+            <tr><td>ALB/NLB</td><td>WHICH HEALTHY TARGET?</td></tr>
+          </table>
+          <h4>Regional HA vs Global HA</h4>
+          <p><strong>Regional:</strong> LB handles instance failures within a region.</p>
+          <p><strong>Global:</strong> DNS reroutes traffic when an entire region fails.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DNS -->
+  <div class="qa-view" id="topic-dns">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">🌍 DNS & Geo Routing</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">How does GeoDNS work?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>DNS is configured with multiple IPs for the same hostname. GeoDNS / latency-based routing returns the IP of the nearest or healthiest regional LB.</p>
+          <div class="flow-chart">api.example.com →
+  US LB   → 52.10.10.10
+  EU LB   → 18.20.20.20
+  Asia LB → 13.30.30.30
+
+User in Germany asks DNS → gets EU LB IP (18.20.20.20)
+User in Japan asks DNS  → gets Asia LB IP (13.30.30.30)</div>
+          <h4>Full Flow</h4>
+          <div class="flow-chart">User (Germany) → DNS → EU LB → API Gateway → Service</div>
+          <p><strong>Providers:</strong> Route 53, Cloudflare, Azure DNS</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">Who decides which region?<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <p>A global DNS / traffic-management layer makes the decision using policies: latency, geography, health, failover, weighted routing.</p>
+          <div class="highlight">"The global traffic-management layer routes the client to the optimal healthy region based on latency, geography, or configured failover policies."</div>
+          <h4>Region failure?</h4>
+          <p>Traffic management detects unhealthy region → routes to another healthy region → global high availability.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Private IP -->
+  <div class="qa-view" id="topic-privateip">
+    <div class="qa-header"><button class="back-btn" onclick="goBack()">← Topics</button><span class="qa-title">🔒 Private IPs & Architecture</span></div>
+    <div class="qa-container">
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">1</span><div class="center-content">Public IP vs Private IP<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <table>
+            <tr><th></th><th>Public IP</th><th>Private IP</th></tr>
+            <tr><td>Accessible from</td><td>Internet</td><td>Internal network only</td></tr>
+            <tr><td>Example</td><td>88.88.88.1</td><td>10.0.0.1</td></tr>
+            <tr><td>Used by</td><td>Clients (users)</td><td>Servers (internal)</td></tr>
+          </table>
+          <p>Internet ❌ cannot access private IP directly.</p>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">2</span><div class="center-content">How traffic flows<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <div class="flow-chart">User → mywebsite.com
+         ↓ DNS
+   88.88.88.1 (Public IP = Load Balancer)
+         ↓
+   Load Balancer decides: which server?
+         ↓
+   Server1 (10.0.0.1) or Server2 (10.0.0.2)
+   ← Private IPs 🔒</div>
+          <h4>Why Private IP?</h4>
+          <ul>
+            <li><strong>Security</strong> — clients can't directly hit servers</li>
+            <li><strong>Control</strong> — LB controls routing, distribution, failover</li>
+            <li><strong>Cost & Scaling</strong> — private IPs are cheap and unlimited inside network</li>
+          </ul>
+          <h4>Cloud Example</h4>
+          <div class="flow-chart">Internet → ALB (Public IP) → Private EC2 instances (10.x.x.x)
+Same in: Azure (VNet), GCP (VPC)</div>
+        </div>
+      </div>
+
+      <div class="qa-pair" onclick="this.classList.toggle('expanded')">
+        <div class="question"><span class="qa-number">3</span><div class="center-content">Interview Answer<span class="toggle-icon">▼</span></div></div>
+        <div class="answer">
+          <div class="highlight">"Private IPs are used for internal communication between servers within a network. In a typical architecture, clients connect to a load balancer using a public IP, and the load balancer routes requests to backend servers using their private IPs. This improves security by preventing direct access to servers and allows better control over traffic routing."</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+<script>
+function showTopic(id) { document.getElementById('topicGrid').style.display='none'; document.getElementById('mainHeader').style.display='none'; document.getElementById('topic-'+id).classList.add('active'); }
+function goBack() { document.querySelectorAll('.qa-view').forEach(v=>v.classList.remove('active')); document.getElementById('topicGrid').style.display=''; document.getElementById('mainHeader').style.display=''; }
+</script>
+</body>
+</html>
+
