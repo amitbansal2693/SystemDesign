@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🌐 CDN & WAF Interview - Progressive Q&A</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 1px solid #5b21b6;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-expand {
+            background: #8b5cf6;
+            color: white;
+        }
+
+        .btn-expand:hover {
+            background: #7c3aed;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-collapse {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-collapse:hover {
+            background: #dc2626;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        /* ROUND SECTION */
+        .round-section {
+            margin-bottom: 24px;
+        }
+
+        .round-label {
+            font-size: 14px;
+            color: #c4b5fd;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .question-header {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 8px 8px 0 0;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #5b21b6;
+            transition: all 0.3s;
+        }
+
+        .question-header:hover {
+            opacity: 0.9;
+            transform: translateX(5px);
+        }
+
+        .question-header .chevron {
+            margin-left: auto;
+            transition: transform 0.3s;
+            font-size: 16px;
+        }
+
+        .question-header.collapsed .chevron {
+            transform: rotate(-90deg);
+        }
+
+        .content {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            padding: 24px;
+            transition: max-height 0.4s ease, opacity 0.3s ease;
+            overflow: hidden;
+            border-bottom: 1px solid #5b21b6;
+        }
+
+        .content.collapsed {
+            max-height: 0 !important;
+            opacity: 0;
+            padding: 0;
+            border: none;
+        }
+
+        /* ANSWER OPTION */
+        .answer-block {
+            margin-bottom: 24px;
+            background: #0f172a;
+            border-left: 4px solid #8b5cf6;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .option-header {
+            padding: 12px 16px;
+            background: #334155;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: #cbd5e1;
+            transition: all 0.2s;
+        }
+
+        .option-header:hover {
+            background: #475569;
+        }
+
+        .option-header .chevron {
+            margin-left: auto;
+            transition: transform 0.3s;
+        }
+
+        .option-header.collapsed .chevron {
+            transform: rotate(-90deg);
+        }
+
+        .option-label {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            background: #8b5cf6;
+            color: white;
+        }
+
+        .option-content {
+            padding: 16px;
+            background: #0f172a;
+            border-top: 1px solid #334155;
+            display: none;
+            color: #cbd5e1;
+            line-height: 1.6;
+            font-size: 14px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .option-content.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+            }
+            to {
+                opacity: 1;
+                max-height: 3000px;
+            }
+        }
+
+        .interviewer-note {
+            margin-top: 12px;
+            padding: 10px;
+            background: #1e293b;
+            border-left: 3px solid #c4b5fd;
+            border-radius: 4px;
+            color: #e9d5ff;
+            font-size: 13px;
+            font-style: italic;
+        }
+
+        .progression-table {
+            width: 100%;
+            margin-top: 40px;
+            margin-bottom: 40px;
+            border-collapse: collapse;
+            background: #0f172a;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #334155;
+        }
+
+        .progression-table th,
+        .progression-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+            color: #cbd5e1;
+        }
+
+        .progression-table th {
+            background: #1e293b;
+            font-weight: 600;
+            color: #c4b5fd;
+        }
+
+        .progression-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 40px;
+            border-top: 1px solid #334155;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 24px; }
+            .question-header { font-size: 16px; }
+            .option-content { font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>🌐 CDN & WAF Interview Series</h1>
+            <p>CloudFront Caching, WAF Security & Performance Optimization</p>
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-expand" onclick="expandAll()">📂 Expand All</button>
+            <button class="btn btn-collapse" onclick="collapseAll()">📁 Collapse All</button>
+        </div>
+
+        <div id="roundsContainer"></div>
+
+        <table class="progression-table">
+            <thead>
+                <tr>
+                    <th>Round</th>
+                    <th>Topic</th>
+                    <th>Key Insight</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>CDN basics</td>
+                    <td>Caching decisions matter</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Cache strategy</td>
+                    <td>Personalization + Cache keys</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Invalidation</td>
+                    <td>Trade-off: Cost vs Freshness</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>WAF security</td>
+                    <td>Layered defense (managed + custom + detection)</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>Latency</td>
+                    <td>Regional origins solve cross-ocean latency</td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td>Troubleshooting</td>
+                    <td>502s = Origin health check fails</td>
+                </tr>
+                <tr>
+                    <td>7</td>
+                    <td>Architecture</td>
+                    <td>When to use CDN, when to skip it</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="footer">
+            💡 Read out loud for best results. Practice as if in real interview!
+        </div>
+    </div>
+
+    <script>
+        const roundsData = [
+            {
+                round: 1,
+                title: "BASIC UNDERSTANDING",
+                question: "Route 53 returned IP of CloudFront. User browser sends request there. What happens?",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "CloudFront caches the response and returns it to the user.",
+                        interviewer: "Okay, but what if the response is dynamic (user-specific)? Should we cache that?"
+                    },
+                    {
+                        label: "Option B (Better)",
+                        answer: "CloudFront is a CDN that caches static content. For API requests, CloudFront checks if response is cacheable based on Cache-Control headers. If not cacheable, it forwards to the origin (our servers). If cacheable, it returns cached version.",
+                        interviewer: "✓ Good. But now - an attacker sends malicious request. What should happen?\n\nFollow-up Q2: At what point does CloudFront reject attacks?"
+                    },
+                    {
+                        label: "Option C (Best)",
+                        answer: "CloudFront has multiple layers:\n\nLayer 1: WAF (Web Application Firewall)\nRuns BEFORE caching\nInspects request (headers, body, patterns)\nBlocks known attacks (SQL injection, XSS, etc.)\nReturns 403 Forbidden for malicious requests\n\nLayer 2: Cache Layer\nAfter WAF passes, check if response cached\nCacheable? Return from cache (fast)\nNot cacheable? Forward to origin\n\nLayer 3: Origin\nYour actual servers\nGenerate response\nResponse returns through CloudFront cache\n\nWhy WAF before cache?\nPrevents caching of attack responses\nStops DDoS amplification (cache wouldn't help attacker)",
+                        interviewer: "✓✓ Good. Now let me make this harder..."
+                    }
+                ]
+            },
+            {
+                round: 2,
+                title: "CACHING STRATEGY",
+                question: "You run an API platform. Users call /users/123/profile. Response is personalized (their name, settings, etc.). Should CloudFront cache this?",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "No, because it's personalized.",
+                        interviewer: "So every request hits your servers?"
+                    },
+                    {
+                        label: "Option B (Mediocre)",
+                        answer: "We set Cache-Control: no-cache, so CloudFront doesn't cache it.",
+                        interviewer: "✓ Okay, but now you have 10M users. Each requests their profile. Your servers are slammed. Can you improve?\n\nFollow-up Q3: How do you cache personalized data?"
+                    },
+                    {
+                        label: "Option C (Best)",
+                        answer: "Great question! Depends on architecture:\n\nStrategy 1: Cache-Control: Private, max-age=3600\nResponse:\nGET /users/123/profile\nCache-Control: Private, max-age=3600\n\nResult:\n- User's browser caches (private cache)\n- CloudFront doesn't cache (private = client-only)\n- Repeat request within 1 hour → browser serves\n- But each unique user hits server once/hour\n\nBenefit: Reduces 99% of duplicate requests\nCost: Server still handles M requests/day\n\nStrategy 2: Cache by User ID\nCloudFront Cache Key: URL + Cookie\nGET /users/123/profile (Cookie: user_id=123)\nCache Key = '/users/123/profile' + 'user_id=123'\n\nResult:\n- Same user (same cookie) gets cached version\n- Different user (different cookie) gets different cache\n- Cache hit rate: High (user requests same profile multiple times)\n\nBenefit: Server load drastically reduced\nCost: More memory for cache (per-user entries)\n\nConfiguration:\nCloudFront Caching:\n├─ Cache Key: URL + Cookie (user_id)\n├─ TTL: 1 hour\n└─ Invalidation: If user updates profile, purge cache\n\nStrategy 3: Separate Cache by Endpoint Type\nPublic endpoints (no auth needed):\nGET /products → Cache 24 hours\nGET /posts → Cache 1 hour\n\nPrivate endpoints (auth needed):\nGET /users/123/profile → Cache by user ID, 1 hour\nPOST /users/123/settings → Don't cache (write operation)\n\nThis way:\n- Public content shared across all users (huge hit rate)\n- Private content cached per user (still reduces load)\n- Write operations always hit server\n\nMy Recommendation for your API:\nUse Strategy 2 + Strategy 3 combined:\nFor GET /products → Cache globally, 24h\nFor GET /users/123/profile → Cache by user ID, 1h\nFor POST/PUT/DELETE → Bypass cache, always hit origin\n\nMonitoring:\nCloudFront cache hit ratio (should be 60-80% for good config)\nCache miss rate (if low, good caching strategy)\nOrigin latency (if still high, caching not helping enough)",
+                        interviewer: "✓✓✓ Excellent. You understand cache keys. Now - there's a problem..."
+                    }
+                ]
+            },
+            {
+                round: 3,
+                title: "CACHE INVALIDATION",
+                question: "User updates their profile. Their profile data changes. But CloudFront still has old cached version from 1 hour ago. User refreshes and sees stale data. How do you handle this?",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "We set TTL to 0, so nothing gets cached.",
+                        interviewer: "But then we get no benefit from caching. We're back to slammed servers."
+                    },
+                    {
+                        label: "Option B (Mediocre)",
+                        answer: "We have the user manually refresh or clear browser cache.",
+                        interviewer: "😒 That's not scalable. What if 10M users update profiles? 10M manual clears? Next?"
+                    },
+                    {
+                        label: "Option C (Better)",
+                        answer: "We use cache invalidation. When user updates profile:\n\nUpdate database\nSend purge request to CloudFront to invalidate that key\nNext request gets fresh data\n\nIn CloudFront API:\nPOST /invalidation\nPath: /users/123/profile\nResult: Old cache purged immediately\n\nTrade-off: Cost. CloudFront charges $0.005 per invalidation. 10M profiles × 10 changes/month = $500/month in invalidation costs.",
+                        interviewer: "✓ Good. But what if invalidations fail? Or user changes profile while another user is reading stale cache?\n\nFollow-up Q4: How do you ensure data freshness without constant invalidations?"
+                    },
+                    {
+                        label: "Option D (Best - You pass)",
+                        answer: "Multiple strategies, each with trade-offs:\n\nStrategy 1: Smart TTL (Most common)\nGET /users/123/profile\nResponse Headers:\nCache-Control: max-age=300  (5 minutes)\nETag: abc123def456\n\nUser updates profile at minute 1\nOther users see old data for up to 5 minutes (acceptable for most apps)\n\nBenefit: Simple, no invalidation cost\nCost: Data can be stale up to TTL duration\n\nWhen to use: Non-critical data (posts, comments, product listings)\nWhen NOT to use: Critical data (bank balance, medical records)\n\nStrategy 2: Event-based Invalidation (For critical data)\nUser updates profile:\n1. Update database\n2. Publish event to message queue (SQS, Kafka)\n3. Lambda/Worker reads event\n4. Calls CloudFront invalidation API\n5. Cache purged immediately\n\nCost per invalidation: $0.005\n10M profiles × 1 change/day = $50/month\n\nBenefit: Data always fresh\nCost: More infrastructure (message queue, lambda)\n\nWhen to use: Critical updates (user settings, preferences, balances)\n\nStrategy 3: Versioning (Advanced)\nInstead of invalidating, change the URL:\nOld: /users/123/profile\nNew: /users/123/profile?v=2 (when user updates)\n\nCloudFront caches both:\nv=1 → Old data (still cached)\nv=2 → New data (new cache entry)\n\nBenefits:\n- No invalidation cost\n- No data inconsistency (versions don't change)\n- Can run A/B tests (v=1 for some, v=2 for others)\n\nCost: More cache entries, slightly more storage\n\nWhen to use: Immutable data or time-series data\n\nStrategy 4: Hybrid (Recommended)\nCritical endpoints (user settings, balances):\n- Event-based invalidation\n- OR cache-control: max-age=60 (short TTL)\n\nLess critical (posts, comments):\n- Cache-control: max-age=300 (longer TTL)\n\nPublic content (products, articles):\n- Cache-control: max-age=3600 (very long TTL)\n- Or versioning approach\n\nThis balances freshness, cost, and performance.\n\nMy Recommendation:\nUse Strategy 4 (Hybrid):\nSmart TTLs for 80% of endpoints\nEvent-based invalidation for 20% critical endpoints\nEstimated cost: $50-100/month\nExpected cache hit rate: 75%\nData staleness: Acceptable (max 5-10 minutes)",
+                        interviewer: "✓✓✓ Good practical thinking. Now - security..."
+                    }
+                ]
+            },
+            {
+                round: 4,
+                title: "WAF & ATTACK SCENARIOS",
+                question: "Attacker sends requests like: GET /api/users/1' OR '1'='1/profile?sql=DROP TABLE users. CloudFront sees this. What happens?",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "CloudFront blocks it.",
+                        interviewer: "How? Does CloudFront know what's malicious?"
+                    },
+                    {
+                        label: "Option B (Better)",
+                        answer: "We configure WAF rules. AWS WAF has managed rule groups for SQL injection, XSS, etc. The request matches a rule, WAF blocks it with 403.",
+                        interviewer: "✓ Okay. But what if attacker uses a 0-day vulnerability (unknown attack)? WAF rules don't cover it.\n\nFollow-up Q5: How do you defend against unknown attacks?"
+                    },
+                    {
+                        label: "Option C (Best)",
+                        answer: "WAF is multi-layered defense:\n\nLayer 1: Managed Rules (Known attacks)\nAWS Managed Rules for WAF:\n├─ SQL Injection Protection\n├─ XSS (Cross-Site Scripting)\n├─ Command Injection\n├─ Path Traversal\n├─ Insecure Deserialization\n└─ Rate Limiting\n\nRequest matches rule → 403 Forbidden\nCost: ~$20/month per rule group\n\nLayer 2: Custom Rules\nYou write custom rules for your app:\nRule: Block requests to /admin if not from corporate IP\nRule: Block if User-Agent doesn't match (mobile vs web)\nRule: Block if request rate > 100/sec per IP\n\nBenefit: Catches attacks specific to your API\nCost: Engineering time to maintain\n\nLayer 3: Logging & Anomaly Detection\nWAF logs all blocked/allowed requests to CloudWatch\n\nAnalyze patterns:\n- If 1000 requests blocked from one IP → real attacker\n- If patterns match known exploit → update rules\n- If new pattern emerges → investigate\n\nThis catches 0-day attacks that didn't match existing rules\nCost: CloudWatch logs (~$0.50/GB)\n\nLayer 4: DDoS Protection (Volume attacks)\nWAF handles application-layer (Layer 7) attacks\nBut volumetric attacks (Layer 3/4) need separate defense:\n\nAWS Shield:\n├─ Standard (free): Basic DDoS protection\n├─ Advanced ($3K/month): Enhanced + DDoS Response Team\n└─ Works at infrastructure level (before WAF)\n\nFlow:\nAttacker sends 1M packets/sec\n↓\nAWS Shield drops packets at edge (before CDN)\n↓\nCloudFront never sees them\n↓\nYour servers unaffected\n\nReal Scenario: 0-day Attack\nNew vulnerability in JSON parser discovered\nAttacker starts exploiting\nWAF managed rules don't know about it yet\n\nHow you catch it:\n1. CloudFront logs requests to CloudWatch\n2. Lambda analyzes logs every minute\n3. Detects unusual patterns (e.g., 10,000 requests with \\\")\n4. Alerts team\n5. Team writes custom WAF rule\n6. Deploys rule within 1 hour\n7. New attacks blocked\n\nTime to detection: 5 min (via logs)\nTime to mitigation: 1 hour (deploy custom rule)",
+                        interviewer: "✓✓✓ Great defense-in-depth thinking. Now - performance trade-offs..."
+                    }
+                ]
+            },
+            {
+                round: 5,
+                title: "PERFORMANCE IMPACT",
+                question: "Every request through CloudFront + WAF adds latency. User in Tokyo makes request. It goes through CloudFront (in edge location), WAF inspects it, then forwards to origin (US-East). How much latency is added? Can you optimize?",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "It's just a few milliseconds, shouldn't matter.",
+                        interviewer: "Really? Let's do math. If this adds 50ms to every request, and you have 100M requests/day, how many user experience degradations?"
+                    },
+                    {
+                        label: "Option B (Mediocre)",
+                        answer: "We can use CloudFront edge locations closer to users. Deploy in Tokyo edge location to reduce latency.",
+                        interviewer: "✓ True. But what if user is in Tokyo and they hit Tokyo edge but origin is in US-East? That's still cross-ocean latency.\n\nFollow-up Q6: How do you reduce origin latency for users far from origin?"
+                    },
+                    {
+                        label: "Option C (Best)",
+                        answer: "Latency breakdown:\n\nScenario: User in Tokyo → US-East Origin\nUser request\n  → Tokyo Edge Location (1ms)\n  → WAF inspection (2ms)\n  → Cache lookup (1ms)\n  → Miss, forward to origin\n  → Routing to US-East (100ms - physical distance!)\n  → US-East origin processes (50ms)\n  → Response back to Tokyo (100ms)\n  ---\n  Total: ~254ms\n\nWithout CDN (direct to origin):\n  → Direct to US-East (100ms each way)\n  → Process (50ms)\n  ---\n  Total: ~250ms\n\nWait, CDN adds latency?! That's wrong...\n\nActually, cache hit changes equation:\nSame user requests same resource (cached):\n  → Tokyo Edge (1ms)\n  → WAF (2ms)\n  → Cache hit! (1ms)\n  → Return from cache (1ms)\n  ---\n  Total: ~5ms (50x faster!)\n\nSolution: Regional Origins\nInstead of single US-East origin:\n\nDeploy in multiple regions:\n├─ us-east-1\n├─ eu-west-1\n├─ ap-northeast-1 (Tokyo)\n└─ ap-southeast-1 (Singapore)\n\nCloudFront origin groups (failover):\n├─ Tokyo user → Try Tokyo origin first\n├─ If Tokyo down → Fail to Singapore\n├─ Cache result in Tokyo edge\n\nNew latency:\nScenario: User in Tokyo → Tokyo Origin (cache miss)\n  → Tokyo Edge (1ms)\n  → WAF (2ms)\n  → Forward to Tokyo origin (5ms - same region!)\n  → Process (50ms)\n  → Return to edge (5ms)\n  ---\n  Total: ~63ms (same speed as direct!)\n\nBut cache hit (common case):\n  → Tokyo Edge (1ms)\n  → WAF (2ms)\n  → Cache hit (1ms)\n  ---\n  Total: ~4ms (100x faster!)\n\nPerformance Optimization Ladder:\nLevel 1: Basic CDN + WAF (What you have)\nCache hit ratio: 40%\nP95 latency: 250ms (far users)\nCost: $500/month\n\nLevel 2: Regional Origins\nAdd origins in 3-4 regions\nCache hit ratio: 60%\nP95 latency: 100ms (all users)\nCost: $1500/month (more servers)\nBenefit: 50% latency improvement\n\nLevel 3: Edge Computing\nCloudFront Functions (execute code at edge)\nFaster response for simple transforms\nCache hit ratio: 75%\nP95 latency: 30ms\nCost: $2000/month\n\nLevel 4: Serverless + Edge\nCloudFront + Lambda@Edge + Regional DynamoDB\nPersonalization at edge\nCache hit ratio: 80%\nP95 latency: 20ms\nCost: $3000+/month\n\nRecommendation for your API:\nStart with Level 1 (basic)\nMonitor latency\nIf P95 > 200ms, move to Level 2 (regional origins)\nOnly jump to Level 3/4 if you need personalization at edge",
+                        interviewer: "✓✓✓ Perfect. You balance cost vs performance. One final scenario..."
+                    }
+                ]
+            },
+            {
+                round: 6,
+                title: "REALISTIC PROBLEM",
+                question: "It's 3 AM. Your users start reporting 'API is down'. Looking at CloudFront logs, you see two things: (1) CloudFront is returning 502 Bad Gateway, (2) Origin is unreachable. But your servers are actually up. What's happening? How do you debug?",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "The servers are actually down, check EC2 logs.",
+                        interviewer: "I already checked. They're up. Traffic is flowing. What else?"
+                    },
+                    {
+                        label: "Option B (Mediocre)",
+                        answer: "Maybe there's a network issue between CloudFront and origin. Check VPC security groups.",
+                        interviewer: "✓ Okay, what would cause it? Give specific examples."
+                    },
+                    {
+                        label: "Option C (Best - Debug like a pro)",
+                        answer: "502 Bad Gateway from CloudFront means CloudFront reached origin but got bad response. Let me systematically check:\n\nStep 1: Check CloudFront Origin Health\nCloudFront Console → Distribution → Origins\nIf origin shows 'Unhealthy' → CloudFront thinks origin is down\n\nThis means:\n- Origin responded with 5xx\n- Origin didn't respond at all (timeout)\n- Origin port is wrong\n- Origin DNS failed to resolve\n\nStep 2: Check Origin Connectivity\nFrom CloudFront edge location, can you reach origin?\n\nPotential issues:\nA) Security Group is blocking CloudFront\n   └─ Fix: Allow CloudFront IP ranges\n      CloudFront publishes IP ranges in AWS docs\n      Need to add to security group\n\nB) NLB/ALB is misconfigured\n   └─ Check: Health check passing?\n   └─ Check: Is target returning 200?\n   └─ Check: Response headers are correct?\n\nC) Application crashed\n   └─ Check: App is actually running\n   └─ Check: App logs for errors\n   └─ Check: Database connectivity from app\n\nD) Origin timeout\n   └─ CloudFront has timeout settings\n   └─ Default: 30 seconds\n   └─ If app takes 35 seconds → CloudFront marks unhealthy\n   └─ Fix: Increase origin timeout or optimize app\n\nStep 3: Check Origin Health Check Endpoint\nIf CloudFront origin health check uses /health endpoint:\n\nIssue 1: /health doesn't exist\n  └─ Origin returns 404\n  └─ CloudFront marks unhealthy\n  └─ Fix: Create /health endpoint\n\nIssue 2: /health queries database\n  └─ Database is slow/down\n  └─ /health times out or returns 503\n  └─ CloudFront marks unhealthy\n  └─ Fix: Make /health lightweight (don't query DB)\n\nIssue 3: Load Balancer health check misconfigured\n  └─ ALB keeps marking targets unhealthy\n  └─ While targets are actually up\n  └─ CloudFront sees ALB as down\n  └─ Fix: Check ALB target group settings\n\nMost Common Root Causes (3 AM edition):\n1. Security Group Rule Missing (40% of cases)\n   └─ Recent deployment added new ALB\n   └─ Forgot to add CloudFront IP range\n   └─ CloudFront can't reach ALB\n   └─ Fix: Add 0.0.0.0/0 or CloudFront IP range\n   └─ Time: 2 minutes\n\n2. Origin Health Check Endpoint Broken (30%)\n   └─ Recent deployment broke /health endpoint\n   └─ Returns 500 instead of 200\n   └─ CloudFront marks all targets unhealthy\n   └─ Fix: Revert deployment or fix endpoint\n   └─ Time: 5 minutes\n\n3. Database Connection Pool Exhausted (20%)\n   └─ App connects to DB per request\n   └─ Connection pool drained\n   └─ All requests timeout\n   └─ /health endpoint also times out\n   └─ Fix: Restart app or scale DB connections\n   └─ Time: 10 minutes\n\n4. Deployment Went Wrong (10%)\n   └─ New deployment crashed app\n   └─ Only partial servers up\n   └─ Some requests work, some fail\n   └─ CloudFront sees 50% errors, marks unhealthy\n   └─ Fix: Rollback deployment\n   └─ Time: 15 minutes\n\nImmediate Actions (First 5 minutes):\nCheck CloudFront origin health status\nCheck ALB target health\nCheck recent deployments (did we just deploy?)\nCheck app logs (errors?)\nCheck if database is responding\n\nIf all seem okay but traffic still fails:\n6. Check security group (might be blocking traffic)\n7. Restart app (might be deadlocked)\n8. Rollback deployment\n\nPrevention:\n/health endpoint must be super reliable (no DB queries)\nRun health checks in prod environment, not just staging\nMonitor origin health score separately\nAlert if origin marked unhealthy\nTest CloudFront failover regularly",
+                        interviewer: "✓✓✓ Excellent troubleshooting. You've been in the trenches. Final question..."
+                    }
+                ]
+            },
+            {
+                round: 7,
+                title: "ARCHITECTURE DECISION",
+                question: "You need to decide: Put CloudFront + WAF in front of everything, or put it only for static content? What's your choice and why?",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "Put it in front of everything. CDN is always good.",
+                        interviewer: "Really? What about cost? What about cache invalidation headaches? What about cache keys?"
+                    },
+                    {
+                        label: "Option B (Better)",
+                        answer: "It depends. For static content like images, CSS, JS → CloudFront. For dynamic API responses → maybe not.",
+                        interviewer: "✓ Why the difference?"
+                    },
+                    {
+                        label: "Option C (Best - You pass)",
+                        answer: "Strategic placement:\n\nScenario 1: Traditional Web App (HTML + Static)\nUser → Route 53\n     → CloudFront (cache CSS, JS, images)\n     → ALB (forward only HTML requests)\n     → Origin servers\n\nWhy CloudFront?\n- Static assets: Massive cache hit rate (80%+)\n- Bandwidth saving: 90% reduction (don't serve from origin)\n- Cost: $50/mo saves $500/mo bandwidth\n- Latency: Images cached globally\n\nWhat we cache:\n- *.js (Cache 1 month - browser handles versioning)\n- *.css (Cache 1 month)\n- *.png, *.jpg (Cache 1 year)\n\nWhat we DON'T cache:\n- index.html (Cache 5 min - might change)\n- API responses (Handled at API layer)\n\nScenario 2: API-First (React + Backend API)\nFrontend (React):\nUser → Route 53\n     → CloudFront (cache JS bundle, static files)\n     → S3 (static files live here)\n\nBackend API:\nUser → Route 53\n     → CloudFront + WAF (protect from attacks)\n     → Selective caching (only for public endpoints)\n     → ALB\n     → Origin servers\n\nWhy CloudFront for API?\n- WAF protection: Only reason\n- Caching: Minimal benefit (API responses are personalized)\n- DDoS protection: Secondary benefit\n\nCost consideration:\n- WAF: $20/month for protection (worth it)\n- Caching API: Probably won't help (lower hit rate)\n\nScenario 3: Internal-only API\nInternal service (used by employees only, not public)\n\nUser → ALB directly (no CloudFront)\n    → Origin\n\nWhy NOT CloudFront?\n- Security: Internal traffic doesn't need public CDN\n- Cost: Paying for global edge locations (not needed)\n- Complexity: Extra layer to debug\n- Latency: Might actually add latency (routing through edge)\n\nIf you still want protection:\n- Use WAF at ALB level (not CloudFront)\n- Cheaper: WAF at ALB costs same but no CDN overhead\n\nMy Recommendation for Your Platform:\nAssumption: You're building a global API platform\n\nRoute 53\n  ├─ Static assets → CloudFront (full caching)\n  ├─ Public API (GET /products) → CloudFront (WAF + selective cache)\n  └─ Private API (GET /users/me) → ALB + WAF (no CDN)\n\nConfiguration:\n┌─────────────────────────┐\n│     Route 53            │\n│  (Routing policy)       │\n└─────────────────────────┘\n        ↓\n  ┌─────────────┬──────────────┐\n  ↓             ↓              ↓\nStatic API      Private API  Webhooks\n(CloudFront)    (ALB only)    (Direct)\n  │\n  ├─ JS, CSS, images: Cache 1 month\n  ├─ Public API: Cache 5 min\n  ├─ WAF: Protect from attacks\n  └─ DDoS: Auto-protected\n\nALB Setup:\n  ├─ WAF at ALB level (for private endpoints)\n  ├─ No CloudFront (reduce latency, reduce cost)\n  └─ Direct from Route 53 to ALB\n\nCost/Benefit Analysis:\nLayer | Cost | Benefit | Use When\nCloudFront (static) | $50/mo | 90% bandwidth savings | Always\nCloudFront (API) | $50/mo | 30% load reduction | High cache hit rate\nWAF (CloudFront) | $20/mo | DDoS + Attack protection | Public API\nWAF (ALB) | $5/mo | Attack protection | Private API\nShield Standard | Free | Basic DDoS | Always\nShield Advanced | $3K/mo | Enhanced DDoS | High traffic\n\nPhase 1 (MVP - $125/month):\nCloudFront for static assets\nWAF at CloudFront (public API)\nALB for private API (no WAF yet)\n\nPhase 2 (Growth - $180/month):\nAdd WAF at ALB (private API)\nRegional origins for low latency\n\nPhase 3 (Scale - $3,200+/month):\nShield Advanced (if DDoS attacks increase)\nMultiple WAF rules customization\nCache optimization engineering",
+                        interviewer: "✓✓✓ Perfect. You understand when to apply each tool, not just that they exist. That's the mark of a solid engineer.\n\nNow, should we move to the next layer - API Gateway & Load Balancer? That's where the real routing logic lives."
+                    }
+                ]
+            }
+        ];
+
+        function renderRounds() {
+            const container = document.getElementById('roundsContainer');
+            container.innerHTML = '';
+
+            roundsData.forEach((round) => {
+                const section = document.createElement('div');
+                section.className = 'round-section';
+
+                const roundLabel = document.createElement('div');
+                roundLabel.className = 'round-label';
+                roundLabel.textContent = `ROUND ${round.round}: ${round.title}`;
+                section.appendChild(roundLabel);
+
+                const header = document.createElement('div');
+                header.className = 'question-header collapsed';
+                header.onclick = function() { toggleRound(this); };
+                header.innerHTML = `
+                    <span>❓ ${round.question}</span>
+                    <span class="chevron">▼</span>
+                `;
+                section.appendChild(header);
+
+                const content = document.createElement('div');
+                content.className = 'content collapsed';
+
+                round.options.forEach((option) => {
+                    const answerDiv = document.createElement('div');
+                    answerDiv.className = 'answer-block';
+
+                    const optHeader = document.createElement('div');
+                    optHeader.className = 'option-header collapsed';
+                    optHeader.onclick = function() { toggleOption(this); };
+                    optHeader.innerHTML = `
+                        <span>${option.label}</span>
+                        <span class="chevron">▼</span>
+                    `;
+
+                    const optContent = document.createElement('div');
+                    optContent.className = 'option-content';
+                    optContent.innerHTML = option.answer +
+                        (option.interviewer ? `<div class="interviewer-note">💬 Interviewer: ${option.interviewer}</div>` : '');
+
+                    answerDiv.appendChild(optHeader);
+                    answerDiv.appendChild(optContent);
+                    content.appendChild(answerDiv);
+                });
+
+                section.appendChild(content);
+                container.appendChild(section);
+            });
+        }
+
+        function toggleRound(header) {
+            header.classList.toggle('collapsed');
+            const content = header.nextElementSibling;
+            content.classList.toggle('collapsed');
+        }
+
+        function toggleOption(header) {
+            header.classList.toggle('collapsed');
+            const content = header.nextElementSibling;
+            content.classList.toggle('show');
+        }
+
+        function expandAll() {
+            document.querySelectorAll('.question-header').forEach(h => h.classList.remove('collapsed'));
+            document.querySelectorAll('.content').forEach(c => c.classList.remove('collapsed'));
+            document.querySelectorAll('.option-header').forEach(h => h.classList.remove('collapsed'));
+            document.querySelectorAll('.option-content').forEach(c => c.classList.add('show'));
+        }
+
+        function collapseAll() {
+            document.querySelectorAll('.question-header').forEach(h => h.classList.add('collapsed'));
+            document.querySelectorAll('.content').forEach(c => c.classList.add('collapsed'));
+            document.querySelectorAll('.option-header').forEach(h => h.classList.add('collapsed'));
+            document.querySelectorAll('.option-content').forEach(c => c.classList.remove('show'));
+        }
+
+        renderRounds();
+    </script>
+
+</body>
+</html>
+

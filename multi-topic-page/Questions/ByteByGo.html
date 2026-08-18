@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>📊 System Design Concepts - Visual Charts</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            color: #1a1a1a;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            color: #2563eb;
+            text-align: center;
+        }
+
+        /* SECTION STYLES */
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-header {
+            font-size: 24px;
+            font-weight: 600;
+            padding: 16px 20px;
+            background: #2563eb;
+            color: white;
+            border-radius: 10px 10px 0 0;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: opacity 0.2s;
+        }
+
+        .section-header:hover { opacity: 0.9; }
+
+        .section-header .chevron {
+            margin-left: auto;
+            font-size: 18px;
+            transition: transform 0.3s;
+        }
+
+        .section-header.collapsed .chevron {
+            transform: rotate(-90deg);
+        }
+
+        .section-content {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-top: none;
+            padding: 24px;
+            border-radius: 0 0 10px 10px;
+            transition: max-height 0.4s ease, opacity 0.3s ease;
+            overflow: hidden;
+        }
+
+        .section-content.collapsed {
+            max-height: 0 !important;
+            opacity: 0;
+            padding: 0;
+        }
+
+        /* TOPICS GRID */
+        .topics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+        }
+
+        .topic-card {
+            border: 1.5px solid #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.2s;
+            cursor: pointer;
+            background: #fafafa;
+        }
+
+        .topic-card:hover {
+            border-color: #2563eb;
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.12);
+        }
+
+        .topic-header {
+            padding: 16px;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .topic-icon {
+            font-size: 24px;
+        }
+
+        .images-gallery {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            padding: 16px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .image-item {
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+            border: 1px solid #ddd;
+            transition: transform 0.2s;
+        }
+
+        .image-item:hover {
+            transform: scale(1.02);
+        }
+
+        .image-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .image-label {
+            padding: 8px 12px;
+            background: #f0f0f0;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+            border-top: 1px solid #ddd;
+        }
+
+        /* SCROLLBAR */
+        .images-gallery::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .images-gallery::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .images-gallery::-webkit-scrollbar-thumb {
+            background: #2563eb;
+            border-radius: 10px;
+        }
+
+        .images-gallery::-webkit-scrollbar-thumb:hover {
+            background: #1d4ed8;
+        }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #aaa;
+            font-size: 13px;
+            margin-top: 40px;
+        }
+
+        /* IMAGE PREVIEW MODAL */
+        .modal {
+            display: none !important;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.active {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 85vw;
+            max-height: 85vh;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .modal-toolbar-left {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .modal-toolbar-right {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .zoom-control {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            background: #f0f0f0;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .zoom-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .zoom-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .zoom-level {
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+            min-width: 45px;
+            text-align: center;
+        }
+
+        .close-modal {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .close-modal:hover {
+            background: #dc2626;
+        }
+
+        .modal-image-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+            background: #fafafa;
+            border-radius: 8px;
+        }
+
+        .modal-image {
+            max-width: 100%;
+            max-height: 100%;
+            display: block;
+            cursor: grab;
+            user-select: none;
+            transition: transform 0.2s;
+        }
+
+        .modal-image:active {
+            cursor: grabbing;
+        }
+
+        .modal-label {
+            margin-top: 12px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 500;
+            color: #333;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                max-width: 95vw;
+                max-height: 95vh;
+            }
+
+            .modal-toolbar {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .modal-toolbar-left,
+            .modal-toolbar-right {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>📊 System Design Concepts - Visual Charts</h1>
+        <div id="sectionsContainer"></div>
+        <div class="footer">📚 ByteByGo Charts · Visual Guide to System Design Concepts</div>
+    </div>
+
+    <!-- IMAGE PREVIEW MODAL -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-toolbar">
+                <div class="modal-toolbar-left">
+                    <div class="zoom-control">
+                        <button class="zoom-btn" onclick="zoomOut()" title="Zoom Out">−</button>
+                        <span class="zoom-level" id="zoomLevel">100%</span>
+                        <button class="zoom-btn" onclick="zoomIn()" title="Zoom In">+</button>
+                        <button class="zoom-btn" onclick="resetZoom()" title="Reset Zoom" style="background: #8b5cf6;">⟲</button>
+                    </div>
+                </div>
+                <div class="modal-toolbar-right">
+                    <button class="close-modal" onclick="closeImageModal()">✕ Close</button>
+                </div>
+            </div>
+            <div class="modal-image-container">
+                <img id="modalImage" class="modal-image" alt="">
+            </div>
+            <div id="modalLabel" class="modal-label"></div>
+        </div>
+    </div>
+
+    <script>
+        // ───── CONFIGURATION: Topics organized by category ─────
+        // EASY TO MODIFY: Just add/remove sections, topics, and images
+        const chartData = [
+            {
+                section: "⚡ Scalability & Performance",
+                icon: "⚡",
+                topics: [
+                    {
+                        id: "loadbalancing",
+                        name: "Load Balancing",
+                        icon: "🔀",
+                        images: [
+                            {
+                                file: "../Images/SystemDesign-LoadBalancing.jpg",
+                                label: "Load Balancing Strategy"
+                            }
+                        ]
+                    },
+                    {
+                        id: "caching",
+                        name: "Caching",
+                        icon: "💾",
+                        images: [
+                            {
+                                file: "../Images/SystemDesign-Caching.jpg",
+                                label: "Caching Mechanisms"
+                            }
+                        ]
+                    },
+                    {
+                        id: "cdn",
+                        name: "CDN (Content Delivery Network)",
+                        icon: "🌐",
+                        images: [
+                            {
+                                file: "../Images/SystemDesign-CDN.jpg",
+                                label: "CDN Architecture"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                section: "💾 Data Management",
+                icon: "💾",
+                topics: [
+                    {
+                        id: "sharding",
+                        name: "Sharding",
+                        icon: "🔪",
+                        images: [
+                            {
+                                file: "../Images/SystemDesign-Sharding.jpg",
+                                label: "Database Sharding"
+                            }
+                        ]
+                    },
+                    {
+                        id: "replication",
+                        name: "Replication",
+                        icon: "📋",
+                        images: [
+                            {
+                                file: "../Images/SystemDesign-Replication.jpg",
+                                label: "Data Replication"
+                            }
+                        ]
+                    },
+                    {
+                        id: "consistenthashing",
+                        name: "Consistent Hashing",
+                        icon: "🎯",
+                        images: [
+                            {
+                                file: "../Images/SystemDesign-ConsistentHashing.jpg",
+                                label: "Consistent Hashing Ring"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                section: "🛡️ System Reliability",
+                icon: "🛡️",
+                topics: [
+                    {
+                        id: "messagequeue",
+                        name: "Message Queue",
+                        icon: "📬",
+                        images: [
+                            {
+                                file: "../Images/SystemDesign-MessageQueue.jpg",
+                                label: "Message Queue Pattern"
+                            }
+                        ]
+                    },
+                    {
+                        id: "ratelimiting",
+                        name: "Rate Limiting",
+                        icon: "🚫",
+                        images: [
+                            {
+                                file: "../Images/SystemDesign-RateLimiting.jpg",
+                                label: "Rate Limiting Algorithms"
+                            }
+                        ]
+                    },
+                    {
+                        id: "backpressure",
+                        name: "Backpressure",
+                        icon: "📊",
+                        images: [
+                            {
+                                file: "../Images/SystemDesign-Backpressure.jpg",
+                                label: "Backpressure Handling"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                section: "🔁 Consistency & Correctness",
+                icon: "🔁",
+                topics: [
+                    {
+                        id: "captheorem",
+                        name: "CAP Theorem",
+                        icon: "⚖️",
+                        images: [
+                            {
+                                file: "../Images/SystemDesign-CAPTheorem.jpg",
+                                label: "CAP Trade-offs"
+                            }
+                        ]
+                    },
+                    {
+                        id: "eventualconsistency",
+                        name: "Eventual Consistency",
+                        icon: "⏳",
+                        images: [
+                            {
+                                file: "../Images/SystemDesign-EventualConsistency.jpg",
+                                label: "Eventual Consistency Model"
+                            }
+                        ]
+                    },
+                    {
+                        id: "idempotency",
+                        name: "Idempotency",
+                        icon: "🔐",
+                        images: [
+                            {
+                                file: "../Images/SystemDesign-Idempotency.jpg",
+                                label: "Idempotent Operations"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        // ───── RENDER FUNCTION ─────
+        function renderCharts() {
+            const container = document.getElementById('sectionsContainer');
+            container.innerHTML = '';
+
+            chartData.forEach((categoryObj, categoryIndex) => {
+                const section = document.createElement('div');
+                section.className = 'section';
+
+                const header = document.createElement('div');
+                header.className = 'section-header collapsed';
+                header.onclick = function() { toggleSection(this); };
+                header.innerHTML = `
+                    <span>${categoryObj.icon} ${categoryObj.section}</span>
+                    <span class="chevron">▼</span>
+                `;
+
+                const content = document.createElement('div');
+                content.className = 'section-content collapsed';
+
+                const topicsGrid = document.createElement('div');
+                topicsGrid.className = 'topics-grid';
+
+                categoryObj.topics.forEach(topic => {
+                    const topicCard = document.createElement('div');
+                    topicCard.className = 'topic-card';
+
+                    const topicHeader = document.createElement('div');
+                    topicHeader.className = 'topic-header';
+                    topicHeader.innerHTML = `<span class="topic-icon">${topic.icon}</span> ${topic.name}`;
+
+                    const gallery = document.createElement('div');
+                    gallery.className = 'images-gallery';
+
+                    topic.images.forEach(image => {
+                        const imageItem = document.createElement('div');
+                        imageItem.className = 'image-item';
+                        imageItem.style.cursor = 'pointer';
+                        imageItem.onclick = function() { openImageModal(image.file, image.label); };
+                        imageItem.innerHTML = `
+                            <img src="${image.file}" alt="${image.label}" loading="lazy">
+                            <div class="image-label">${image.label}</div>
+                        `;
+                        gallery.appendChild(imageItem);
+                    });
+
+                    topicCard.appendChild(topicHeader);
+                    topicCard.appendChild(gallery);
+                    topicsGrid.appendChild(topicCard);
+                });
+
+                content.appendChild(topicsGrid);
+                section.appendChild(header);
+                section.appendChild(content);
+                container.appendChild(section);
+            });
+        }
+
+        // ───── TOGGLE SECTION ─────
+        function toggleSection(header) {
+            header.classList.toggle('collapsed');
+            const content = header.nextElementSibling;
+            content.classList.toggle('collapsed');
+        }
+
+        // ───── IMAGE MODAL FUNCTIONS ─────
+        let currentZoom = 40;
+        const MIN_ZOOM = 30;
+        const MAX_ZOOM = 300;
+        const ZOOM_STEP = 20;
+
+        function openImageModal(imagePath, imageLabel) {
+            const modal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            const modalLabel = document.getElementById('modalLabel');
+
+            modalImage.src = imagePath;
+            modalLabel.textContent = imageLabel;
+            currentZoom = 40;
+            updateZoomLevel();
+            modal.classList.add('active');
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('imageModal');
+            modal.classList.remove('active');
+            currentZoom = 40;
+        }
+
+        function zoomIn() {
+            if (currentZoom < MAX_ZOOM) {
+                currentZoom += ZOOM_STEP;
+                updateZoomLevel();
+            }
+        }
+
+        function zoomOut() {
+            if (currentZoom > MIN_ZOOM) {
+                currentZoom -= ZOOM_STEP;
+                updateZoomLevel();
+            }
+        }
+
+        function resetZoom() {
+            currentZoom = 40;
+            updateZoomLevel();
+        }
+
+        function updateZoomLevel() {
+            const modalImage = document.getElementById('modalImage');
+            const zoomLevel = document.getElementById('zoomLevel');
+
+            modalImage.style.transform = `scale(${currentZoom / 100})`;
+            zoomLevel.textContent = currentZoom + '%';
+        }
+
+        // Close modal if clicking outside the image
+        window.onclick = function(event) {
+            const modal = document.getElementById('imageModal');
+            if (event.target == modal) {
+                closeImageModal();
+            }
+        }
+
+        // Close modal on ESC key, also support zoom with keyboard
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeImageModal();
+            } else if (event.key === '+' || event.key === '=') {
+                event.preventDefault();
+                zoomIn();
+            } else if (event.key === '-' || event.key === '_') {
+                event.preventDefault();
+                zoomOut();
+            } else if (event.key === '0') {
+                event.preventDefault();
+                resetZoom();
+            }
+        });
+
+        // ───── INIT ─────
+        renderCharts();
+    </script>
+
+</body>
+</html>
+

@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🗄️ Database Layer Interview - Progressive Q&A</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 1px solid #4f46e5;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-expand {
+            background: #6366f1;
+            color: white;
+        }
+
+        .btn-expand:hover {
+            background: #4f46e5;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-collapse {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-collapse:hover {
+            background: #dc2626;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        /* ROUND SECTION */
+        .round-section {
+            margin-bottom: 24px;
+        }
+
+        .round-label {
+            font-size: 14px;
+            color: #a5b4fc;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .question-header {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 8px 8px 0 0;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #4f46e5;
+            transition: all 0.3s;
+        }
+
+        .question-header:hover {
+            opacity: 0.9;
+            transform: translateX(5px);
+        }
+
+        .question-header .chevron {
+            margin-left: auto;
+            transition: transform 0.3s;
+            font-size: 16px;
+        }
+
+        .question-header.collapsed .chevron {
+            transform: rotate(-90deg);
+        }
+
+        .content {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            padding: 24px;
+            transition: max-height 0.4s ease, opacity 0.3s ease;
+            overflow: hidden;
+            border-bottom: 1px solid #4f46e5;
+        }
+
+        .content.collapsed {
+            max-height: 0 !important;
+            opacity: 0;
+            padding: 0;
+            border: none;
+        }
+
+        /* ANSWER OPTION */
+        .answer-block {
+            margin-bottom: 24px;
+            background: #0f172a;
+            border-left: 4px solid #6366f1;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .option-header {
+            padding: 12px 16px;
+            background: #334155;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: #cbd5e1;
+            transition: all 0.2s;
+        }
+
+        .option-header:hover {
+            background: #475569;
+        }
+
+        .option-header .chevron {
+            margin-left: auto;
+            transition: transform 0.3s;
+        }
+
+        .option-header.collapsed .chevron {
+            transform: rotate(-90deg);
+        }
+
+        .option-label {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            background: #6366f1;
+            color: white;
+        }
+
+        .option-content {
+            padding: 16px;
+            background: #0f172a;
+            border-top: 1px solid #334155;
+            display: none;
+            color: #cbd5e1;
+            line-height: 1.6;
+            font-size: 14px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 4000px;
+            overflow-y: auto;
+        }
+
+        .option-content.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+            }
+            to {
+                opacity: 1;
+                max-height: 4000px;
+            }
+        }
+
+        .interviewer-note {
+            margin-top: 12px;
+            padding: 10px;
+            background: #1e293b;
+            border-left: 3px solid #fbbf24;
+            border-radius: 4px;
+            color: #fecaca;
+            font-size: 13px;
+            font-style: italic;
+        }
+
+        .progression-table {
+            width: 100%;
+            margin-top: 40px;
+            margin-bottom: 40px;
+            border-collapse: collapse;
+            background: #0f172a;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #334155;
+        }
+
+        .progression-table th,
+        .progression-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+            color: #cbd5e1;
+        }
+
+        .progression-table th {
+            background: #1e293b;
+            font-weight: 600;
+            color: #a5b4fc;
+        }
+
+        .progression-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 40px;
+            border-top: 1px solid #334155;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 24px; }
+            .question-header { font-size: 16px; }
+            .option-content { font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>🗄️ Database Layer Interview</h1>
+            <p>Layer 5: Replication, Failover, Sharding, Performance & Consistency</p>
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-expand" onclick="expandAll()">📂 Expand All</button>
+            <button class="btn btn-collapse" onclick="collapseAll()">📁 Collapse All</button>
+        </div>
+
+        <div id="roundsContainer"></div>
+
+        <table class="progression-table">
+            <thead>
+                <tr>
+                    <th>Round</th>
+                    <th>Topic</th>
+                    <th>Key Insight</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>Database Architecture</td>
+                    <td>Single vs replicated, trade-offs between availability and consistency</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Failover & Recovery</td>
+                    <td>What happens when master crashes, data loss, replication lag</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Scaling Reads & Writes</td>
+                    <td>Replicas help reads, but writes still bottleneck on master</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>Sharding & Consistency</td>
+                    <td>Distributed data, eventual consistency, cross-shard coordination</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>Connection Pooling</td>
+                    <td>Reuse connections, avoid connection overhead, scale efficiently</td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td>Performance Debugging</td>
+                    <td>Identify slow queries, indexing, query optimization, monitoring</td>
+                </tr>
+                <tr>
+                    <td>7</td>
+                    <td>Startup MVP Design</td>
+                    <td>Build simple, grow gradually, add redundancy as needed</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="footer">
+            💡 Database is the heart of your system. Get this layer right!
+        </div>
+    </div>
+
+    <script>
+        const roundsData = [
+            {
+                round: 1,
+                title: "BASIC DATABASE ARCHITECTURE",
+                question: "You're launching an API. You need a database. Do you use single database, or multiple replicas? Why? What are trade-offs?",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "Use single database, it's simpler. Scale it up when needed.",
+                        interviewer: "Okay. Your database crashes at 3 AM. API can't write data. Users see errors for 2 hours while you restore from backup. How is this acceptable?"
+                    },
+                    {
+                        label: "Option B (Better)",
+                        answer: "Use master-slave replication. Master handles writes, slaves handle reads. If master crashes, promote slave to master.",
+                        interviewer: "✓ Good. But what if master crashes and slave hasn't replicated latest writes? Data loss?\n\nFollow-up Q2: How do you balance availability vs data consistency?"
+                    },
+                    {
+                        label: "Option C (Best)",
+                        answer: "Database replication strategy depends on SLA and consistency requirements:\n\nSINGLE DATABASE (No replication)\n\nArchitecture:\n┌─────────────────┐\n│  API Servers    │\n├─────────┬───────┤\n↓ (All reads and writes)\n┌──────────┐\n│ Master   │\n│ (SPOF)   │\n└──────────┘\n\nPros:\n✓ Simple (one database, obvious truth)\n✓ Strong consistency (reads see latest writes)\n✓ Easy debugging (single source of truth)\n\nCons:\n✗ No redundancy (single point of failure)\n✗ No read scaling (all requests queue up)\n✗ Database crash = complete downtime\n\nWhen to use: MVP, startup, < 1000 users, downtime acceptable\n\n---\n\nMASTER-SLAVE REPLICATION (Async)\n\nArchitecture:\n┌──────────────┐\n│ API Servers  │\n├────────┬─────┤\n│ Write  │ Read load balancer\n│        ├─────────────┬──────────┐\n│        │             │          │\n↓        ↓             ↓          ↓\n┌────────────┐   ┌─────────┐  ┌─────────┐\n│Master (W)  │──→│Slave 1  │  │Slave 2  │\n└────────────┘   └─────────┘  └─────────┘\n(replicates asynchronously ~100ms delay)\n\nPros:\n✓ Read scaling (reads distributed across slaves)\n✓ Failover option (promote slave if master fails)\n✓ Backups easier (backup from slave, master not affected)\n✓ Reduced master load\n\nCons:\n✗ Eventual consistency (reads might be 100ms stale)\n✗ Replication lag issues\n✗ Master still SPOF (only master accepts writes)\n✗ Complex failover process\n\nReplication lag scenario:\nTime 0:   User updates profile (INSERT)\nTime 10:  Master has data\nTime 50:  User refreshes, reads from slave (old data returned!)\nTime 120: Slave replicated, now sees new data\n\n---\n\nMASTER-MASTER REPLICATION (Active-Active)\n\nArchitecture:\n┌──────────────────┐\n│  API Servers     │\n├────────┬─────────┤\n│        │\n↓        ↓\n┌─────────────┐   ┌─────────────┐\n│ Master A    │←→ │ Master B    │\n│ (Read/Write)│   │ (Read/Write)│\n└─────────────┘   └─────────────┘\n(bi-directional replication)\n\nPros:\n✓ Both can accept writes\n✓ No single master SPOF\n✓ Failover automatic (other master already available)\n✓ Horizontal scaling (add more masters)\n\nCons:\n✗ Complex conflict resolution (both wrote to same row)\n✗ Higher overhead (more replication traffic)\n✗ Need distributed transactions\n✗ Risk of divergence (data inconsistency)\n\nConflict scenario:\nTime 0:   Master A: UPDATE user SET name='Alice'\nTime 0:   Master B: UPDATE user SET name='Bob' (same user!)\nTime 50:  Master A replicates Bob's change\nTime 50:  Master B replicates Alice's change\nResult:  Both masters now have conflicting data!\n\nSolution: Last-write-wins or application conflict handling\n\n---\n\nRECOMMENDATION:\nDevelop MVP: Single database\nGrow to 10K users: Master-slave (read heavy)\nGrow to 100K users: Master-master or sharding\nGrow to 1M+ users: Mixed (master-master + sharding + caching)"
+                    }
+                ]
+            },
+            {
+                round: 2,
+                title: "FAILOVER & RECOVERY",
+                question: "It's 3 AM. Master database crashes (hardware failure). You have 2 read replicas. How do you recover? What data is lost? How long is downtime?",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "Restart the master database.",
+                        interviewer: "Okay, but the hardware is dead (disk corruption). You can't restart it. What now?"
+                    },
+                    {
+                        label: "Option B (Mediocre)",
+                        answer: "Use one of the replicas as the new master. Point API servers to new master.",
+                        interviewer: "✓ Good. But how long does this take? Data loss? How do you know which replica to promote?"
+                    },
+                    {
+                        label: "Option C (Best)",
+                        answer: "FAILOVER PROCESS (Step-by-step):\n\nStep 1: Detect Failure (0-30 seconds)\n├─ Monitoring alert: Master not responding\n├─ Health check failed 3 times\n├─ Page on-call engineer\n└─ Decision: Failover to replica\n\nStep 2: Choose Replica to Promote (30 seconds)\n├─ Which replica has most recent data?\n├─ Check replication position on each slave\n├─ Slave 1: Replication position 1000000\n├─ Slave 2: Replication position 999500\n├─ Promote Slave 1 (more up-to-date)\n\nStep 3: Promote Replica (30-60 seconds)\n├─ Configure Slave 1:\n│  ├─ Stop replication (no more slave mode)\n│  ├─ Reset replication status\n│  ├─ Enable writes (make it master)\n│  └─ Promote to PRIMARY PRIMARY\n└─ Now Slave 1 is new master\n\nStep 4: Update Application (30-60 seconds)\n├─ Database URL/host: Change from master to slave1\n├─ Or: Update DNS to point to new master\n├─ Retry logic: Apps automatically reconnect\n├─ Connections redirect to new master\n└─ API becomes available again\n\nStep 5: Verify (1-2 minutes)\n├─ Check: Can apps write to new master?\n├─ Check: Are replicas replicating from new master?\n├─ Check: No data corruption?\n├─ Check: Error rate back to normal?\n\nTOTAL DOWNTIME: ~1-2 minutes\n\n---\n\nDATA LOSS SCENARIO:\n\nTimeline:\nTime 0:    Master working normally\nTime -10s: User makes write: \"INSERT post\"\nTime 0s:   Write hits master (committed)\nTime 5s:   Master starts replicating to slaves\nTime 10s:  Master crashes (BEFORE replication sent)\nTime 10s:  Slave has NOT received this write yet\nTime 15s:  Promoted slave to master\nTime 20s:  API writes to new master\nTime 30s:  Old slave (Slave 2) tried to reconnect\nTime 31s:  Problem: Old slave thinks old master still exists\nTime 31s:  Slave 2 tries to reconnect to crashed master\nTime 32s:  Connection fails, slave goes 'Not Replicating'\n\nResult: Original write is LOST (never made it to replica)\n\nHow much data lost?\n- Depends on replication lag at time of crash\n- If 100ms lag: ~100ms of writes lost\n- If 1s lag: ~1s of writes lost (could be many!)\n\nUser experience:\n- User made post\n- Database crashed\n- Failover happened\n- User refreshes page\n- Post is gone! (was in crashed master, not replicated)\n- User confused: \"Where did my post go?\"\n\n---\n\nHOW TO MINIMIZE DATA LOSS:\n\nOption 1: Semi-Synchronous Replication\n├─ Master waits for at least 1 slave to ACK\n├─ Before telling app \"write is done\"\n├─ Slave 1 immediately gets write\n├─ If master crashes, Slave 1 has data\n└─ Data loss: 0 (if at least 1 slave ACK'd)\n\nOption 2: Synchronous Replication\n├─ Master waits for ALL slaves to ACK\n├─ All replicas have data before write completes\n├─ Much slower writes (wait for slowest slave)\n├─ Data loss: 0\n└─ Trade-off: Latency increase\n\nOption 3: Transactions & Durability\n├─ WAL (Write-Ahead Log) on master\n├─ Persist to disk before ACK to app\n├─ Even if master crashes, WAL survives\n├─ Recover from WAL if replica promoted\n\n---\n\nRECOMMENDED FAILOVER DESIGN:\n\nSetup:\n├─ Master with semi-sync replication\n├─ 2-3 replicas (spread across AZs)\n├─ Automated health checks every 10 seconds\n├─ Automated failover (no manual steps!)\n├─ Monitoring dashboard (on-call watches)\n└─ Runbook for manual recovery\n\nExpected downtime: 30-60 seconds\nExpected data loss: Very low (<100 writes)\nUser impact: Temporary connection reset, auto-reconnect"
+                    }
+                ]
+            },
+            {
+                round: 3,
+                title: "SCALING READS AND WRITES",
+                question: "Your database is at 10,000 queries/sec. You add read replicas but performance still bad. You realize the problem: (1) Read replicas are getting hit hard, (2) Master is struggling with write load. How do you scale both reads AND writes?",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "Add more read replicas.",
+                        interviewer: "But master is still doing all 10K writes/sec. That's where the bottleneck is. More replicas don't help with write load."
+                    },
+                    {
+                        label: "Option B (Mediocre)",
+                        answer: "Use a cache layer (Redis) to reduce database load.",
+                        interviewer: "✓ Good idea, but what about writes? Writes still go to master. Master still bottlenecked."
+                    },
+                    {
+                        label: "Option C (Best)",
+                        answer: "SCALING READS:\n\nRead Optimization Methods (in order of effectiveness):\n\n1. Caching Layer (Redis/Memcached)\n├─ Cache frequently accessed data\n├─ Reduces DB queries by 80-90%\n├─ Example:\n│  ├─ Without cache: 10K requests/sec → 10K DB queries\n│  ├─ With cache: 10K requests/sec → 1K DB queries (90% cache hit)\n│  └─ Master load: 10K writes/sec + 1K reads/sec\n└─ Cost: Add Redis cluster\n\n2. Read Replicas\n├─ Distribute reads across replicas\n├─ Example (with cache & replicas):\n│  ├─ Reads (cache miss): 1K/sec distributed across 3 replicas\n│  ├─ Each replica: ~333 reads/sec (not 10K!)\n│  └─ Much better\n└─ Cost: 2-3 more database servers\n\n3. Read Specialization\n├─ Different replicas for different data\n├─ Example:\n│  ├─ Replica A: User profiles (optimized for user queries)\n│  ├─ Replica B: Post feeds (optimized for post queries)\n│  ├─ Replica C: Analytics (optimized for reporting)\n│  └─ Reduces lock contention and io\n└─ Cost: More infrastructure, complexity\n\n---\n\nSCALING WRITES:\n\nWrite Bottleneck Analysis:\n├─ Master handles: 10,000 writes/sec\n├─ Problem: Single master can only do ~1000-3000 writes/sec\n├─ Max write throughput: Limited by:\n│  ├─ Disk I/O (writes must persist to disk)\n│  ├─ CPU (query processing)\n│  ├─ Network (responding to clients)\n│  └─ Lock contention (multiple writes to same row)\n\nWrite Optimization Methods:\n\n1. Sharding (Horizontal Partitioning)\n├─ Split data across multiple master databases\n├─ Example (4 shards):\n│  ├─ Shard 1 (Master): users with ID 0-25M (handle ~2.5K writes/sec)\n│  ├─ Shard 2 (Master): users with ID 25M-50M (handle ~2.5K writes/sec)\n│  ├─ Shard 3 (Master): users with ID 50M-75M (handle ~2.5K writes/sec)\n│  ├─ Shard 4 (Master): users with ID 75M-100M (handle ~2.5K writes/sec)\n│  └─ Total: 4 × 2.5K = 10K writes/sec\n└─ Cost: 4x database infrastructure\n\n2. Write Optimization (Before sharding)\n├─ Batch writes (group 10 writes into 1 query)\n├─ Async writes (queue writes, process batch)\n├─ Denormalization (reduce JOIN complexity)\n├─ Remove unnecessary indexes (speed up inserts)\n│  └─ Trade-off: Slower reads, faster writes\n├─ Connection pooling (reuse connections)\n└─ Cost: Application code changes\n\n3. Event Sourcing\n├─ Instead of updating state, log events\n├─ Example:\n│  ├─ Old: UPDATE posts SET likes = likes + 1\n│  ├─ New: INSERT into events {type: 'like', post_id: 123, time: ...}\n│  └─ Pros: Events are append-only (fast!)\n│  └─ Cons: Need to replay events to get current state\n└─ Cost: Architectural change\n\n---\n\nRECOMMENDED MULTI-LAYER APPROACH:\n\nLayer 1: Caching (Quick win)\n├─ Add Redis\n├─ Cache hot data (90% of reads from cache)\n├─ Result: Master load: 10K writes + 1K reads\n\nLayer 2: Read Replicas\n├─ 2-3 replicas for remaining reads\n├─ Each handles ~333 reads/sec\n├─ Configuration:\n│  ├─ Replica 1: Full data (backup + reads)\n│  ├─ Replica 2: Full data (backup + reads)\n│  └─ Result: Reads scaled\n\nLayer 3: Write Optimization\n├─ Before sharding, optimize:\n│  ├─ Batch writes\n│  ├─ Async processing\n│  ├─ Remove unused indexes\n│  └─ Result: Maybe 30-50% reduction\n\nLayer 4: Sharding (If still needed)\n├─ Split writes across 4 shards\n├─ Each shard handles 2.5K writes/sec\n├─ Configuration:\n│  ├─ Shard 1 (user_id % 4 == 0)\n│  ├─ Shard 2 (user_id % 4 == 1)\n│  ├─ Shard 3 (user_id % 4 == 2)\n│  ├─ Shard 4 (user_id % 4 == 3)\n│  └─ Each shard can have replicas too\n\n---\n\nTRIAL ORDER (Cost vs Complexity):\n1. Cache (Low cost, high impact)\n2. Read replicas (Medium cost)\n3. Write optimization (Low cost, medium effort)\n4. Sharding (High cost, high complexity)"
+                    }
+                ]
+            },
+            {
+                round: 4,
+                title: "SHARDING & DISTRIBUTED CONSISTENCY",
+                question: "You shard data across 4 databases. User makes purchase on Shard A. Money deducted from account. But then user tries to use balance on Shard B (different shard). Shard B doesn't know about the purchase yet (eventual consistency). What happens? How do you prevent it?",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "Both shards will have the same data eventually. It's fine.",
+                        interviewer: "Really? User deducts $100 from account in Shard A, then immediately tries to spend on Shard B. Balance in B is still $1000 (old). User on Shard B thinks they have more money than they do. Data inconsistency!"
+                    },
+                    {
+                        label: "Option B (Mediocre)",
+                        answer: "Synchronize data between shards immediately.",
+                        interviewer: "✓ Better idea. But now cross-shard communication is complex. Latency increases. What if sync fails halfway?"
+                    },
+                    {
+                        label: "Option C (Best)",
+                        answer: "CROSS-SHARD CONSISTENCY:\n\nProblem Scenario:\n\nUser Account: user_id = 123\nSharding key: user_id % 4 = 3 (lives on Shard 3)\n\nOpening Balance: $1000\n\nTransaction 1 (Purchase): \n├─ API call: POST /purchase {user_id: 123, amount: 100}\n├─ Router: user_id % 4 = 3 → route to Shard 3\n├─ Shard 3: UPDATE account SET balance = balance - 100 WHERE user_id = 123\n├─ Shard 3: New balance = $900\n├─ Response: Success (user sees $900 balance)\n\nTransaction 2 (Check balance): \n├─ API call: GET /balance {user_id: 123}\n├─ Router: user_id % 4 = 3 → route to Shard 3\n├─ Shard 3: SELECT balance WHERE user_id = 123\n├─ Response: $900 ✓ Correct!\n\nBUT WHAT IF...\n\nTransaction 1 (Purchase):\n├─ API call: POST /purchase {user_id: 123, amount: 100}\n├─ Router: Wait, is data on Shard 3 or Shard 1?\n├─ If wrong routing → Hit wrong shard\n├─ Wrong shard: No user record\n├─ Error: \"User not found\"\n└─ Purchase fails!\n\nWorse Case (Multi-shard transaction):\n├─ User transfers $100 to friend\n├─ User: Shard 3, Friend: Shard 1 (different shard!)\n├─ Transaction: \n│  ├─ Step 1: Shard 3 deduct $100 from user\n│  ├─ Step 2: Shard 1 add $100 to friend\n│  ├─ Problem: If step 1 succeeds but step 2 fails\n│  └─ Result: Money disappears! (deducted but not added)\n\n---\n\nSOLUTION 1: Shard-Local Transactions (Simple)\n\nRule: All data for user must be on same shard\n├─ Sharding key: user_id\n├─ All user's data (balance, posts, settings) on same shard\n├─ Transaction can't span shards\n├─ Constraint: Can't have cross-user transactions\n\nLimitation:\n├─ Transfer between users → 2 shards involved\n├─ Solution: Don't support it, or...\n└─ Alternative: Use a ledger table on central DB\n\nDesign:\n┌────────────────────────────────┐\n│ Shard 1 (User 0-25M)           │\n├─ User 100: {balance: $900}     │\n├─ User 200: {balance: $800}     │\n└────────────────────────────────┘\n┌────────────────────────────────┐\n│ Shard 2 (User 25M-50M)         │\n├─ User 30M: {balance: $500}     │\n├─ User 40M: {balance: $600}     │\n└────────────────────────────────┘\n\nRule: GET user 100 → always Shard 1\n      Update user 100 → always Shard 1\n\nBenefit: No cross-shard transactions\nDownside: Can't transfer between shards\n\n---\n\nSOLUTION 2: Distributed Transactions (Complex)\n\nFor cross-shard transactions (like transfers):\n\nTwo-Phase Commit (2PC):\n\nPhase 1: Prepare\n├─ Coordinator: \"Shard 1, can you deduct $100 from User 100?\"\n├─ Shard 1: \"Yes, I can (I locked the row, verified balance)\"\n├─ Coordinator: \"Shard 2, can you add $100 to User 200?\"\n├─ Shard 2: \"Yes, I can (I locked the row, have space)\"\n\nPhase 2: Commit\n├─ Coordinator: \"Shard 1, commit the deduction\"\n├─ Shard 1: \"Done, balance updated\"\n├─ Coordinator: \"Shard 2, commit the addition\"\n├─ Shard 2: \"Done, balance updated\"\n└─ Transaction complete!\n\nIf any shard says NO in Phase 1:\n├─ Coordinator: \"All shards, rollback!\"\n├─ Shard 1: \"Deduction rolled back\"\n├─ Shard 2: \"Addition rolled back\"\n└─ Transaction fails safely\n\nPros:\n✓ Strong consistency (money is never lost)\n✓ Atomic (all or nothing)\n\nCons:\n✗ Slow (wait for all shards in Phase 1)\n✗ Complex (coordinator logic)\n✗ Risk of deadlock (shards lock each other)\n✗ If coordinator crashes, locks held forever\n\nWhen to use: Financial transactions, critical operations\n\n---\n\nSOLUTION 3: Event Sourcing (Async)\n\nInstead of direct transfers:\n\n├─ User 100 initiates: \"Transfer $100 to User 200\"\n├─ System: Creates event: {type: 'transfer', from: 100, to: 200, amount: 100}\n├─ Event stored in single append-only log (central DB)\n├─ Event processing:\n│  ├─ Process 1: Update Shard 1 (deduct from user 100)\n│  ├─ Process 2: Update Shard 2 (add to user 200)\n│  └─ If either fails, retry\n├─ Eventually consistent (both shards updated)\n└─ If one fails, event is reprocessed\n\nPros:\n✓ No distributed locking\n✓ Scalable (async processing)\n✓ Audit trail (all events logged)\n✓ Retryable (failed events retry)\n\nCons:\n✗ Eventual consistency (delay)\n✗ Complex to implement\n✗ User sees \"transfer in progress\" for a bit\n\nWhen to use: Non-critical operations, can tolerate delay\n\n---\n\nRECOMMENDED BY USE CASE:\n\nFinancial app (money transfers, payments):\n└─ Use 2PC (strong consistency is critical)\n\nSocial media (likes, follows, posts):\n└─ Use event sourcing (eventual consistency ok)\n\nStartup (small scale, low transaction volume):\n└─ Keep data on single shard, avoid cross-shard transfers\n\nFacebook-scale (billions of transactions):\n└─ Hybrid: Most sharded, financial ops use 2PC"
+                    }
+                ]
+            },
+            {
+                round: 5,
+                title: "CONNECTION POOLING",
+                question: "Your API servers create new database connection per request. Each connection takes 50ms to establish. You handle 10,000 req/sec. That's 500 seconds of pure connection overhead per second. How do you fix it?",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "Use connection pooling but I'm not sure how it works.",
+                        interviewer: "✓ Right direction! But let me ask: How does pooling save time? What are the trade-offs?"
+                    },
+                    {
+                        label: "Option B (Mediocre)",
+                        answer: "Increase the number of database connections allowed.",
+                        interviewer: "✓ Partially helps. But why does connection creation take 50ms in the first place? Can you optimize that?"
+                    },
+                    {
+                        label: "Option C (Best)",
+                        answer: "CONNECTION POOLING FUNDAMENTALS:\n\nProblem:\n\nWithout pooling (Creating new connection per request):\n\nRequest 1:\n├─ Create connection (50ms)\n│  ├─ TCP handshake: 3-way handshake\n│  ├─ Database auth: Verify credentials\n│  ├─ Session init: Set encoding, timezone, etc\n│  └─ Total: 50ms\n├─ Execute query (2ms)\n├─ Close connection (10ms)\n└─ Total request time: 62ms\n\nRequest 2-10000: Same overhead for each\n\nTotal overhead per second: 10,000 × 50ms = 500,000ms = 500 seconds!\n\nThis is INSANE. The database spends 500 seconds just setting up connections.\n\n---\n\nSOLUTION: Connection Pooling\n\nIdea: Reuse connections instead of creating new ones\n\nWithout pool:\nRequest 1: [Create (50ms)] → [Query (2ms)] → [Close (10ms)]\nRequest 2: [Create (50ms)] → [Query (2ms)] → [Close (10ms)]\nRequest 3: [Create (50ms)] → [Query (2ms)] → [Close (10ms)]\n\nWith pool of 5 connections:\nInitialization:\n├─ Pre-create 5 connections (happens once at startup)\n├─ Connection 1: Ready\n├─ Connection 2: Ready\n├─ Connection 3: Ready\n├─ Connection 4: Ready\n├─ Connection 5: Ready (available)\n\nNow handle requests:\n\nRequest 1: [Get connection from pool (1μs)] → [Query (2ms)] → [Return to pool (1μs)]\nRequest 2: [Get connection from pool (1μs)] → [Query (2ms)] → [Return to pool (1μs)]\nRequest 3: [Get connection from pool (1μs)] → [Query (2ms)] → [Return to pool (1μs)]\nRequest 4: [Get connection from pool (1μs)] → [Query (2ms)] → [Return to pool (1μs)]\nRequest 5: [Get connection from pool (1μs)] → [Query (2ms)] → [Return to pool (1μs)]\nRequest 6: [Wait for connection to return (queue)] → [Get (1μs)] → [Query (2ms)] → [Return]\n\nPer-request overhead: 2μs instead of 50ms!\nSavings: 25,000x faster!\n\n---\n\nPOOL SIZING:\n\nOptimal pool size depends on:\n├─ Concurrent users\n├─ Query execution time\n├─ Database capacity\n└─ Application memory\n\nExample calculation:\n├─ Handle: 10,000 requests/second\n├─ Query time: 2ms\n├─ At any given moment:\n│  └─ Concurrent queries = 10,000 × 0.002 = 20\n│  └─ Need: At least 20 connections\n├─ Add buffer (extra connections for spikes): +10\n├─ Recommended pool size: 30 connections\n\nToo small pool:\n├─ Requests queue up\n├─ Latency increases\n├─ Some requests timeout\n\nToo large pool:\n├─ Wastes memory (each connection: ~1MB)\n├─ Database resource limits (max connections = 1000)\n├─ 100 servers × 100 pool size = 10,000 connections (exceeds DB limit!)\n\n---\n\nPOOL CONFIGURATION:\n\nMin pool size: 5-10\n├─ Minimum connections to maintain\n├─ Connections created at startup\n├─ Faster initial requests\n\nMax pool size: 20-50\n├─ Upper limit on connections\n├─ Prevents resource exhaustion\n├─ Should match: max concurrent queries\n\nConnection timeout: 1-5 seconds\n├─ If can't get connection from pool in 5s\n├─ Return error to user\n├─ Prevents infinite waiting\n\nIdle connection timeout: 10-15 minutes\n├─ Close connections not used for 15 min\n├─ Database has max connections limit\n├─ Release unused connections\n\nConnection validation:\n├─ Before reusing connection, test it\n├─ Run query: SELECT 1 (health check)\n├─ If fails, remove from pool, create new one\n├─ Prevents stale connections\n\n---\n\nIMPLEMENTATION (Example: Java HikariCP)\n\nConfig:\n\nHikariConfig config = new HikariConfig();\nconfig.setJdbcUrl(\"jdbc:mysql://localhost:3306/mydb\");\nconfig.setUsername(\"root\");\nconfig.setPassword(\"password\");\nconfig.setMaximumPoolSize(30);        // Max 30 connections\nconfig.setMinimumIdle(5);             // Keep 5 always ready\nconfig.setConnectionTimeout(5000);    // 5 second timeout\nconfig.setIdleTimeout(900000);        // Close if idle 15 min\nconfig.setMaxLifetime(1800000);       // Max lifetime 30 min\nconfig.setAutoCommit(true);\n\nHikariDataSource ds = new HikariDataSource(config);\n\nUsage:\nConnection conn = ds.getConnection();  // Get from pool (very fast)\ntry {\n  PreparedStatement ps = conn.prepareStatement(\"SELECT * FROM users WHERE id = ?\");\n  ps.setInt(1, userId);\n  ResultSet rs = ps.executeQuery();\n  // Process results\n} finally {\n  conn.close();  // Return to pool (don't actually close)\n}\n\n---\n\nMONITORING:\n\nMetrics to track:\n├─ Pool utilization: % of connections in use\n│  ├─ If 90%+ consistently → increase pool size\n│  ├─ If <20% → reduce pool size\n│  └─ Target: 50-70% utilization\n├─ Connection wait time: How long to get connection\n│  ├─ Should be <1ms (instant from pool)\n│  ├─ If >10ms → pool too small\n│  └─ If >100ms → critical\n├─ Connection errors: Failed connections\n│  ├─ Network errors\n│  ├─ Auth errors\n│  ├─ Database full\n│  └─ Alert if error rate > 1%\n└─ Pool health: Stale connections\n   ├─ Connections idle too long\n   ├─ Removed automatically\n   └─ Should be < 5% replacement rate\n\n---\n\nBENCHMARK: Impact of Pooling\n\nWithout pooling:\n├─ Connection overhead: 50ms × 10,000 requests = 500,000ms\n├─ Query execution: 2ms × 10,000 requests = 20,000ms\n├─ Total: ~500 seconds (impossible!)\n\nWith pooling:\n├─ Connection overhead: 2μs × 10,000 requests = 20ms\n├─ Query execution: 2ms × 10,000 requests = 20,000ms\n├─ Total: ~20 seconds (10,000 req/sec possible!)\n\nResult: 25,000x improvement!"
+                    }
+                ]
+            },
+            {
+                round: 6,
+                title: "PERFORMANCE DEBUGGING",
+                question: "Database is slow. Queries taking 2-5 seconds. API is timing out (30s limit). Users seeing errors. You have 1 hour to fix it. Walk me through your debugging and solution process.",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "Restart the database.",
+                        interviewer: "Maybe that helps, but why is it slow in the first place? Restarting doesn't fix root cause."
+                    },
+                    {
+                        label: "Option B (Mediocre)",
+                        answer: "Add an index to the slow query.",
+                        interviewer: "✓ Good instinct. But how do you know WHICH query is slow? How do you know WHICH column to index?"
+                    },
+                    {
+                        label: "Option C (Best)",
+                        answer: "DEBUGGING DATABASE PERFORMANCE (1-hour action plan):\n\nMinute 0-5: TRIAGE\n\nCheck basic health:\n├─ Is database accepting connections? (ping database)\n├─ Disk space full? (df -h)\n├─ Memory usage? (free -m)\n├─ CPU usage? (top)\n├─ Open connections count? (SELECT count(*) from information_schema.PROCESSLIST;)\n\nCommon issues:\n├─ Disk full (no space to write): Clear old logs, backups\n├─ Memory full (can't buffer): Kill largest queries\n├─ Too many connections (1000 limit): Close idle connections\n├─ CPU at 100%: Too many queries running\n\nMinute 5-15: IDENTIFY SLOW QUERY\n\nEnable query logging:\n├─ MySQL: SET GLOBAL slow_query_log = 'ON';\n├─ SET GLOBAL long_query_time = 1; (log queries > 1 second)\n├─ Queries will be logged to /var/log/mysql/slow-query.log\n\nAnalyze slow queries:\n├─ tail -f /var/log/mysql/slow-query.log\n├─ See which queries are taking 2-5 seconds\n├─ Usually UPDATE or JOIN queries\n├─ Example slow query:\n│  SELECT user.name, post.title\n│  FROM users AS user\n│  JOIN posts AS post ON user.id = post.user_id\n│  WHERE post.created_at > '2024-01-01'\n│  LIMIT 1000\n│  (Takes 4 seconds)\n\nMinute 15-25: ANALYZE QUERY\n\nRun EXPLAIN PLAN:\n├─ EXPLAIN SELECT user.name, post.title\n│          FROM users, posts\n│          WHERE user.id = post.user_id\n│          AND post.created_at > '2024-01-01'\n│          LIMIT 1000;\n\nOutput:\nid | select_type | table | type  | key | rows | Extra\n1  | SIMPLE      | posts | ALL   | NULL| 50M  | Using where, Using filesort  ← FULL TABLE SCAN!\n1  | SIMPLE      | user  | eq_ref| id  | 1    | NULL\n\nAnalysis:\n├─ posts table: ALL (full table scan of 50M rows!)\n├─ No index on created_at\n├─ Must scan every row, check where clause\n├─ Cause: posts.created_at has no index\n\nMinute 25-35: FIX (Apply index)\n\nAdd index:\n├─ ALTER TABLE posts ADD INDEX idx_created_at (created_at);\n├─ This creates an index on created_at column\n├─ Query optimizer now uses index\n├─ Scans only rows after 2024-01-01 (much fewer rows)\n\nWarning:\n├─ Adding index on 50M row table might take 5-10 minutes\n├─ Use ALGORITHM=COPY (blocking) or ALGORITHM=INPLACE (non-blocking)\n├─ During index creation: Queries might be slow\n└─ For production: Use pt-online-schema-change tool\n\nMinute 35-40: TEST FIX\n\nRun query again:\n├─ EXPLAIN SELECT ...\n├─ Now output:\n   id | type | key          | rows | Extra\n   1  | range| idx_created_at | 500K | Using index, Using filesort\n├─ Rows: 500K (instead of 50M) = 100x better!\n\nTime improvement:\n├─ Before: 4000ms (had to scan 50M rows)\n├─ After: 40ms (scan 500K rows + index use)\n└─ Result: 100x faster!\n\nMinute 40-55: DEPLOY & MONITOR\n\nDeploy:\n├─ Add index to production database\n├─ Monitor slow query log (should see improvement)\n├─ Check query times: From 4000ms → 40ms\n├─ Monitor error rates: Should drop significantly\n├─ Monitor API timeouts: Should disappear\n\nMinute 55-60: PREVENT RECURRENCE\n\nAdd monitoring:\n├─ Alert if any query > 2 seconds\n├─ Alert if full table scans increase\n├─ Regular index review (unused indexes waste space)\n├─ Set up query performance insights dashboard\n\nPostmortem:\n├─ Why wasn't this index created originally?\n├─ Add alerting for missing indexes\n├─ Code review: Ensure complex queries have indexes\n└─ Load testing before production\n\n---\n\nOTHER COMMON CAUSES & FIXES:\n\nCause 1: Lock Contention\n├─ Multiple requests updating same row\n├─ Each waits for lock release\n├─ Fix: Optimize transaction time (reduce lock duration)\n├─ Fix: Mark query as read-only (SELECT for reading)\n\nCause 2: Memory Pressure (Swap)\n├─ Database using swap (very slow)\n├─ Fix: Increase server RAM\n├─ Fix: Enable compression (less memory)\n├─ Fix: Reduce buffer pool size\n\nCause 3: Replication Lag\n├─ Slave hasn't caught up with master\n├─ Reading from slave sees old data\n├─ Fix: Read from master (consistent)\n├─ Fix: Optimize replication speed\n\nCause 4: Join on Large Tables\n├─ Joining 50M rows with 100M rows\n├─ Fix: Add composite index on join columns\n├─ Fix: Denormalize data (store redundant copy)\n├─ Fix: Move to separate query (2 small queries > 1 large join)"
+                    }
+                ]
+            },
+            {
+                round: 7,
+                title: "STARTUP MVP DESIGN",
+                question: "You're at a startup. Budget: $1K/month for database. You need to support 1000 users now, predict 100K users in 2 years. Build the simplest solution that grows with you. No over-engineering.",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "Use single RDS database, cheapest tier. Scale up when needed.",
+                        interviewer: "✓ Good simplicity. But what about backups, replicas, monitoring?"
+                    },
+                    {
+                        label: "Option B (Mediocre)",
+                        answer: "Use managed database with auto-scaling and replicas from day 1.",
+                        interviewer: "✓ Good for reliability. But is this in the $1K budget? That sounds more like $3-5K/month."
+                    },
+                    {
+                        label: "Option C (Best)",
+                        answer: "STARTUP DATABASE STRATEGY ($1000/month budget):\n\nPHASE 1: MVP (1000 users, 1000 QPS estimated)\n\nBudget breakdown:\n├─ RDS Multi-AZ (t3.small): $200/month\n│  ├─ Handles 10K-20K queries/sec\n│  ├─ Multi-AZ = automatic failover\n│  ├─ Automatic backups (daily, 7-day retention)\n│  └─ Single database, 20GB storage\n├─ RDS backup storage: $20/month\n├─ Monitoring & alerts (CloudWatch): $30/month\n├─ Data transfer out: $50/month\n└─ Reserved capacity discount (1-year): saves 40% = -$150\n\nTotal: ~$180/month (under budget!)\n\nArchitecture:\n┌──────────────────┐\n│  API Servers     │\n├──────────────────┤\n↓\n┌────────────────────────────────┐\n│ RDS MySQL (Multi-AZ)           │\n├─ Single database                |\n├─ Automatic failover (if down)   │\n├─ Daily backups (7-day retention)│\n├─ No replicas yet                │\n└────────────────────────────────┘\n\nCapability:\n├─ Handles: 1000-2000 users easily\n├─ Queries: ~100-500 per second (well within capacity)\n├─ Storage: 20GB (plenty for 1000 users)\n├─ Uptime: 99.95% (Multi-AZ)\n├─ Data loss: Minutes (daily backups)\n└─ Cost: $2/hour, easy to justify\n\nWhat NOT to do:\n✗ Single-AZ (no failover)\n✗ No backups configured\n✗ Dev tier (no multi-AZ)\n✗ Unmanaged database (self-hosted EC2)\n\n---\n\nPHASE 2: Growth Phase (10K users, 5K QPS)\n\nTimeframe: ~6-12 months\nBudget: $500/month additional\n\nChanges:\n├─ Upgrade RDS to t3.medium: +$100/month\n││ ├─ Handles 50K queries/sec\n││ └─ 30GB storage\n├─ Add read replica (t3.small): +$200/month\n││ ├─ Offload read queries (SELECT)\n││ ├─ Better read performance\n││ └─ Single replica (not multi-AZ yet)\n├─ Add Redis cache: +$150/month\n││ ├─ Cache hot data (user profiles, rankings)\n││ ├─ Reduce master load by 80%\n││ └─ Cache.t3.small cluster\n└─ Monitoring & PagerDuty: +$50/month\n\nTotal: ~$500-600/month (within $1K budget)\n\nArchitecture:\n┌──────────────────────┐\n│  API Servers (10)    │\n├──────────────────────┤\n│  Cache (Redis)       │\n├──────────────────────┤\n│ writes  │ read load balancer\n│         ├───────────────┬────────┐\n│         │               │        │\n↓         ↓               ↓        ↓\n┌─────────────────┐ ┌──────────────────┐\n│ RDS Master      │ │ RDS Read Replica │\n│ (t3.medium)     │ │ (t3.small)       │\n└──────────┬──────┘ └──────────────────┘\n           │\n      Replicates\n\nCapability:\n├─ Handles: 10K-50K users\n├─ Queries: ~5-10K per second\n├─ Storage: 30GB master + 30GB replica\n├─ Uptime: 99.95% (multi-AZ on master)\n├─ Read performance: 10x (cache + replica)\n└─ Cost: Justifiable for 10K users\n\n---\n\nPHASE 3: Scale (100K users, 50K+ QPS)\n\nTimeframe: 2+ years\nBudget: $2000+/month\n\nChanges:\n├─ Move to r5.large (memory optimized): +$400/month\n│  └─ Better performance for complex queries\n├─ Add 2-3 read replicas: +$400/month\n│  └─ Distribute read load\n├─ Upgrade Redis to cluster: +$200/month\n│  └─ Handle cache for 100K users\n├─ Add sharding (if needed): +$500/month\n│  └─ Split hot data across 2-3 shards\n└─ Advanced monitoring (DataDog): +$200/month\n\nTotal: ~$2000/month\n\n---\n\nKEY PRINCIPLES FOR STARTUP:\n\n1. Start Simple\n├─ Single database is fine for MVP\n├─ Easier to debug, fewer moving parts\n├─ Faster iteration\n└─ Re-invest as you grow\n\n2. Use Managed Services\n├─ RDS (not EC2 + manual MySQL)\n├─ Automatic backups, failover, patches\n├─ Less operational burden\n├─ Sleep better at night\n\n3. Budget for Operations\n├─ Don't just budget database\n├─ Include: monitoring, backups, alerts\n├─ Operational overhead: 50% of DB cost\n└─ Example: $200 DB + $100 ops = $300 total\n\n4. Plan Before Crisis\n├─ Script failover (practice it!)\n├─ Document runbook\n├─ Test backup restoration quarterly\n├─ When do you call help? (alert thresholds)\n\n5. Add Redundancy Gradually\n├─ Don't deploy multi-region day 1\n├─ Add replicas when reads become bottleneck\n├─ Add sharding when writes bottleneck\n├─ Each step justified by metrics\n\n6. Monitor From Day 1\n├─ CPU, memory, disk\n├─ Query latency (p50, p95, p99)\n├─ Replication lag\n├─ Error rates\n└─ Set alerts for abnormal conditions\n\n---\n\nSCALING CHECKLIST:\n\nAt 5K users:\n├─ Add monitoring if not already\n├─ Set backups to daily\n└─ Nothing else needed\n\nAt 10K users:\n├─ Add read replica\n├─ Add caching layer (Redis)\n├─ Review slow queries monthly\n└─ Upgrade to t3.medium if disk > 50%\n\nAt 50K users:\n├─ Upgrade replicas (t3.medium)\n├─ Consider sharding (analyze hot tables)\n├─ Upgrade cache cluster\n├─ Set up automated scaling alerts\n\nAt 100K+ users:\n├─ Evaluate multi-region setup\n├─ Implement sharding if necessary\n├─ Advanced caching strategies\n├─ Dedicated DBA (or outsource to managed services)"
+                    }
+                ]
+            }
+        ];
+
+        function renderRounds() {
+            const container = document.getElementById('roundsContainer');
+            container.innerHTML = '';
+
+            roundsData.forEach((round) => {
+                const section = document.createElement('div');
+                section.className = 'round-section';
+
+                const roundLabel = document.createElement('div');
+                roundLabel.className = 'round-label';
+                roundLabel.textContent = `ROUND ${round.round}: ${round.title}`;
+                section.appendChild(roundLabel);
+
+                const header = document.createElement('div');
+                header.className = 'question-header collapsed';
+                header.onclick = function() { toggleRound(this); };
+                header.innerHTML = `
+                    <span>❓ ${round.question}</span>
+                    <span class="chevron">▼</span>
+                `;
+                section.appendChild(header);
+
+                const content = document.createElement('div');
+                content.className = 'content collapsed';
+
+                round.options.forEach((option) => {
+                    const answerDiv = document.createElement('div');
+                    answerDiv.className = 'answer-block';
+
+                    const optHeader = document.createElement('div');
+                    optHeader.className = 'option-header collapsed';
+                    optHeader.onclick = function() { toggleOption(this); };
+                    optHeader.innerHTML = `
+                        <span>${option.label}</span>
+                        <span class="chevron">▼</span>
+                    `;
+
+                    const optContent = document.createElement('div');
+                    optContent.className = 'option-content';
+                    optContent.innerHTML = option.answer +
+                        (option.interviewer ? `<div class="interviewer-note">💬 Interviewer: ${option.interviewer}</div>` : '');
+
+                    answerDiv.appendChild(optHeader);
+                    answerDiv.appendChild(optContent);
+                    content.appendChild(answerDiv);
+                });
+
+                section.appendChild(content);
+                container.appendChild(section);
+            });
+        }
+
+        function toggleRound(header) {
+            header.classList.toggle('collapsed');
+            const content = header.nextElementSibling;
+            content.classList.toggle('collapsed');
+        }
+
+        function toggleOption(header) {
+            header.classList.toggle('collapsed');
+            const content = header.nextElementSibling;
+            content.classList.toggle('show');
+        }
+
+        function expandAll() {
+            document.querySelectorAll('.question-header').forEach(h => h.classList.remove('collapsed'));
+            document.querySelectorAll('.content').forEach(c => c.classList.remove('collapsed'));
+            document.querySelectorAll('.option-header').forEach(h => h.classList.remove('collapsed'));
+            document.querySelectorAll('.option-content').forEach(c => c.classList.add('show'));
+        }
+
+        function collapseAll() {
+            document.querySelectorAll('.question-header').forEach(h => h.classList.add('collapsed'));
+            document.querySelectorAll('.content').forEach(c => c.classList.add('collapsed'));
+            document.querySelectorAll('.option-header').forEach(h => h.classList.add('collapsed'));
+            document.querySelectorAll('.option-content').forEach(c => c.classList.remove('show'));
+        }
+
+        renderRounds();
+    </script>
+
+</body>
+</html>
+

@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>⚖️ API Gateway & Load Balancer Interview - Progressive Q&A</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 1px solid #b45309;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-expand {
+            background: #ea580c;
+            color: white;
+        }
+
+        .btn-expand:hover {
+            background: #d97706;
+            box-shadow: 0 4px 12px rgba(234, 88, 12, 0.4);
+        }
+
+        .btn-collapse {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-collapse:hover {
+            background: #dc2626;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        /* ROUND SECTION */
+        .round-section {
+            margin-bottom: 24px;
+        }
+
+        .round-label {
+            font-size: 14px;
+            color: #fed7aa;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .question-header {
+            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 8px 8px 0 0;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #b45309;
+            transition: all 0.3s;
+        }
+
+        .question-header:hover {
+            opacity: 0.9;
+            transform: translateX(5px);
+        }
+
+        .question-header .chevron {
+            margin-left: auto;
+            transition: transform 0.3s;
+            font-size: 16px;
+        }
+
+        .question-header.collapsed .chevron {
+            transform: rotate(-90deg);
+        }
+
+        .content {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            padding: 24px;
+            transition: max-height 0.4s ease, opacity 0.3s ease;
+            overflow: hidden;
+            border-bottom: 1px solid #b45309;
+        }
+
+        .content.collapsed {
+            max-height: 0 !important;
+            opacity: 0;
+            padding: 0;
+            border: none;
+        }
+
+        /* ANSWER OPTION */
+        .answer-block {
+            margin-bottom: 24px;
+            background: #0f172a;
+            border-left: 4px solid #ea580c;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .option-header {
+            padding: 12px 16px;
+            background: #334155;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: #cbd5e1;
+            transition: all 0.2s;
+        }
+
+        .option-header:hover {
+            background: #475569;
+        }
+
+        .option-header .chevron {
+            margin-left: auto;
+            transition: transform 0.3s;
+        }
+
+        .option-header.collapsed .chevron {
+            transform: rotate(-90deg);
+        }
+
+        .option-label {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            background: #ea580c;
+            color: white;
+        }
+
+        .option-content {
+            padding: 16px;
+            background: #0f172a;
+            border-top: 1px solid #334155;
+            display: none;
+            color: #cbd5e1;
+            line-height: 1.6;
+            font-size: 14px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 3000px;
+            overflow-y: auto;
+        }
+
+        .option-content.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+            }
+            to {
+                opacity: 1;
+                max-height: 3000px;
+            }
+        }
+
+        .interviewer-note {
+            margin-top: 12px;
+            padding: 10px;
+            background: #1e293b;
+            border-left: 3px solid #fed7aa;
+            border-radius: 4px;
+            color: #fecaca;
+            font-size: 13px;
+            font-style: italic;
+        }
+
+        .progression-table {
+            width: 100%;
+            margin-top: 40px;
+            margin-bottom: 40px;
+            border-collapse: collapse;
+            background: #0f172a;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #334155;
+        }
+
+        .progression-table th,
+        .progression-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+            color: #cbd5e1;
+        }
+
+        .progression-table th {
+            background: #1e293b;
+            font-weight: 600;
+            color: #fed7aa;
+        }
+
+        .progression-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 40px;
+            border-top: 1px solid #334155;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 24px; }
+            .question-header { font-size: 16px; }
+            .option-content { font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>⚖️ API Gateway & Load Balancer Interview</h1>
+            <p>Layer 3: Request Routing, Authentication, Rate Limiting & Scaling</p>
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-expand" onclick="expandAll()">📂 Expand All</button>
+            <button class="btn btn-collapse" onclick="collapseAll()">📁 Collapse All</button>
+        </div>
+
+        <div id="roundsContainer"></div>
+
+        <table class="progression-table">
+            <thead>
+                <tr>
+                    <th>Round</th>
+                    <th>Topic</th>
+                    <th>Key Insight</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>Load balancing</td>
+                    <td>Algorithms matter (round-robin vs least outstanding)</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Slow servers</td>
+                    <td>Detect + drain + recover gracefully</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Cascade failures</td>
+                    <td>Circuit breaker + bulkhead + graceful degradation</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>Auth & Rate limit</td>
+                    <td>Centralized at gateway, not at servers</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>Scalability</td>
+                    <td>ALB has limits, NLB for extreme throughput</td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td>Smart routing</td>
+                    <td>Static rules vs dynamic (Lambda)</td>
+                </tr>
+                <tr>
+                    <td>7</td>
+                    <td>ALB failure</td>
+                    <td>Multi-ALB, multi-AZ, health checks</td>
+                </tr>
+                <tr>
+                    <td>8</td>
+                    <td>Pragmatism</td>
+                    <td>Build for requirement, not perfection</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="footer">
+            💡 Large file with 8 comprehensive rounds. Read out loud for best results!
+        </div>
+    </div>
+
+    <script>
+        const roundsData = [
+            {
+                round: 1,
+                title: "BASIC UNDERSTANDING",
+                question: "CloudFront forwards request to API Gateway/Load Balancer IP. That request hits ALB. What does ALB do next?",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "ALB forwards it to one of the servers randomly.",
+                        interviewer: "Random? Even if some servers are slow or down?"
+                    },
+                    {
+                        label: "Option B (Better)",
+                        answer: "ALB uses load balancing algorithms. It sends requests to healthy servers. It has health checks to see if servers are up.",
+                        interviewer: "✓ Good. But which algorithm? Round-robin? Least connections?\n\nFollow-up Q2: How does ALB decide which server gets the request?"
+                    },
+                    {
+                        label: "Option C (Best)",
+                        answer: "ALB has multiple load balancing algorithms:\n\nRound-robin (default)\nServer 1 → Server 2 → Server 3 → Server 1\nSimple, fair distribution\nProblem: Doesn't account for server load\n\nLeast outstanding requests\nSend to server with fewest pending requests\nBetter for variable response times\nIf Server 1 has 10 pending, Server 2 has 2 → route to Server 2\n\nLeast connections\nSend to server with fewest active connections\nGood for long-lived connections (WebSocket)\n\nIP hash / Source IP\nSame client IP always routes to same server\nGood for: Session persistence (sticky sessions)\nProblem: If one server is slow, that IP is stuck there\n\nFor API workload, I'd choose: Least outstanding requests\nAdapts to variable latency\nEnsures even distribution\nBetter user experience",
+                        interviewer: "✓✓ Good. But now there's a problem..."
+                    }
+                ]
+            },
+            {
+                round: 2,
+                title: "FAILURE SCENARIOS",
+                question: "One server becomes slow (processing time increases from 50ms to 5s). With round-robin algorithm, that slow server still gets 33% of traffic. Users routed there experience 5 second delays. How do you handle this?",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "Just remove the slow server from the pool.",
+                        interviewer: "But how do you detect it's slow? Manually?"
+                    },
+                    {
+                        label: "Option B (Mediocre)",
+                        answer: "ALB has health checks. If server becomes unhealthy, it's removed from the pool.",
+                        interviewer: "But health check just checks if server is UP (200 OK). It doesn't check if server is SLOW. Is a 5s response time still healthy?\n\nFollow-up Q3: How do you distinguish between dead server and slow server?"
+                    },
+                    {
+                        label: "Option C (Best)",
+                        answer: "Great question! This is subtle:\n\nHealth Check (Is server alive?)\nGET /health every 5 seconds\nExpected: Response < 1 second with 200 OK\n\nIf: Response timeout (>1s) or error (5xx)\n→ Server marked unhealthy\n→ Removed from pool\n→ New requests don't go there\n\nProblem: Health check is simple (usually just 200 OK)\nIt doesn't measure actual API latency\n\nSolution: Connection Draining + Active Monitoring\n\nStep 1: Detect slow server\n├─ ALB metrics: p95 latency per target\n├─ CloudWatch: Monitor response time distribution\n├─ Alert: If p95 > 500ms for server\n\nStep 2: Graceful Removal\n├─ Set connection draining timeout (30 seconds)\n├─ ALB stops sending NEW requests to this server\n├─ Existing requests complete gracefully\n├─ After 30s, close connections\n\nStep 3: Investigation\n├─ Why is server slow?\n├─ Check: CPU usage (80%+?)\n├─ Check: Memory (swapping?)\n├─ Check: Disk I/O (database queries slow?)\n├─ Check: Network (packet loss?)\n\nStep 4: Recovery\n├─ Option A: Scale up (add more servers)\n├─ Option B: Optimize code (reduce latency)\n├─ Option C: Restart server (clear memory leak)\n├─ Option D: Move to different hardware\n\nFlow:\nTime 0s: Detect server slow (p95 latency 5s)\nTime 0s: Alert team\nTime 5s: Drain connections (no new requests)\nTime 35s: Server fully drained\nTime 36s: Remove from ALB\nTime 60s: Team investigates (meanwhile traffic routed to other servers)\nTime 120s: Issue found & fixed (scale up added)\nTime 180s: Server re-enabled in ALB\n\nWhy this matters:\nWithout draining: Users experience errors (connection reset)\nWith draining: Users experience graceful completion\nBetter: Slow but working > Fast but broken\n\nAdvanced: Predictive Health\nInstead of waiting for server to go slow:\n\nCloudWatch metric:\n- Track CPU trend\n- If CPU rising quickly (80% → 95% in 30s)\n- Preemptively add servers\n- Reduce load on busy server before it degrades\n\nThis prevents slowness instead of reacting to it",
+                        interviewer: "✓✓✓ Excellent. You think about gradual degradation. Now - what if all servers are slow?"
+                    }
+                ]
+            },
+            {
+                round: 3,
+                title: "CASCADE FAILURES",
+                question: "Your database becomes slow (queries take 10s instead of 100ms). All servers make DB queries, so ALL servers slow down. ALB sees all servers with p95 latency = 10s. Users see timeout errors. How do you prevent this?",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "Add database replication to spread queries.",
+                        interviewer: "Okay, but all replicas are also slow (same root cause). What now?"
+                    },
+                    {
+                        label: "Option B (Mediocre)",
+                        answer: "Use a cache layer (Redis) in front of database. Cache frequently accessed data.",
+                        interviewer: "✓ Good. But now there's a problem - what if cache is also slow?"
+                    },
+                    {
+                        label: "Option C (Best)",
+                        answer: "This is cascade failure - one slow component breaks everything. Multiple defenses:\n\nDefense 1: Circuit Breaker Pattern\nServer makes DB query:\n  Time: 1-2 queries: Slow (2s each)\n  Time: 3-4 queries: Very slow (5s each)\n  Time: 5 queries: Timeout!\n\nInstead of infinite waits:\n  Query 1: 2s (slow, but okay)\n  Query 2: 2s (slow again)\n  Query 3: Fail immediately (circuit breaker opens)\n  Query 4: Fail immediately (circuit breaker still open)\n  Query 5: Check if DB recovered (circuit breaker half-open)\n  Query 6: DB is fast again (circuit breaker closes)\n\nWhy this helps:\n- Server doesn't wait 30s for slow DB\n- Server responds quickly (error, not timeout)\n- DB gets lighter load (fewer queries hitting it)\n- DB can recover faster\n\nBenefit: 95% faster response (error in 100ms vs timeout in 30s)\n\nDefense 2: Bulkhead Pattern (Isolate failures)\nInstead of all servers competing for same DB connection pool:\n\nThread pools by service:\n├─ get-user service: 10 threads to DB\n├─ create-post service: 20 threads to DB\n├─ update-profile service: 10 threads to DB\n\nIf get-user DB is slow:\n├─ get-user threads blocked (waiting for DB)\n├─ create-post still works (has separate thread pool)\n├─ update-profile still works\n\nWithout bulkhead:\n├─ All services share 50-thread pool\n├─ get-user uses all 50 threads (slow DB requests)\n├─ create-post has 0 threads left\n├─ create-post requests rejected\n├─ Everything crashes\n\nWith bulkhead:\n├─ get-user slow, but isolated\n├─ Other services unaffected\n├─ System degrades gracefully (50% of features work)\n\nDefense 3: Timeout Management\nWithout timeout:\nGET /users/123\n  → Query DB (slow, 10s)\n  → Wait 10s\n  → Return response (user frustrated)\n\nWith smart timeout:\nGET /users/123\n  → Query DB, timeout=2s\n  → DB not responding in 2s\n  → Return cached version (stale but fast)\n  → User sees old data instead of nothing\n\nBetter? Depends on use case:\n- Bank balance: Never return stale (error better)\n- User profile: Return stale is okay\n- Post feed: Return stale is fine\n\nConfigure per endpoint:\nGET /users/{id}/balance → Timeout 1s, fail if not available\nGET /posts → Timeout 5s, return cached if not available\n\nDefense 4: Graceful Degradation\nYour API returns multiple fields:\n{\n  'user': {...},           (DB query, 100ms)\n  'posts': [...],         (DB query, 500ms)\n  'recommendations': [...] (ML model call, 2s)\n}\n\nIf recommendations service is slow (2s):\nOption 1 (Bad): User waits 2s for full response\nOption 2 (Better): Return user + posts quickly, add placeholder for recommendations\n\nResponse (500ms):\n{\n  'user': {...},\n  'posts': [...],\n  'recommendations': null,  (will load on client)\n  'loading': ['recommendations']\n}\n\nClient sees: Profile + posts immediately\nRecommendations load separately (async)\nUser doesn't wait for slow service\n\nDefense 5: Load Shedding\nDatabase is at 100% load\nQueue of 1000 pending queries\nEven new requests will wait 30 seconds\n\nInstead:\n├─ Accept: New requests for 100ms (highest priority)\n├─ Queue: Medium priority requests (5s wait)\n├─ Reject: Low priority requests with 503 (retry later)\n\nExample:\nGET /users/123 (high priority) → Accepted\nGET /admin/reports (low priority) → Rejected with 503\nPOST /posts (medium priority) → Queued\n\nResult:\n- Critical requests succeed\n- Low-priority requests fail fast\n- DB doesn't get buried in 1000 queue\n- System recovers faster",
+                        interviewer: "✓✓✓ Excellent defense-in-depth. You think about cascading failures. Now - authentication..."
+                    }
+                ]
+            },
+            {
+                round: 4,
+                title: "AUTHENTICATION & RATE LIMITING",
+                question: "You want to rate limit users: 100 requests/minute per user. Also authenticate: only logged-in users can access API. Where do you enforce these rules - at ALB, at API Gateway, or at individual servers?",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "Do it in the server code. Each server checks authentication and rate limits.",
+                        interviewer: "Okay, but now you have 10 servers. User makes 100 requests. They're distributed across servers (10 req/server). Each server thinks it's only 10 req/min, all allowed. Total is 100 req/min, but server logic thinks it's okay. Rate limit doesn't work."
+                    },
+                    {
+                        label: "Option B (Mediocre)",
+                        answer: "Implement rate limiting at ALB/API Gateway level. That way it's centralized.",
+                        interviewer: "✓ Good. But how? What if Gateway is down?\n\nFollow-up Q5: How do you ensure rate limits work even if part of infrastructure fails?"
+                    },
+                    {
+                        label: "Option C (Best)",
+                        answer: "Layer the defenses. Different for auth vs rate limit:\n\nAUTHENTICATION: API Gateway Level\nAuth should happen EARLY:\n\nRequest arrives at ALB\n  ↓\nALB → API Gateway\n  ↓\nAPI Gateway:\n  ├─ Extract JWT from Authorization header\n  ├─ Verify signature (proves user is real)\n  ├─ Check expiration (token not expired)\n  ├─ Extract user ID\n  \nIf valid:\n  ├─ Add header: X-User-ID: 123\n  ├─ Forward to backend server\n  \nIf invalid:\n  ├─ Return 401 Unauthorized\n  ├─ STOP here (don't forward to backend)\n  ├─ Don't waste server resources\n\nBenefit:\n- Authentication happens once at gateway\n- Servers trust X-User-ID header\n- Dead unauthenticated requests never reach servers\n\nRATE LIMITING: Centralized State + Fallback\nChallenge: Rate limiting needs to track per-user state\n\nUser makes request 1 → allowed (1/100)\nUser makes request 2 → allowed (2/100)\n...\nUser makes request 100 → allowed (100/100)\nUser makes request 101 → REJECT\n\nIf rate limiter is at ALB:\nALB has request counter for each user\nBut ALB doesn't share state with other ALBs\nSo you need:\n\nCentralized Rate Limit Store:\n├─ Redis (fast, in-memory)\n├─ Purpose: Track user request counts\n├─ TTL: 1 minute (per minute limit)\n\nFlow:\nRequest from user_123 arrives at ALB\n  ↓\nALB queries Redis: 'user_123:rate_limit:now'\n  ├─ Redis returns: 45 (user has made 45 requests this minute)\n  \nALB checks: 45 < 100? Yes, allowed\n  ↓\nALB increments Redis: INCR 'user_123:rate_limit:now'\n  ├─ Redis now returns: 46\n  \nALB forwards request to backend\n\nIf Redis is down:\n├─ Option 1: Fail-open (allow all requests)\n  └─ Risk: Users can abuse API\n├─ Option 2: Fail-closed (reject all requests)\n  └─ Risk: API is down\n├─ Option 3: Hybrid\n  └─ Reject if Unavailable (503)\n  └─ User retries in few seconds\n\nI recommend: Option 1 (fail-open)\nReasoning:\n  - Rate limiting is optimization (nice to have)\n  - Blocking all traffic is worse\n  - Usually Redis down = rare, 5 minutes\n  - Better to over-serve 5 min than block all\n\nRATE LIMIT ALGORITHM: Token Bucket (Most common)\nImagine bucket with 100 tokens\nUser starts with 100 tokens (fresh minute)\nEach request: costs 1 token\n\nRequests:\n1: 99 tokens left\n2: 98 tokens left\n...\n100: 0 tokens left\n101: Can't process (0 tokens, need 1)\n     Return 429 Too Many Requests\n\nEvery second, refill bucket:\n100 requests / 60 seconds = 1.67 requests/sec\nEvery second: Add 1.67 tokens (back to max 100)",
+                        interviewer: "✓✓✓ Perfect. You understand layered defenses. Now - performance..."
+                    }
+                ]
+            },
+            {
+                round: 5,
+                title: "SCALABILITY & BOTTLENECKS",
+                question: "Traffic grows from 1,000 req/sec to 100,000 req/sec. You add more servers. But now ALB becomes bottleneck (can't route 100K req/sec). How do you scale ALB?",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "Use a bigger ALB instance.",
+                        interviewer: "ALB doesn't have instances. It's managed. How does AWS scale it?"
+                    },
+                    {
+                        label: "Option B (Mediocre)",
+                        answer: "Add multiple ALBs and use Route 53 to distribute traffic.",
+                        interviewer: "✓ Good. But now Route 53 has to route between ALBs. What if one ALB is overloaded?\n\nFollow-up Q6: How do you prevent one ALB from becoming bottleneck?"
+                    },
+                    {
+                        label: "Option C (Best)",
+                        answer: "ALB scaling is complex. Multiple strategies:\n\nStrategy 1: ALB Auto-Scaling (Horizontal)\nAWS ALB is managed (no instances to see)\nAWS automatically scales ALB internally\n\nHow AWS does it:\n├─ ALB lives in VPC across 3 availability zones\n├─ Each AZ has ALB replica\n├─ Traffic distributed across AZs\n├─ If one AZ overloaded, AWS adds more capacity\n\nBenefit: Transparent scaling\nCost: Still charged per ALB, per data processed\nLimit: Single ALB can handle ~25,000 new connections/sec\nIf you exceed this, ALB becomes bottleneck\n\nStrategy 2: NLB for Ultra-High Throughput\nALB (Application Load Balancer):\n├─ Layer 7 (Application level)\n├─ Understands HTTP headers\n├─ Inspection takes CPU\n├─ Limit: ~25K connections/sec, ~1M RPS\n\nNLB (Network Load Balancer):\n├─ Layer 4 (Network level)\n├─ Just routes packets (minimal inspection)\n├─ Ultra-fast\n├─ Limit: ~1M connections/sec, 1+ million RPS\n\nUse NLB when:\n- Need extreme throughput (100K+ RPS)\n- Protocol is simple (TCP, UDP)\n- Don't need HTTP header inspection\n\nStrategy 3: Multiple ALBs (Multi-Master)\nInstead of single ALB:\nRoute 53 routes to nearest ALB\nALB-1 (us-east-1): Serves 30K RPS\nALB-2 (eu-west-1): Serves 30K RPS\nALB-3 (ap-southeast-1): Serves 30K RPS\nTotal: 90K RPS across 3 ALBs\n\nStrategy 4: Connection Pooling (App Level)\nWithout pooling: Each request → Create TCP → Send → Close\nWith HTTP keep-alive: Reuse connections\n\nBenefit: 50-70% reduction in connection overhead",
+                        interviewer: "✓✓✓ Perfect. You understand scaling layers. Now - the hard part..."
+                    }
+                ]
+            },
+            {
+                round: 6,
+                title: "REQUEST ROUTING LOGIC",
+                question: "You have different types of requests: Some should go to fast servers (expensive machines), some to cheap servers (budget machines). How does ALB know which server to send request to?",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "ALB doesn't know. It just distributes evenly.",
+                        interviewer: "So expensive requests might hit cheap servers?"
+                    },
+                    {
+                        label: "Option B (Mediocre)",
+                        answer: "We can tag servers and create multiple target groups. Route different endpoints to different groups.",
+                        interviewer: "✓ Good. But how does ALB know which endpoint is expensive? How do you automate this?\n\nFollow-up Q7: How do you route based on request properties?"
+                    },
+                    {
+                        label: "Option C (Best)",
+                        answer: "Request routing is complex. Multiple approaches:\n\nApproach 1: Static Routing (Simple)\nALB has target groups:\n├─ Target Group A: Fast servers (c5.2xlarge, 8 cores)\n├─ Target Group B: Slow servers (t3.large, 2 cores)\n\nALB listener rules:\nRule 1: /api/search/* → Target Group A (fast servers)\nRule 2: /api/users/* → Target Group B (slow servers)\nRule 3: /* → Target Group A (default)\n\nBenefit: Simple, no extra cost\nFlexibility: Medium (only path-based routing)\n\nApproach 2: Smart Routing (Dynamic)\nInstead of static rules, analyze request:\nComplex query → Route to expensive servers\nSimple query → Route to cheap servers\n\nProblem: ALB can't analyze content\nSolution: Lambda target (ALB invokes Lambda)\n\nLambda:\n├─ Parse request body\n├─ Analyze complexity\n├─ Return routing decision\n├─ Forward to Target Group A or B\n\nBenefit: Intelligent routing\nCost: Lambda charges per invocation\n\nApproach 3: Application-Level Routing\nALB routes to gateway service\n  ↓\nGateway service (your app):\n├─ Receive all requests\n├─ Parse and understand\n├─ Route to specialized services\n\nBenefit: Extremely flexible\nCost: One extra hop (5-10ms)\n\nThis is what API Gateway does (managed)",
+                        interviewer: "✓✓✓ Excellent. You know when to use each approach. Final scenario..."
+                    }
+                ]
+            },
+            {
+                round: 7,
+                title: "ALB FAILURE & RECOVERY",
+                question: "It's 4 AM. ALB becomes unresponsive (not routing requests). Route 53 still works. Users get timeout errors. Your team needs to detect and recover in < 5 minutes. How?",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "Hope ALB auto-recovers or manually restart it.",
+                        interviewer: "That could take 30 minutes. Your SLA is 99.9% (8.6 seconds down/day). You just used your yearly budget. Next?"
+                    },
+                    {
+                        label: "Option B (Mediocre)",
+                        answer: "Have Route 53 health check the ALB. If ALB is down, fail over to... something else.",
+                        interviewer: "✓ Okay, but what do you fail over to? Where's your backup ALB?\n\nFollow-up Q8: How do you architect for ALB failure?"
+                    },
+                    {
+                        label: "Option C (Best - Expert level)",
+                        answer: "ALB failure is rare but catastrophic. Multi-layered defense:\n\nLayer 1: Health Checks (Detect failures)\nRoute 53 can health check ALB:\nGET http://alb.internal.example.com/health\n\nIf ALB returns 5xx or timeout:\n  → Mark ALB as unhealthy\n  → Trigger failover\n\nProblem: Route 53 checks every 30 seconds\nDetection time: 0-30 seconds\n\nBetter: CloudWatch alarm (more frequent)\n├─ Monitor: ALB target health\n├─ Alert if: Any target group completely unhealthy\n├─ Detection: 1-2 minutes\n\nLayer 2: Multi-ALB Architecture (Prevent single point of failure)\nInstead of one ALB:\n\nRoute 53 (latency-based routing)\n  ├─ Primary: ALB-1 (us-east-1a)\n  ├─ Secondary: ALB-2 (us-east-1b)\n  └─ Tertiary: ALB-3 (us-east-1c)\n\nAll three AZs: Cross-AZ redundancy\n\nCost: 3x ALB cost ($300/month vs $100/month)\nBenefit: 99.99% availability (4 nines)\n\nLayer 3: Active-Active Architecture (Best)\nInstead of Primary-Secondary, use Active-Active:\n\nALB-1 handles 50% traffic\nALB-2 handles 50% traffic\nBoth active, both receiving requests\n\nRouting Logic:\n1. User nearest to us-east-1?\n   ├─ YES → Check if ALB-1a or ALB-1b healthy\n   ├─ Both healthy → Route to nearest (1a)\n   ├─ Only 1b healthy → Route to 1b\n   └─ Both unhealthy → Fail over to us-west-2\n\n2. User nearest to us-west-2?\n   └─ Route to ALB-2 (similar logic)\n\nRecovery Timeline:\n0s: ALB-1a fails\n1-30s: Route 53 tries ALB-1a (no response)\n30s: Route 53 marks ALB-1a unhealthy\n31s: Route 53 reroutes to ALB-1b\n32s: New requests succeed (via ALB-1b)\n\nUser impact:\n- Requests during 0-30s: Some timeout (~20%)\n- Requests after 30s: All succeed\n- Data loss: None (requests can retry)\n\nCost: 2 regions × 2 ALBs × $50/mo = $200/month\nAvailability: 99.9% (allows 43 minutes down/month)",
+                        interviewer: "✓✓✓ Excellent troubleshooting. You've been in the trenches. Final question..."
+                    }
+                ]
+            },
+            {
+                round: 8,
+                title: "PRAGMATISM - STARTUP BUDGET",
+                question: "You're at a startup. Budget is $5K/month for infrastructure. You want 99.9% SLA. Build the simplest system that meets requirements. No over-engineering.",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "Use single ALB, single AZ, no redundancy. Cheapest option.",
+                        interviewer: "But you promised 99.9% SLA. How do you achieve that with single point of failure?"
+                    },
+                    {
+                        label: "Option B (Mediocre)",
+                        answer: "Use multi-AZ (single ALB across 3 AZs). Add Route 53 health checks.",
+                        interviewer: "✓ Better. But if one AZ goes down (rare but happens), ALB is still there. Customers still get errors for 30 seconds. That breaks SLA.\n\nFollow-up Q9: How do you be pragmatic about SLA vs cost?"
+                    },
+                    {
+                        label: "Option C (Best - You pass)",
+                        answer: "Pragmatic answer:\n\nFirst: Clarify requirements\n99.9% SLA = 43 minutes of acceptable downtime per month\nThis is VERY low. Most startups can't afford this.\n\nCan we negotiate?\n├─ 99% = 7.2 hours down/month (more realistic for MVP)\n├─ 99.9% = Need serious redundancy\n└─ 99.99% = Enterprise level, $50K+/month\n\nLet's assume 99% SLA for MVP (still good!)\n\nSYSTEM DESIGN ($5K/month, 99% SLA):\n\nCosts breakdown:\n├─ Route 53: $20/month\n├─ CloudFront: $100/month\n├─ ALB: $100/month\n├─ EC2 (20 instances, t3.medium): $2000/month\n├─ RDS (db.t3.small, multi-AZ): $200/month\n├─ WAF: $20/month\n├─ CloudWatch: $50/month\n└─ Misc (S3, data transfer): $510/month\n---\nTotal: ~$5000/month\n\nARCHITECTURE:\nRoute 53 (Geolocation routing)\n  ↓\nCloudFront + WAF\n  ↓\nSingle ALB (us-east-1)\n  ↓\nus-east-1a: 10 servers\nus-east-1b: 5 servers\nus-east-1c: 5 servers\n\nHow this achieves 99% SLA:\n\nServer failure (common):\nServer dies → ALB removes from rotation\nOther 19 servers handle traffic\nUsers: No impact\nRecovery: Auto-scaling adds new server (5 min)\nDowntime: 0 minutes\n\nAZ failure (rare):\nus-east-1a goes down (all 10 servers)\nALB still routes to 1b + 1c (10 servers remain)\nCapacity: 50% (might get slow)\nRecovery: 10+ minutes\nDowntime: ~10 minutes (acceptable for 99%)\n\nALB failure (very rare):\nSingle ALB becomes unresponsive\nDetection: 30 seconds (Route 53 health check)\nRecovery: Restart ALB (5 minutes)\nDowntime: ~5 minutes\nAcceptable: We have 43 min/month budget\n\nWhat we DON'T do (to save cost):\n✗ Multi-region redundancy ($3000+/month)\n✗ Active-Active ALBs ($200+/month)\n✗ Advanced WAF rules ($500+/month)\n✗ Dedicated database replicas ($1000+/month)\n✗ Redis cache layer ($200+/month)\n✗ Message queues/async ($300+/month)\n\nKEY INSIGHT:\nDon't build for 99.99% when 99% is required.\nBuild 99%, iterate, add redundancy as you grow.",
+                        interviewer: "✓✓✓ Perfect. You know when to build, when to wait, and when to grow. That's the mark of a senior engineer who ships products."
+                    }
+                ]
+            }
+        ];
+
+        function renderRounds() {
+            const container = document.getElementById('roundsContainer');
+            container.innerHTML = '';
+
+            roundsData.forEach((round) => {
+                const section = document.createElement('div');
+                section.className = 'round-section';
+
+                const roundLabel = document.createElement('div');
+                roundLabel.className = 'round-label';
+                roundLabel.textContent = `ROUND ${round.round}: ${round.title}`;
+                section.appendChild(roundLabel);
+
+                const header = document.createElement('div');
+                header.className = 'question-header collapsed';
+                header.onclick = function() { toggleRound(this); };
+                header.innerHTML = `
+                    <span>❓ ${round.question}</span>
+                    <span class="chevron">▼</span>
+                `;
+                section.appendChild(header);
+
+                const content = document.createElement('div');
+                content.className = 'content collapsed';
+
+                round.options.forEach((option) => {
+                    const answerDiv = document.createElement('div');
+                    answerDiv.className = 'answer-block';
+
+                    const optHeader = document.createElement('div');
+                    optHeader.className = 'option-header collapsed';
+                    optHeader.onclick = function() { toggleOption(this); };
+                    optHeader.innerHTML = `
+                        <span>${option.label}</span>
+                        <span class="chevron">▼</span>
+                    `;
+
+                    const optContent = document.createElement('div');
+                    optContent.className = 'option-content';
+                    optContent.innerHTML = option.answer +
+                        (option.interviewer ? `<div class="interviewer-note">💬 Interviewer: ${option.interviewer}</div>` : '');
+
+                    answerDiv.appendChild(optHeader);
+                    answerDiv.appendChild(optContent);
+                    content.appendChild(answerDiv);
+                });
+
+                section.appendChild(content);
+                container.appendChild(section);
+            });
+        }
+
+        function toggleRound(header) {
+            header.classList.toggle('collapsed');
+            const content = header.nextElementSibling;
+            content.classList.toggle('collapsed');
+        }
+
+        function toggleOption(header) {
+            header.classList.toggle('collapsed');
+            const content = header.nextElementSibling;
+            content.classList.toggle('show');
+        }
+
+        function expandAll() {
+            document.querySelectorAll('.question-header').forEach(h => h.classList.remove('collapsed'));
+            document.querySelectorAll('.content').forEach(c => c.classList.remove('collapsed'));
+            document.querySelectorAll('.option-header').forEach(h => h.classList.remove('collapsed'));
+            document.querySelectorAll('.option-content').forEach(c => c.classList.add('show'));
+        }
+
+        function collapseAll() {
+            document.querySelectorAll('.question-header').forEach(h => h.classList.add('collapsed'));
+            document.querySelectorAll('.content').forEach(c => c.classList.add('collapsed'));
+            document.querySelectorAll('.option-header').forEach(h => h.classList.add('collapsed'));
+            document.querySelectorAll('.option-content').forEach(c => c.classList.remove('show'));
+        }
+
+        renderRounds();
+    </script>
+
+</body>
+</html>
+

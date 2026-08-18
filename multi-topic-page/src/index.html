@@ -18,20 +18,22 @@
         .topbar {
             background: #2563eb;
             color: white;
-            padding: 14px 24px;
+            padding: 10px 16px;
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
             position: sticky;
             top: 0;
             z-index: 100;
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            flex-wrap: nowrap;
         }
 
         .topbar h1 {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 600;
             flex: 1;
+            min-width: 0;
         }
 
         .topbar .home-btn {
@@ -58,6 +60,26 @@
 
         .topbar .breadcrumb.visible { display: inline; }
 
+        .topbar .topbar-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.4);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+
+        .topbar .topbar-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .topbar .collapse-btn { margin-right: 6px; }
+        .topbar .expand-btn { margin-right: 0; }
+
         /* ── HOME VIEW ── */
         .home-view {
             max-width: 1100px;
@@ -76,15 +98,38 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            cursor: pointer;
+            user-select: none;
+            transition: opacity 0.2s;
         }
 
+        .section-title:hover { opacity: 0.8; }
+
         .section-title span { font-size: 24px; }
+
+        .section-title .chevron {
+            margin-left: auto;
+            font-size: 18px;
+            transition: transform 0.3s;
+        }
+
+        .section-title.collapsed .chevron {
+            transform: rotate(-90deg);
+        }
 
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 16px;
             margin-bottom: 40px;
+            transition: max-height 0.4s ease, opacity 0.3s ease;
+            overflow: hidden;
+        }
+
+        .cards-grid.collapsed {
+            max-height: 0 !important;
+            opacity: 0;
+            margin-bottom: 8px;
         }
 
         .card {
@@ -225,19 +270,23 @@
 
         @media (max-width: 600px) {
             .cards-grid { grid-template-columns: 1fr; }
-            .topbar h1 { font-size: 16px; }
+            .topbar { padding: 8px 12px; gap: 8px; }
+            .topbar h1 { font-size: 14px; }
             .stats-bar { flex-direction: column; }
+            .topbar .topbar-btn { padding: 4px 8px; font-size: 14px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- TOP BAR -->
-    <div class="topbar">
-        <button class="home-btn" id="homeBtn" onclick="goHome()">← Home</button>
-        <h1 id="pageTitle">📚 My Learning Hub</h1>
-        <span class="breadcrumb" id="breadcrumb"></span>
-    </div>
+        <!-- TOP BAR -->
+        <div class="topbar">
+            <button class="home-btn" id="homeBtn" onclick="goHome()">← Home</button>
+            <h1 id="pageTitle">📚 My Learning Hub</h1>
+            <span class="breadcrumb" id="breadcrumb"></span>
+            <button class="topbar-btn collapse-btn" id="collapseBtn" onclick="collapseAllSections()" title="Collapse All Sections">📁</button>
+            <button class="topbar-btn expand-btn" id="expandBtn" onclick="expandAllSections()" title="Expand All Sections">📂</button>
+        </div>
 
     <!-- HOME VIEW -->
     <div class="home-view" id="homeView">
@@ -246,6 +295,7 @@
         <div class="search-bar">
             <input type="text" id="searchInput" placeholder="🔍 Search topics...">
         </div>
+
 
         <!-- STATS -->
         <div class="stats-bar">
@@ -268,20 +318,28 @@
         </div>
 
         <!-- QUESTIONS SECTION -->
-        <div class="section-title"><span>🎯</span> Interview Q&A</div>
-        <div class="cards-grid" id="questionsGrid"></div>
+        <div class="section-title collapsed" onclick="toggleSection(this)"><span>🎯</span> Interview Q&A <span class="chevron">▼</span></div>
+        <div class="cards-grid collapsed" id="questionsGrid"></div>
+
+        <!-- PRACTICE PROBLEMS SECTION -->
+        <div class="section-title collapsed" onclick="toggleSection(this)"><span>🔧</span> Practice Problems <span class="chevron">▼</span></div>
+        <div class="cards-grid collapsed" id="problemsGrid"></div>
 
         <!-- TECHNOLOGY SECTION -->
-        <div class="section-title"><span>💻</span> Technology Deep Dive</div>
-        <div class="cards-grid" id="techGrid"></div>
+        <div class="section-title collapsed" onclick="toggleSection(this)"><span>💻</span> Technology Deep Dive <span class="chevron">▼</span></div>
+        <div class="cards-grid collapsed" id="techGrid"></div>
 
         <!-- KEEP NOTES SECTION -->
-        <div class="section-title"><span>📌</span> Keep Notes</div>
-        <div class="cards-grid" id="keepNotesGrid"></div>
+        <div class="section-title collapsed" onclick="toggleSection(this)"><span>📌</span> Keep Notes <span class="chevron">▼</span></div>
+        <div class="cards-grid collapsed" id="keepNotesGrid"></div>
 
         <!-- RESOURCES SECTION -->
-        <div class="section-title"><span>📖</span> Cheat Sheets & Notes</div>
-        <div class="cards-grid" id="resourcesGrid"></div>
+        <div class="section-title collapsed" onclick="toggleSection(this)"><span>📖</span> Cheat Sheets & Notes <span class="chevron">▼</span></div>
+        <div class="cards-grid collapsed" id="resourcesGrid"></div>
+
+        <!-- VIEW CHARTS SECTION -->
+        <div class="section-title collapsed" onclick="toggleSection(this)"><span>📊</span> View Charts <span class="chevron">▼</span></div>
+        <div class="cards-grid collapsed" id="chartsGrid"></div>
 
         <div class="footer">📚 My Learning Hub · Keep adding topics!</div>
     </div>
@@ -325,6 +383,57 @@
                 icon: "💡",
                 badge: "badge-orange",
                 badgeText: "20 Q&A"
+            }
+        ];
+
+        const problems = [
+            {
+                file: "../Questions/design_problems_qa.html",
+                title: "Design Problems & Real-World Scenarios",
+                desc: "DNS routing, health checks, failover strategies, DDoS protection, cost optimization",
+                icon: "🔧",
+                badge: "badge-purple",
+                badgeText: "11 PROBLEMS"
+            },
+            {
+                file: "../Questions/dns_layer_interview.html",
+                title: "DNS Layer Interview - Progressive Q&A",
+                desc: "6 rounds from basic routing to DDoS defense, GDPR compliance, startup MVP design",
+                icon: "🌐",
+                badge: "badge-blue",
+                badgeText: "6 ROUNDS"
+            },
+            {
+                file: "../Questions/cdn_interview.html",
+                title: "CDN & WAF Interview - CloudFront & Security",
+                desc: "7 rounds: caching strategy, cache invalidation, WAF protection, regional origins, troubleshooting 502s",
+                icon: "⚡",
+                badge: "badge-green",
+                badgeText: "7 ROUNDS"
+            },
+            {
+                file: "../Questions/alb_api_gateway_interview.html",
+                title: "API Gateway & Load Balancer Interview",
+                desc: "8 rounds: load balancing algorithms, failure handling, cascade failures, circuit breaker, rate limiting, scaling, pragmatism",
+                icon: "⚖️",
+                badge: "badge-orange",
+                badgeText: "8 ROUNDS"
+            },
+            {
+                file: "../Questions/api_layer_interview.html",
+                title: "API Layer Design Interview (Two-Panel)",
+                desc: "7 questions: architecture (REST/GraphQL/gRPC), auth methods, request flow, versioning, optimization, async/sync/real-time, error debugging",
+                icon: "🔌",
+                badge: "badge-blue",
+                badgeText: "7 QUESTIONS"
+            },
+            {
+                file: "../Questions/db_layer_interview.html",
+                title: "Database Layer Interview - Progressive Q&A",
+                desc: "7 rounds: Replication, failover, scaling reads/writes, sharding & consistency, connection pooling, performance debugging, startup MVP design",
+                icon: "🗄️",
+                badge: "badge-green",
+                badgeText: "7 ROUNDS"
             }
         ];
 
@@ -491,6 +600,17 @@
             }
         ];
 
+        const charts = [
+            {
+                file: "../Questions/ByteByGo.html",
+                title: "ByteByGo — System Design Visual Charts",
+                desc: "12 System Design Concepts with visual diagrams: Load Balancing, Caching, CDN, Sharding, Replication, Consistent Hashing, Message Queue, Rate Limiting, Idempotency, CAP Theorem, Eventual Consistency, Backpressure",
+                icon: "📊",
+                badge: "badge-blue",
+                badgeText: "12 CONCEPTS"
+            }
+        ];
+
         // ── RENDER CARDS ──
         function renderCards(items, containerId, badgeDefault) {
             const grid = document.getElementById(containerId);
@@ -543,6 +663,29 @@
             document.getElementById('pageTitle').textContent = '📚 My Learning Hub';
         }
 
+        // ── TOGGLE SECTION ──
+        function toggleSection(titleEl) {
+            titleEl.classList.toggle('collapsed');
+            const grid = titleEl.nextElementSibling;
+            grid.classList.toggle('collapsed');
+        }
+
+        // ── COLLAPSE ALL SECTIONS ──
+        function collapseAllSections() {
+            document.querySelectorAll('.section-title').forEach(title => {
+                title.classList.add('collapsed');
+                title.nextElementSibling.classList.add('collapsed');
+            });
+        }
+
+        // ── EXPAND ALL SECTIONS ──
+        function expandAllSections() {
+            document.querySelectorAll('.section-title').forEach(title => {
+                title.classList.remove('collapsed');
+                title.nextElementSibling.classList.remove('collapsed');
+            });
+        }
+
         // ── SEARCH ──
         document.getElementById('searchInput').addEventListener('input', function () {
             const q = this.value.toLowerCase();
@@ -560,11 +703,13 @@
 
         // ── INIT ──
         renderCards(questions, 'questionsGrid');
+        renderCards(problems, 'problemsGrid', 'badge-purple');
         renderCards(technology, 'techGrid');
         renderCards(keepNotes, 'keepNotesGrid');
         renderCards(resources, 'resourcesGrid', 'badge-purple');
+        renderCards(charts, 'chartsGrid', 'badge-blue');
 
-        document.getElementById('totalCount').textContent = questions.length + technology.length + keepNotes.length + resources.length;
+        document.getElementById('totalCount').textContent = questions.length + problems.length + technology.length + keepNotes.length + resources.length + charts.length;
         document.getElementById('resourceCount').textContent = resources.length;
         document.getElementById('questionCount').textContent = questions.length;
         document.getElementById('techCount').textContent = technology.length;

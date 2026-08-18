@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🌐 DNS Layer Interview - Progressive Q&A (Original Markdown Format)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 1px solid #1e3a8a;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-expand {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-expand:hover {
+            background: #2563eb;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-collapse {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-collapse:hover {
+            background: #dc2626;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        /* ROUNDS */
+        .round {
+            margin-bottom: 24px;
+        }
+
+        .round-header {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 8px 8px 0 0;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #1e3a8a;
+            transition: all 0.3s;
+        }
+
+        .round-header:hover {
+            opacity: 0.9;
+            transform: translateX(5px);
+        }
+
+        .round-header .chevron {
+            margin-left: auto;
+            transition: transform 0.3s;
+            font-size: 16px;
+        }
+
+        .round-header.collapsed .chevron {
+            transform: rotate(-90deg);
+        }
+
+        .round-content {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            padding: 24px;
+            transition: max-height 0.4s ease, opacity 0.3s ease;
+            overflow: hidden;
+        }
+
+        .round-content.collapsed {
+            max-height: 0 !important;
+            opacity: 0;
+            padding: 0;
+            border: none;
+        }
+
+        /* QUESTION */
+        .question-block {
+            margin-bottom: 20px;
+            padding: 16px;
+            background: #0f172a;
+            border-left: 4px solid #3b82f6;
+            border-radius: 6px;
+        }
+
+        .question-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: #60a5fa;
+            margin-bottom: 12px;
+        }
+
+        .question-text::before {
+            content: "❓ ";
+            font-size: 16px;
+        }
+
+        /* ANSWER OPTIONS */
+        .answer-options {
+            margin-top: 12px;
+        }
+
+        .answer-option {
+            margin-bottom: 12px;
+            background: #1e293b;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #334155;
+            transition: all 0.2s;
+        }
+
+        .answer-option:hover {
+            border-color: #3b82f6;
+        }
+
+        .option-header {
+            padding: 12px 16px;
+            background: #334155;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: #cbd5e1;
+            transition: all 0.2s;
+        }
+
+        .option-header:hover {
+            background: #475569;
+        }
+
+        .option-header .chevron {
+            margin-left: auto;
+            transition: transform 0.3s;
+        }
+
+        .option-header.collapsed .chevron {
+            transform: rotate(-90deg);
+        }
+
+        .option-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .badge-weak { background: #ef4444; color: white; }
+        .badge-better { background: #f59e0b; color: white; }
+        .badge-best { background: #10b981; color: white; }
+
+        .option-content {
+            padding: 16px;
+            background: #0f172a;
+            border-top: 1px solid #334155;
+            display: none;
+            overflow: hidden;
+        }
+
+        .option-content.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+            }
+            to {
+                opacity: 1;
+                max-height: 2000px;
+            }
+        }
+
+        .answer-text {
+            color: #cbd5e1;
+            line-height: 1.6;
+            font-size: 14px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-bottom: 12px;
+        }
+
+        .interviewer-reaction {
+            padding: 12px;
+            background: #1e293b;
+            border-left: 3px solid #3b82f6;
+            border-radius: 4px;
+            color: #93c5fd;
+            font-size: 13px;
+            font-style: italic;
+            margin-top: 8px;
+        }
+
+        .interviewer-reaction::before {
+            content: "💬 Interviewer: ";
+            font-weight: 600;
+            color: #60a5fa;
+            font-style: normal;
+        }
+
+        /* SUMMARY */
+        .round-summary {
+            margin-top: 24px;
+            padding: 16px;
+            background: #0f172a;
+            border-left: 4px solid #10b981;
+            border-radius: 6px;
+        }
+
+        .summary-title {
+            font-weight: 600;
+            color: #86efac;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .summary-content {
+            color: #cbd5e1;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .summary-item {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .summary-item::before {
+            content: "✓";
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 40px;
+            border-top: 1px solid #334155;
+        }
+
+        .progression-table {
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: collapse;
+            background: #0f172a;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #334155;
+        }
+
+        .progression-table th,
+        .progression-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+            color: #cbd5e1;
+        }
+
+        .progression-table th {
+            background: #1e293b;
+            font-weight: 600;
+            color: #93c5fd;
+        }
+
+        .progression-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 24px; }
+            .round-header { font-size: 16px; }
+            .question-text { font-size: 14px; }
+            .answer-text { font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>🌐 DNS Layer Interview Series</h1>
+            <p>Progressive Q&A: From Basic to Expert Level</p>
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-expand" onclick="expandAll()">📂 Expand All</button>
+            <button class="btn btn-collapse" onclick="collapseAll()">📁 Collapse All</button>
+        </div>
+
+        <div id="roundsContainer"></div>
+
+        <div class="footer">
+            💡 Each round builds on previous knowledge. Practice answers out loud for best results!<br>
+            🎯 "Good Signal" in progression table shows what interviewers value at each stage.
+        </div>
+    </div>
+
+    <script>
+        // ───── INTERVIEW ROUNDS ─────
+        const roundsData = [
+            {
+                round: 1,
+                title: "Basic Understanding",
+                subtitle: "Do you know routing basics?",
+                question: "Let me describe a simple system. Users worldwide visit our platform. Requests go to Route 53. Walk me through what happens.",
+                options: [
+                    {
+                        level: "weak",
+                        title: "Returns all IPs randomly",
+                        answer: "Route 53 holds a table of domain names mapped to IP addresses. When a user requests api.example.com, Route 53 returns the IP address of our server. The browser then connects to that IP.",
+                        reaction: "✓ Correct but incomplete. Good. But we have 5 servers globally. Which one does Route 53 return?"
+                    },
+                    {
+                        level: "better",
+                        title: "Returns randomly, different policies exist",
+                        answer: "Route 53 has different routing policies. If we use latency-based routing, it returns the IP of the server closest to the user's location.",
+                        reaction: "✓ Good. How does Route 53 know which server is closest?"
+                    },
+                    {
+                        level: "best",
+                        title: "Explains routing policies + health checks",
+                        answer: "Route 53 has routing policies. For us, latency-based routing makes sense - it measures response time to each region and routes to the fastest. We also have health checks: every 30 seconds, Route 53 pings /health endpoint. If a server fails 3 health checks, it's marked unhealthy and removed from DNS results.",
+                        reaction: "✓✓ Excellent. Now the scenario is... [proceeds to Round 2]"
+                    }
+                ],
+                goodSignal: "Knows about routing policies"
+            },
+            {
+                round: 2,
+                title: "Failure Scenarios",
+                subtitle: "Can you handle 2 AM production issues?",
+                question: "It's 2 AM. One of your servers in US-West goes down. What happens to the users?",
+                options: [
+                    {
+                        level: "weak",
+                        title: "Route 53 stops sending traffic",
+                        answer: "Route 53 will stop sending traffic there.",
+                        reaction: "❌ How long does this take? Are users affected?"
+                    },
+                    {
+                        level: "better",
+                        title: "Health checks run every 30s",
+                        answer: "Route 53 health checks run every 30 seconds. So within 1.5 minutes (3 failed checks), Route 53 knows the server is dead and stops routing there. During those 1.5 minutes, some users might get errors.",
+                        reaction: "✓ Good. What if that's too slow for your SLA?"
+                    },
+                    {
+                        level: "best",
+                        title: "Comprehensive failover strategy",
+                        answer: "Health checks run every 30 seconds, but that's configurable. We could run them every 10 seconds for faster detection. Also, we could use enhanced health checks that check multiple endpoints or dependencies.\n\nBut realistically, within ~30-60 seconds, Route 53 marks the server unhealthy and stops routing. During that window, some user requests fail.\n\nTo improve: we could configure a secondary passive replica. If primary US-West goes down, Route 53 automatically failovers to secondary in US-East.",
+                        reaction: "✓✓ That's solid. But now let me ask differently..."
+                    }
+                ],
+                followUp: "Your health check endpoint makes a database query. The database goes down but health check times out silently. Route 53 still thinks server is healthy. How do you prevent this?",
+                goodSignal: "Thinks about health checks & failover timing"
+            },
+            {
+                round: 3,
+                title: "Scale & Optimization",
+                subtitle: "Can you reduce costs by 50%?",
+                question: "Your platform grows. DNS queries go from 100M to 10B/month. Route 53 bill increases from $40 to $4,000/month. Business asks: Can you reduce DNS cost by 50%? How?",
+                options: [
+                    {
+                        level: "weak",
+                        title: "Switch to Cloudflare",
+                        answer: "Use Cloudflare instead of Route 53, it's cheaper.",
+                        reaction: "❌ You lose AWS integration. Trade-offs?"
+                    },
+                    {
+                        level: "better",
+                        title: "Increase TTL",
+                        answer: "Increase TTL (Time To Live). Currently we use TTL=60s. If we increase to 300s, DNS queries reduce by 5x, and cost drops.",
+                        reaction: "✓ Good! But what's the risk? When a server goes down, how long until users stop hitting it?"
+                    },
+                    {
+                        level: "best",
+                        title: "Multiple optimization levers",
+                        answer: "Multiple levers, in order of impact:\n\n1. INCREASE TTL (Biggest impact)\nCurrently: TTL=60s → cache 60s\nNew: TTL=300s → cache 5 min\nEffect: 5x fewer queries → 80% cost reduction\nTrade-off: Server failures take longer to propagate\n\n2. USE ALIAS RECORDS (AWS-specific)\nALIAS to AWS resources (ELB, CloudFront) don't count as queries\nNon-AWS targets do count queries\n\n3. CLIENT-SIDE CACHING\nApp caches DNS 5-10 min internally\nFewer queries from browser level\n\n4. MULTI-VALUE ROUTING\nReturns 8 IPs instead of 1\nClients do local load balancing\n\nRECOMMENDATION: TTL+300s saves $3,000. ALIAS saves $500. Total: $3,500 saved (87% reduction). Failover takes 5 min - acceptable? Should discuss SLA first.",
+                        reaction: "✓✓✓ Perfect! You're thinking like a tech lead. Now, GDPR compliance..."
+                    }
+                ],
+                goodSignal: "Can optimize TTL and think about trade-offs"
+            },
+            {
+                round: 4,
+                title: "Multi-Region Complexity",
+                subtitle: "How to handle GDPR + compliance?",
+                question: "You expand to 15 regions globally. GDPR requires European data stays in Europe. China has firewall restrictions. How do you set up Route 53?",
+                options: [
+                    {
+                        level: "weak",
+                        title: "Use geolocation routing",
+                        answer: "Use geolocation routing. Route European users to Europe, Chinese users to China.",
+                        reaction: "❌ But a VPN user in France looks like US. What happens?"
+                    },
+                    {
+                        level: "better",
+                        title: "Client-side validation",
+                        answer: "Route 53 geolocation routing has limitations. We'd need client-side verification - send user's claimed location to API, API verifies and complies with regulations.",
+                        reaction: "✓ But that adds latency at API. Can you balance at DNS layer?"
+                    },
+                    {
+                        level: "best",
+                        title: "Layered regulatory approach",
+                        answer: "LAYERED APPROACH:\n\nLAYER 1: Route 53 Geolocation Routing\nEU users → EU region (legal requirement)\nChina users → China region\nRest → nearest by latency\n\nLAYER 2: Failover Planning\nEU region down? Can't fail to US (GDPR)\nNeed 2+ EU regions in different countries\nUse failover: Primary EU-Frankfurt → Secondary EU-Ireland\n\nLAYER 3: VPN/Proxy Issue\nRoute 53 checks IP origin (not foolproof)\nAPI gateway validates from multiple sources:\n  • IP geolocation\n  • Request headers\n  • JWT claims\nIf mismatch → block/warn\n\nLAYER 4: China Complexity\nGFW inspects DNS\nSeparate domain: api-cn.example.com\nPoints to China-local CDN + servers\nUsers explicitly use api-cn\n\nTRADE-OFFS: Complexity (yes), Performance (+10ms latency), Cost (3+ regions).\nMONITORING: Alert if EU user → US, Alert if failover chain breaks",
+                        reaction: "✓✓✓ You understand regulatory constraints. Solid architecture."
+                    }
+                ],
+                goodSignal: "Understands GDPR + geo-constraints + failover chains"
+            },
+            {
+                round: 5,
+                title: "Attack & Edge Cases",
+                subtitle: "How to defend during DDoS?",
+                question: "It's Black Friday. Traffic spikes 10x. Attacker launches DDoS on DNS (1M queries/sec). What breaks and how do you defend?",
+                options: [
+                    {
+                        level: "weak",
+                        title: "AWS DDoS protection",
+                        answer: "AWS has DDoS protection, so Route 53 is protected.",
+                        reaction: "❌ But can it handle 1M qps? And while it kicks in, real users can't resolve DNS."
+                    },
+                    {
+                        level: "better",
+                        title: "Shield Advanced + rate limiting",
+                        answer: "We'd enable AWS Shield Advanced and DDoS protection.",
+                        reaction: "✓ Okay. But while that protection kicks in, real users stuck. How do you keep service up?"
+                    },
+                    {
+                        level: "best",
+                        title: "Multi-layer DDoS defense",
+                        answer: "DNS DDoS IS MULTI-LAYERED:\n\nLAYER 1: VOLUME-BASED (1M qps)\nRoute 53 has Anycast + AWS Shield Standard (free)\nAbsorbs massive queries across AWS edge locations\nMost 1M qps attacks don't reach Route 53\n\nLAYER 2: PROTOCOL ATTACKS (DNS amplification)\nAttacker: small query → large response floods victim\nSolution: AWS Shield Advanced ($3K/month) + rate limiting\n\nLAYER 3: APP-LAYER DDoS (Sophisticated)\n1M legit-looking queries from distributed bots\nHard to distinguish from real traffic\nSolutions:\n  • Secondary DNS provider (fallback)\n  • Client-side retry with exponential backoff\n  • Rate limit at resolver level\n  • Increase DNS TTL temporarily\n\nFAILOVER STRATEGY:\nPrimary: Route 53\nSecondary: Cloudflare DNS or Google Cloud DNS\nIf Route 53 slow, client retries with secondary\nResolvers support this via NS records\n\nBLACK FRIDAY SPECIFIC:\n• Increase health check frequency (faster failover)\n• Pre-scale infrastructure (don't scale during attack)\n• Consider disabling some health checks (reduce query load)\n\nMONITORING:\n• Alert if DNS latency > 100ms\n• Alert on failed queries\n• Alert on unusual patterns (same IP, repeated)\n• Separate DDoS from app metrics",
+                        reaction: "✓✓✓ Excellent! You've clearly worked through failure scenarios."
+                    }
+                ],
+                goodSignal: "Knows DDoS defense layers & failover strategies"
+            },
+            {
+                round: 6,
+                title: "Reality Check",
+                subtitle: "Can a startup actually build this?",
+                question: "All this is complex. We're a startup with 10 engineers. Can't manage this complexity. What's simplest reasonable design for Year 1?",
+                options: [
+                    {
+                        level: "weak",
+                        title: "Simple round-robin routing",
+                        answer: "Use Route 53 with simple round-robin routing.",
+                        reaction: "❌ And when a server goes down?"
+                    },
+                    {
+                        level: "better",
+                        title: "Latency routing + basic health",
+                        answer: "Use Route 53 with:\n• Latency-based routing\n• Basic health checks (every 30s)\n• TTL = 60s\n• Single region initially",
+                        reaction: "✓ Better. But you said 'global platform'?"
+                    },
+                    {
+                        level: "best",
+                        title: "Pragmatic MVP design",
+                        answer: "PRAGMATIC MVP (Year 1):\n\nROUTE 53 CONFIGURATION:\n• Primary region: US-East (main servers)\n• Secondary region: EU-West (failover only)\n• Routing: Latency-based\n• Health checks: Every 30s, /health endpoint\n• TTL: 60s (fast failover)\n• No geolocation (not needed for MVP)\n\nCOST: ~$50/month DNS + monitoring\n\nCOMPLEXITY: Low\n• 2 regions\n• Standard health checks\n• One routing policy\n\nCAPABILITY:\n✓ Global redundancy\n✓ Automatic failover\n✓ Latency optimization\n✓ Handles 99% of issues\n\nYEAR 2-3 EVOLUTION:\n• Add geolocation for GDPR\n• Add weighted routing for canary\n• Add secondary DNS provider\n• Implement CloudWatch-based checks\n\nWHY NOT MORE COMPLEX DAY 1:\n• Over-engineering wastes time\n• Fewer bugs in simpler systems\n• Add complexity as you need it",
+                        reaction: "✓✓✓ Perfect! You know when to be simple. Let me ask about API Gateway layer..."
+                    }
+                ],
+                goodSignal: "Balances simplicity vs feature, knows when to scale"
+            }
+        ];
+
+        // ───── RENDER FUNCTIONS ─────
+        function renderRounds() {
+            const container = document.getElementById('roundsContainer');
+            container.innerHTML = '';
+
+            roundsData.forEach((round) => {
+                const section = document.createElement('div');
+                section.className = 'round';
+
+                const header = document.createElement('div');
+                header.className = 'round-header collapsed';
+                header.onclick = function() { toggleRound(this); };
+                header.innerHTML = `
+                    <div>
+                        <strong>Round ${round.round}:</strong> ${round.title}
+                        <div style="font-size: 12px; opacity: 0.8; margin-top: 4px;">${round.subtitle}</div>
+                    </div>
+                    <span class="chevron">▼</span>
+                `;
+
+                const content = document.createElement('div');
+                content.className = 'round-content collapsed';
+
+                // Question
+                const questionBlock = document.createElement('div');
+                questionBlock.className = 'question-block';
+                questionBlock.innerHTML = `<div class="question-text">${round.question}</div>`;
+                content.appendChild(questionBlock);
+
+                // Answer options
+                const answersDiv = document.createElement('div');
+                answersDiv.className = 'answer-options';
+
+                round.options.forEach((option) => {
+                    const answerDiv = document.createElement('div');
+                    answerDiv.className = 'answer-option';
+
+                    const headerDiv = document.createElement('div');
+                    headerDiv.className = 'option-header collapsed';
+                    headerDiv.onclick = function() { toggleOption(this); };
+
+                    const badgeClass = `badge-${option.level}`;
+                    const badgeText = option.level.toUpperCase();
+
+                    headerDiv.innerHTML = `
+                        <span class="option-badge ${badgeClass}">${badgeText}</span>
+                        ${option.title}
+                        <span class="chevron">▼</span>
+                    `;
+
+                    const optionContentDiv = document.createElement('div');
+                    optionContentDiv.className = 'option-content';
+                    optionContentDiv.innerHTML = `
+                        <div class="answer-text">${option.answer}</div>
+                        <div class="interviewer-reaction">${option.reaction}</div>
+                    `;
+
+                    answerDiv.appendChild(headerDiv);
+                    answerDiv.appendChild(optionContentDiv);
+                    answersDiv.appendChild(answerDiv);
+                });
+
+                content.appendChild(answersDiv);
+
+                // Follow-up question if exists
+                if (round.followUp) {
+                    const followUpBlock = document.createElement('div');
+                    followUpBlock.className = 'question-block';
+                    followUpBlock.style.marginTop = '20px';
+                    followUpBlock.innerHTML = `<div class="question-text">Follow-up: ${round.followUp}</div>`;
+                    content.appendChild(followUpBlock);
+                }
+
+                // Summary
+                const summaryDiv = document.createElement('div');
+                summaryDiv.className = 'round-summary';
+                summaryDiv.innerHTML = `
+                    <div class="summary-title">🎯 Good Signal At This Level:</div>
+                    <div class="summary-content">${round.goodSignal}</div>
+                `;
+                content.appendChild(summaryDiv);
+
+                section.appendChild(header);
+                section.appendChild(content);
+                container.appendChild(section);
+            });
+
+            // Add progression table at end
+            addProgressionTable(container);
+        }
+
+        function addProgressionTable(container) {
+            const tableDiv = document.createElement('div');
+            tableDiv.style.marginTop = '40px';
+            tableDiv.style.marginBottom = '40px';
+
+            const title = document.createElement('h3');
+            title.textContent = '📊 Interview Progression Overview';
+            title.style.color = '#93c5fd';
+            title.style.marginBottom = '16px';
+            tableDiv.appendChild(title);
+
+            const table = document.createElement('table');
+            table.className = 'progression-table';
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Round</th>
+                        <th>Topic</th>
+                        <th>Good Signal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Basic Understanding</td>
+                        <td>Knows about routing policies</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Failure Scenarios</td>
+                        <td>Thinks about health checks & failover timing</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Scale & Optimization</td>
+                        <td>Can optimize TTL and think about trade-offs</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Multi-Region Complexity</td>
+                        <td>Understands GDPR + geo-constraints</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Attack & Edge Cases</td>
+                        <td>Knows DDoS defense layers</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Reality Check</td>
+                        <td>Balances simplicity vs features</td>
+                    </tr>
+                </tbody>
+            `;
+            tableDiv.appendChild(table);
+            container.appendChild(tableDiv);
+        }
+
+        function toggleRound(headerEl) {
+            headerEl.classList.toggle('collapsed');
+            const content = headerEl.nextElementSibling;
+            content.classList.toggle('collapsed');
+        }
+
+        function toggleOption(headerEl) {
+            headerEl.classList.toggle('collapsed');
+            const content = headerEl.nextElementSibling;
+            content.classList.toggle('show');
+        }
+
+        function expandAll() {
+            document.querySelectorAll('.round-header').forEach(h => h.classList.remove('collapsed'));
+            document.querySelectorAll('.round-content').forEach(c => c.classList.remove('collapsed'));
+        }
+
+        function collapseAll() {
+            document.querySelectorAll('.round-header').forEach(h => h.classList.add('collapsed'));
+            document.querySelectorAll('.round-content').forEach(c => c.classList.add('collapsed'));
+        }
+
+        // ───── INIT ─────
+        renderRounds();
+    </script>
+
+</body>
+</html>
+

@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🎯 Design Problems & Use Cases - Q&A</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #1a1a1a;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        /* SECTION STYLES */
+        .topic-section {
+            margin-bottom: 20px;
+        }
+
+        .topic-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 8px 8px 0 0;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s;
+        }
+
+        .topic-title:hover {
+            opacity: 0.9;
+            transform: translateX(5px);
+        }
+
+        .topic-title .icon {
+            font-size: 20px;
+        }
+
+        .topic-title .chevron {
+            margin-left: auto;
+            transition: transform 0.3s;
+            font-size: 16px;
+        }
+
+        .topic-title.collapsed .chevron {
+            transform: rotate(-90deg);
+        }
+
+        .content {
+            background: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            padding: 24px;
+            transition: max-height 0.4s ease, opacity 0.3s ease;
+            overflow: hidden;
+        }
+
+        .content.collapsed {
+            max-height: 0 !important;
+            opacity: 0;
+            padding: 0;
+            border: none;
+        }
+
+        /* QA PAIRS */
+        .qa-item {
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+            padding-left: 16px;
+        }
+
+        .qa-question {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .qa-question::before {
+            content: "❓";
+            font-size: 14px;
+        }
+
+        .qa-question:hover {
+            text-decoration: underline;
+        }
+
+        .qa-answer {
+            color: #444;
+            line-height: 1.6;
+            font-size: 14px;
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .qa-answer.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* SECTION CONTENT */
+        .section-header {
+            font-size: 16px;
+            font-weight: 600;
+            color: #667eea;
+            margin-top: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-header::before {
+            content: "▸";
+            font-size: 18px;
+        }
+
+        .subsection {
+            margin-left: 12px;
+            margin-bottom: 12px;
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+        }
+
+        .subsection-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .subsection-content {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* BUTTONS */
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-expand {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-expand:hover {
+            background: #764ba2;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-collapse {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-collapse:hover {
+            background: #dc2626;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #888;
+            font-size: 12px;
+            margin-top: 40px;
+        }
+
+        .stats {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 24px; }
+            .topic-title { font-size: 16px; }
+            .qa-question { font-size: 13px; }
+            .subsection { font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Design Problems & Use Cases</h1>
+            <p>Real-world Interview Questions & Solutions</p>
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-expand" onclick="expandAll()">📂 Expand All</button>
+            <button class="btn btn-collapse" onclick="collapseAll()">📁 Collapse All</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number" id="topicCount">0</div>
+                <div class="stat-label">Topics</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number" id="questionCount">0</div>
+                <div class="stat-label">Questions</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number" id="scenarioCount">0</div>
+                <div class="stat-label">Scenarios</div>
+            </div>
+        </div>
+
+        <div id="topicsContainer"></div>
+
+        <div class="footer">💡 Keep practicing! Each problem teaches a different aspect of system design.</div>
+    </div>
+
+    <script>
+        // ───── CONFIGURATION: Problem Statements ─────
+        // EASY TO ADD MORE: Just add new topic objects to this array
+        const problemData = [
+            {
+                id: "dns-routing",
+                icon: "🌐",
+                title: "DNS Routing & Global Load Balancing",
+                subtitle: "Client → DNS Layer",
+                qaItems: [
+                    {
+                        q: "Why can't we just use simple DNS round-robin?",
+                        a: "Simple round-robin returns all IPs randomly with no health awareness. Dead servers still get requests. Solution: Use Route 53 routing policies (Weighted, Latency-based, Failover, Geolocation) combined with health checks."
+                    },
+                    {
+                        q: "How would you deploy a new API version to 20% traffic first, then 50%, then 100%?",
+                        a: "Use Weighted Routing Policy:\n• 80% → Current version (Region A)\n• 20% → New version (Region B)\n\nAfter monitoring:\n• 50% → Current, 50% → New\n\nFinally:\n• 100% → New version\n\nAdd health checks every 30s to catch failures early. If new version fails, traffic automatically reverts to old version."
+                    },
+                    {
+                        q: "What is Failover Routing (Active-Passive)?",
+                        a: "Primary server healthy? → Route there\nPrimary down? → Route to Secondary\n\nPROBLEM: Secondary sits idle (expensive)\nSOLUTION: Use Active-Active with health checks instead\n\nHealthy servers automatically marked as primary candidates."
+                    },
+                    {
+                        q: "How would you handle GDPR (data residency requirements)?",
+                        a: "Use Geolocation Routing:\n• User in Europe? → EU region (GDPR compliant)\n• User in US? → US region\n• User in India? → India region\n\nCombine with Latency-based routing for best performance within compliance region."
+                    },
+                    {
+                        q: "Your health check endpoint queries database. DB is down but health checks pass because endpoint times out silently. How to prevent?",
+                        a: "Health check must FAIL explicitly if DB unavailable:\n1. Add timeout with explicit error response\n2. Don't silently timeout - return HTTP 503\n3. Separate health check queries from app queries (use read replica)\n4. Monitor health check failures separately\n5. Alert immediately if health check endpoint is down"
+                    },
+                    {
+                        q: "Can we filter user authentication at DNS level?",
+                        a: "NO. Things you CANNOT filter at DNS:\n✗ JWT validation (user auth)\n✗ Rate limiting per user\n✗ Request body inspection (DDoS patterns)\n✗ API versioning (v1 vs v2)\n✗ Content-based routing (/admin vs /public)\n✗ Protocol translation (gRPC → HTTP)\n\nThese MUST go to API Gateway + rate limiter."
+                    },
+                    {
+                        q: "What happens if Route 53 itself goes down?",
+                        a: "Browser uses cached DNS from last query (TTL-based).\n\nBest practices:\n1. Use multiple DNS providers (Route 53 + Google DNS)\n2. Set low TTL (60s) for critical APIs\n3. Trade-off: More DNS queries but faster failover\n4. Use DNSSEC for query validation"
+                    },
+                    {
+                        q: "All servers in all regions are down. Route 53 keeps routing to them. What's the solution?",
+                        a: "Failover to:\n1. CloudFront edge (return cached 503)\n2. Static error page\n3. Different service entirely\n\nConfigure health checks to detect complete region failure and trigger failover."
+                    },
+                    {
+                        q: "How do you prevent DNS DDoS attacks?",
+                        a: "Solutions:\n1. Route 53 automatic DDoS protection (AWS Shield)\n2. Use DNSSEC (digital signatures)\n3. Rate limit DNS queries at resolver\n4. Use secondary DNS provider fallback\n5. Anycast DNS (same IP in multiple locations)"
+                    },
+                    {
+                        q: "Your startup queries DNS 1 billion times/month costing $400/month. How to reduce?",
+                        a: "Priority order:\n1. Increase TTL (fewer queries) ← BEST\n   Change: TTL 60s → 300s (5 min)\n   Savings: 5x fewer queries\n2. Client-side caching at app level\n3. Use Route 53 ALIAS records (cheaper)\n4. Switch to Cloudflare ($0.20 per million)\n5. Separate critical vs non-critical zones"
+                    },
+                    {
+                        q: "Should TTL be 0 or high? What's the trade-off?",
+                        a: "TTL=0: Every request = Route 53 query\n→ Accurate: Real-time failover\n→ Slow: More latency\n→ Expensive: More queries\n\nTTL=3600 (1 hour): Cache for 1 hour\n→ Fast: Few queries\n→ Cheap: Low cost\n→ Stale: Stale DNS if region fails\n\nRECOMMENDED:\n• APIs: TTL=60s (balance)\n• Static content: TTL=3600s\n• During deployments: TTL=30s"
+                    }
+                ],
+                sections: [
+                    {
+                        title: "Route 53 Routing Policies",
+                        items: [
+                            { name: "Simple Routing", desc: "Returns all IPs randomly. No health awareness. Use for: Development only." },
+                            { name: "Weighted Routing", desc: "70% → Region A, 30% → Region B. Perfect for gradual deployments & A/B testing." },
+                            { name: "Latency-based", desc: "Route to nearest region automatically. Combine with health checks!" },
+                            { name: "Failover", desc: "Primary healthy → use it. Primary down → use secondary. Secondary sits idle (expensive)." },
+                            { name: "Geolocation", desc: "Route to specific region based on user location. GDPR compliance." },
+                            { name: "Geoproximity", desc: "Complex: bias parameter controls spillover. Advanced. Rarely used in interviews." },
+                            { name: "Multi-value", desc: "Returns 8 random healthy IPs. Better than simple round-robin but NOT a load balancer." }
+                        ]
+                    },
+                    {
+                        title: "Health Check Types",
+                        items: [
+                            { name: "HTTP/HTTPS", desc: "Route 53 sends GET /health every 30s. Expects 2xx/3xx. 3 failures → unhealthy." },
+                            { name: "TCP", desc: "Just checks port is open. Faster but less accurate. Use when no /health endpoint." },
+                            { name: "Calculated", desc: "Combines multiple child checks. 'Mark unhealthy if 2+ child checks fail'." },
+                            { name: "CloudWatch Alarms", desc: "Trigger on DB latency > 500ms. Auto mark server unhealthy." }
+                        ]
+                    },
+                    {
+                        title: "Performance Optimization",
+                        items: [
+                            { name: "ALIAS Records", desc: "Route 53 → ALB (AWS). No additional latency. LB health → DNS aware." },
+                            { name: "Multiple DNS Providers", desc: "Primary: Route 53. Secondary: Google DNS. If Route 53 down → resolver tries Google." },
+                            { name: "Anycast DNS", desc: "Same IP in multiple locations. Query routes to nearest. (Cloudflare, Google use this)" }
+                        ]
+                    },
+                    {
+                        title: "Cost Breakdown",
+                        items: [
+                            { name: "Hosted Zone", desc: "$0.50/month (fixed)" },
+                            { name: "Query Cost", desc: "$0.40 per million queries" },
+                            { name: "Health Check", desc: "$0.50/month each" }
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        // ───── RENDER FUNCTIONS ─────
+        function renderTopics() {
+            const container = document.getElementById('topicsContainer');
+            container.innerHTML = '';
+
+            let totalQA = 0;
+            let totalScenarios = 0;
+
+            problemData.forEach((topic) => {
+                totalQA += topic.qaItems.length;
+
+                const section = document.createElement('div');
+                section.className = 'topic-section';
+
+                const title = document.createElement('div');
+                title.className = 'topic-title collapsed';
+                title.onclick = function() { toggleTopic(this); };
+                title.innerHTML = `
+                    <span class="icon">${topic.icon}</span>
+                    <div style="flex: 1;">
+                        <div style="font-size: 16px;">${topic.title}</div>
+                        <div style="font-size: 12px; opacity: 0.8;">${topic.subtitle}</div>
+                    </div>
+                    <span class="chevron">▼</span>
+                `;
+
+                const content = document.createElement('div');
+                content.className = 'content collapsed';
+
+                // Q&A Items
+                const qaContainer = document.createElement('div');
+                topic.qaItems.forEach((qa, idx) => {
+                    const qaItem = document.createElement('div');
+                    qaItem.className = 'qa-item';
+                    qaItem.innerHTML = `
+                        <div class="qa-question" onclick="toggleAnswer(this)">${qa.q}</div>
+                        <div class="qa-answer">${qa.a.replace(/\n/g, '<br>')}</div>
+                    `;
+                    qaContainer.appendChild(qaItem);
+                });
+                content.appendChild(qaContainer);
+
+                // Sections
+                if (topic.sections) {
+                    topic.sections.forEach(section => {
+                        const sectionDiv = document.createElement('div');
+                        sectionDiv.style.marginTop = '20px';
+
+                        const sectionTitle = document.createElement('div');
+                        sectionTitle.className = 'section-header';
+                        sectionTitle.textContent = section.title;
+                        sectionDiv.appendChild(sectionTitle);
+
+                        section.items.forEach(item => {
+                            const subsec = document.createElement('div');
+                            subsec.className = 'subsection';
+                            subsec.innerHTML = `
+                                <div class="subsection-title">${item.name}</div>
+                                <div class="subsection-content">${item.desc}</div>
+                            `;
+                            sectionDiv.appendChild(subsec);
+                        });
+
+                        content.appendChild(sectionDiv);
+                    });
+                }
+
+                section.appendChild(title);
+                section.appendChild(content);
+                container.appendChild(section);
+            });
+
+            // Update stats
+            document.getElementById('topicCount').textContent = problemData.length;
+            document.getElementById('questionCount').textContent = totalQA;
+            document.getElementById('scenarioCount').textContent = problemData.reduce((sum, t) => sum + (t.sections ? t.sections.reduce((s, sec) => s + sec.items.length, 0) : 0), 0);
+        }
+
+        function toggleTopic(titleEl) {
+            titleEl.classList.toggle('collapsed');
+            const content = titleEl.nextElementSibling;
+            content.classList.toggle('collapsed');
+        }
+
+        function toggleAnswer(questionEl) {
+            const answer = questionEl.nextElementSibling;
+            answer.classList.toggle('show');
+        }
+
+        function expandAll() {
+            document.querySelectorAll('.topic-title').forEach(title => {
+                title.classList.remove('collapsed');
+                title.nextElementSibling.classList.remove('collapsed');
+            });
+        }
+
+        function collapseAll() {
+            document.querySelectorAll('.topic-title').forEach(title => {
+                title.classList.add('collapsed');
+                title.nextElementSibling.classList.add('collapsed');
+            });
+        }
+
+        // ───── INIT ─────
+        renderTopics();
+    </script>
+
+</body>
+</html>
+

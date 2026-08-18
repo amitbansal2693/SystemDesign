@@ -313,17 +313,19 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   </div>
 
   <div class="mindmap-view" id="mindmapView">
-    <div class="topic-card" onclick="showTopic(0)"><span class="topic-icon">🐌</span><span class="topic-name">Slowness & Diagnosis</span></div>
-    <div class="topic-card" onclick="showTopic(1)"><span class="topic-icon">⚖️</span><span class="topic-name">Trade-offs</span></div>
-    <div class="topic-card" onclick="showTopic(2)"><span class="topic-icon">🔄</span><span class="topic-name">Consistency</span></div>
-    <div class="topic-card" onclick="showTopic(3)"><span class="topic-icon">🌐</span><span class="topic-name">Service-to-Service</span></div>
-    <div class="topic-card" onclick="showTopic(4)"><span class="topic-icon">⚡</span><span class="topic-name">Load Balancer</span></div>
-    <div class="topic-card" onclick="showTopic(5)"><span class="topic-icon">🔒</span><span class="topic-name">Concurrency</span></div>
-    <div class="topic-card" onclick="showTopic(6)"><span class="topic-icon">💾</span><span class="topic-name">Cache</span></div>
-    <div class="topic-card" onclick="showTopic(7)"><span class="topic-icon">📢</span><span class="topic-name">Event-based</span></div>
-    <div class="topic-card" onclick="showTopic(8)"><span class="topic-icon">🔐</span><span class="topic-name">Authorization</span></div>
-    <div class="topic-card" onclick="showTopic(9)"><span class="topic-icon">⏱️</span><span class="topic-name">Latency</span></div>
-  </div>
+     <div class="topic-card" onclick="showTopic(0)"><span class="topic-icon">🐌</span><span class="topic-name">Slowness & Diagnosis</span></div>
+     <div class="topic-card" onclick="showTopic(1)"><span class="topic-icon">⚖️</span><span class="topic-name">Trade-offs</span></div>
+     <div class="topic-card" onclick="showTopic(2)"><span class="topic-icon">🔄</span><span class="topic-name">Consistency</span></div>
+     <div class="topic-card" onclick="showTopic(3)"><span class="topic-icon">🌐</span><span class="topic-name">Service-to-Service</span></div>
+     <div class="topic-card" onclick="showTopic(4)"><span class="topic-icon">⚡</span><span class="topic-name">Load Balancer</span></div>
+     <div class="topic-card" onclick="showTopic(5)"><span class="topic-icon">🔒</span><span class="topic-name">Concurrency</span></div>
+     <div class="topic-card" onclick="showTopic(6)"><span class="topic-icon">💾</span><span class="topic-name">Cache</span></div>
+     <div class="topic-card" onclick="showTopic(7)"><span class="topic-icon">📢</span><span class="topic-name">Event-based</span></div>
+     <div class="topic-card" onclick="showTopic(8)"><span class="topic-icon">🔐</span><span class="topic-name">Authorization</span></div>
+     <div class="topic-card" onclick="showTopic(9)"><span class="topic-icon">⏱️</span><span class="topic-name">Latency</span></div>
+     <div class="topic-card" onclick="showTopic(10)"><span class="topic-icon">❓</span><span class="topic-name">General Questions</span></div>
+     <div class="topic-card" onclick="showTopic(11)"><span class="topic-icon">📊</span><span class="topic-name">Performance Metrics</span></div>
+   </div>
 
   <div class="qa-view" id="qaView">
     <div class="qa-header">
@@ -1743,6 +1745,583 @@ At scale (1M req/sec):
 6. CDN for static content
 7. Edge compute for dynamic content</div>
 <div class="tip">💡 Measure first, optimize second. Use distributed tracing to find the <b>actual bottleneck</b> before optimizing.</div>` }
+    ]
+  },
+
+  // ─── 10: GENERAL QUESTIONS ───
+  {
+    name: "General Questions",
+    icon: "❓",
+    questions: [
+      {
+        q: "What are the four common disaster recovery strategies on cloud?",
+        a: `<div class="interview-answer">From lowest cost/slower recovery to highest cost/fastest recovery: Backup & Restore, Backup + Synchronized Database, Pilot Light, Active-Active/Hot Standby.</div>
+<h4>1️⃣ Backup & Restore (CHEAPEST)</h4>
+<ul>
+  <li><b>Process:</b> Periodically backup application data and server images to cloud</li>
+  <li><b>Recovery:</b> If DC fails, restore infrastructure and data in cloud</li>
+  <li><b>Pros:</b> Cheapest, simple, reliable</li>
+  <li><b>Cons:</b> High RTO, potential data loss up to backup interval</li>
+  <li><b>RTO:</b> Hours to days</li>
+  <li><b>RPO:</b> Daily or weekly (if backup every 24h, lose up to 24h data)</li>
+</ul>
+
+<h4>2️⃣ Backup + Synchronized Database</h4>
+<ul>
+  <li><b>Setup:</b> Database continuously replicated to cloud, but infrastructure needs recreation</li>
+  <li><b>Advantage:</b> Lower RPO than simple backup (database always in sync)</li>
+  <li><b>Disadvantage:</b> More expensive and operationally complex</li>
+  <li><b>RTO:</b> ~1 hour</li>
+  <li><b>RPO:</b> Minutes (only minor data loss)</li>
+</ul>
+
+<h4>3️⃣ Pilot Light (SMALL WARM STANDBY)</h4>
+<ul>
+  <li><b>Setup:</b> Small version of production always running in cloud</li>
+  <li><b>Components:</b> Small app instance, replicated database, minimal infrastructure</li>
+  <li><b>When disaster:</b> Detect failure → Redirect traffic → Scale up → Start services</li>
+  <li><b>RTO:</b> 10-15 minutes (faster than backup/restore)</li>
+  <li><b>RPO:</b> Minutes</li>
+</ul>
+
+<h4>4️⃣ Active-Active (FASTEST - MOST EXPENSIVE)</h4>
+<ul>
+  <li><b>Setup:</b> Both environments fully operational</li>
+  <li><b>Traffic:</b> Distributed between Region A and Region B</li>
+  <li><b>If Region A fails:</b> All traffic → Region B (no infrastructure startup needed!)</li>
+  <li><b>Advantages:</b> Very low RTO, high availability, handles regional failures</li>
+  <li><b>Disadvantages:</b> Very expensive, complex data replication, operational complexity</li>
+  <li><b>RTO:</b> Seconds (DNS failover only)</li>
+  <li><b>RPO:</b> Near zero</li>
+</ul>
+
+<h4>📊 Key Definitions</h4>
+<ul>
+  <li><b>RTO</b> (Recovery Time Objective) = Maximum acceptable time to restore system. Example: RTO=1hr means business expects system operational within 1 hour</li>
+  <li><b>RPO</b> (Recovery Point Objective) = Maximum acceptable data loss. Example: RPO=15min means don't lose more than 15 minutes of data</li>
+</ul>
+
+<h4>🎯 Quick Reference</h4>
+<table class="tbl">
+  <tr><th>Strategy</th><th>Cost</th><th>RTO</th><th>RPO</th></tr>
+  <tr><td><b>Backup & Restore</b></td><td>💰</td><td>Hours-Days</td><td>Daily/Weekly</td></tr>
+  <tr><td><b>Sync Database</b></td><td>💰💰</td><td>~1 hour</td><td>Minutes</td></tr>
+  <tr><td><b>Pilot Light</b></td><td>💰💰💰</td><td>10-15 min</td><td>Minutes</td></tr>
+  <tr><td><b>Active-Active</b></td><td>💰💰💰💰</td><td>Seconds</td><td>Near zero</td></tr>
+</table>` },
+
+      {
+        q: "How much data can theoretically transfer over 1 Gbps network in 24 hours?",
+        a: `<div class="interview-answer">Approximately 10.8 TB/day theoretically.</div>
+<h4>📐 The Calculation</h4>
+<div class="flow-chart">1 Gbps = 1 gigabit per second
+Step 1: Convert bits to bytes
+  1 Gbps ÷ 8 = 125 MB/s
+
+Step 2: Calculate per day
+  125 MB/s × 60 sec × 60 min × 24 hours
+  = 125 MB × 86,400 seconds
+  = 10,800,000 MB
+  ≈ 10.8 TB/day</div>
+
+<h4>⚠️ Can You Actually Achieve 10.8 TB in 24 hours?</h4>
+<div class="warn">NO! That's the theoretical maximum. Real throughput is much lower.</div>
+
+<h4>🔴 Why Real Throughput is Lower?</h4>
+<ul>
+  <li>Ethernet headers & frame overhead</li>
+  <li>IP headers (20-60 bytes per packet)</li>
+  <li>TCP headers (20-60 bytes per packet)</li>
+  <li>TCP acknowledgements (separate packets)</li>
+  <li>Retransmissions (lost packets)</li>
+  <li>Flow control mechanisms</li>
+  <li>Packet processing delays</li>
+  <li>Network congestion</li>
+  <li>Encryption overhead</li>
+  <li>Hardware processing limitations</li>
+</ul>
+
+<h4>📊 Bandwidth vs Throughput</h4>
+<ul>
+  <li><b>Bandwidth =</b> Theoretical capacity of network (1 Gbps)</li>
+  <li><b>Throughput =</b> Actual data successfully transferred (typically 850 Mbps or 60-80% of bandwidth)</li>
+  <li><b>Difference =</b> Network/protocol overhead</li>
+</ul>
+
+<h4>🎯 Real-World Example</h4>
+<div class="flow-chart">Bandwidth: 1 Gbps (100%)
+TCP/IP overhead: ~10-20%
+Actual throughput: 850 Mbps (85%)
+Daily transfer: ~7-8 TB (not 10.8 TB)</div>` },
+
+      {
+        q: "What are the three major cloud storage types and when to use each?",
+        a: `<h4>1️⃣ OBJECT STORAGE (S3, Azure Blob, Google Cloud Storage)</h4>
+<b>Structure:</b>
+<div class="flow-chart">Object
+├─ Data (file content)
+├─ Metadata (properties, tags)
+└─ Object ID (unique identifier)</div>
+
+<b>Why NOT for OS disk:</b> Object storage doesn't behave like traditional disk. OS expects directories, files, blocks, and random read/write. Object storage provides HTTP API, not disk interface.
+
+<b>Typical Use Cases:</b>
+<ul>
+  <li>Images & photos</li>
+  <li>Videos & streaming media</li>
+  <li>Backups & archives</li>
+  <li>Data lakes & big data</li>
+  <li>Logs & event data</li>
+  <li>Software packages & distributions</li>
+  <li>Large unstructured datasets</li>
+</ul>
+<div class="tip">💡 Example: E-commerce stores product images in S3, not on application server.</div>
+
+<h4>2️⃣ BLOCK STORAGE (EBS, Azure Managed Disks)</h4>
+<b>What it is:</b> Provides virtual disk to server (OS sees it as traditional disk)
+<div class="flow-chart">EC2 Instance → EBS Volume
+                 ↓
+          (Separate compute from storage)</div>
+
+<b>Advantage:</b> If EC2 instance fails/replaced, EBS volume persists and attaches to new instance
+
+<b>Typical Use Cases:</b>
+<ul>
+  <li>Databases (MySQL, PostgreSQL, Oracle, SQLServer)</li>
+  <li>Operating system root/boot disks</li>
+  <li>Application servers</li>
+  <li>Transactional workloads</li>
+</ul>
+
+<h4>3️⃣ FILE STORAGE (EFS for Linux/Unix, FSx for Windows)</h4>
+<b>Use when:</b> Multiple servers need to access the same filesystem
+<div class="flow-chart">Server A
+   ↑
+ EFS ←── Server B
+   ↓
+Server C
+
+All servers access same files simultaneously</div>
+
+<b>Typical Use Cases:</b>
+<ul>
+  <li>Shared application files</li>
+  <li>Shared media libraries</li>
+  <li>Content management systems</li>
+  <li>Legacy applications requiring shared filesystem</li>
+</ul>
+
+<h4>🎯 Memory Tricks & Quick Reference</h4>
+<table class="tbl">
+  <tr><th>Type</th><th>Analogy</th><th>Main Use</th><th>Multi-Access</th></tr>
+  <tr><td><b>Object</b></td><td>🪣 Bucket</td><td>Unstructured data</td><td>Via API</td></tr>
+  <tr><td><b>Block</b></td><td>💿 Disk</td><td>OS & databases</td><td>Single server</td></tr>
+  <tr><td><b>File</b></td><td>📁 Folder</td><td>Shared files</td><td>Multiple servers</td></tr>
+</table>` },
+
+      {
+        q: "Explain all AWS Route 53 routing policies and when to use each.",
+        a: `<div class="interview-answer">Route 53 is AWS's managed DNS and traffic routing service. Seven key routing policies:</div>
+
+<h4>1️⃣ SIMPLE ROUTING</h4>
+<ul>
+  <li>Maps domain to one or more resources without sophisticated logic</li>
+  <li>Example: www.example.com → ALB → Application</li>
+  <li>Use when: Straightforward DNS configuration needed</li>
+</ul>
+
+<h4>2️⃣ FAILOVER ROUTING (Primary-Secondary)</h4>
+<div class="flow-chart">Route 53 → Health Check
+  ├─ Primary healthy → Users to Primary
+  └─ Primary fails → Users to Secondary</div>
+<ul>
+  <li>Used for disaster recovery</li>
+  <li>Route 53 queries /health endpoint</li>
+  <li>If 3+ consecutive failures → switches to secondary</li>
+</ul>
+
+<h4>3️⃣ LATENCY-BASED ROUTING</h4>
+<div class="flow-chart">Route 53 measures latency to each region
+US User → US-East (lowest latency)
+EU User → EU-West (lowest latency)</div>
+<ul>
+  <li>Routes to region with MEASURED lowest latency (not geographic distance)</li>
+  <li>Goal: Better user experience, lowest response time</li>
+</ul>
+
+<h4>4️⃣ GEOLOCATION ROUTING</h4>
+<div class="flow-chart">Routes based on user's geographic location
+India User → India endpoint
+Germany User → Germany endpoint
+USA User → USA endpoint</div>
+<ul>
+  <li>Useful for: Regulatory requirements, data residency, region-specific content</li>
+  <li>Use case: GDPR compliance (EU users must access EU data center)</li>
+</ul>
+
+<h4>5️⃣ GEOPROXIMITY ROUTING</h4>
+<ul>
+  <li>Routes based on geography with bias parameter for control</li>
+  <li>More sophisticated than basic geolocation</li>
+  <li>Allows adjustment of geographic boundaries</li>
+</ul>
+
+<h4>6️⃣ WEIGHTED ROUTING (CANARY DEPLOYMENTS)</h4>
+<div class="flow-chart">Version A → 90%  (existing)
+Version B → 10%  (new)</div>
+<ul>
+  <li>Useful for: Canary releases, A/B testing, gradual migration</li>
+  <li>Strategy: Start 90/10 → 70/30 → 50/50 → 0/100</li>
+</ul>
+
+<h4>7️⃣ MULTI-VALUE ANSWER ROUTING</h4>
+<div class="flow-chart">Route 53 returns multiple healthy IPs
+Response: [10.0.0.1, 10.0.0.2, 10.0.0.3]</div>
+<ul>
+  <li>Returns up to 8 healthy IP addresses</li>
+  <li>Improves availability (client can retry others if first fails)</li>
+  <li>NOTE: NOT a full load balancer (DNS limitations)</li>
+</ul>
+
+<h4>🎯 Scenario Decision Matrix</h4>
+<table class="tbl">
+  <tr><th>Scenario</th><th>Best Policy</th></tr>
+  <tr><td>App in Mumbai + Frankfurt, best performance?</td><td>Latency-based</td></tr>
+  <tr><td>Indian users MUST go to India (GDPR)?</td><td>Geolocation</td></tr>
+  <tr><td>Deploy v2 to 10% users, then gradually increase?</td><td>Weighted</td></tr>
+  <tr><td>Primary AWS region goes down?</td><td>Failover + health checks</td></tr>
+  <tr><td>Comply with country data regulations?</td><td>Geolocation (+ ensure backend data is there!)</td></tr>
+</table>
+
+<h4>🔴 Geolocation vs Latency: CRITICAL DIFFERENCE</h4>
+<div class="warn">
+<b>Geolocation:</b> "Where is the user?" → Always route to specific region
+<b>Latency-based:</b> "Which region is fastest?" → Route to best performing region
+
+India user + Latency-based → might go to Singapore (if faster)
+India user + Geolocation → always goes to India</div>
+
+<h4>📌 IMPORTANT: DNS ≠ Data Residency</h4>
+<div class="warn">Using Geolocation routing does NOT guarantee data residency! You must also ensure:
+- Actual database is in that region
+- Data never leaves that geographic boundary
+- Enforce at architecture level, not just DNS</div>` },
+
+      {
+        q: "What's the difference between Geolocation and Latency-based routing?",
+        a: `<h4>🌍 GEOLOCATION ROUTING: "WHERE IS THE USER?"</h4>
+<ul>
+  <li>Routes based on user's geographic location (IP geolocation)</li>
+  <li>Deterministic: Same location always goes to same endpoint</li>
+  <li>Example: India user 1 → India, India user 2 → India (always)</li>
+  <li>Use case: Regulatory/legal requirements (GDPR, data residency laws)</li>
+  <li>Predictable routing</li>
+</ul>
+
+<h4>⚡ LATENCY-BASED ROUTING: "WHICH REGION IS FASTEST?"</h4>
+<ul>
+  <li>Routes to region with MEASURED lowest network latency</li>
+  <li>Dynamic: Changes based on real network performance</li>
+  <li>Example: India user → Singapore (if Singapore latency < India latency)</li>
+  <li>Use case: Best user experience, minimize response time</li>
+  <li>Physical distance ≠ latency (Singapore might be faster!)</li>
+</ul>
+
+<h4>🎯 Real-World Example</h4>
+<div class="flow-chart">Scenario: User in Bangalore, India
+
+LATENCY-BASED ROUTING:
+Route 53 measures latency to:
+  ├─ India (50ms) ✗
+  ├─ Singapore (30ms) ✓ LOWEST
+  └─ Japan (60ms)
+→ Routes to Singapore (fastest)
+
+GEOLOCATION ROUTING:
+Route 53 detects user in India
+→ Routes to India (regulatory requirement)</div>
+
+<h4>⚠️ Critical for Compliance</h4>
+<div class="warn">If you need GDPR compliance:
+✓ Use Geolocation routing to ensure EU users go to EU
+✓ BUT also ensure your backend data architecture actually stores data in EU
+✓ DNS routing alone does NOT guarantee data residency
+
+Route 53 routes traffic, but if app sends data to US servers, you fail compliance!</div>
+
+<h4>🎯 Decision Guide</h4>
+<table class="tbl">
+  <tr><th>Question</th><th>Answer</th><th>Use Policy</th></tr>
+  <tr><td>Best performance for users?</td><td>Yes</td><td>Latency-based</td></tr>
+  <tr><td>Legal requirement: user data in same country?</td><td>Yes</td><td>Geolocation</td></tr>
+  <tr><td>GDPR compliance needed?</td><td>Yes</td><td>Geolocation</td></tr>
+  <tr><td>Need lowest user response time?</td><td>Yes</td><td>Latency-based</td></tr>
+</table>` }
+    ]
+  },
+
+  // ─── 11: PERFORMANCE METRICS ───
+  {
+    name: "Performance Metrics",
+    icon: "📊",
+    questions: [
+      {
+        q: "What is Response Time / Latency?",
+        a: `<div class="interview-answer">Response time is the amount of time taken by the system to process a request and send the response back to the client. In system design, we use percentiles (p50, p95, p99) instead of averages because averages hide slow requests.</div>
+<h4>📌 Why Percentiles Matter</h4>
+<div class="flow-chart">Example: 95 requests → 100ms, 5 requests → 2 seconds
+Average: ~144ms (looks reasonable)
+But 5% of users experience 2 second delays!
+
+Use percentiles instead:
+p50 (median) = normal experience
+p95 = slow requests
+p99 = very slow / tail latency</div>` },
+
+      {
+        q: "What is p50, p95, and p99?",
+        a: `<h4>🔹 p50 (50th Percentile / Median)</h4>
+<div class="flow-chart">If p50 = 100ms
+→ 50% requests ≤ 100ms
+→ Represents typical user experience</div>
+
+<h4>🔹 p95 (95th Percentile)</h4>
+<div class="flow-chart">If p95 = 300ms
+→ 95% requests ≤ 300ms
+→ 5% > 300ms
+→ Shows slower portion of normal traffic</div>
+
+<h4>🔹 p99 (99th Percentile)</h4>
+<div class="flow-chart">If p99 = 1 second
+→ 99% requests ≤ 1 second
+→ 1% > 1 second
+→ Important for tail latency problems</div>
+
+<table class="tbl">
+  <tr><th>Metric</th><th>Meaning</th><th>Focus</th></tr>
+  <tr><td><b>p50</b></td><td>Typical user</td><td>Normal performance</td></tr>
+  <tr><td><b>p95</b></td><td>Slower users</td><td>Degradation detection</td></tr>
+  <tr><td><b>p99</b></td><td>Very slow users</td><td>Tail latency reduction</td></tr>
+</table>
+
+<div class="tip">💡 Architects should pay attention to p95 and p99. A system can have good average latency while providing poor experience to significant users.</div>` },
+
+      {
+        q: "What is Error Rate?",
+        a: `<div class="interview-answer">Error rate is the percentage of requests that fail.</div>
+<h4>📐 Calculation</h4>
+<div class="flow-chart">If 10,000 requests and 200 fail:
+Error Rate = 200 / 10,000 = 2%</div>
+
+<h4>📊 Types of Errors</h4>
+<ul>
+  <li>HTTP 4xx errors (client errors)</li>
+  <li>HTTP 5xx errors (server errors)</li>
+  <li>Timeouts</li>
+  <li>Application failures</li>
+  <li>Dependency failures</li>
+</ul>
+
+<div class="warn">⚠️ Important: Define what counts as an error. A 404 Product Not Found may be valid business response, not a failure.</div>` },
+
+      {
+        q: "What is Throughput?",
+        a: `<div class="interview-answer">Throughput tells us how much traffic the system can process over a period of time.</div>
+<h4>📐 Common Metrics</h4>
+<ul>
+  <li><b>RPS</b> — Requests Per Second</li>
+  <li><b>QPS</b> — Queries Per Second</li>
+  <li><b>TPS</b> — Transactions Per Second</li>
+</ul>
+
+<h4>📋 Example</h4>
+<div class="flow-chart">If system processes 10,000 requests in 10 seconds:
+RPS = 10,000 / 10 = 1,000 RPS
+→ System handles 1,000 requests/sec</div>` },
+
+      {
+        q: "How do you interpret these metrics together: RPS=5000, p50=100ms, p95=300ms, p99=2s, Error Rate=0.5%?",
+        a: `<div class="interview-answer">The system handles 5,000 requests per second with reasonable performance, but has a tail latency problem.</div>
+<h4>📊 Analysis</h4>
+<div class="flow-chart">RPS = 5,000 → Good throughput
+p50 = 100ms → Most users fast (typical)
+p95 = 300ms → Slower portion acceptable
+p99 = 2s → 1% of requests very slow ← PROBLEM
+Error Rate = 0.5% → Low errors</div>
+
+<h4>🔴 The Issue</h4>
+<ul>
+  <li>Good average performance masks tail latency problem</li>
+  <li>About 50 requests/sec (1% of 5000) take 2 seconds</li>
+  <li>At scale, these slow requests accumulate</li>
+</ul>
+
+<h4>✅ Recommended Action</h4>
+"The system has good typical latency and reasonable throughput, but there is a tail-latency problem that I would investigate, particularly around the requests contributing to p99."` },
+
+      {
+        q: "What is GC Pause Time and why does it matter?",
+        a: `<div class="interview-answer">GC pause time is the amount of time the JVM pauses application threads while performing garbage collection.</div>
+<h4>⚠️ The Problem</h4>
+<div class="flow-chart">If app normally responds in 100ms
+But GC causes 500ms pause
+→ Requests waiting on that JVM suddenly become slow
+
+High GC pause → Application latency increases</div>
+
+<h4>📊 What to Monitor</h4>
+<ul>
+  <li>Average GC pause duration</li>
+  <li>Maximum GC pause duration</li>
+  <li>p95/p99 GC pause time</li>
+  <li>Frequency of GC pauses</li>
+</ul>
+
+<h4>🔍 Debugging Tip</h4>
+<div class="flow-chart">If p99 latency suddenly increases:
+CPU normal ✓
+Database normal ✓
+Network normal ✓
+GC pause time increased ← ROOT CAUSE
+
+→ Investigate JVM memory pressure/GC behavior</div>` },
+
+      {
+        q: "What is Heap Usage and how does it affect system performance?",
+        a: `<h4>📦 What is Heap?</h4>
+<div class="flow-chart">JVM Memory Structure:
+├─ Heap → Java object allocation
+│  ├─ Young Generation (short-lived objects)
+│  └─ Old Generation (long-lived objects)
+├─ Stack → Method calls
+├─ Metaspace → Class definitions
+└─ Native memory</div>
+
+<h4>🔍 What to Monitor</h4>
+<ul>
+  <li>Current heap usage</li>
+  <li>Maximum heap available</li>
+  <li>Used heap percentage</li>
+  <li>Young gen vs Old gen usage</li>
+</ul>
+
+<h4>📊 Healthy vs Unhealthy Patterns</h4>
+<div class="flow-chart"><b>HEALTHY:</b>
+60% → 80% → GC → 50%
+→ GC successfully reclaims memory
+
+<b>UNHEALTHY:</b>
+60% → 70% → 80% → 90% → 95%
+→ GC not reclaiming memory effectively
+→ Indicates: Memory leak, too many object retentions, or heap too small</div>
+
+<h4>🚨 Consequences</h4>
+<ul>
+  <li>Memory leak</li>
+  <li>OutOfMemoryError crash</li>
+  <li>Increased GC frequency & pauses</li>
+  <li>Application slowness</li>
+</ul>` },
+
+      {
+        q: "How do JVM metrics (Heap, GC, Threads) relate to each other?",
+        a: `<div class="interview-answer">Think of JVM metrics together, not individually. They form a chain reaction.</div>
+<h4>🔗 The Chain Reaction</h4>
+<div class="flow-chart">Heap usage increasing
+  ↓
+JVM triggers GC
+  ↓
+GC frequency increases
+  ↓
+GC cannot reclaim enough memory
+  ↓
+GC pauses increase
+  ↓
+Application threads spend more time waiting
+  ↓
+API latency increases
+  ↓
+Eventually → OutOfMemoryError crash</div>
+
+<h4>✅ Correct Approach: Correlate Metrics</h4>
+<ul>
+  <li>Monitor Heap Usage + GC Frequency + GC Pause Time + Application Latency <b>together</b></li>
+  <li>Don't look at individual metrics</li>
+  <li>Identify the correlation pattern</li>
+  <li>Optimize the weakest link</li>
+</ul>
+
+<div class="tip">💡 A 500ms GC pause might be acceptable if it happens once per minute, but catastrophic if it happens 100 times per minute.</div>` },
+
+      {
+        q: "What is CPU Utilization and when should you worry?",
+        a: `<h4>📊 CPU Utilization Levels</h4>
+<table class="tbl">
+  <tr><th>CPU %</th><th>Status</th><th>Action</th></tr>
+  <tr><td>30%</td><td>Low</td><td>Plenty of capacity</td></tr>
+  <tr><td>60%</td><td>Moderate</td><td>Normal operation</td></tr>
+  <tr><td>80%</td><td>High</td><td>Monitor closely</td></tr>
+  <tr><td>95%+</td><td>Critical</td><td>Likely overloaded</td></tr>
+</table>
+
+<h4>⚠️ Important: High CPU ≠ Unhealthy</h4>
+<div class="tip">High CPU usage does not automatically mean the application is bad. Correlate with latency, throughput, and GC metrics.</div>
+
+<h4>🔍 What Causes High CPU?</h4>
+<ul>
+  <li>Traffic/RPS increased</li>
+  <li>CPU-intensive business logic</li>
+  <li>Infinite or expensive loops</li>
+  <li>Excessive serialization/deserialization</li>
+  <li>Encryption/compression overhead</li>
+  <li>High GC activity (frequent pauses)</li>
+  <li>Thread context switching (too many threads)</li>
+</ul>
+
+<h4>📏 The 70% Rule</h4>
+<div class="flow-chart">CPU > 70% consistently = early warning signal
+(Not a hard failure threshold, but time to investigate)
+
+Acceptable: Temporary spike to 85%
+Concerning: 80-90% CPU continuously + increasing latency</div>` },
+
+      {
+        q: "What is Network Latency and Packet Loss, and how do they affect API performance?",
+        a: `<h4>🌐 Network Latency</h4>
+<div class="flow-chart">Network latency = Time for data to travel between endpoints
+
+Example flow:
+Client → API Gateway (5ms)
+  → Service A (10ms)
+  → Database (50ms)
+  → back to Client
+
+Total = ~130ms (just network, no processing)</div>
+
+<h4>📊 Impact on Application</h4>
+<div class="flow-chart">App normally responds: 100ms
+Network latency increases: 5ms → 200ms
+Result: Response time jumps to 300ms+
+
+Even if CPU/Database/JVM are healthy!</div>
+
+<h4>🔴 Packet Loss</h4>
+<div class="flow-chart">Packet loss = 1% = 10 packets lost per 1000
+Impact: TCP retransmission required
+Result: Increased latency, timeouts, reduced throughput</div>
+
+<h4>🔍 When to Check Network</h4>
+<ul>
+  <li>CPU: Normal ✓</li>
+  <li>Memory: Normal ✓</li>
+  <li>JVM: Healthy ✓</li>
+  <li>Database: Fast ✓</li>
+  <li>API latency: Still HIGH ❌</li>
+  <li>→ <b>Check Network!</b></li>
+</ul>
+
+<h4>✅ Debugging Strategy</h4>
+"Don't immediately blame the application. Look across: App → JVM → Infrastructure → Network → Database → External Dependencies"` }
     ]
   }
 ];

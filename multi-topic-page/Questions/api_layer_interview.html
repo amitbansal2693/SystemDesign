@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🔌 API Layer Interview - Progressive Q&A</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 1px solid #1d4ed8;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-expand {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-expand:hover {
+            background: #1d4ed8;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-collapse {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-collapse:hover {
+            background: #dc2626;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        .round-section {
+            margin-bottom: 24px;
+        }
+
+        .round-label {
+            font-size: 14px;
+            color: #93c5fd;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .question-header {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 8px 8px 0 0;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #1d4ed8;
+            transition: all 0.3s;
+        }
+
+        .question-header:hover {
+            opacity: 0.9;
+            transform: translateX(5px);
+        }
+
+        .question-header .chevron {
+            margin-left: auto;
+            transition: transform 0.3s;
+            font-size: 16px;
+        }
+
+        .question-header.collapsed .chevron {
+            transform: rotate(-90deg);
+        }
+
+        .content {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            padding: 24px;
+            transition: max-height 0.4s ease, opacity 0.3s ease;
+            overflow: hidden;
+            border-bottom: 1px solid #3b82f6;
+        }
+
+        .content.collapsed {
+            max-height: 0 !important;
+            opacity: 0;
+            padding: 0;
+            border: none;
+        }
+
+        .answer-block {
+            margin-bottom: 24px;
+            background: #0f172a;
+            border-left: 4px solid #3b82f6;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .option-header {
+            padding: 12px 16px;
+            background: #334155;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: #cbd5e1;
+            transition: all 0.2s;
+        }
+
+        .option-header:hover {
+            background: #475569;
+        }
+
+        .option-header .chevron {
+            margin-left: auto;
+            transition: transform 0.3s;
+        }
+
+        .option-header.collapsed .chevron {
+            transform: rotate(-90deg);
+        }
+
+        .option-label {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            background: #3b82f6;
+            color: white;
+        }
+
+        .option-content {
+            padding: 16px;
+            background: #0f172a;
+            border-top: 1px solid #334155;
+            display: none;
+            color: #cbd5e1;
+            line-height: 1.6;
+            font-size: 14px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 4000px;
+            overflow-y: auto;
+        }
+
+        .option-content.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+            }
+            to {
+                opacity: 1;
+                max-height: 4000px;
+            }
+        }
+
+        .interviewer-note {
+            margin-top: 12px;
+            padding: 10px;
+            background: #1e293b;
+            border-left: 3px solid #fbbf24;
+            border-radius: 4px;
+            color: #fecaca;
+            font-size: 13px;
+            font-style: italic;
+        }
+
+        .progression-table {
+            width: 100%;
+            margin-top: 40px;
+            margin-bottom: 40px;
+            border-collapse: collapse;
+            background: #0f172a;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid #334155;
+        }
+
+        .progression-table th,
+        .progression-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+            color: #cbd5e1;
+        }
+
+        .progression-table th {
+            background: #1e293b;
+            font-weight: 600;
+            color: #93c5fd;
+        }
+
+        .progression-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 40px;
+            border-top: 1px solid #334155;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 24px; }
+            .question-header { font-size: 16px; }
+            .option-content { font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>🔌 API Layer Interview</h1>
+            <p>Layer 4: Architecture, Authentication, Versioning, Optimization, Error Handling & Debugging</p>
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-expand" onclick="expandAll()">📂 Expand All</button>
+            <button class="btn btn-collapse" onclick="collapseAll()">📁 Collapse All</button>
+        </div>
+
+        <div id="roundsContainer"></div>
+
+        <table class="progression-table">
+            <thead>
+                <tr>
+                    <th>Round</th>
+                    <th>Topic</th>
+                    <th>Key Insight</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>API Architecture</td>
+                    <td>REST vs GraphQL vs gRPC - choose based on use case</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Authentication</td>
+                    <td>API keys, OAuth2, JWT, Sessions - each has trade-offs</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Request Handling</td>
+                    <td>Complete flow: validation → processing → response + error handling</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>API Versioning</td>
+                    <td>Handle breaking changes without breaking clients</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>Payload Optimization</td>
+                    <td>Reduce bandwidth: compression, pagination, selective fields</td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td>Async vs Sync</td>
+                    <td>REST, long-running jobs, WebSocket, real-time notifications</td>
+                </tr>
+                <tr>
+                    <td>7</td>
+                    <td>Error Debugging</td>
+                    <td>Detect, respond, recover, and prevent future issues</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="footer">
+            💡 API design directly impacts user experience and system scalability!
+        </div>
+    </div>
+
+    <script>
+        const roundsData = [
+            {
+                round: 1,
+                title: "API ARCHITECTURE DECISION",
+                question: "You're building a global platform. Users, servers, services need to communicate. What protocol do you choose? REST? GraphQL? gRPC? And why?",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "Use REST because it's most popular.",
+                        interviewer: "✓ REST is popular. But why is it popular? What are the alternatives? When shouldn't you use REST?"
+                    },
+                    {
+                        label: "Option B (Better)",
+                        answer: "REST for public APIs, GraphQL for internal, gRPC for services.",
+                        interviewer: "✓ Good heuristic! But what about latency, bandwidth, complexity? What percentage of real-world companies use each?"
+                    },
+                    {
+                        label: "Option C (Best)",
+                        answer: "API ARCHITECTURE COMPARISON:\n\nREST (HTTP + JSON)\n├─ Structure: GET /users/123, POST /users, PUT /users/123\n├─ Pros:\n│  ├─ Simple, standard, widely understood\n│  ├─ Cacheable (HTTP caching works)\n│  ├─ Stateless (easy to scale horizontally)\n│  ├─ Works everywhere (browsers, mobile apps)\n│  ├─ Firewall-friendly (ports 80/443)\n│  └─ Huge ecosystem (libraries, tools)\n├─ Cons:\n│  ├─ Over-fetching (get more data than needed)\n│  ├─ Under-fetching (multiple requests for related data)\n│  ├─ Versioning complexity (v1, v2, v3 endpoints)\n│  ├─ Large payloads (extra fields)\n│  └─ Latency for mobile (multiple round trips)\n└─ Best for: Public APIs, mobile apps, simple use cases\n\nGraphQL\n├─ Structure: Query language, client specifies exact fields needed\n├─ Pros:\n│  ├─ No over-fetching (request exactly what you need)\n│  ├─ No under-fetching (get related data in one query)\n│  ├─ Single endpoint (/graphql)\n│  ├─ Better for mobile (smaller payloads)\n│  ├─ No versioning (extend schema)\n│  └─ Introspection (client knows API structure)\n├─ Cons:\n│  ├─ Complex queries (N+1 problem if not optimized)\n│  ├─ Harder to cache (complex query patterns)\n│  ├─ Steep learning curve\n│  ├─ Server complexity (need query validator, executor)\n│  └─ DDoS risk (expensive queries)\n└─ Best for: Internal APIs, complex data relationships, mobile\n\ngRPC (Protocol Buffers + HTTP/2)\n├─ Structure: Binary protocol, strongly typed messages\n├─ Pros:\n│  ├─ Ultra-fast (binary, not JSON)\n│  ├─ Small payloads (binary serialization)\n│  ├─ Streaming (client↔server can stream)\n│  ├─ Strongly typed (contracts)\n│  ├─ HTTP/2 multiplexing (multiple requests on same connection)\n│  └─ 10x faster than REST\n├─ Cons:\n│  ├─ Not browser-friendly (can't call from JavaScript easily)\n│  ├─ No caching (HTTP caching doesn't apply)\n│  ├─ Difficult debugging (binary format)\n│  ├─ Smaller ecosystem\n│  └─ Firewall/proxy issues\n└─ Best for: Service-to-service communication, high-performance\n\nRECOMMENDATION BY USE CASE:\n\nStartup MVP: REST\n├─ Simple to implement\n├─ Easy to test\n├─ Standard tooling\n└─ Enough for < 1M users\n\nTwitter-scale social app: REST + GraphQL\n├─ REST for public API (backwards compatibility)\n├─ GraphQL for mobile (reduce bandwidth)\n├─ gRPC internally (service-to-service)\n\nFintech/payment: gRPC internally, REST publicly\n├─ gRPC: Speed + reliability for internal\n├─ REST: Simplicity for partners/webhooks\n\nReal-time app (chat, notifications): REST + WebSocket\n├─ REST for initial requests\n├─ WebSocket for bidirectional push"
+                    }
+                ]
+            },
+            {
+                round: 2,
+                title: "AUTHENTICATION",
+                question: "Your API needs authentication. Users must prove who they are. What method: API keys, OAuth2, JWT, or Sessions? When to use each?",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "Use JWT because it's modern.",
+                        interviewer: "✓ JWT is useful, but is it always the right choice? What about security trade-offs?"
+                    },
+                    {
+                        label: "Option B (Better)",
+                        answer: "API keys for service-to-service, JWT for mobile apps, Sessions for web apps.",
+                        interviewer: "✓ Good breakdown! But now: How do you revoke a JWT? What if user logs out?"
+                    },
+                    {
+                        label: "Option C (Best)",
+                        answer: "AUTHENTICATION METHODS:\n\nAPI KEYS (Service-to-Service)\n├─ Structure: GET /api/users?api_key=abc123\n├─ Generation: Admin creates unique key for each service\n├─ Storage: Service stores key (never rotate)\n├─ Pros:\n│  ├─ Simple (just a string in request)\n│  ├─ No session needed\n│  ├─ Easy to revoke (delete from system)\n│  └─ Good for webhooks\n├─ Cons:\n│  ├─ Key in URL/header (can be logged)\n│  ├─ No expiration (must rotate manually)\n│  ├─ Limited scope (all-or-nothing access)\n│  └─ Not suitable for users\n└─ Best for: Webhooks, service integrations, server-to-server\n\nSESSIONS (Web Apps)\n├─ Structure: Browser gets session ID, stores in cookie (HttpOnly)\n├─ Flow: Login → Server generates session → Cookie sent to browser → Browser includes cookie in every request\n├─ Validation: Server checks session ID in Redis/Memory, finds user\n├─ Pros:\n│  ├─ Stateful (server knows user is logged in)\n│  ├─ Easy to revoke (delete session)\n│  ├─ Works with cookies (browser handles)\n│  ├─ CSRF protection (same-site cookies)\n│  └─ Industry standard (30+ years)\n├─ Cons:\n│  ├─ Stateful (server must maintain sessions)\n│  ├─ Doesn't scale well (multiple servers need shared session store)\n│  ├─ Cookie limitations (cross-origin issues)\n│  └─ Memory overhead\n└─ Best for: Web applications (browsers)\n\nJWT (Mobile/Stateless)\n├─ Structure: Token = Header.Payload.Signature (JWT)\n│  ├─ Header: {type: JWT, alg: HS256}\n│  ├─ Payload: {user_id: 123, exp: 1234567890, roles: ['user']}\n│  └─ Signature: HMAC(header.payload, secret_key)\n├─ Flow: Login → Server generates JWT → Client stores in localStorage/memory → Sent in Authorization header\n├─ Validation: Server verifies signature (proves token wasn't tampered)\n├─ Pros:\n│  ├─ Stateless (server doesn't store tokens)\n│  ├─ Scales horizontally (any server can verify)\n│  ├─ Mobile-friendly (no cookies needed)\n│  ├─ Contains user info (no DB lookup needed)\n│  └─ Cross-origin (CORS-friendly)\n├─ Cons:\n│  ├─ Can't revoke instantly (until expiry)\n│  ├─ If secret leaked, all tokens compromised\n│  ├─ localStorage vulnerable (XSS attacks)\n│  ├─ Token in URL (logged in browser history)\n│  └─ Payload is readable (don't put secrets)\n└─ Best for: Mobile apps, SPAs (single-page apps), microservices\n\nOAUTH2 (Third-party Auth)\n├─ Structure: User logs in with Google/GitHub/Facebook\n├─ Flow:\n│  ├─ User clicks \"Login with Google\"\n│  ├─ Redirected to Google login\n│  ├─ User enters credentials (never give to your server)\n│  ├─ Google verifies, redirects back with authorization code\n│  ├─ Your server exchanges code for access token\n│  ├─ Your server gets user info from Google\n│  └─ Your server creates session/JWT\n├─ Pros:\n│  ├─ User doesn't share password with you\n│  ├─ Single sign-on (works across apps)\n│  ├─ Social login (better UX)\n│  ├─ Google/GitHub manage security\n│  └─ Industry standard (GDPR-compliant)\n├─ Cons:\n│  ├─ Dependency on third-party\n│  ├─ Google has outage → your auth fails\n│  ├─ Complex flow\n│  ├─ Privacy concerns (Google tracks users)\n│  └─ Cannot work offline\n└─ Best for: B2C apps, need social login, enterprise SSO\n\nRECOMMENDATION BY SCENARIO:\n\nStartup: Sessions (for web) + JWT (mobile)\n├─ Use OAuth2 if need social login\n├─ Add 2FA if dealing with sensitive data\n\nEnterprise: OAuth2 + SAML\n├─ Leverage existing directory (Active Directory)\n├─ Single sign-on across apps\n\nMicroservices: JWT or OAuth2 with token introspection\n├─ Stateless tokens\n├─ Service-to-service: mTLS or API keys\n\nPublic API: API keys (with rate limiting)\n├─ Easy for developers\n├─ Track usage per key"
+                    }
+                ]
+            },
+            {
+                round: 3,
+                title: "REQUEST HANDLING FLOW",
+                question: "User makes API request: POST /api/users {name: 'John', email: 'john@gmail.com'}. Walk me through what happens from request arrival to response. Include error handling.",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "Server receives request, validates, creates user in DB, returns response.",
+                        interviewer: "✓ Basic flow. But what about errors? What if DB fails? What if request is malformed?"
+                    },
+                    {
+                        label: "Option B (Mediocre)",
+                        answer: "Check authentication → validate input → create user → return response or error.",
+                        interviewer: "✓ Better! But where do you validate? What happens if validation fails? How do you structure responses?"
+                    },
+                    {
+                        label: "Option C (Best)",
+                        answer: "COMPLETE REQUEST HANDLING FLOW:\n\nStep 1: RECEIVE & PARSE (0ms)\n├─ Network layer receives POST request\n├─ Parse headers (Authorization, Content-Type)\n├─ Parse body (JSON)\n├─ If parsing fails → 400 Bad Request\n   ├─ Response: {error: 'Invalid JSON'}\n   └─ Stop here\n\nStep 2: AUTHENTICATE (5ms)\n├─ Extract Authorization header: 'Bearer eyJhbGc...'\n├─ Verify JWT signature (or check session)\n├─ If invalid → 401 Unauthorized\n   ├─ Response: {error: 'Invalid token'}\n   └─ Stop here\n├─ Extract user_id from token\n├─ User identified: user_123\n\nStep 3: AUTHORIZE (2ms)\n├─ Check: Can user_123 create users?\n├─ If admin endpoint → check role = 'admin'\n├─ If user creating their own profile → check user_123 == body.user_id\n├─ If unauthorized → 403 Forbidden\n   ├─ Response: {error: 'Permission denied'}\n   └─ Stop here\n\nStep 4: VALIDATE INPUT (5ms)\n├─ Check required fields: name, email\n├─ Check data types: name=string, email=string\n├─ Check constraints:\n│  ├─ name length: 1-100 characters\n│  ├─ email format: valid email regex\n│  ├─ email unique: check DB (SELECT COUNT(*))\n├─ If validation fails → 422 Unprocessable Entity\n   ├─ Response: {error: 'name too long', field: 'name'}\n   └─ Stop here\n├─ All validated ✓\n\nStep 5: BUSINESS LOGIC (10ms)\n├─ Hash password (if present)\n├─ Generate user_id (UUID)\n├─ Prepare object: {id, name, email, created_at}\n├─ Add audit fields: created_by, ip_address\n\nStep 6: DATABASE WRITE (50ms)\n├─ BEGIN TRANSACTION\n├─ INSERT INTO users (id, name, email, created_at)\n├─ If error: Duplicate email\n│  ├─ ROLLBACK\n│  └─ Return 409 Conflict: {error: 'Email already exists'}\n├─ If error: DB connection lost\n│  ├─ ROLLBACK\n│  └─ Return 503 Service Unavailable: {error: 'Database down'}\n├─ If error: Disk full\n│  ├─ ROLLBACK\n│  └─ Return 507 Insufficient Storage\n├─ Success: COMMIT\n\nStep 7: POST-PROCESSING (5ms)\n├─ Fetch user from DB (to confirm write)\n├─ Log event: {action: 'user_created', user_id: new_id}\n├─ Send welcome email (async, don't wait)\n├─ Invalidate cache (if caching user list)\n\nStep 8: RESPONSE (2ms)\n├─ Status: 201 Created\n├─ Headers: Content-Type: application/json\n├─ Body: {\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"name\": \"John\",\n  \"email\": \"john@gmail.com\",\n  \"created_at\": \"2024-01-15T10:30:00Z\"\n}\n├─ Send to client\n\nTOTAL TIME: ~80ms\n\nERROR SCENARIOS:\n\nScenario 1: Malformed JSON\n├─ Step 1 fails\n├─ Response: 400 Bad Request\n├─ Body: {error: 'Invalid JSON: Unexpected token'}\n\nScenario 2: Invalid JWT\n├─ Step 2 fails\n├─ Response: 401 Unauthorized\n├─ Body: {error: 'Invalid token', code: 'TOKEN_EXPIRED'}\n├─ Client: Refresh token or re-login\n\nScenario 3: User lacks permission\n├─ Step 3 fails\n├─ Response: 403 Forbidden\n├─ Body: {error: 'Permission denied', reason: 'admin_only'}\n\nScenario 4: Email invalid format\n├─ Step 4 fails\n├─ Response: 422 Unprocessable Entity\n├─ Body: {errors: [{field: 'email', message: 'Invalid format'}]}\n\nScenario 5: Email already exists\n├─ Step 6 fails (DB constraint)\n├─ Response: 409 Conflict\n├─ Body: {error: 'Email already registered', existing_user_id: '456'}\n\nScenario 6: Database down\n├─ Step 6 fails (timeout)\n├─ Response: 503 Service Unavailable\n├─ Body: {error: 'Service temporarily unavailable'}\n├─ Retry: Yes (with exponential backoff)\n\nBEST PRACTICES:\n\n1. Fail Fast\n   ├─ Validate early (step 4)\n   ├─ Don't do work (DB writes) if will fail\n   └─ Return error immediately\n\n2. Consistent Error Format\n   ├─ All errors: {error: string, code: string, details?: object}\n   ├─ Never expose internal errors\n   ├─ Log internally, return generic message\n\n3. Idempotency\n   ├─ Same request twice = same result\n   ├─ Add Idempotency-Key header\n   ├─ Store request ID in DB\n   ├─ If request ID exists, return cached response\n\n4. Retry Logic (Client-side)\n   ├─ 500-level errors: Retry with backoff\n   ├─ 400-level errors: Don't retry (permanent)\n   ├─ 429 Too Many Requests: Retry after delay\n   └─ Max retries: 3"
+                    }
+                ]
+            },
+            {
+                round: 4,
+                title: "API VERSIONING",
+                question: "Your API v1 has field 'user_name'. v2 needs to change it to 'first_name' and 'last_name'. How do you release v2 without breaking v1 clients?",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "Just release v2, deprecate v1.",
+                        interviewer: "But users still using v1 will get errors. That breaks their apps."
+                    },
+                    {
+                        label: "Option B (Better)",
+                        answer: "Maintain both /v1/users and /v2/users endpoints. v1 returns old format, v2 returns new.",
+                        interviewer: "✓ Works but now you maintain duplicate code. Better way to handle this?"
+                    },
+                    {
+                        label: "Option C (Best)",
+                        answer: "API VERSIONING STRATEGIES:\n\nStrategy 1: URL PATH VERSIONING (Most common)\n├─ GET /v1/users/123 → Returns: {user_name: 'John'}\n├─ GET /v2/users/123 → Returns: {first_name: 'John', last_name: 'Doe'}\n├─ Pros:\n│  ├─ Clear version in URL\n│  ├─ Different servers can handle different versions\n│  ├─ Caching works (different URLs)\n│  └─ Easy for developers\n├─ Cons:\n│  ├─ Code duplication (maintain 2 code paths)\n│  ├─ URL explosion (if many versions)\n│  └─ Deployment complexity\n└─ Good for: Major breaking changes\n\nStrategy 2: HEADER VERSIONING\n├─ GET /users/123 with header: Accept: application/vnd.api+json;version=2\n├─ Server checks header, returns appropriate format\n├─ Pros:\n│  ├─ Clean URLs\n│  ├─ Single endpoint\n│  └─ Semantically correct\n├─ Cons:\n│  ├─ Developers often forget header\n│  ├─ Hard to test (can't just click URL in browser)\n│  ├─ Caching harder (same URL, different headers)\n│  └─ Hard to know which version is used\n└─ Good for: Minor versions (format changes)\n\nStrategy 3: QUERY PARAMETER VERSIONING\n├─ GET /users/123?version=2\n├─ GET /users/123?api_version=v2\n├─ Pros:\n│  ├─ Easy to test (click URL)\n│  ├─ Simple implementation\n│  └─ Works with caching (different URLs)\n├─ Cons:\n│  ├─ Ugly URLs\n│  ├─ Inconsistent (developers forget)\n│  └─ Not RESTful\n└─ Good for: Legacy systems\n\nStrategy 4: NO VERSIONING (Breaking changes)\n├─ All clients always get latest schema\n├─ Add fields but don't remove (backward compatible)\n├─ Pros:\n│  ├─ Simple (no version management)\n│  ├─ Single code path\n│  └─ Always latest\n├─ Cons:\n│  ├─ Must never remove fields\n│  ├─ Schema gets cluttered\n│  ├─ Client must ignore unknown fields\n│  └─ Limits innovation\n└─ Good for: Private APIs, homogeneous clients\n\nRECOMMENDED APPROACH (No Versioning initially):\n\nPhase 1: Design for Evolution\n├─ v1 API: GET /users/123\n├─ Response: {\n  \"id\": \"123\",\n  \"user_name\": \"john\",  ← Original field\n  \"created_at\": \"2024-01-01\"\n}\n\nPhase 2: Plan for Change\n├─ Realize: Need first_name, last_name (separate)\n├─ Solution: Add new fields WITHOUT removing old\n├─ Response: {\n  \"id\": \"123\",\n  \"user_name\": \"john\",   ← Keep for backward compat\n  \"first_name\": \"John\",  ← New\n  \"last_name\": \"Doe\",    ← New\n  \"created_at\": \"2024-01-01\"\n}\n\nPhase 3: Deprecation Period\n├─ In response headers: Deprecation: true\n├─ In response headers: Sunset: Wed, 21 Nov 2024 08:00:00 GMT\n├─ In docs: Deprecation notice \"user_name deprecated, use first_name + last_name\"\n├─ Support old field for 6+ months\n├─ Log warnings when old field used\n\nPhase 4: Client Migration\n├─ Your clients update code: use first_name, last_name\n├─ Gradually migrate over 6-12 months\n├─ Monitor analytics: % requests using old field\n├─ When <5% usage, consider removal\n\nPhase 5: Cleanup\n├─ In v2 (6 months later): Remove user_name\n├─ v2 only returns: {id, first_name, last_name, created_at}\n├─ Old clients must upgrade or get 400 error\n└─ Or use URL versioning: /v2/users uses old response, /v1/users removed\n\nIF VERSIONING NEEDED:\n\nWhen to use /v1, /v2, etc:\n├─ Removing fields (breaking)\n├─ Changing field types (string → number)\n├─ Changing response structure\n├─ Changing error codes\n└─ Don't version for: Adding fields, adding endpoints\n\nVersion Lifecycle:\n├─ Release v2\n├─ Support v1 for 12-18 months\n└─ Deprecate: Send 410 Gone for unsupported versions\n\nResponse across versions:\n├─ v1: GET /v1/users/123\n├─ v2: GET /v2/users/123 (same ID, different response)\n\nBEST PRACTICES:\n\n1. Additive Only (No Versioning)\n   ├─ Add fields (old clients ignore)\n   ├─ Add endpoints\n   ├─ Never remove fields\n   └─ Cleanest approach\n\n2. If Breaking Change Needed\n   ├─ Use /v2 path versioning\n   ├─ Support v1 for 18 months\n   ├─ Don't version for minor changes\n   └─ Minimize versions (goal: v1 only)\n\n3. Deprecation Process\n   ├─ Announce 6 months ahead\n   ├─ Add Deprecation header\n   ├─ Log usage (who still using old?)\n   ├─ Support period: 12-18 months\n   └─ Finally: Remove or return 410 Gone"
+                    }
+                ]
+            },
+            {
+                round: 5,
+                title: "PAYLOAD OPTIMIZATION",
+                question: "Your API serves user profiles. Response is 100KB. You have 10M users, 1M requests/day. Bandwidth = $50K/month. Business says: cut cost by 90%. How?",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "Compress the response with gzip.",
+                        interviewer: "✓ Helps, but gzip typical gives 60% reduction. That's ~$20K savings. Need more."
+                    },
+                    {
+                        label: "Option B (Mediocre)",
+                        answer: "Gzip + pagination + caching.",
+                        interviewer: "✓ Better. But what if responses are still large? What specific fields can you remove?"
+                    },
+                    {
+                        label: "Option C (Best)",
+                        answer: "PAYLOAD OPTIMIZATION TECHNIQUES:\n\nTechnique 1: GZIP COMPRESSION (50-80% reduction)\n├─ Before: 100KB user profile\n├─ After gzip: 20-30KB\n├─ Cost: $50K → $15-20K\n├─ Server overhead: 5-10% CPU\n├─ Implementation: Enable gzip in nginx/Apache\n├─ Free and immediate\n\nTechnique 2: PAGINATION (80-90% reduction per request)\n├─ Instead of: GET /users returns all 10M user profiles\n├─ Use: GET /users?limit=20&offset=0\n│         ├─ Returns: Only 20 users at a time\n│         ├─ Total size: 200KB (vs 1TB for all!)\n│         └─ Cost: $0.001 per API call\n├─ Benefit: 99% reduction on list endpoints\n├─ Client: Must handle pagination loop\n├─ Cursor-based: More efficient than offset\n\nTechnique 3: FIELD SELECTION (Sparse fieldsets)\n├─ Instead of: GET /users/123\n├─          Returns: {id, name, email, bio, avatar, posts, followers, following, preferences, ...} = 100KB\n├─ Use: GET /users/123?fields=id,name,email\n├─          Returns: {id, name, email} = 1KB\n├─ Reduction: 99%!\n├─ Implementation: Parse ?fields param, filter response\n├─ Standard: JSON:API and GraphQL do this\n\nTechnique 4: LAZY LOADING\n├─ Instead of: User profile includes all data\n├─ Use: User profile is basic, other data loads on demand\n├─ Structure:\n│  ├─ GET /users/123 → {id, name, email, avatar_url}\n│  ├─ GET /users/123/posts → [list of posts]\n│  ├─ GET /users/123/followers → [list of followers]\n│  └─ Client loads on-demand (when user clicks)\n├─ Benefit: Initial response 5KB instead of 100KB\n├─ Trade-off: More API calls, but smaller payloads\n\nTechnique 5: IMAGE OPTIMIZATION (60-80% reduction)\n├─ Problem: User avatars 50KB each (PNG, high quality)\n├─ Solution 1: Use WebP format (50% smaller)\n├─ Solution 2: Resize images (thumbnail vs full)\n│  ├─ Thumbnail: 10KB\n│  ├─ Full: 50KB\n│  └─ Serve thumbnail, let client request full\n├─ Solution 3: CDN with image optimization\n│  └─ CloudFront, Cloudinary auto-compress\n├─ Combined: 20% of original size\n\nTechnique 6: CACHING (0% bandwidth for cached requests)\n├─ Client-side: Cache user profiles (localStorage)\n├─ Server-side: Cache in Redis\n├─ CDN-level: Cache public profiles\n├─ Result: 90% of requests hit cache\n│  ├─ 90% of requests → 0KB bandwidth\n│  ├─ 10% of requests → 20KB (fresh)\n│  └─ Average: 2KB per request\n├─ Cost: $50K × 10% = $5K\n\nTechnique 7: REMOVE UNNECESSARY FIELDS\n├─ Audit: What fields are actually used?\n├─ Example:\n│  ├─ avatar_small (2KB) - used\n│  ├─ avatar_medium (5KB) - not used (use small + CSS scale)\n│  ├─ avatar_large (10KB) - not used\n│  ├─ bio (2KB) - not used in list view\n│  ├─ preferences (3KB) - not used in list\n│  ├─ audit_trail (5KB) - never used\n│  └─ Remove unused: Save 25KB per user\n\nCOMBINED APPROACH (Recommended):\n\nEstimated savings:\n├─ Gzip: 100KB → 25KB (75% reduction)\n├─ Field selection: 25KB → 5KB per request (80% reduction)\n├─ Caching: 90% hit rate (90% reduction)\n├─ Images via CDN: 60% reduction\n├─ Remove unused fields: 30% reduction\n\nFinal calculation:\n├─ Start: 100KB per request\n├─ Gzip: 100KB × 0.25 = 25KB\n├─ Field selection: 25KB × 0.2 = 5KB\n├─ Caching: 5KB × 0.1 (10% cache miss) = 0.5KB average\n├─ Total: 0.5KB per request (99.5% reduction!)\n├─ Cost: $50K × 0.005 = $250/month\n\nIMPLEMENTATION PLAN:\n\nPhase 1 (Week 1): Gzip\n├─ Enable gzip in nginx: compression on; compression_types ...\n├─ Cost savings: $35K → $15K\n├─ Effort: 1 hour\n\nPhase 2 (Week 2-3): Field selection\n├─ Parse ?fields=id,name,email\n├─ Filter JSON response\n├─ Cost savings: $15K → $5K\n├─ Effort: 1 day\n\nPhase 3 (Week 3-4): Caching\n├─ Add ETag headers\n├─ Client caches responses\n├─ Server invalidates on update\n├─ Cost savings: $5K → $500/month\n├─ Effort: 2 days\n\nPhase 4 (Month 2): CDN images\n├─ Migrate images to CloudFront\n├─ Auto-compression\n├─ Effort: 1 week\n\nFINAL COST: $250-500/month (90%+ reduction!) vs $50K"
+                    }
+                ]
+            },
+            {
+                round: 6,
+                title: "ASYNC VS SYNCHRONOUS",
+                question: "User uploads a CSV with 100K records to import. This takes 5 minutes to process. Do you block the request (synchronous) or return immediately (asynchronous)? Trade-offs?",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "Block the request until done. Wait for response.",
+                        interviewer: "Works if client patient. But what if network cuts? User sees spinning wheel for 5 min. What if process fails halfway?"
+                    },
+                    {
+                        label: "Option B (Better)",
+                        answer: "Return immediately with job ID. Client polls for status.",
+                        interviewer: "✓ Smart! But now polling is inefficient. Client polls every second = lots of requests."
+                    },
+                    {
+                        label: "Option C (Best)",
+                        answer: "ASYNC PROCESSING PATTERNS:\n\nPattern 1: SYNCHRONOUS (Blocking)\n├─ Client: POST /import {file: ...}\n├─ Server: Process CSV (5 minutes)\n├─ Server: Return response\n├─ Client: Finally gets response\n├─ Pros:\n│  ├─ Simple (client doesn't need to poll)\n│  └─ Guaranteed complete\n├─ Cons:\n│  ├─ Network timeout (30s limit typically)\n│  ├─ User sees spinning wheel\n│  ├─ Wastes server resources (thread blocked 5min)\n│  ├─ If process fails, unclear progress\n│  └─ Can't scale (one thread per client)\n└─ Best for: Fast operations (< 5 seconds)\n\nPattern 2: ASYNC + POLLING\n├─ Client: POST /import {file: ...}\n├─ Server: Queues job, returns immediately\n│  └─ Response: {job_id: \"abc123\", status: \"queued\"}\n├─ Client: Poll status\n│  ├─ GET /import/abc123/status every 2 seconds\n│  ├─ Response: {status: \"processing\", progress: 25%}\n│  └─ Repeat until status = \"completed\"\n├─ Pros:\n│  ├─ Non-blocking (client doesn't wait)\n│  ├─ Client can do other things\n│  ├─ Server can scale (queue-based)\n│  └─ Progress visibility\n├─ Cons:\n│  ├─ Polling is inefficient (many unnecessary requests)\n│  ├─ Latency (2-5s delay before client knows status)\n│  ├─ Client logic complex (handle polling)\n│  └─ Wasted bandwidth (polling even when no change)\n└─ Best for: Medium operations (30s - 10 min)\n\nPattern 3: ASYNC + WEBHOOKS\n├─ Client: POST /import {file: ..., webhook_url: \"https://client.com/callback\"}\n├─ Server: Queues job, returns immediately\n│  └─ Response: {job_id: \"abc123\", status: \"queued\"}\n├─ Server: Processes async\n│  ├─ Makes progress updates\n│  └─ When done, POST to webhook_url\n├─ Client: Receives webhook when done\n│  └─ Server → POST https://client.com/callback {job_id, status, result}\n├─ Pros:\n│  ├─ No polling (client doesn't waste bandwidth)\n│  ├─ Real-time (instant notification when done)\n│  ├─ Scalable (queue-based)\n│  ├─ Client updates UI immediately\n│  └─ No client logic for polling\n├─ Cons:\n│  ├─ Client needs webhook endpoint (must be public URL)\n│  ├─ Webhook might fail (retry logic needed)\n│  ├─ Security (verify webhook is from server)\n│  └─ Debugging harder (async flow)\n└─ Best for: Long operations (> 10 min)\n\nPattern 4: ASYNC + SERVER-SENT EVENTS (SSE)\n├─ Client: POST /import {file: ...}\n│  AND: Opens EventSource(\"https://server.com/import/events\")\n├─ Server: Queues job, returns job_id\n│  └─ Keeps HTTP connection open\n├─ Server: Streams progress events\n│  ├─ event: progress, data: {progress: 10%}\n│  ├─ event: progress, data: {progress: 20%}\n│  ├─ ...\n│  ├─ event: completed, data: {result: {...}}\n│  └─ Closes connection\n├─ Client: Receives events, updates UI in real-time\n├─ Pros:\n│  ├─ Real-time (no polling)\n│  ├─ One connection (not repeated requests)\n│  ├─ Client sees progress bar update\n│  ├─ Simple integration (native browser support)\n│  └─ Built on HTTP\n├─ Cons:\n│  ├─ Connection stays open (server resources)\n│  ├─ Proxies/firewalls might close connection\n│  ├─ Doesn't work on older browsers\n│  ├─ One-way (server → client only)\n│  └─ Not suitable for many concurrent clients\n└─ Best for: Real-time progress, long operations\n\nPattern 5: ASYNC + WEBSOCKET\n├─ Client: Connects WebSocket\n│  ├─ socket.emit('import', {file: ...})\n├─ Server: Processes, sends updates\n│  ├─ socket.emit('progress', {progress: 25%})\n│  ├─ socket.emit('progress', {progress: 50%})\n│  └─ socket.emit('completed', {result: ...])\n├─ Client: Receives real-time updates\n│  └─ Updates UI for each progress event\n├─ Pros:\n│  ├─ Bidirectional (client ↔ server)\n│  ├─ Real-time (instant updates)\n│  ├─ Low latency (persistent connection)\n│  ├─ Great for real-time apps\n│  └─ Can send multiple updates\n├─ Cons:\n│  ├─ Server connection overhead (can't scale very high)\n│  ├─ More complex (need WebSocket server)\n│  ├─ Debugging harder\n│  └─ Firewall issues (port 80 only in some networks)\n└─ Best for: Real-time interactive (chat, collaborative, gaming)\n\nRECOMMENDATION FOR CSV IMPORT (5 min operation):\n\nSmall startup (< 1000 concurrent users):\n├─ Use: Async + Webhooks\n├─ Client has callback endpoint\n├─ Server notifies when done\n├─ Simple and effective\n\nMedium scale (1000-10K concurrent):\n├─ Use: Async + Polling with backoff\n├─ Poll every 5-10 seconds (not every 1 second)\n├─ Show progress bar\n├─ Handle connection drops gracefully\n\nLarge scale (10K+ concurrent):\n├─ Use: Async + SSE or WebSocket\n├─ Real-time progress for user\n├─ Server sends updates (no polling waste)\n├─ Better user experience\n\nFINAL ARCHITECTURE:\n\nFlow:\n┌─────────────────┐\n│  User uploads   │\n│  CSV (100KB)    │\n└────────┬────────┘\n         ↓\nPOST /api/import\n  └─ Returns: {job_id: \"xyz\", status: \"queued\"}\n  └─ Immediately (< 100ms)\n         ↓\nServer queues long-running task\n  └─ Add to Redis queue\n  └─ Worker picks up job\n         ↓\nWorker processes CSV async\n  ├─ Parse file\n  ├─ Validate records\n  ├─ Insert into DB batch\n  └─ Send webhook when done\n         ↓\nClient receives webhook\n  ├─ Updates UI: \"Import complete!\"\n  └─ Shows result summary\n\nAlternative (Real-time with WebSocket):\nClient → WebSocket → Server Process\n         ↓\n       Job Queue → Worker\n         ↓\n      Progress updates → SSE → Client UI update"
+                    }
+                ]
+            },
+            {
+                round: 7,
+                title: "ERROR DEBUGGING & RECOVERY",
+                question: "It's 3 AM. Users report: \"API returning 500 errors\". 2% of requests failing. You have 1 hour to debug and fix. Walk me through your process.",
+                options: [
+                    {
+                        label: "Option A (Weak)",
+                        answer: "Restart the servers.",
+                        interviewer: "Might work, but why are errors happening? Restarting doesn't fix root cause. Same error might happen again."
+                    },
+                    {
+                        label: "Option B (Mediocre)",
+                        answer: "Check application logs, see what error messages say.",
+                        interviewer: "✓ Right approach. But logs might be huge. How do you quickly find the relevant error among 1GB of logs?"
+                    },
+                    {
+                        label: "Option C (Best)",
+                        answer: "DEBUGGING 500 ERRORS (1-hour SOP):\n\nMinute 0-5: IMMEDIATE TRIAGE\n\nStep 1: Is it really a 500 error?\n├─ Is API up? (ping server)\n├─ Response time normal? (should be <500ms)\n├─ Error rate: 2% (localized or global?)\n├─ Affected endpoints: All or specific ones?\n├─ Affected regions: All or specific regions?\n└─ User segment: All users or specific group?\n\nStep 2: Notify stakeholders\n├─ Page on-call engineer (#2)\n├─ Post to incident channel\n├─ Set expected fix time: 1 hour\n├─ Keep team updated\n\nMinute 5-10: SYMPTOM ANALYSIS\n\nStep 1: Centrallog aggregation (DataDog, ELK, CloudWatch)\n├─ Filter: status = 500\n├─ Group by: endpoint, error type\n├─ Search: Error message\n├─ Timeline: When did errors start?\n\nStep 2: Common patterns\n├─ All same endpoint? → That endpoint has bug\n├─ All same user? → That user has malformed request\n├─ All same service? → That service crashed\n├─ Random? → Underlying infrastructure issue\n\nStep 3: Identify first error\n├─ Find oldest 500 error (when did it start?)\n├─ Time: 02:47 AM\n├─ 5 minutes before when users complained (02:52 AM)\n├─ Something happened at 02:47\n\nStep 4: What changed at 02:47?\n├─ Deployment? (git log --since=\"2024-01-15 02:40\")\n├─ Database migration?\n├─ Config change?\n├─ Traffic spike?\n├─ Service dependency restart?\n└─ If no obvious change → infrastructure issue\n\nMinute 10-20: ROOT CAUSE DIAGNOSIS\n\nCase 1: If recent deployment\n├─ New code probably has bug\n├─ Rollback immediately\n│  └─ git revert <commit>\n│  └─ Deploy\n├─ Check: Error rate drops to 0.1% (normal)\n├─ ✓ Incident resolved (15 min)\n\nCase 2: If database issue\n├─ Check: DB connection errors in logs\n├─ Check: DB CPU/memory/disk\n├─ Check: Slow queries\n├─ Check: Lock timeouts\n├─ Check: Connection pool exhausted\n├─ Solution:\n│  ├─ Option A: Restart DB (if crashed)\n│  ├─ Option B: Kill slow queries\n│  ├─ Option C: Scale DB (add read replicas)\n│  └─ Option D: Reduce client connections\n├─ Check: Error rate drops\n├─ ✓ Incident resolved (20-30 min)\n\nCase 3: If rate limiting/quota issue\n├─ Check: 429 vs 500 errors\n├─ Check: Rate limit headers\n├─ Check: Traffic spike?\n├─ Solution:\n│  ├─ Option A: Increase rate limit\n│  ├─ Option B: Scale servers\n│  ├─ Option C: Enable caching\n│  └─ Option D: Circuit breaker (fail gracefully)\n├─ Check: Error rate stabilizes\n├─ ✓ Incident resolved (20-40 min)\n\nCase 4: Dependency outage\n├─ Check: Third-party service status\n│  ├─ Payment API down?\n│  ├─ Email service down?\n│  ├─ SMS service down?\n│  └─ External API down?\n├─ Check: Requests to dependency in logs\n├─ Check: Timeout errors\n├─ Solution: Implement circuit breaker\n│  ├─ If external service down → return cached response\n│  ├─ Or fail gracefully (partial functionality)\n│  └─ When service recovers, try again\n├─ Check: Error rate for that endpoint drops\n├─ ✓ Incident resolved (15-30 min)\n\nCase 5: Unknown error\n├─ Check: Stack trace\n├─ Check: Exception type\n├─ Check: Which service? (if microservices)\n├─ Review recent code changes\n├─ Test locally with same request\n├─ Enable verbose logging\n├─ Redeploy with debug logging\n├─ Monitor error logs\n└─ Identify pattern\n\nMinute 20-50: FIX & VERIFICATION\n\nIf deployment-related:\n┌─ Roll back commit\n│ └─ git revert <commit_hash>\n│ └─ Push to main\n│ └─ Deploy\n│ └─ Monitor error rate (should drop to near 0)\n\nIf database-related:\n┌─ Restart database\n│ OR\n│ Kill slow queries: KILL <query_process_id>\n│ OR\n│ Scale: Add replicas / increase instance size\n\nIf traffic spike:\n┌─ Check if expected (promotion, viral post?)\n│ └─ If yes: Auto-scale servers, maybe done already\n│ └─ If no: Investigate why spike\n\nMinute 50-60: VERIFICATION & POST-INCIDENT\n\nStep 1: Verify fix\n├─ Error rate now < 0.1% (baseline)\n├─ Response time: Normal\n├─ No errors in logs (or only expected errors)\n├─ Spot check: Make a few API calls, all succeed\n\nStep 2: Communicate to stakeholders\n├─ \"Incident resolved at 03:45 AM\"\n├─ \"Root cause: Deployment introduced bug in payment processing\"\n├─ \"Fix: Rolled back to previous version\"\n├─ \"No data loss or corruption\"\n├─ \"Duration: 58 minutes\"\n\nStep 3: Post-mortem (tomorrow)\n├─ Why did bug get to production?\n├─ What's missing: Tests? Code review? Staging?\n├─ How do we prevent?\n├─ Action items: Add test, improve CI/CD\n\nBEST PRACTICES:\n\n1. Monitoring (catch before users do)\n   ├─ Alert if error rate > 1%\n   ├─ Alert if response time > 1s\n   ├─ Alert if 500 errors spike\n   └─ Automated alerts page on-call\n\n2. Structured Logging\n   ├─ Log: request_id, user_id, endpoint, error_type, stack_trace\n   ├─ Make logs searchable\n   ├─ Correlate requests across services\n\n3. Graceful Degradation\n   ├─ Don't always return 500\n   ├─ Return 503 (temporary)\n   ├─ Return cached response\n   ├─ Return partial data\n\n4. Circuit Breaker\n   ├─ If dependency fails, fail fast\n   ├─ Don't keep retrying\n   ├─ return degraded response\n\n5. Runbook\n   ├─ Document common issues\n   ├─ Steps to debug\n   ├─ Steps to recover\n   └─ Who to escalate to"
+                    }
+                ]
+            }
+        ];
+
+        function renderRounds() {
+            const container = document.getElementById('roundsContainer');
+            container.innerHTML = '';
+
+            roundsData.forEach((round) => {
+                const section = document.createElement('div');
+                section.className = 'round-section';
+
+                const roundLabel = document.createElement('div');
+                roundLabel.className = 'round-label';
+                roundLabel.textContent = `ROUND ${round.round}: ${round.title}`;
+                section.appendChild(roundLabel);
+
+                const header = document.createElement('div');
+                header.className = 'question-header collapsed';
+                header.onclick = function() { toggleRound(this); };
+                header.innerHTML = `
+                    <span>❓ ${round.question}</span>
+                    <span class="chevron">▼</span>
+                `;
+                section.appendChild(header);
+
+                const content = document.createElement('div');
+                content.className = 'content collapsed';
+
+                round.options.forEach((option) => {
+                    const answerDiv = document.createElement('div');
+                    answerDiv.className = 'answer-block';
+
+                    const optHeader = document.createElement('div');
+                    optHeader.className = 'option-header collapsed';
+                    optHeader.onclick = function() { toggleOption(this); };
+                    optHeader.innerHTML = `
+                        <span>${option.label}</span>
+                        <span class="chevron">▼</span>
+                    `;
+
+                    const optContent = document.createElement('div');
+                    optContent.className = 'option-content';
+                    optContent.innerHTML = option.answer +
+                        (option.interviewer ? `<div class="interviewer-note">💬 Interviewer: ${option.interviewer}</div>` : '');
+
+                    answerDiv.appendChild(optHeader);
+                    answerDiv.appendChild(optContent);
+                    content.appendChild(answerDiv);
+                });
+
+                section.appendChild(content);
+                container.appendChild(section);
+            });
+        }
+
+        function toggleRound(header) {
+            header.classList.toggle('collapsed');
+            const content = header.nextElementSibling;
+            content.classList.toggle('collapsed');
+        }
+
+        function toggleOption(header) {
+            header.classList.toggle('collapsed');
+            const content = header.nextElementSibling;
+            content.classList.toggle('show');
+        }
+
+        function expandAll() {
+            document.querySelectorAll('.question-header').forEach(h => h.classList.remove('collapsed'));
+            document.querySelectorAll('.content').forEach(c => c.classList.remove('collapsed'));
+            document.querySelectorAll('.option-header').forEach(h => h.classList.remove('collapsed'));
+            document.querySelectorAll('.option-content').forEach(c => c.classList.add('show'));
+        }
+
+        function collapseAll() {
+            document.querySelectorAll('.question-header').forEach(h => h.classList.add('collapsed'));
+            document.querySelectorAll('.content').forEach(c => c.classList.add('collapsed'));
+            document.querySelectorAll('.option-header').forEach(h => h.classList.add('collapsed'));
+            document.querySelectorAll('.option-content').forEach(c => c.classList.remove('show'));
+        }
+
+        renderRounds();
+    </script>
+
+</body>
+</html>
+
