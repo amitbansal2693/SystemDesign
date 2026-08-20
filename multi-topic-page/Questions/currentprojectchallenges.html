@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Current Project Challenges - System Design Interview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #e0e0e0;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #1a1a2e;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid #2563eb;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #2563eb;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(37, 99, 235, 0.3);
+        }
+
+        .header p {
+            color: #a0a0a0;
+            font-size: 1.1em;
+        }
+
+        .question-section {
+            margin-bottom: 25px;
+            border: 1px solid #2563eb;
+            border-radius: 8px;
+            background: #16213e;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .question-section:hover {
+            box-shadow: 0 5px 20px rgba(37, 99, 235, 0.2);
+        }
+
+        .question-header {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white;
+            padding: 18px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 1.1em;
+            user-select: none;
+            transition: all 0.3s ease;
+        }
+
+        .question-header:hover {
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+            padding-left: 22px;
+        }
+
+        .question-header .chevron {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+            font-size: 0.8em;
+        }
+
+        .question-section.collapsed .question-header .chevron {
+            transform: rotate(-90deg);
+        }
+
+        .question-content {
+            max-height: 10000px;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .question-section.collapsed .question-content {
+            max-height: 0;
+        }
+
+        .opening-statement {
+            padding: 20px;
+            background: #0f3460;
+            border-bottom: 1px solid #2563eb;
+            color: #90caf9;
+            font-style: italic;
+            border-left: 4px solid #2563eb;
+            margin: 0;
+        }
+
+        .subsection {
+            margin: 0;
+            border-top: 1px solid #2563eb;
+        }
+
+        .subsection-header {
+            background: #1e293b;
+            color: #90caf9;
+            padding: 14px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            user-select: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid #2563eb;
+        }
+
+        .subsection-header:hover {
+            background: #253549;
+            padding-left: 24px;
+        }
+
+        .subsection-header .chevron {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+            font-size: 0.75em;
+        }
+
+        .subsection.collapsed .subsection-header .chevron {
+            transform: rotate(-90deg);
+        }
+
+        .subsection-content {
+            max-height: 5000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            padding: 20px;
+            background: #0f1419;
+            color: #d0d0d0;
+        }
+
+        .subsection.collapsed .subsection-content {
+            max-height: 0;
+            padding: 0 20px;
+        }
+
+        .subsection-content p {
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+
+        .subsection-content strong {
+            color: #2563eb;
+        }
+
+        .subsection-content em {
+            color: #90caf9;
+            font-style: italic;
+        }
+
+        .subsection-content pre {
+            background: #1a1a2e;
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 12px 0;
+            border-left: 3px solid #2563eb;
+            color: #90caf9;
+            font-size: 0.95em;
+        }
+
+        .subsection-content ul, .subsection-content ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .subsection-content li {
+            margin-bottom: 8px;
+            color: #d0d0d0;
+        }
+
+        .subsection-content li strong {
+            color: #2563eb;
+        }
+
+        .tip {
+            background: #1e3a5f;
+            border-left: 4px solid #2563eb;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+            color: #90caf9;
+        }
+
+        .title-badge {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-left: 10px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .question-header {
+                font-size: 1em;
+            }
+
+            .subsection-header {
+                font-size: 0.95em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💼 Current Project Challenges</h1>
+            <p>Real-world system design problems and solutions</p>
+        </div>
+
+        <!-- Q.1 -->
+        <div class="question-section collapsed">
+            <div class="question-header">
+                <span>Q.1: What was the problem as Samsung's business grew?</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="question-content">
+                <div class="opening-statement">
+                    "As Samsung expanded its product portfolio beyond traditional consumer electronics into products such as wearables, home appliances, accessories and other connected products, the traffic and size of the e-commerce platform increased significantly across multiple countries."
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Challenges Created by Growth</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>As Samsung expanded globally, several challenges emerged:</p>
+                        <ul>
+                            <li><strong>Increasing traffic and concurrent users</strong></li>
+                            <li><strong>Increasing product catalog size</strong></li>
+                            <li><strong>Increasing search volume</strong></li>
+                            <li><strong>Larger Solr indexes</strong></li>
+                            <li><strong>Longer indexing times</strong></li>
+                            <li><strong>Higher database load</strong></li>
+                            <li><strong>Increasing response latency</strong></li>
+                            <li><strong>More frequent batch/cron processing</strong></li>
+                            <li><strong>Difficulty maintaining consistent performance during peak traffic</strong></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Why Scaling Was Difficult</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>The existing architecture was becoming difficult to scale:</p>
+                        <p><em>"We were reaching the limits of scaling a single application/search/database setup."</em></p>
+                        <div class="tip">
+                            <strong>Architect's Observation:</strong> The important point was that adding CPU or memory to a single node was no longer sufficient. We needed horizontal scalability and better distribution of workload.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Q.2 -->
+        <div class="question-section collapsed">
+            <div class="question-header">
+                <span>Q.2: How did you solve the scalability problem?</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="question-content">
+                <div class="opening-statement">
+                    Presented as five architectural decisions for horizontal scaling and workload distribution.
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Solution 1: Multi-Region / Multi-Cluster Architecture</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>Introduce multiple clusters across regions so that traffic could be distributed geographically instead of sending all requests to a single cluster.</p>
+                        <pre>Customer → Global Routing → Regional Cluster → Application Nodes → Solr</pre>
+                        <p><strong>This helped with:</strong></p>
+                        <ul>
+                            <li>Geographic latency reduction</li>
+                            <li>Improved availability</li>
+                            <li>Traffic distribution</li>
+                            <li>Regional scalability</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Solution 2: Full Product Catalog Per Cluster</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>Each regional cluster maintained the product catalog required for that market, so search requests could be served locally.</p>
+                        <div class="tip">
+                            Each cluster maintained the complete catalog required for the markets it served, allowing local query serving without depending on another region for every search.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Solution 3: Replication / Synchronization</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>Because each cluster was independently deployed, product data, configuration and indexing activities had to remain synchronized across clusters.</p>
+                        <pre>Product Update → Source System
+    → Cluster A
+    → Cluster B
+    → Cluster C</pre>
+                        <p>We replicated the required indexing and data-processing processes across clusters so each could independently build and maintain its search index.</p>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Solution 4: Routing</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>Introduced routing so that customers were directed to the appropriate regional cluster based on factors such as geography, domain or market.</p>
+                        <pre>Customer → DNS/Global Routing → Region → Cluster → Application</pre>
+                        <p>This reduced unnecessary cross-region traffic.</p>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Solution 5: Search Optimization</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>Optimized the search layer by distributing the search workload and reducing the size of individual indexes where possible.</p>
+                        <p><strong>This resulted in:</strong></p>
+                        <ul>
+                            <li>Faster search</li>
+                            <li>Faster indexing</li>
+                            <li>Better resource utilization</li>
+                            <li>Reduced search latency</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Trade-Offs and Key Decision</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>The architecture increased infrastructure and Solr costs because multiple clusters and indexes had to be maintained. However, this cost was justified by:</p>
+                        <ul>
+                            <li>Improvement in performance</li>
+                            <li>Improved availability</li>
+                            <li>Better scalability</li>
+                        </ul>
+                        <div class="tip">
+                            <strong>Strong Closing Statement:</strong> The main architectural decision was to trade some infrastructure cost and operational complexity for horizontal scalability, lower latency and better availability.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Q.3 -->
+        <div class="question-section collapsed">
+            <div class="question-header">
+                <span>Q.3: How did you migrate existing orders when introducing sharding?</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="question-content">
+                <div class="opening-statement">
+                    This is one of the strongest interview questions because it demonstrates understanding of distributed database migration challenges.
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>The Problem with Sharding Migration</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>The challenge was that the existing database contained historical and active orders for multiple countries in a single database. We could not simply split the database because:</p>
+                        <ul>
+                            <li>Customers still needed access to their historical orders</li>
+                            <li>Some orders were still active (installment-based orders)</li>
+                            <li>Live business processes depended on order state</li>
+                        </ul>
+                        <pre>Before Sharding:
+Existing DB
+├── India Orders
+├── Germany Orders
+├── UK Orders
+├── Latvia Orders
+└── USA Orders
+
+After Sharding:
+India → DB 1
+Germany → DB 2
+UK → DB 3
+etc.</pre>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Phase 1: Define Shard Key</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>First, we defined the shard key (for example: country/market) based on how the application accessed the data.</p>
+                        <div class="tip">
+                            <strong>Important:</strong> The shard key should align with the application's most common access pattern.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Phase 2: Historical Data Migration</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>Migrated existing records based on the shard key:</p>
+                        <pre>Existing DB → Extract → Transform/Validate → Target Shard
+Example: Country = Germany → Germany DB
+         Country = India → India DB</pre>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Phase 3: Active Orders Handling</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>Active orders required special handling because they had ongoing business processes.</p>
+                        <p>We used controlled migration, validation and reconciliation rather than moving everything in a single operation. This ensured that:</p>
+                        <ul>
+                            <li>Payment processing was not interrupted</li>
+                            <li>Fulfillment workflows continued</li>
+                            <li>Installment processes were maintained</li>
+                            <li>Customer history remained accessible</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Phase 4: Shard Routing</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>The application needed to know: "Which database contains this order?"</p>
+                        <pre>Customer → Order ID/Customer/Market → Shard Resolver → Correct DB</pre>
+                        <div class="tip">
+                            <strong>Critical Interview Point:</strong> Sharding isn't just a database change. The application also needs a deterministic way to identify the correct shard for every request.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Phase 5: Validation and Gradual Cutover</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>After migration, we performed comprehensive validation:</p>
+                        <ul>
+                            <li>Source Count = Target Count</li>
+                            <li>Checksums / Data Validation</li>
+                            <li>Order Status Validation</li>
+                            <li>Payment Status Validation</li>
+                            <li>Customer History Validation</li>
+                        </ul>
+                        <p>Then we gradually moved traffic to the new sharded database.</p>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Important Challenge: Cross-Shard Queries</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>Cross-shard queries became difficult. For example:</p>
+                        <p><em>"Give me all orders for this customer across all countries."</em></p>
+                        <pre>Request → Shard 1 + Shard 2 + Shard 3 → Aggregate Results</pre>
+                        <p>Therefore, we tried to keep operations shard-local wherever possible and avoided unnecessary cross-shard transactions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Q.4 -->
+        <div class="question-section collapsed">
+            <div class="question-header">
+                <span>Q.4: What problem did Spartacus solve?</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="question-content">
+                <div class="opening-statement">
+                    Framed as a decoupling problem between frontend and backend, not just a technology choice.
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>The Problem: Tight Coupling</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>The existing storefront was tightly coupled with the SAP Commerce backend. This meant:</p>
+                        <ul>
+                            <li>Frontend development was highly dependent on backend changes</li>
+                            <li>Changes in one layer could affect the other</li>
+                            <li>Release dependencies existed between teams</li>
+                            <li>Longer development cycles</li>
+                            <li>Difficult independent testing</li>
+                            <li>Higher coordination between teams required</li>
+                        </ul>
+                        <pre>Backend Change → Storefront Impact
+Storefront Change → Backend Dependency</pre>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Solution: Headless Architecture with Spartacus</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>We moved towards a headless storefront using Spartacus, where the frontend was separated from the commerce backend and interacted through APIs.</p>
+                        <pre>Spartacus → OCC REST APIs → SAP Commerce</pre>
+                        <p><strong>Now both teams could:</strong></p>
+                        <ul>
+                            <li>Develop independently</li>
+                            <li>Test independently</li>
+                            <li>Deploy independently</li>
+                            <li>Scale independently</li>
+                        </ul>
+                        <div class="tip">
+                            <strong>Key Benefit:</strong> The key benefit wasn't simply introducing Spartacus. It was reducing coupling between the presentation layer and the commerce backend.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Q.5 -->
+        <div class="question-section collapsed">
+            <div class="question-header">
+                <span>Q.5: How did frontend and backend communicate and deploy independently?</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="question-content">
+                <div class="opening-statement">
+                    Once decoupled architecturally, the implementation required clear communication contracts and independent deployment pipelines.
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Communication: REST APIs as Contract</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>We used REST APIs as the contract between Spartacus and SAP Commerce.</p>
+                        <pre>Spartacus → HTTP/REST → OCC → SAP Commerce</pre>
+                        <p>The API contract became the boundary between the teams. As long as both sides adhered to the contract, development could proceed independently.</p>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>CORS (Cross-Origin Resource Sharing)</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>Because the frontend and backend could be hosted on different origins:</p>
+                        <pre>Frontend Origin ≠ Backend Origin</pre>
+                        <p>The browser enforced CORS. We configured the backend to allow:</p>
+                        <ul>
+                            <li>Required frontend origins</li>
+                            <li>Allowed HTTP methods</li>
+                            <li>Required headers</li>
+                        </ul>
+                        <p><strong>Browser flow:</strong></p>
+                        <pre>Browser → OPTIONS → Backend
+Backend → CORS Headers → Browser
+Browser → GET/POST → Backend</pre>
+                        <p><strong>Note:</strong> Tools like Postman don't enforce browser CORS, so testing without CORS errors is possible in tools but required in browsers.</p>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Independent Deployment</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>Because the frontend and backend were independently deployable, they had separate CI/CD pipelines and infrastructure.</p>
+                        <pre>Spartacus → Pipeline → Frontend Infrastructure
+
+SAP Commerce → Pipeline → Backend Infrastructure</pre>
+                        <p>Both could be deployed independently, even across different cloud environments if required.</p>
+                        <div class="tip">
+                            <strong>Architectural Point:</strong> The key advantage is independent deployment and scaling capabilities, not merely using different cloud providers.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Q.6 -->
+        <div class="question-section collapsed">
+            <div class="question-header">
+                <span>Q.6: What deployment strategies did you use?</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="question-content">
+                <div class="opening-statement">
+                    Different deployment scenarios require different strategies. Blue-Green and Canary are often confused—here's the distinction.
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Blue-Green Deployment</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>Blue-Green means:</p>
+                        <ul>
+                            <li><strong>Blue</strong> = Current Production</li>
+                            <li><strong>Green</strong> = New Version</li>
+                        </ul>
+                        <p>Process:</p>
+                        <pre>Test Green → Switch Traffic → Green serves requests
+Rollback: Switch back to Blue if needed</pre>
+                        <p><strong>Use case:</strong> For major features such as new trade-in capability, we could deploy the new version alongside the existing version, validate it and then switch traffic.</p>
+                        <p><strong>Advantage:</strong> Controlled, quick switch and easy rollback.</p>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Canary Deployment</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>Canary deployment means exposing new functionality to a small percentage or selected group of customers first, monitoring the system and gradually expanding the rollout.</p>
+                        <pre>New Version → Small User Group → Monitor → Increase Traffic → 100%</pre>
+                        <p><strong>Example:</strong> We exposed the new rewards functionality to a small percentage of customers first, monitored the system and gradually expanded the rollout.</p>
+                        <p><strong>Advantage:</strong> Reduces risk by testing with real traffic before full rollout.</p>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Feature Flag / Progressive Rollout</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>Different from Blue-Green and Canary, feature flags allow functionality-based control.</p>
+                        <pre>Feature OFF → B2C
+Feature ON → B2B
+Then gradually:
+B2B → 10% Users → 50% → 100%</pre>
+                        <p>This allows fine-grained control over feature availability without full deployment changes.</p>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Key Distinctions</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <ul>
+                            <li><strong>Blue-Green:</strong> Environment-based switching</li>
+                            <li><strong>Canary:</strong> Traffic/user-based gradual rollout</li>
+                            <li><strong>Feature Flag:</strong> Functionality-based enable/disable</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Q.7 -->
+        <div class="question-section collapsed">
+            <div class="question-header">
+                <span>Q.7: Payment Problems</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="question-content">
+                <div class="opening-statement">
+                    This is a strong production problem demonstrating integration, asynchronous processing and state management. Three separate stories are involved.
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Problem 1: 3DS Authentication Issue</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p><strong>Problem:</strong> We had an issue in the 3DS authentication flow with Mercado Pago where customers did not receive the expected authentication challenge, causing the issuing bank to reject the payment.</p>
+                        <p><strong>Investigation:</strong> We traced the payment flow:</p>
+                        <pre>Customer → Samsung → Payment Provider → 3DS → Issuing Bank</pre>
+                        <p>We checked:</p>
+                        <ul>
+                            <li>Payment request</li>
+                            <li>3DS configuration</li>
+                            <li>Redirect/challenge flow</li>
+                            <li>Payment provider response</li>
+                            <li>Callback/notification</li>
+                            <li>Final transaction state</li>
+                        </ul>
+                        <p><strong>Solution:</strong> We corrected the authentication flow and ensured that the customer was correctly redirected into the 3DS challenge and that the resulting authentication status was correctly propagated through the payment flow.</p>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Problem 2: Misinterpreting Adyen Status</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p><strong>Problem:</strong> Our application treated Adyen "Received" or "Pending" responses as payment failures, while these statuses actually meant that Adyen had accepted the request but was still processing it.</p>
+                        <p>This is a state-machine problem:</p>
+                        <pre>Incorrect:
+Received → FAILED
+
+Correct:
+Received → PROCESSING/PENDING
+    ↓
+SUCCESS / FAILED (eventually)</pre>
+                        <p><strong>Solution:</strong> We corrected the payment state mapping and made the business process asynchronous where the payment provider's response indicated that processing was still in progress.</p>
+                        <pre>Payment Request → Adyen → Pending → Notification → Final Status</pre>
+                        <div class="tip">
+                            <strong>Key Insight:</strong> We separated the payment-request state from the final payment state instead of assuming that the initial provider response represented the final outcome.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Problem 3: PTE Update Race Condition</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p><strong>Problem:</strong> During payment capture notification processing, there was a 2–3 second delay before the Payment Transaction Entry was updated. The downstream business process did not wait for that state transition and interpreted the payment as unsuccessful.</p>
+                        <p>This is a race condition / timing problem:</p>
+                        <pre>Payment Notification → PTE Update (2-3 sec delay)
+
+But:
+Business Process → Checks PTE too early → Payment Failed</pre>
+                        <p><strong>Solution:</strong> We changed the processing flow so that downstream business logic was triggered only after the required payment state was persisted. We improved:</p>
+                        <ul>
+                            <li>Asynchronous notification handling</li>
+                            <li>State validation</li>
+                            <li>Event-driven processing</li>
+                            <li>Retry mechanisms</li>
+                            <li>Idempotency checks</li>
+                        </ul>
+                        <div class="tip">
+                            <strong>Strong Interview Line:</strong> The core issue was not simply latency. It was that the system assumed a state transition had completed when it was still in progress.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Q.8 -->
+        <div class="question-section collapsed">
+            <div class="question-header">
+                <span>Q.8: Duplicate Serial Numbers</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="question-content">
+                <div class="opening-statement">
+                    An excellent concurrency/distributed-system story demonstrating state coordination challenges.
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>The Problem</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>Serial number ranges were maintained in each node's in-memory cache. Each node could hold its own sub-range, but under certain circumstances two nodes could end up with overlapping ranges, resulting in duplicate serial numbers.</p>
+                        <pre>Architecture:
+Node 1 → numberCacheMap → Range A
+Node 2 → numberCacheMap → Range B
+Node 3 → numberCacheMap → Range C
+
+Problem:
+Node 1 → Range 1000–1999
+Node 2 → Range 1000–1999
+
+Result:
+Node 1 → Serial 1001
+Node 2 → Serial 1001
+= DUPLICATE</pre>
+                        <div class="tip">
+                            <strong>Root Cause:</strong> The allocation state was distributed across node-local memory, while the serial number itself needed global uniqueness. That is a state coordination problem.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Solution: Atomic Central Allocation</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>The best architectural approach was to make range allocation atomic and centrally coordinated:</p>
+                        <pre>Central DB/Sequence → Atomically Allocate Range → Node 1
+Central DB/Sequence → Atomically Allocate Different Range → Node 2
+
+Then:
+Node 1 → Local Range 1–1000
+Node 2 → Local Range 1001–2000</pre>
+                        <p>This gives the performance benefit of local caching while keeping allocation globally safe.</p>
+                        <div class="tip">
+                            <strong>Strong Architect Statement:</strong> We separated range allocation from serial-number consumption. Allocation required global coordination, while consumption could happen locally.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Q.9 -->
+        <div class="question-section collapsed">
+            <div class="question-header">
+                <span>Q.9: Configuration Property Update</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="question-content">
+                <div class="opening-statement">
+                    Configuration changes needed to be propagated reliably across a distributed cluster of nodes.
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>The Problem: Stale Configuration</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>Configuration properties were cached in application memory. When a configuration value changed, every node could continue using its stale local value until the cache was manually refreshed or the application was restarted.</p>
+                        <pre>Initial State:
+Node 1 → Config = A
+Node 2 → Config = A
+Node 3 → Config = A
+
+Admin changes Config to B:
+
+But:
+Node 1 → Still uses A
+Node 2 → Still uses A
+Node 3 → Still uses A
+
+Result: Inconsistent behavior across cluster</pre>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Initial Solution: Manual Refresh</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>Manual refresh or restart wasn't ideal because:</p>
+                        <ul>
+                            <li>Requires manual intervention</li>
+                            <li>Causes downtime</li>
+                            <li>Doesn't scale for frequent changes</li>
+                            <li>Error-prone</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Improved Solution: Event-Based Cache Invalidation</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>We introduced event-based cache invalidation so that when configuration changed, an event was published and the affected nodes invalidated or refreshed their local cache.</p>
+                        <pre>Config Updated → Event → Nodes → Invalidate Local Cache → Read New Value</pre>
+                        <p><strong>Benefits:</strong></p>
+                        <ul>
+                            <li>No manual intervention required</li>
+                            <li>Faster propagation</li>
+                            <li>Consistent configuration across cluster</li>
+                            <li>Better operational reliability</li>
+                        </ul>
+                        <div class="tip">
+                            <strong>Key Change:</strong> We moved from manual synchronization to event-driven cache invalidation.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Q.10 -->
+        <div class="question-section collapsed">
+            <div class="question-header">
+                <span>Q.10: Obsolete Data Cleansing</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="question-content">
+                <div class="opening-statement">
+                    Removing old data efficiently without impacting production workload requires careful design and controlled parallelism.
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>The Problem</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>Over time, the system accumulated obsolete data such as old records that were no longer required for active business processing. Running a large cleanup synchronously created significant database load and could affect production workload.</p>
+                        <pre>Millions of obsolete records → DELETE → DB Load</pre>
+                        <p>A single huge delete creates:</p>
+                        <ul>
+                            <li>Long transactions</li>
+                            <li>Table/index contention</li>
+                            <li>High CPU/I/O</li>
+                            <li>Locking issues</li>
+                            <li>Transaction log growth</li>
+                            <li>Application performance degradation</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Solution: Batch Processing with Controlled Parallelism</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>Instead of deleting everything in one large transaction, we processed the cleanup in smaller batches using controlled parallelism.</p>
+                        <pre>Obsolete Records → Batch → Worker Threads → Delete → Next Batch
+
+Example:
+10 million records → Batch 1 → Batch 2 → Batch 3 → ...</pre>
+                        <p><strong>We used a bounded thread pool:</strong></p>
+                        <ul>
+                            <li>Cleanup could run concurrently</li>
+                            <li>Remained within controlled resource limits</li>
+                            <li>Did not compete aggressively with customer-facing traffic</li>
+                        </ul>
+                        <div class="tip">
+                            This directly applies to Concurrency, Thread Pool and Bulkhead pattern concepts.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Additional Improvements</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>We made the cleanup incremental and throttled it:</p>
+                        <ul>
+                            <li><strong>Batch processing:</strong> Delete smaller chunks</li>
+                            <li><strong>Bounded thread pool:</strong> Control parallelism</li>
+                            <li><strong>Scheduled execution:</strong> Run during off-peak hours</li>
+                            <li><strong>Database indexes:</strong> On cleanup criteria for faster identification</li>
+                            <li><strong>Commit after each batch:</strong> Reduce transaction size</li>
+                            <li><strong>Retry failed batches:</strong> Handle transient failures</li>
+                            <li><strong>Monitoring:</strong> Track progress and issues</li>
+                            <li><strong>Backpressure/throttling:</strong> Adjust based on system load</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Strong Architect Statement</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p><em>"The goal wasn't simply to delete data faster; it was to remove obsolete data without impacting the production workload."</em></p>
+                        <p>That is the important distinction.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.question-header').forEach(header => {
+            header.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const section = this.closest('.question-section');
+                section.classList.toggle('collapsed');
+            });
+        });
+
+        document.querySelectorAll('.subsection-header').forEach(header => {
+            header.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const subsection = this.closest('.subsection');
+                subsection.classList.toggle('collapsed');
+            });
+        });
+
+        // Open first subsection of each question by default when question opens
+        document.querySelectorAll('.question-section').forEach(section => {
+            const observer = new MutationObserver(() => {
+                if (!section.classList.contains('collapsed')) {
+                    const firstSubsection = section.querySelector('.subsection');
+                    if (firstSubsection && firstSubsection.classList.contains('collapsed')) {
+                        firstSubsection.classList.remove('collapsed');
+                    }
+                }
+            });
+            observer.observe(section, { attributes: true });
+        });
+    </script>
+</body>
+</html>
+
