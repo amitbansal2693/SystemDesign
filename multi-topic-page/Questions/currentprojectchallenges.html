@@ -1029,6 +1029,347 @@ Example:
                 </div>
             </div>
         </div>
+
+        <!-- Q.11 -->
+        <div class="question-section collapsed">
+            <div class="question-header">
+                <span>Q.11: Germany cluster migration - How did you handle traffic isolation?</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="question-content">
+                <div class="subsection collapsed">
+                    <div class="subsection-header">
+                        <span>Opening Statement</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>Germany was initially running as part of a shared cluster with other markets. As traffic from Germany increased significantly, the shared cluster became a bottleneck. The German traffic was consuming a large portion of application and database resources and could affect the performance of other markets.</p>
+                    </div>
+                </div>
+
+                <div class="subsection collapsed">
+                    <div class="subsection-header">
+                        <span>The Solution: Dedicated Cluster for Germany</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>We decided to move Germany into a dedicated cluster and database, while keeping the existing cluster running for the other markets.</p>
+                        <pre>Before:
+Germany + Other Countries → Shared Cluster → Shared DB
+
+After:
+Germany Users → Germany Cluster → Germany DB
+Other Countries → Existing Cluster → Existing DB</pre>
+                        <p><strong>Benefits:</strong></p>
+                        <ul>
+                            <li>Dedicated application resources for Germany</li>
+                            <li>Dedicated database resources</li>
+                            <li>Independent scaling</li>
+                            <li>Better performance isolation</li>
+                            <li>Traffic spikes in Germany wouldn't affect other markets</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Challenge 1: Data Migration</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>The existing database contained German data mixed with other markets. We had to:</p>
+                        <ul>
+                            <li>Identify which data belongs to Germany</li>
+                            <li>Migrate customers, orders, carts, payments, promotions, product data, configuration, user preferences, and historical data</li>
+                            <li>Ensure data consistency during migration</li>
+                        </ul>
+                        <pre>Existing DB
+├── Germany Data
+├── France Data
+├── Italy Data
+└── Other Markets</pre>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Challenge 2: Active Orders Handling</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>Some orders were still active with ongoing business processes. We couldn't simply copy data because:</p>
+                        <ul>
+                            <li>Orders could be in various states (Completed, Processing, Payment Pending, Shipment Pending, Installment Active)</li>
+                            <li>Payment processing was ongoing</li>
+                            <li>Fulfillment workflows were active</li>
+                        </ul>
+                        <p>We used controlled migration, validation and reconciliation rather than a single big-bang migration.</p>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Migration Approach: Phased Migration</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p><strong>Phase 1: Identify Germany Data</strong></p>
+                        <p>Define migration boundary: Country/Market = DE. Identify entity relationships (Customer → Orders → Payments → Shipments).</p>
+
+                        <p><strong>Phase 2: Initial Data Copy</strong></p>
+                        <pre>Existing DB → Extract DE Data → Transform/Validate → Germany DB</pre>
+                        <p>The existing system continues serving customers while migration happens.</p>
+
+                        <p><strong>Phase 3: Delta Synchronization</strong></p>
+                        <p>After initial copy, capture changes occurring after the initial migration:</p>
+                        <pre>10:00 → Initial Copy
+10:05 → New German Order
+10:05 → Delta → Germany DB</pre>
+                        <p>This reduces the gap between old and new databases without requiring CDC/Kafka/binlog unless actually used.</p>
+
+                        <p><strong>Phase 4: Data Validation</strong></p>
+                        <p>Before switching traffic, validate:</p>
+                        <ul>
+                            <li>Record counts match</li>
+                            <li>Important business fields are correct</li>
+                            <li>Order statuses are accurate</li>
+                            <li>Payment statuses are preserved</li>
+                            <li>Referential relationships are intact</li>
+                            <li>Reconcile any differences</li>
+                        </ul>
+
+                        <p><strong>Phase 5: Traffic Cutover</strong></p>
+                        <pre>Germany → New Germany Cluster
+Other Countries → Shared Cluster</pre>
+                        <p>Routing layer directs Germany traffic to the new cluster.</p>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Transparency to Users</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>When a German customer logs in after migration:</p>
+                        <pre>Customer/Market = DE → Germany Cluster → Germany DB → Customer Data</pre>
+                        <p>The migration was transparent to customers; the routing layer determined the appropriate cluster based on market.</p>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Rollback Strategy</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>We kept the old cluster available during migration and cutover so we had a rollback path:</p>
+                        <pre>Germany → New Cluster
+If serious issues: Germany → Old Cluster</pre>
+                        <p>This is critical for reducing risk and ensuring we could recover quickly if needed.</p>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>Final Architecture Benefits</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <ul>
+                            <li><strong>Traffic Isolation:</strong> German traffic doesn't affect other markets</li>
+                            <li><strong>Database Isolation:</strong> Separate data stores</li>
+                            <li><strong>Independent Scaling:</strong> Scale Germany independently</li>
+                            <li><strong>Fault Isolation:</strong> Germany issues don't impact others</li>
+                        </ul>
+                        <p><strong>Trade-off:</strong> Increased operational complexity with another cluster and database to maintain and synchronize.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Q.12 -->
+        <div class="question-section collapsed">
+            <div class="question-header">
+                <span>Q.12: Which architectural patterns have you used?</span>
+                <span class="chevron">▶</span>
+            </div>
+            <div class="question-content">
+                <div class="subsection collapsed">
+                    <div class="subsection-header">
+                        <span>Opening Statement</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p>I have worked with several architectural patterns in my e-commerce projects. Rather than just naming them, I can explain them with examples from my experience.</p>
+                    </div>
+                </div>
+
+                <div class="subsection collapsed">
+                    <div class="subsection-header">
+                        <span>1. Layered Architecture — SAP Commerce</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p><strong>Where:</strong> SAP Commerce follows a layered architecture.</p>
+                        <p><strong>Request flow:</strong></p>
+                        <pre>OCC Controller → Facade → Service → DAO → Database</pre>
+                        <p><strong>Why:</strong> We needed to separate API handling, business logic and database access so each component had clear responsibility.</p>
+                        <p><strong>Benefit:</strong> Easier to maintain, test and modify because changes in one layer didn't need to be implemented directly in another layer.</p>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>2. Distributed / Clustered Architecture</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p><strong>Where:</strong> As Samsung e-commerce platform grew, we moved from centralized to multi-cluster architecture.</p>
+                        <p><strong>Problem:</strong> Higher traffic, higher database load, search performance issues, increasing latency, resource contention between markets.</p>
+                        <p><strong>Solution:</strong> Distributed markets across clusters:</p>
+                        <pre>Germany → Germany Cluster → Germany DB
+Other Markets → Other Cluster → Other DB</pre>
+                        <p><strong>Benefits:</strong> Traffic isolation, database isolation, independent scaling, better performance, fault isolation.</p>
+                        <p><strong>Trade-off:</strong> Increased operational complexity.</p>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>3. Headless Architecture — Spartacus</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p><strong>Where:</strong> Moved from tightly coupled storefront to headless architecture using Spartacus.</p>
+                        <p><strong>Problem:</strong> Frontend and backend were tightly coupled, creating release dependencies and longer development cycles.</p>
+                        <p><strong>Solution:</strong></p>
+                        <pre>Spartacus → OCC REST APIs → SAP Commerce</pre>
+                        <p><strong>Benefits:</strong> Frontend and backend teams can develop, test, deploy and scale independently.</p>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>4. Event-Driven Architecture</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p><strong>Where:</strong> Used for cache invalidation across cluster nodes.</p>
+                        <p><strong>Problem:</strong> Configuration values cached in application nodes. Manual refresh or restart required when config changed.</p>
+                        <p><strong>Solution:</strong></p>
+                        <pre>Config Updated → Event → Nodes → Invalidate Local Cache → Read New Value</pre>
+                        <p><strong>Benefits:</strong> No manual intervention, faster propagation, consistent configuration, better reliability.</p>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>5. Asynchronous / Event-Based Processing — Payment</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p><strong>Where:</strong> Payment processing workflow.</p>
+                        <p><strong>Problem:</strong> Payment providers don't always return final result immediately. Pending status doesn't mean failure.</p>
+                        <p><strong>Solution:</strong> Treat payment as state transition:</p>
+                        <pre>Payment Request → Pending → Payment Notification → Final Status
+
+Instead of:
+Payment Request → Pending → Failed</pre>
+                        <p><strong>Benefit:</strong> Correctly handle asynchronous payment processing. Don't assume initial response is final outcome.</p>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>6. Microservices / Service-Oriented Architecture</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p><strong>Where:</strong> Business capabilities managed independently rather than all in one component.</p>
+                        <p><strong>Example:</strong></p>
+                        <pre>Order → Payment Service → Payment Provider
+Order → Inventory Service
+Order → Notification Service</pre>
+                        <p><strong>Why:</strong> If all functionality is tightly coupled, a change in payment logic affects order processing, deployment and testing.</p>
+                        <p><strong>Benefit:</strong> Reduces coupling and allows individual capabilities to evolve and scale independently.</p>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>7. Saga Pattern — Distributed Transactions</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p><strong>Where:</strong> Complex business transactions involving multiple services, integrations and databases.</p>
+                        <p><strong>Problem Statement:</strong> E-commerce orders involve: Order → Inventory → Warehouse → Payment → Fulfillment. Each step has different service/database. Can't use single transaction.</p>
+
+                        <p><strong>Why Saga Was Needed:</strong></p>
+                        <ul>
+                            <li>Multiple systems and integrations involved</li>
+                            <li>Operations are long-running</li>
+                            <li>Can't keep user request waiting synchronously</li>
+                        </ul>
+
+                        <p><strong>Workflow-Based Processing:</strong></p>
+                        <pre>Order Workflow → Inventory Step → Warehouse Step → Payment Step → Fulfillment</pre>
+                        <p>Each step can return multiple states:</p>
+                        <ul>
+                            <li><strong>SUCCESS:</strong> Move to next step</li>
+                            <li><strong>FAILURE:</strong> Execute failure/compensation flow</li>
+                            <li><strong>WAIT:</strong> Remain pending, wait for condition</li>
+                            <li><strong>ERROR:</strong> Handle technical error per workflow logic</li>
+                        </ul>
+
+                        <p><strong>Example:</strong></p>
+                        <pre>Order → Inventory → SUCCESS → Warehouse
+Warehouse → WAIT (Condition not met)
+[Cron Job checks condition later]
+Condition Met → Resume → Payment → Fulfillment</pre>
+
+                        <p><strong>Failure & Compensation:</strong></p>
+                        <p>If a later step fails after previous steps succeeded, trigger compensating actions:</p>
+                        <pre>Order → Inventory → Warehouse → Payment
+Payment → FAILURE
+    ↓
+Compensating Workflow
+    ↓
+Release Inventory
+    ↓
+Cancel/Update Order</pre>
+
+                        <p><strong>Cron Jobs / Retry Mechanism:</strong></p>
+                        <p>For waiting states or failed operations, scheduled jobs can re-invoke and resume workflows.</p>
+
+                        <p><strong>Why This Architecture Is Useful:</strong></p>
+                        <ul>
+                            <li>Manage long-running distributed transactions asynchronously</li>
+                            <li>State management — know where transaction is</li>
+                            <li>Retry capability — waiting/failed operations can be retried</li>
+                            <li>Error handling — different outcomes handled differently</li>
+                            <li>Compensation — reverse completed operations when needed</li>
+                            <li>Resilience — temporary failures don't immediately fail entire transaction</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <div class="subsection-header">
+                        <span>8. CQRS Pattern — Conceptual Knowledge</span>
+                        <span class="chevron">▶</span>
+                    </div>
+                    <div class="subsection-content">
+                        <p><strong>Pattern:</strong> CQRS separates write and read responsibilities when their scalability and consistency requirements differ.</p>
+                        <pre>Command → Write Model
+Event/Update
+    ↓
+Query → Read Model</pre>
+                        <p><strong>Useful When:</strong> The system has very different read and write workloads.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -1046,19 +1387,6 @@ Example:
                 const subsection = this.closest('.subsection');
                 subsection.classList.toggle('collapsed');
             });
-        });
-
-        // Open first subsection of each question by default when question opens
-        document.querySelectorAll('.question-section').forEach(section => {
-            const observer = new MutationObserver(() => {
-                if (!section.classList.contains('collapsed')) {
-                    const firstSubsection = section.querySelector('.subsection');
-                    if (firstSubsection && firstSubsection.classList.contains('collapsed')) {
-                        firstSubsection.classList.remove('collapsed');
-                    }
-                }
-            });
-            observer.observe(section, { attributes: true });
         });
     </script>
 </body>
