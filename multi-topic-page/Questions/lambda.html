@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java 8 Lambda - Complete Guide</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI'; background: #1a1a2e; color: #e0e0e0; height: 100vh; overflow: hidden; }
+        .container { display: flex; height: 100vh; }
+        .sidebar { width: 280px; background: #0f1419; border-right: 1px solid #2563eb; overflow-y: auto; padding: 20px 0; }
+        .sidebar-header { padding: 0 20px 20px 20px; border-bottom: 2px solid #2563eb; margin-bottom: 20px; }
+        .sidebar-header h1 { font-size: 1.4em; color: #2563eb; }
+        .topic-item { padding: 12px 20px; cursor: pointer; border-left: 3px solid transparent; transition: all 0.3s; color: #a0a0a0; font-size: 0.9em; }
+        .topic-item:hover { background: #1e293b; color: #2563eb; border-left-color: #2563eb; padding-left: 24px; }
+        .topic-item.active { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; }
+        .content-area { flex: 1; background: #1a1a2e; overflow-y: auto; padding: 30px; }
+        .content-header h2 { font-size: 1.8em; color: #2563eb; margin-bottom: 10px; }
+        .content-header p { color: #90caf9; font-style: italic; margin-bottom: 20px; border-bottom: 1px solid #2563eb; padding-bottom: 15px; }
+        .content-body p { margin-bottom: 15px; line-height: 1.8; }
+        .content-body ul { margin-left: 30px; margin-bottom: 15px; }
+        .content-body li { margin-bottom: 8px; }
+        .content-body strong { color: #2563eb; }
+        .code-block { background: #0f1419; padding: 15px; border-radius: 6px; border-left: 3px solid #2563eb; color: #90caf9; font-family: 'Courier New'; font-size: 0.85em; margin: 15px 0; overflow-x: auto; }
+        .tip { background: #1e3a5f; border-left: 4px solid #2563eb; padding: 15px; margin: 15px 0; border-radius: 6px; }
+        .back-link { color: #2563eb; text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 20px; display: inline-block; font-size: 0.95em; }
+        .back-link:hover { text-decoration: underline; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f1419; }
+        ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header"><h1>λ Lambda</h1></div>
+            <div id="topicsList"></div>
+        </div>
+        <div class="content-area">
+            <a href="java8_topics_index.html" class="back-link">← Back to Java 8</a>
+            <div id="contentArea" style="text-align:center; color: #a0a0a0; padding: 50px;">Click on a topic →</div>
+        </div>
+    </div>
+
+    <script>
+        const topics = [
+            {
+                id: 1,
+                title: "Lambda Expression Fundamentals",
+                content: `<div class="content-header"><h2>1. Lambda Expression Fundamentals</h2><p>What are lambda expressions?</p></div>
+                <div class="content-body">
+                <p><strong>Definition & Characteristics:</strong></p>
+                <ol><li>Methods without names i.e., anonymous functions</li><li>Can have parameters, a body, a return type and possible list of exceptions</li><li>No Name, No association with class</li><li>Syntax: (parameters) -> {body} (parameter + arrow + body)</li></ol>
+                <p><strong>Syntax Examples:</strong></p>
+                <div class="code-block">// Two parameters
+(int a, int b) -> a + b;
+
+// One parameter (type can be inferred)
+x -> x * 2;
+
+// No parameters
+() -> "Hello World";
+
+// Multiple statements
+(x, y) -> {
+    int sum = x + y;
+    return sum * 2;
+}</div></div>`
+            },
+            {
+                id: 2,
+                title: "Before Java 8 vs After Java 8",
+                content: `<div class="content-header"><h2>2. Lambda vs Anonymous Inner Classes</h2><p>How lambda simplified Java code</p></div>
+                <div class="content-body">
+                <p><strong>❌ Before Java 8 (Anonymous Inner Class):</strong></p>
+                <div class="code-block">Comparator<Student> idComparator = new Comparator<Student>() {
+    @Override
+    public int compare(Student s1, Student s2) {
+        return s1.getID() - s2.getID();
+    }
+};</div>
+                <p><strong>✅ After Java 8 (Lambda Expression):</strong></p>
+                <div class="code-block">Comparator<Student> idComparator = (s1, s2) -> s1.getID() - s2.getID();</div>
+                <p><strong>Comparison:</strong></p>
+                <ul><li>Before: 5+ lines of verbose boilerplate code</li><li>After: 1 line of concise lambda expression</li><li>Much cleaner and more readable!</li></ul>
+                <p><strong>What's Removed:</strong></p>
+                <ul><li>Anonymous class keyword 'new Comparator<Student>() { }'</li><li>@Override annotation</li><li>Method signature 'public int compare(Student s1, Student s2)'</li><li>Curly braces and return keyword</li><li>All replaced with simple -> syntax</li></ul></div>`
+            },
+            {
+                id: 3,
+                title: "Lambda Signatures",
+                content: `<div class="content-header"><h2>3. Lambda Expression Signatures</h2><p>Different parameter patterns and examples</p></div>
+                <div class="content-body">
+                <p><strong>1. Two Arguments (Most Common):</strong></p>
+                <div class="code-block">(Object obj1, Object obj2) -> int
+// Example:
+(Student s1, Student s2) -> s1.getID() - s2.getID()</div>
+                <p><strong>2. Zero Arguments:</strong></p>
+                <div class="code-block">() -> void
+// Example:
+() -> System.out.println("Hello")</div>
+                <p><strong>3. One Argument:</strong></p>
+                <div class="code-block">(ActionEvent event) -> void
+x -> x * 2  // Type inference</div>
+                <p><strong>4. With Return Type:</strong></p>
+                <div class="code-block">(int x, int y) -> x > y ? x : y</div>
+                <p><strong>5. Multiple Statements:</strong></p>
+                <div class="code-block">(String s, int n) -> {
+    String result = s + n;
+    return result;
+}</div></div>`
+            },
+            {
+                id: 4,
+                title: "Where to Use Lambda Expressions",
+                content: `<div class="content-header"><h2>4. Where to Use Lambda Expressions?</h2><p>Functional interface implementation requirement</p></div>
+                <div class="content-body">
+                <p><strong>Core Rule:</strong> Lambda expressions are used when a functional interface instance is required.</p>
+                <p><strong>Before Java 8:</strong> Anonymous inner classes were used to implement functional interfaces</p>
+                <p><strong>Common Functional Interfaces in Java:</strong></p>
+                <div class="code-block">Comparator<T>     - Compare two objects
+Runnable           - Task execution
+Callable<T>        - Returns result, can throw exception
+Consumer<T>        - Takes input, returns nothing
+Supplier<T>        - Returns value, takes nothing
+Function<T, R>     - Transforms T to R
+Predicate<T>       - Returns boolean (test condition)
+UnaryOperator<T>   - Takes T, returns T
+BinaryOperator<T>  - Takes two T, returns T</div>
+                <p><strong>Key Requirement:</strong> Functional interface must have exactly ONE abstract method (SAM pattern)</p></div>`
+            },
+            {
+                id: 5,
+                title: "Inline Implementation & Type Inference",
+                content: `<div class="content-header"><h2>5. Lambdas as Inline Implementation</h2><p>Implementation of functional interface in single line</p></div>
+                <div class="content-body">
+                <p><strong>Key Concept:</strong> Lambdas instantiate functional interfaces and implement their abstract method in a single line.</p>
+                <p><strong>Type Inference:</strong> Compiler automatically figures out parameter types from context!</p>
+                <p><strong>Example with Type Inference:</strong></p>
+                <div class="code-block">// Explicit types
+List<String> list = Arrays.asList("apple", "banana");
+list.forEach((String s) -> System.out.println(s.toUpperCase()));
+
+// Type inference - compiler knows s is String
+list.forEach(s -> System.out.println(s.toUpperCase()));
+
+// Even simpler with method reference
+list.forEach(System.out::println);</div>
+                <p><strong>How Compiler Knows Types:</strong> From the functional interface's abstract method signature in the context</p></div>`
+            },
+            {
+                id: 6,
+                title: "Benefits & Use Cases",
+                content: `<div class="content-header"><h2>6. Benefits of Lambda Expressions</h2><p>Why use lambdas in modern Java</p></div>
+                <div class="content-body">
+                <p><strong>Key Benefits:</strong></p>
+                <ol><li><strong>Code Conciseness:</strong> Greatly reduces boilerplate code and lines of code</li><li><strong>Code Clarity:</strong> Writes more clear, concise and flexible code</li><li><strong>Readability:</strong> Makes intent much clearer and easier to understand</li><li><strong>Removes Verbosity:</strong> Eliminates repetition of code</li><li><strong>Functional Programming:</strong> Enables functional programming style in Java</li><li><strong>Collections Processing:</strong> Perfect for Stream API operations</li></ol>
+                <p><strong>Real-World Impact:</strong></p>
+                <div class="code-block">// Traditional loop (imperative)
+for (String s : list) {
+    System.out.println(s);
+}
+
+// Lambda with forEach (functional)
+list.forEach(s -> System.out.println(s));
+
+// Lambda with Stream API
+list.stream()
+   .filter(s -> s.length() > 3)
+   .map(String::toUpperCase)
+   .forEach(System.out::println);</div></div>`
+            }
+        ];
+
+        const topicsList = document.getElementById('topicsList');
+        topics.forEach(topic => {
+            const item = document.createElement('div');
+            item.className = 'topic-item';
+            item.textContent = topic.title;
+            item.onclick = () => selectTopic(topic.id, item);
+            topicsList.appendChild(item);
+        });
+
+        function selectTopic(id, element) {
+            document.querySelectorAll('.topic-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+            const topic = topics.find(t => t.id === id);
+            document.getElementById('contentArea').innerHTML = topic.content;
+        }
+    </script>
+</body>
+</html>
+

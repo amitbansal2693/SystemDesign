@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Generics - Complete Guide</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: #0f1419;
+            border-right: 1px solid #2563eb;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px 20px;
+            border-bottom: 2px solid #2563eb;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.4em;
+            color: #2563eb;
+        }
+
+        .topic-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            transition: all 0.3s;
+            color: #a0a0a0;
+            font-size: 0.9em;
+        }
+
+        .topic-item:hover {
+            background: #1e293b;
+            color: #2563eb;
+            border-left-color: #2563eb;
+            padding-left: 24px;
+        }
+
+        .topic-item.active {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white;
+        }
+
+        .content-area {
+            flex: 1;
+            background: #1a1a2e;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        .content-header h2 {
+            font-size: 1.8em;
+            color: #2563eb;
+            margin-bottom: 10px;
+        }
+
+        .content-header p {
+            color: #90caf9;
+            font-style: italic;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #2563eb;
+            padding-bottom: 15px;
+        }
+
+        .content-body p {
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+
+        .content-body ul, .content-body ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+
+        .content-body li {
+            margin-bottom: 8px;
+        }
+
+        .content-body strong {
+            color: #2563eb;
+        }
+
+        .code-block {
+            background: #0f1419;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 3px solid #2563eb;
+            color: #90caf9;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            margin: 15px 0;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .tip {
+            background: #1e3a5f;
+            border-left: 4px solid #2563eb;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+        }
+
+        .back-link {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: inline-block;
+            font-size: 0.95em;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f1419; }
+        ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>📦 Generics</h1>
+            </div>
+            <div id="topicsList"></div>
+        </div>
+
+        <div class="content-area">
+            <a href="java_master_index.html" class="back-link">← Back to Master Index</a>
+            <div id="contentArea">
+                <div style="text-align:center; color: #a0a0a0; padding: 50px;">
+                    Click on a topic to begin →
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const topics = [
+            {
+                id: 1,
+                title: "Why Generics Were Introduced",
+                content: `
+                    <div class="content-header">
+                        <h2>1. Why Generics Were Introduced?</h2>
+                        <p>Solving the type-safety problem in collections</p>
+                    </div>
+                    <div class="content-body">
+                        <p><strong>Problem Before Generics (Java < 5):</strong></p>
+                        <p>Collections accepted any type of object, no compile-time checking.</p>
+                        <div class="code-block">List list = new ArrayList();
+list.add("Java");
+list.add(100);          // No error at compile time
+String s = (String) list.get(1);  // Runtime ClassCastException!</div>
+                        <p><strong>Issues:</strong></p>
+                        <ul>
+                            <li>Collections were not type-safe</li>
+                            <li>Type mismatches detected only at runtime</li>
+                            <li>Required explicit casting</li>
+                            <li>Increased chances of ClassCastException</li>
+                        </ul>
+                        <p><strong>Solution - Generics (Java 5+):</strong></p>
+                        <div class="code-block">List&lt;String&gt; list = new ArrayList&lt;&gt;();
+list.add("Java");
+// list.add(100); ❌ Compile-time error!
+String s = list.get(0);  // No casting needed</div>
+                        <p><strong>Benefits:</strong></p>
+                        <ul>
+                            <li>Detect errors at compile time</li>
+                            <li>Eliminate unnecessary casting</li>
+                            <li>Improve code readability</li>
+                            <li>Improve code reuse</li>
+                        </ul>
+                    </div>
+                `
+            },
+            {
+                id: 2,
+                title: "Core Concept",
+                content: `
+                    <div class="content-header">
+                        <h2>2. Core Concept</h2>
+                        <p>Generics are parameterized types</p>
+                    </div>
+                    <div class="content-body">
+                        <p><strong>Key Idea:</strong> Write logic once, reuse for multiple types.</p>
+                        <p>Think of T as a placeholder for any type:</p>
+                        <div class="code-block">class Box&lt;T&gt; {
+    private T value;
+
+    public void set(T value) {
+        this.value = value;
+    }
+
+    public T get() {
+        return value;
+    }
+}</div>
+                        <p><strong>Usage:</strong></p>
+                        <div class="code-block">Box&lt;String&gt; stringBox = new Box&lt;&gt;();
+stringBox.set("Hello");
+String value = stringBox.get();
+
+Box&lt;Integer&gt; intBox = new Box&lt;&gt;();
+intBox.set(42);
+Integer value = intBox.get();</div>
+                        <p><strong>Same logic, different types!</strong></p>
+                    </div>
+                `
+            },
+            {
+                id: 3,
+                title: "Types of Generics",
+                content: `
+                    <div class="content-header">
+                        <h2>3. Types of Generics</h2>
+                        <p>Where generics can be applied</p>
+                    </div>
+                    <div class="content-body">
+                        <p><strong>1. Generic Class:</strong></p>
+                        <div class="code-block">class Box&lt;T&gt; {
+    private T value;
+}</div>
+                        <p><strong>2. Generic Method:</strong></p>
+                        <div class="code-block">public &lt;T&gt; void print(T value) {
+    System.out.println(value);
+}</div>
+                        <p><strong>3. Generic Interface:</strong></p>
+                        <div class="code-block">interface Repository&lt;T&gt; {
+    void save(T obj);
+    T findById(int id);
+}</div>
+                        <p><strong>When to use:</strong></p>
+                        <ul>
+                            <li>Logic is same across types</li>
+                            <li>Only data type changes</li>
+                            <li>Need compile-time type safety</li>
+                        </ul>
+                    </div>
+                `
+            },
+            {
+                id: 4,
+                title: "Bounded Generics",
+                content: `
+                    <div class="content-header">
+                        <h2>4. Restricting Generics (Bounded Generics)</h2>
+                        <p>Limiting which types can be used</p>
+                    </div>
+                    <div class="content-body">
+                        <p><strong>Sometimes we don't want every type. We want only specific types.</strong></p>
+                        <p><strong>1. Bounded by Class:</strong></p>
+                        <div class="code-block">class Box&lt;T extends Number&gt; {
+    // Only Integer, Double, Float, Long allowed
+}</div>
+                        <p><strong>2. Bounded by Interface:</strong></p>
+                        <div class="code-block">interface Printable {}
+class Book implements Printable {}
+class Printer&lt;T extends Printable&gt; {}</div>
+                        <p><strong>3. Multiple Bounds:</strong></p>
+                        <div class="code-block">class Box&lt;T extends Number & Comparable&gt; {
+    // Must extend Number AND implement Comparable
+}</div>
+                        <p><strong>4. Wildcard Bounds:</strong></p>
+                        <div class="code-block">List&lt;? extends Number&gt; numList;  // Upper bound
+List&lt;? super Integer&gt; intList;    // Lower bound</div>
+                    </div>
+                `
+            },
+            {
+                id: 5,
+                title: "Type Erasure",
+                content: `
+                    <div class="content-header">
+                        <h2>5. Type Erasure (Internal Working)</h2>
+                        <p>How generics work under the hood</p>
+                    </div>
+                    <div class="content-body">
+                        <p><strong>Type Erasure:</strong> Generics are only a compile-time feature. At runtime, type information is erased.</p>
+                        <p><strong>Example:</strong></p>
+                        <div class="code-block">// Compile time
+List&lt;String&gt; stringList = new ArrayList&lt;&gt;();
+
+// Runtime (after type erasure)
+List stringList = new ArrayList();  // Type info removed!</div>
+                        <p><strong>Why does this matter?</strong></p>
+                        <ul>
+                            <li>Can't use generics with primitives: List&lt;int&gt; ❌ (use List&lt;Integer&gt; instead)</li>
+                            <li>Can't create generic arrays: new T[10] ❌</li>
+                            <li>Can't use instanceof with generic types: list instanceof List&lt;String&gt; ❌</li>
+                            <li>Cannot throw or catch generic exceptions</li>
+                        </ul>
+                        <div class="tip">
+                            <strong>Remember:</strong> Generics are purely for compile-time type checking. At runtime, all generic type information is removed and replaced with Object.
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 6,
+                title: "Wildcards",
+                content: `
+                    <div class="content-header">
+                        <h2>6. Wildcards (extends vs super)</h2>
+                        <p>Flexible type parameters</p>
+                    </div>
+                    <div class="content-body">
+                        <p><strong>1. Upper Bound Wildcard (extends):</strong></p>
+                        <div class="code-block">List&lt;? extends Number&gt; numbers;
+// Can read, but can't add</div>
+                        <p>Use when: You only need to read/consume data</p>
+                        <p><strong>2. Lower Bound Wildcard (super):</strong></p>
+                        <div class="code-block">List&lt;? super Integer&gt; numbers;
+// Can add, but reading returns Object</div>
+                        <p>Use when: You need to add/produce data</p>
+                        <p><strong>3. Unbounded Wildcard (?):</strong></p>
+                        <div class="code-block">List&lt;?&gt; list;  // Any type</div>
+                        <p><strong>PECS Rule (Producer Extends, Consumer Super):</strong></p>
+                        <ul>
+                            <li>Use ? extends for reading (consuming)</li>
+                            <li>Use ? super for writing (producing)</li>
+                        </ul>
+                    </div>
+                `
+            }
+        ];
+
+        const topicsList = document.getElementById('topicsList');
+        topics.forEach(topic => {
+            const item = document.createElement('div');
+            item.className = 'topic-item';
+            item.textContent = topic.title;
+            item.onclick = () => selectTopic(topic.id, item);
+            topicsList.appendChild(item);
+        });
+
+        function selectTopic(id, element) {
+            document.querySelectorAll('.topic-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+            const topic = topics.find(t => t.id === id);
+            document.getElementById('contentArea').innerHTML = topic.content;
+        }
+    </script>
+</body>
+</html>
+

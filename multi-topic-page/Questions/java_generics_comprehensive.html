@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Generics - Complete Comprehensive Guide</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI'; background: #f5f5f5; color: #333333; height: 100vh; overflow: hidden; }
+        .container { display: flex; height: 100vh; }
+        .sidebar { width: 40%; background: #ffffff; border-right: 2px solid #ddd; overflow-y: auto; padding: 20px; }
+        .sidebar-header { padding: 0 0 20px 0; border-bottom: 2px solid #2563eb; margin-bottom: 20px; }
+        .sidebar-header h1 { font-size: 1.3em; color: #2563eb; }
+        .sidebar-header p { font-size: 0.75em; color: #999; margin-top: 5px; }
+        .topic-item { padding: 12px 15px; cursor: pointer; border-left: 3px solid transparent; transition: all 0.3s; color: #666666; font-size: 0.9em; }
+        .topic-item:hover { background: #f0f0f0; color: #2563eb; border-left-color: #2563eb; padding-left: 18px; }
+        .topic-item.active { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; }
+        .content-area { width: 60%; background: #ffffff; overflow-y: auto; padding: 40px; }
+        .content-header h2 { font-size: 2em; color: #2563eb; margin-bottom: 8px; text-align: left; }
+        .content-header p { color: #0066cc; font-style: italic; margin-bottom: 20px; border-bottom: 1px solid #ddd; padding-bottom: 15px; text-align: left; }
+        .content-body { text-align: left; }
+        .content-body p { margin-bottom: 15px; line-height: 1.8; color: #333333; text-align: left; }
+        .content-body ul, .content-body ol { margin-left: 30px; margin-bottom: 15px; text-align: left; }
+        .content-body li { margin-bottom: 8px; color: #333333; text-align: left; }
+        .content-body strong { color: #2563eb; }
+        .code-block { background: #f5f5f5; padding: 15px; border-radius: 6px; border-left: 3px solid #2563eb; color: #333333; font-family: 'Courier New'; font-size: 0.85em; margin: 15px 0; overflow-x: auto; white-space: pre-wrap; word-break: break-all; line-height: 1.6; text-align: left; }
+        .tip { background: #e8f0ff; border-left: 4px solid #2563eb; padding: 15px; margin: 15px 0; border-radius: 6px; color: #0066cc; text-align: left; }
+        .back-link { color: #2563eb; text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 20px; display: inline-block; font-size: 0.95em; }
+        .back-link:hover { text-decoration: underline; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        table td, table th { border: 1px solid #ddd; padding: 8px; text-align: left; color: #333333; }
+        table th { background: #f0f0f0; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f0f0f0; }
+        ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>🔤 Java Generics</h1>
+                <p>40 Complete Sections</p>
+            </div>
+            <div id="topicsList"></div>
+        </div>
+        <div class="content-area">
+            <a href="java_master_index.html" class="back-link">← Back to Master Index</a>
+            <div id="contentArea" style="text-align:center; color: #999; padding: 50px;">Click on a topic →</div>
+        </div>
+    </div>
+
+    <script>
+        const topics = [
+            {
+                id: 1,
+                title: "1. Why Generics Were Introduced",
+                content: `<div class="content-header"><h2>1. Why Generics Were Introduced?</h2><p>Type safety problem and its solution</p></div>
+                <div class="content-body">
+                <p><strong>Problem Before Generics:</strong> Collections accepted any type of object.</p>
+                <div class="code-block">List list = new ArrayList();
+
+list.add("Java");
+list.add(100);
+
+String s = (String) list.get(1);
+// ClassCastException at runtime!</div>
+                <p><strong>Issues:</strong></p>
+                <ul>
+                <li>Collections were not type-safe</li>
+                <li>Type mismatches detected only at runtime</li>
+                <li>Explicit casting required</li>
+                <li>Higher chance of ClassCastException</li>
+                </ul>
+                <p><strong>Solution - Generics:</strong> Introduce compile-time type safety.</p>
+                <div class="code-block">List<String> list = new ArrayList<>();
+
+list.add("Java");
+
+// list.add(100); ❌ compile-time error
+
+String s = list.get(0);
+// No casting needed!</div>
+                <p><strong>Benefits:</strong></p>
+                <ul>
+                <li>Compile-time type checking</li>
+                <li>Wrong types rejected before runtime</li>
+                <li>No unnecessary casting</li>
+                <li>Easier to understand code</li>
+                <li>Reusable generic code</li>
+                </ul></div>`
+            },
+            {
+                id: 2,
+                title: "2. Core Concept - Parameterized Types",
+                content: `<div class="content-header"><h2>2. Core Concept - Parameterized Types</h2><p>Write once, reuse for multiple types</p></div>
+                <div class="content-body">
+                <p><strong>Problem:</strong> Create containers for different types without losing type safety.</p>
+                <div class="code-block">class Box {
+    private Object value;
+
+    public void set(Object value) {
+        this.value = value;
+    }
+
+    public Object get() {
+        return value;
+    }
+}
+
+// Caller must cast
+Box box = new Box();
+box.set("Java");
+String value = (String) box.get();
+// Loses compile-time safety!</div>
+                <p><strong>Solution - Use Type Parameter T:</strong></p>
+                <div class="code-block">class Box<T> {
+    private T value;
+
+    public void set(T value) {
+        this.value = value;
+    }
+
+    public T get() {
+        return value;
+    }
+}
+
+// Usage
+Box<String> stringBox = new Box<>();
+stringBox.set("Java");
+String value = stringBox.get();  // No casting!
+
+Box<Integer> intBox = new Box<>();
+intBox.set(100);
+Integer num = intBox.get();  // No casting!</div>
+                <div class="tip">Generics = write the logic once, reuse it for multiple types while keeping type safety!</div></div>`
+            },
+            {
+                id: 3,
+                title: "3. Generic Class",
+                content: `<div class="content-header"><h2>3. Generic Class</h2><p>Class-level type parameters for reusability</p></div>
+                <div class="content-body">
+                <p><strong>Definition:</strong> A generic class declares a type parameter at class level.</p>
+                <div class="code-block">class Box<T> {
+    private T value;
+
+    public Box(T value) {
+        this.value = value;
+    }
+
+    public T get() {
+        return value;
+    }
+
+    public void set(T value) {
+        this.value = value;
+    }
+}
+
+// Usage
+Box<String> stringBox = new Box<>("Java");
+Box<Integer> integerBox = new Box<>(100);</div>
+                <p><strong>Conceptually:</strong></p>
+                <div class="code-block">Box<T>
+  │
+  ├── T = String  → Box<String>
+  ├── T = Integer → Box<Integer>
+  └── T = Double  → Box<Double></div>
+                <p><strong>Use Generic Class When:</strong></p>
+                <ul>
+                <li>Logic is the same for different types</li>
+                <li>Only data type changes</li>
+                <li>Want reusable component</li>
+                <li>Need compile-time type safety</li>
+                </ul></div>`
+            },
+            {
+                id: 4,
+                title: "4. Generic Method",
+                content: `<div class="content-header"><h2>4. Generic Method</h2><p>Method-level type parameters</p></div>
+                <div class="content-body">
+                <p><strong>Definition:</strong> A method can have its own type parameter.</p>
+                <div class="code-block">public <T> void print(T value) {
+    System.out.println(value);
+}
+
+// Works with any type
+print("Java");         // String
+print(100);            // Integer
+print(10.5);           // Double
+print(true);           // Boolean</div>
+                <p><strong>Important:</strong> Generic method doesn't require enclosing class to be generic.</p>
+                <div class="code-block">class Printer {
+    // Generic method
+    public <T> void print(T value) {
+        System.out.println(value);
+    }
+
+    // Generic method with multiple types
+    public <K, V> void printMap(K key, V value) {
+        System.out.println(key + " : " + value);
+    }
+}</div></div>`
+            },
+            {
+                id: 5,
+                title: "5. Generic Interface",
+                content: `<div class="content-header"><h2>5. Generic Interface</h2><p>Interface-level type parameters</p></div>
+                <div class="content-body">
+                <p><strong>Definition:</strong> Interfaces can have type parameters.</p>
+                <div class="code-block">interface Repository<T> {
+    void save(T obj);
+    T findById(long id);
+}
+
+// Implementation with specific type
+class UserRepository implements Repository<User> {
+    @Override
+    public void save(User user) {
+        // save user
+    }
+
+    @Override
+    public User findById(long id) {
+        // find user by id
+    }
+}
+
+// Another implementation
+class OrderRepository implements Repository<Order> {
+    @Override
+    public void save(Order order) {
+        // save order
+    }
+
+    @Override
+    public Order findById(long id) {
+        // find order by id
+    }
+}</div>
+                <p><strong>Real-World Example - Spring Data:</strong></p>
+                <div class="code-block">public interface JpaRepository<T, ID> {
+    // T = Entity type
+    // ID = Identifier type
+}</div></div>`
+            },
+            {
+                id: 6,
+                title: "6. Restricting Generic Types - Bounded Generics",
+                content: `<div class="content-header"><h2>6. Restricting Generic Types - Bounded Generics</h2><p>Control which types are allowed</p></div>
+                <div class="content-body">
+                <p><strong>Problem:</strong> Generic class Box<T> shouldn't accept every type - only numbers.</p>
+                <div class="code-block">class Box<T> {
+    // Should only work with Integer, Double, Float, Long
+    // NOT with String, User, etc.
+}</div>
+                <p><strong>Solution - Use Bounded Generic:</strong></p>
+                <div class="code-block">class Box<T extends Number> {
+    // T must be Number or subclass of Number
+}
+
+// Valid
+Box<Integer> intBox = new Box<>();
+Box<Double> doubleBox = new Box<>();
+Box<Float> floatBox = new Box<>();
+
+// Invalid
+Box<String> stringBox = new Box<>();  // ❌ compile-time error</div>
+                <p><strong>How It Works:</strong></p>
+                <div class="code-block">T extends Number
+        ↓
+T must belong to Number hierarchy
+
+Valid Types:
+- Integer extends Number
+- Double extends Number
+- Float extends Number
+- Long extends Number
+- BigDecimal extends Number</div></div>`
+            },
+            {
+                id: 7,
+                title: "7. Bounded Generics with Interface",
+                content: `<div class="content-header"><h2>7. Bounded Generics Using Common Interface</h2><p>Restrict types through interface contract</p></div>
+                <div class="content-body">
+                <p><strong>Problem:</strong> Allowed types don't share common superclass.</p>
+                <div class="code-block">class Book { }
+class Report { }
+
+// Both should be acceptable to a printer
+// But they don't share a common superclass</div>
+                <p><strong>Solution - Create Common Interface:</strong></p>
+                <div class="code-block">interface Printable {
+    String getContent();
+}
+
+class Book implements Printable {
+    @Override
+    public String getContent() {
+        return "Book content";
+    }
+}
+
+class Report implements Printable {
+    @Override
+    public String getContent() {
+        return "Report content";
+    }
+}
+
+// Now use bounded generic
+class Printer<T extends Printable> {
+    void print(T item) {
+        System.out.println(item.getContent());
+    }
+}
+
+// Usage
+Printer<Book> bookPrinter = new Printer<>();
+Printer<Report> reportPrinter = new Printer<>();</div></div>`
+            },
+            {
+                id: 8,
+                title: "8. Multiple Bounds",
+                content: `<div class="content-header"><h2>8. Multiple Bounds</h2><p>Enforce multiple constraints</p></div>
+                <div class="content-body">
+                <p><strong>Problem:</strong> T must satisfy multiple requirements.</p>
+                <p>T must:</p>
+                <ol>
+                <li>Extend Number</li>
+                <li>Implement Comparable<T></li>
+                </ol>
+                <p><strong>Solution - Multiple Bounds:</strong></p>
+                <div class="code-block">class Data<T extends Number & Comparable<T>> {
+    // T must:
+    // 1. Be Number or subclass
+    // 2. Implement Comparable<T>
+}
+
+// Valid
+Data<Integer> intData = new Data<>();    // ✅ extends Number, implements Comparable
+Data<Double> doubleData = new Data<>();  // ✅ extends Number, implements Comparable
+
+// Invalid
+Data<String> stringData = new Data<>();  // ❌ doesn't extend Number</div>
+                <p><strong>Syntax Rules:</strong></p>
+                <ul>
+                <li>Class bound must come FIRST</li>
+                <li>One class + multiple interfaces allowed</li>
+                <li>Interfaces separated by &</li>
+                </ul>
+                <div class="code-block">// Correct
+<T extends Number & Comparable<T> & Serializable>
+
+// Wrong (class must be first)
+<T extends Comparable<T> & Number></div></div>`
+            },
+            {
+                id: 9,
+                title: "9. Generic Invariance Problem",
+                content: `<div class="content-header"><h2>9. Generic Invariance - The Problem</h2><p>Why List<Integer> is NOT List<Number></p></div>
+                <div class="content-body">
+                <p><strong>Question:</strong> Since Integer extends Number, shouldn't List<Integer> be assignable to List<Number>?</p>
+                <div class="code-block">Integer extends Number  // ✅ This is true
+
+But...
+
+List<Integer> extends List<Number>  // ❌ NOT automatically true!</div>
+                <p><strong>Why This Doesn't Work:</strong></p>
+                <div class="code-block">List<Integer> integers = new ArrayList<>();
+
+List<Number> numbers = integers;
+// ❌ compile-time error
+
+// If this were allowed:
+// numbers could add a Double: numbers.add(10.5)
+// But integers is List<Integer> - can't hold Double!
+// Type safety violated!</div>
+                <p><strong>Key Concept:</strong> Java generics are INVARIANT.</p>
+                <div class="code-block">Integer extends Number
+            ↓
+        (does NOT imply)
+            ↓
+List<Integer> extends List<Number>
+
+Inheritance relationship of type parameters
+does NOT automatically create inheritance relationship
+of generic types</div>
+                <p><strong>Why It Matters:</strong> Generics are invariant to preserve type safety.</p></div>`
+            },
+            {
+                id: 10,
+                title: "10. Solution - Wildcards",
+                content: `<div class="content-header"><h2>10. Solution - Wildcards</h2><p>Making generics flexible while preserving safety</p></div>
+                <div class="content-body">
+                <p><strong>Problem:</strong> Need method accepting List<Number>, List<Integer>, List<Double>, etc.</p>
+                <div class="code-block">void print(List<Number> list) { }
+
+// This only accepts List<Number>
+// Does NOT accept List<Integer> or List<Double></div>
+                <p><strong>Solution - Use Wildcard:</strong></p>
+                <div class="code-block">void print(List<? extends Number> list) { }
+
+// This accepts:
+// - List<Number>
+// - List<Integer>
+// - List<Double>
+// - List<Float>
+// - List<Long></div>
+                <p><strong>Wildcard Types:</strong></p>
+                <div class="code-block">Wildcards
+│
+├── Unbounded: ?
+│   Meaning: List<?> - unknown type
+│
+├── Upper Bounded: ? extends T
+│   Meaning: List<? extends Number> - Number or subtype
+│
+└── Lower Bounded: ? super T
+    Meaning: List<? super Integer> - Integer or supertype</div></div>`
+            },
+            {
+                id: 11,
+                title: "11. Unbounded Wildcard - ?",
+                content: `<div class="content-header"><h2>11. Unbounded Wildcard - ?</h2><p>Unknown type flexibility</p></div>
+                <div class="content-body">
+                <p><strong>Meaning:</strong> List<?> = A list of some unknown type.</p>
+                <p>Could be: List<String>, List<Integer>, List<Double>, etc.</p>
+                <div class="code-block">void printList(List<?> list) {
+    // Can read as Object
+    Object value = list.get(0);
+    System.out.println(value);
+}
+
+// Usage
+List<String> strings = Arrays.asList("Java", "Python");
+List<Integer> integers = Arrays.asList(1, 2, 3);
+
+printList(strings);   // ✅ Works
+printList(integers);  // ✅ Works</div>
+                <p><strong>Reading:</strong> Allowed</p>
+                <div class="code-block">Object obj = list.get(0);  // ✅</div>
+                <p><strong>Adding:</strong> Not Safely Allowed</p>
+                <div class="code-block">list.add(10);      // ❌ What type is the list?
+list.add("Java");  // ❌ Don't know actual type
+
+list.add(null);    // ✅ Only null is always safe</div>
+                <p><strong>Use When:</strong></p>
+                <ul>
+                <li>Exact type doesn't matter</li>
+                <li>Only reading/inspecting</li>
+                <li>Logging, printing, debugging</li>
+                <li>Accepting any generic collection</li>
+                </ul></div>`
+            },
+            {
+                id: 12,
+                title: "12. Upper Bounded Wildcard - ? extends T",
+                content: `<div class="content-header"><h2>12. Upper Bounded Wildcard - ? extends T</h2><p>Accept subtypes for safe reading</p></div>
+                <div class="content-body">
+                <p><strong>Meaning:</strong> List<? extends Number> - Number or any subtype.</p>
+                <div class="code-block">List<? extends Number> list;
+
+// Can be:
+List<Number>    // ✅
+List<Integer>   // ✅
+List<Double>    // ✅
+List<Float>     // ✅
+
+// Cannot be:
+List<String>    // ❌</div>
+                <p><strong>Example:</strong></p>
+                <div class="code-block">void printNumbers(List<? extends Number> list) {
+    for (Number n : list) {
+        System.out.println(n);
+    }
+}
+
+// Usage
+List<Integer> integers = Arrays.asList(1, 2, 3);
+List<Double> doubles = Arrays.asList(1.5, 2.5, 3.5);
+
+printNumbers(integers);  // ✅
+printNumbers(doubles);   // ✅</div>
+                <p><strong>Reading:</strong> Safe</p>
+                <div class="code-block">Number n = list.get(0);  // ✅ Safe</div>
+                <p><strong>Adding:</strong> NOT Safe</p>
+                <div class="code-block">list.add(10);     // ❌ What subtype is it?
+list.add(10.5);   // ❌ Could be List<Integer>!
+
+// Problem: If list is List<Integer>, adding Double violates type!</div>
+                <p><strong>Rule:</strong> ? extends T → Read safely, don't add</p></div>`
+            },
+            {
+                id: 13,
+                title: "13. Lower Bounded Wildcard - ? super T",
+                content: `<div class="content-header"><h2>13. Lower Bounded Wildcard - ? super T</h2><p>Accept supertypes for safe writing</p></div>
+                <div class="content-body">
+                <p><strong>Meaning:</strong> List<? super Integer> - Integer or any supertype.</p>
+                <div class="code-block">List<? super Integer> list;
+
+// Can be:
+List<Integer>   // ✅
+List<Number>    // ✅
+List<Object>    // ✅
+
+// Cannot be:
+List<Double>    // ❌ (Double is not supertype of Integer)</div>
+                <p><strong>Example:</strong></p>
+                <div class="code-block">void addNumbers(List<? super Integer> list) {
+    list.add(10);  // ✅ Always safe
+}
+
+// Usage
+List<Integer> integers = new ArrayList<>();
+List<Number> numbers = new ArrayList<>();
+List<Object> objects = new ArrayList<>();
+
+addNumbers(integers);  // ✅
+addNumbers(numbers);   // ✅
+addNumbers(objects);   // ✅</div>
+                <p><strong>Adding:</strong> Safe</p>
+                <div class="code-block">list.add(10);  // ✅ Integer works everywhere
+
+// Integer → Integer ✅
+// Integer → Number ✅
+// Integer → Object ✅</div>
+                <p><strong>Reading:</strong> Only as Object</p>
+                <div class="code-block">Object obj = list.get(0);  // ✅ Safe
+Integer i = list.get(0);   // ❌ Could be Number or Object!</div>
+                <p><strong>Rule:</strong> ? super T → Write safely, read as Object</p></div>`
+            },
+            {
+                id: 14,
+                title: "14. PECS - Producer Extends, Consumer Super",
+                content: `<div class="content-header"><h2>14. PECS - The Golden Rule</h2><p>Producer Extends, Consumer Super</p></div>
+                <div class="content-body">
+                <p><strong>PECS Rule:</strong> One of the most important Java generics concepts.</p>
+                <div class="code-block">PECS
+├─ P → Producer
+├─ E → Extends
+├─ C → Consumer
+└─ S → Super</div>
+                <p><strong>Producer → extends → Read</strong></p>
+                <p>If collection PRODUCES data for you to READ:</p>
+                <div class="code-block">List<? extends Number> list;
+// Use this when READING from collection</div>
+                <p><strong>Consumer → super → Write</strong></p>
+                <p>If collection CONSUMES data that you WRITE:</p>
+                <div class="code-block">List<? super Integer> list;
+// Use this when WRITING to collection</div>
+                <p><strong>Memory Aid:</strong></p>
+                <div class="code-block">Producer → extends → Read
+Consumer → super   → Write
+
+extends = Read
+super   = Write</div>
+                <p><strong>Real-World Examples:</strong></p>
+                <div class="code-block">// Reader (Producer) - use extends
+public void printAll(List<? extends Number> numbers) {
+    for (Number n : numbers) {
+        System.out.println(n);
+    }
+}
+
+// Writer (Consumer) - use super
+public void fillWithNumbers(List<? super Integer> list) {
+    list.add(1);
+    list.add(2);
+    list.add(3);
+}</div></div>`
+            },
+            {
+                id: 15,
+                title: "15. T vs ? - Key Differences",
+                content: `<div class="content-header"><h2>15. T vs ? - Named vs Unnamed Type Parameter</h2><p>When to use each approach</p></div>
+                <div class="content-body">
+                <p><strong>Comparison Table:</strong></p>
+                <table>
+                <tr><th>Feature</th><th>&lt;T&gt;</th><th>?</th></tr>
+                <tr><td>Named type</td><td>Yes</td><td>No</td></tr>
+                <tr><td>Reusable parameter</td><td>Yes</td><td>No</td></tr>
+                <tr><td>In generic declaration</td><td>Yes</td><td>No</td></tr>
+                <tr><td>In method parameters</td><td>Yes</td><td>Yes</td></tr>
+                <tr><td>Represents unknown type</td><td>Not necessarily</td><td>Yes</td></tr>
+                <tr><td>Connect multiple parameters</td><td>Yes</td><td>No</td></tr>
+                </table>
+                <p><strong>Example - Named Type Parameter (T):</strong></p>
+                <div class="code-block">public <T> T first(List<T> list) {
+    return list.get(0);  // Return type must match input type
+}
+
+List<String> strings = Arrays.asList("A", "B");
+String result = first(strings);  // ✅ T is String</div>
+                <p><strong>Example - Wildcard (?):</strong></p>
+                <div class="code-block">public Object first(List<?> list) {
+    return list.get(0);  // Can only return Object
+}
+
+List<String> strings = Arrays.asList("A", "B");
+Object result = first(strings);  // Result is Object</div>
+                <p><strong>Use T When:</strong></p>
+                <ul>
+                <li>Need to name the type parameter</li>
+                <li>Type appears multiple times</li>
+                <li>Need to enforce type relationship across parameters</li>
+                </ul>
+                <p><strong>Use ? When:</strong></p>
+                <ul>
+                <li>Exact type is unknown or doesn't matter</li>
+                <li>Type appears only once</li>
+                <li>Want to accept family of related generic types</li>
+                </ul></div>`
+            },
+            {
+                id: 16,
+                title: "16. Type Erasure - Internal Working",
+                content: `<div class="content-header"><h2>16. Type Erasure - How Generics Work Internally</h2><p>What happens after compilation</p></div>
+                <div class="content-body">
+                <p><strong>Question:</strong> How does Java maintain backward compatibility with pre-generic code?</p>
+                <p><strong>Answer:</strong> Through TYPE ERASURE.</p>
+                <p><strong>Concept:</strong> Generic type information is removed during compilation.</p>
+                <div class="code-block">List<String>
+       ↓
+Compile
+       ↓
+List</div>
+                <p><strong>Examples:</strong></p>
+                <div class="code-block">List<String> list1 = new ArrayList<>();
+List<Integer> list2 = new ArrayList<>();
+
+// At runtime:
+list1.getClass() == list2.getClass();  // true!
+
+// Both represent the same List class</div>
+                <p><strong>How Compiler Uses Generics:</strong></p>
+                <div class="code-block">Source Code
+   ↓
+Generic Type Checking
+   ↓
+Insert Type Casts where needed
+   ↓
+Type-Erased Bytecode
+   ↓
+JVM executes</div>
+                <p><strong>Interview Answer:</strong></p>
+                <p>Generics provide compile-time type safety. Java uses type erasure for backward compatibility. Generic type information is primarily used by the compiler for checking and is not fully retained as parameterized runtime types.</p></div>`
+            },
+            {
+                id: 17,
+                title: "17. Limitations of Generics",
+                content: `<div class="content-header"><h2>17. Limitations of Generics</h2><p>What you cannot do with generics</p></div>
+                <div class="content-body">
+                <p><strong>Limitation 1 - No Primitive Types:</strong></p>
+                <div class="code-block">List<int> list;      // ❌ NOT allowed
+List<Integer> list;  // ✅ Use wrapper
+
+// Primitives vs Wrappers:
+int     → Integer
+long    → Long
+double  → Double
+boolean → Boolean</div>
+                <p><strong>Limitation 2 - Cannot Create new T():</strong></p>
+                <div class="code-block">class Factory<T> {
+    T create() {
+        return new T();  // ❌ Runtime doesn't know T
+    }
+}
+
+// Solution - use Supplier
+class Factory<T> {
+    private final Supplier<T> supplier;
+
+    Factory(Supplier<T> supplier) {
+        this.supplier = supplier;
+    }
+
+    T create() {
+        return supplier.get();  // ✅
+    }
+}</div>
+                <p><strong>Limitation 3 - Generic Arrays:</strong></p>
+                <div class="code-block">T[] arr = new T[10];  // ❌ Cannot create generic array
+
+// Workaround
+List<T> list = new ArrayList<>();  // ✅ Use List instead</div>
+                <p><strong>Limitation 4 - instanceof With Parameterized Type:</strong></p>
+                <div class="code-block">if (list instanceof List<String>) { }  // ❌
+
+if (list instanceof List<?>) { }     // ✅ Unbounded OK</div></div>`
+            },
+            {
+                id: 18,
+                title: "18. Common Interview Traps",
+                content: `<div class="content-header"><h2>18. Common Interview Traps</h2><p>Frequently asked questions with tricky answers</p></div>
+                <div class="content-body">
+                <p><strong>Trap 1 - Why can't we add to ? extends?</strong></p>
+                <div class="code-block">List<? extends Number> list;
+
+list.add(10);  // ❌ Why not allowed?
+
+// Answer: Actual subtype unknown
+// Could be List<Integer> or List<Double>
+// Adding Integer to List<Double> violates type safety!</div>
+                <p><strong>Trap 2 - Why does ? super return Object?</strong></p>
+                <div class="code-block">List<? super Integer> list;
+
+Object obj = list.get(0);  // ✅
+Integer i = list.get(0);   // ❌
+
+// Answer: Actual supertype unknown
+// Could be Integer/Number/Object
+// Only Object guaranteed</div>
+                <p><strong>Trap 3 - Why isn't List<Integer> a List<Number>?</strong></p>
+                <div class="code-block">Integer extends Number  // true
+List<Integer> extends List<Number>  // FALSE!
+
+// Answer: Generics are invariant
+// Inheritance of type parameters doesn't imply
+// inheritance of generic types</div>
+                <p><strong>Trap 4 - Why is raw type dangerous?</strong></p>
+                <div class="code-block">List list = new ArrayList();  // ❌ Raw type
+list.add(10);
+list.add("String");
+
+// Compiles but dangerous at runtime!
+// Type safety lost</div></div>`
+            },
+            {
+                id: 19,
+                title: "19. Real-World Usage",
+                content: `<div class="content-header"><h2>19. Real-World Usage</h2><p>Generics in production code</p></div>
+                <div class="content-body">
+                <p><strong>Collections:</strong></p>
+                <div class="code-block">List<String> names = new ArrayList<>();
+Map<String, Integer> scores = new HashMap<>();
+Set<User> users = new HashSet<>();</div>
+                <p><strong>Spring Data Repository:</strong></p>
+                <div class="code-block">public interface UserRepository extends JpaRepository<User, Long> {
+    // JpaRepository<User, Long>
+    // - User = Entity type
+    // - Long = Identifier type
+}</div>
+                <p><strong>Generic Response Wrapper:</strong></p>
+                <div class="code-block">class ApiResponse<T> {
+    private T data;
+    private String message;
+
+    public T getData() { return data; }
+}
+
+// Usage
+ApiResponse<User> userResponse;
+ApiResponse<List<Order>> ordersResponse;
+ApiResponse<Product> productResponse;</div>
+                <p><strong>Utility Methods:</strong></p>
+                <div class="code-block">public <T> T getFirst(List<T> list) {
+    return list.isEmpty() ? null : list.get(0);
+}
+
+String first = getFirst(Arrays.asList("A", "B"));
+Integer firstInt = getFirst(Arrays.asList(1, 2, 3));</div></div>`
+            },
+            {
+                id: 20,
+                title: "20. Generic Class Implementation Checklist",
+                content: `<div class="content-header"><h2>20. Generic Class Implementation Checklist</h2><p>Step-by-step guide</p></div>
+                <div class="content-body">
+                <p><strong>Steps:</strong></p>
+                <ol>
+                <li>Define the type parameter</li>
+                <li>Add private fields using type parameter</li>
+                <li>Add constructor</li>
+                <li>Add getter</li>
+                <li>Add setter</li>
+                <li>Use type consistently</li>
+                </ol>
+                <p><strong>Example:</strong></p>
+                <div class="code-block">// Step 1: Define type parameter
+class Container<T> {
+
+    // Step 2: Private field with type T
+    private T value;
+
+    // Step 3: Constructor
+    public Container(T value) {
+        this.value = value;
+    }
+
+    // Step 4: Getter
+    public T getValue() {
+        return value;
+    }
+
+    // Step 5: Setter
+    public void setValue(T value) {
+        this.value = value;
+    }
+}
+
+// Step 6: Use consistently
+Container<String> c1 = new Container<>("Java");
+Container<Integer> c2 = new Container<>(100);</div></div>`
+            },
+            {
+                id: 21,
+                title: "21. When To Use Generics",
+                content: `<div class="content-header"><h2>21. When To Use Generics</h2><p>Design guidelines</p></div>
+                <div class="content-body">
+                <p><strong>USE Generics When:</strong></p>
+                <ul>
+                <li><strong>Logic is the same:</strong> Box<String> and Box<Integer> have identical behavior</li>
+                <li><strong>Building reusable components:</strong> Repository<T> works for any entity</li>
+                <li><strong>Designing APIs:</strong> Express expected type clearly</li>
+                <li><strong>Framework development:</strong> Reusable abstractions benefit from generics</li>
+                <li><strong>Want compile-time type safety:</strong> Prevent runtime ClassCastException</li>
+                </ul>
+                <p><strong>DON'T Overuse Generics When:</strong></p>
+                <ul>
+                <li><strong>Only one type needed:</strong> StringBox might be clearer than Box<T></li>
+                <li><strong>Logic heavily depends on concrete type:</strong> Implementation completely different for each type</li>
+                <li><strong>Over-engineering:</strong> Generics add complexity without benefit</li>
+                </ul>
+                <p><strong>Rule:</strong> Use generics when they improve reuse, type safety, or API design - not just to make code look generic.</p></div>`
+            },
+            {
+                id: 22,
+                title: "22. Quick Reference - Generics Comparison",
+                content: `<div class="content-header"><h2>22. Quick Reference Table</h2><p>All important concepts summarized</p></div>
+                <div class="content-body">
+                <table>
+                <tr><th>Concept</th><th>Meaning</th></tr>
+                <tr><td>T</td><td>Named type parameter</td></tr>
+                <tr><td>&lt;T&gt;</td><td>Declares a type parameter</td></tr>
+                <tr><td>?</td><td>Unknown type (wildcard)</td></tr>
+                <tr><td>? extends T</td><td>Unknown subtype of T; read from producer</td></tr>
+                <tr><td>? super T</td><td>Unknown supertype of T; write to consumer</td></tr>
+                <tr><td>T extends Number</td><td>Restricts T to Number hierarchy</td></tr>
+                <tr><td>T extends A & B</td><td>Requires class and interface bounds</td></tr>
+                <tr><td>Raw type</td><td>Generic type without parameter (avoid)</td></tr>
+                <tr><td>Type erasure</td><td>Generic info removed at runtime</td></tr>
+                <tr><td>PECS</td><td>Producer Extends, Consumer Super</td></tr>
+                </table></div>`
+            },
+            {
+                id: 23,
+                title: "23. Wildcard Decision Table",
+                content: `<div class="content-header"><h2>23. Wildcard Decision Table</h2><p>When to use each wildcard type</p></div>
+                <div class="content-body">
+                <table>
+                <tr><th>Situation</th><th>Use</th></tr>
+                <tr><td>Type completely irrelevant</td><td>?</td></tr>
+                <tr><td>Reading from producer</td><td>? extends T</td></tr>
+                <tr><td>Writing to consumer</td><td>? super T</td></tr>
+                <tr><td>Need exact type named/reused</td><td>&lt;T&gt;</td></tr>
+                <tr><td>Need same type across parameters</td><td>&lt;T&gt;</td></tr>
+                <tr><td>Accept family of related types</td><td>Wildcard</td></tr>
+                </table></div>`
+            },
+            {
+                id: 24,
+                title: "24. extends vs super - Visual Memory",
+                content: `<div class="content-header"><h2>24. extends vs super - Visual Memory</h2><p>Understanding the hierarchy</p></div>
+                <div class="content-body">
+                <p><strong>? extends Number (Upper Bound):</strong></p>
+                <div class="code-block">        Number (can be actual type)
+       /      \
+ Integer      Double  (can be actual type)
+   ↑            ↑
+
+? extends Number
+→ Unknown subtype of Number
+→ Safe to READ as Number
+→ NOT safe to add specific values
+
+Read:
+Number n = list.get(0);  // ✅
+
+Write:
+list.add(10);  // ❌</div>
+                <p><strong>? super Integer (Lower Bound):</strong></p>
+                <div class="code-block">        Object (can be actual type)
+          ↑
+       Number  (can be actual type)
+          ↑
+       Integer (can be actual type)
+
+? super Integer
+→ Unknown supertype of Integer
+→ Safe to WRITE Integer
+→ Can only READ as Object
+
+Write:
+list.add(10);  // ✅
+
+Read:
+Object obj = list.get(0);  // ✅
+Integer i = list.get(0);   // ❌</div></div>`
+            },
+            {
+                id: 25,
+                title: "25. Complete Decision Flow",
+                content: `<div class="content-header"><h2>25. Complete Generics Decision Flow</h2><p>Step-by-step decision tree</p></div>
+                <div class="content-body">
+                <div class="code-block">Need reusable type-safe logic?
+          ↓
+        Yes
+          ↓
+     Use Generics
+          ↓
+Need a named type parameter?
+     ↙       ↘
+   Yes        No
+    ↓          ↓
+   <T>        ?
+    ↓
+Need to restrict allowed types?
+     ↓
+   Yes
+     ↓
+Common parent/interface?
+ ↙            ↘
+Yes            No
+ ↓              ↓
+Bounded        Runtime
+Generics       validation
+ ↓
+Need multiple constraints?
+     ↓
+Multiple bounds
+T extends A & B
+     ↓
+Need flexible family of generic types?
+     ↓
+Use wildcard
+     ↓
+Exact type unknown?
+ ↙            ↘
+Yes            No
+ ↓              ↓
+ ?            <T>
+ ↓
+Read?    Write?
+ ↙             ↘
+Yes            No
+ ↓              ↓
+extends        super</div></div>`
+            },
+            {
+                id: 26,
+                title: "26. Quick Revision Flow",
+                content: `<div class="content-header"><h2>26. Quick Revision Flow</h2><p>Learning progression</p></div>
+                <div class="content-body">
+                <div class="code-block">Problem
+   ↓
+Collections accepted any type
+   ↓
+Runtime ClassCastException
+   ↓
+Generics introduced
+   ↓
+Compile-Time Type Safety
+   ↓
+Parameterized Types
+   ↓
+Generic Class / Method / Interface
+   ↓
+Need Restrictions?
+   ↓
+Bounded Generics
+   ↓
+Need Multiple Constraints?
+   ↓
+Multiple Bounds
+   ↓
+Need Flexible Related Types?
+   ↓
+Wildcards
+   ↓
+? extends / ? super / ?
+   ↓
+PECS
+   ↓
+How Does JVM Handle Generics?
+   ↓
+Type Erasure
+   ↓
+Limitations
+   ↓
+Real-World Usage
+   ↓
+When to Use / Not Use Generics</div></div>`
+            },
+            {
+                id: 27,
+                title: "27. Must-Remember Points",
+                content: `<div class="content-header"><h2>27. Must-Remember Points</h2><p>Key takeaways</p></div>
+                <div class="content-body">
+                <div class="code-block">✅ Generics = Compile-time type safety
+
+✅ <T> = Named type parameter
+
+✅ ? = Unknown type
+
+✅ ? extends T = Producer, Read
+
+✅ ? super T = Consumer, Write
+
+✅ PECS = Producer Extends, Consumer Super
+
+✅ Generics are invariant
+   List<Integer> ≠ List<Number>
+
+✅ Type Erasure = Generic info removed at runtime
+
+✅ Bounded Generics = T extends Number
+
+✅ Multiple Bounds = T extends Number & Comparable<T>
+
+✅ Raw Types = Avoid
+
+✅ Primitive Generics = Not supported, use wrappers
+
+✅ new T() = Not allowed
+
+✅ Generic Array = Direct creation not allowed
+
+✅ instanceof List<String> = Not allowed</div></div>`
+            },
+            {
+                id: 28,
+                title: "28. Final Interview Answer",
+                content: `<div class="content-header"><h2>28. Complete Interview Answer</h2><p>What are Java Generics?</p></div>
+                <div class="content-body">
+                <p><strong>Full Answer:</strong></p>
+                <p>Generics allow us to write reusable code that works with different types while maintaining compile-time type safety. They were introduced to solve the type-safety problems of pre-Java-5 collections, where incorrect types could be inserted and failures happened at runtime through ClassCastException.</p>
+                <p>In Java, generics can be used with classes, methods and interfaces. If I need to restrict the allowed types, I can use bounded generics such as T extends Number or multiple bounds. If the exact generic type is unknown or I need to accept a family of related generic types, I use wildcards such as ?, ? extends T, or ? super T.</p>
+                <p>For wildcards, I remember PECS: Producer Extends, Consumer Super. ? extends T is mainly used for reading, while ? super T is mainly used for writing.</p>
+                <p>Internally, Java uses type erasure, so generic type information is primarily used by the compiler for type checking and is not fully retained as parameterized runtime types. This also explains limitations such as no primitive generic arguments, no new T(), generic-array restrictions, and inability to use instanceof List<String>.</p></div>`
+            },
+            {
+                id: 29,
+                title: "29. Restriction Guidelines",
+                content: `<div class="content-header"><h2>29. Restricting Generic Types</h2><p>When and how to restrict</p></div>
+                <div class="content-body">
+                <p><strong>To restrict the types a generic can accept:</strong></p>
+                <ol>
+                <li>Look for common superclass or interface</li>
+                <li>Use bounded generics with extends</li>
+                <li>For multiple requirements, use multiple bounds</li>
+                </ol>
+                <p><strong>Example - Single Bound:</strong></p>
+                <div class="code-block">class NumberBox<T extends Number> {
+    private T value;
+}</div>
+                <p><strong>Example - Multiple Bounds:</strong></p>
+                <div class="code-block">class ComparableNumber<T extends Number & Comparable<T>> {
+    private T value;
+}</div>
+                <p><strong>If types are unrelated:</strong></p>
+                <ul>
+                <li>Introduce common interface</li>
+                <li>Use wrapper design</li>
+                <li>Runtime validation when necessary</li>
+                </ul></div>`
+            },
+            {
+                id: 30,
+                title: "30. One-Page Mental Model",
+                content: `<div class="content-header"><h2>30. One-Page Mental Model</h2><p>Complete overview</p></div>
+                <div class="content-body">
+                <div class="code-block">                   GENERICS
+                      │
+          ┌───────────┴────────────┐
+          ↓                        ↓
+   Compile-Time Safety      Reusability
+          │                        │
+          ↓                        ↓
+   Parameterized Types          <T>
+          │
+     ┌────┼────┐
+     ↓    ↓    ↓
+  Class Method Interface
+     │
+     ↓
+Restrictions?
+     │
+   ├─ Common Parent
+   │    ↓
+   │  T extends Parent
+   │
+   ├─ Multiple Needs
+   │    ↓
+   │  T extends A & B
+   │
+   └─ Unknown Types
+        ↓
+      Wildcards
+        │
+    ┌───┼───┐
+    ↓   ↓   ↓
+    ?   extends  super
+    │    │       │
+unknown read    write
+         │       │
+         └───┬───┘
+            PECS
+
+Runtime: Type Erasure
+Limitations: No T[], new T(), primitives
+Real-world: Collections, APIs, Frameworks</div></div>`
+            }
+        ];
+
+        const topicsList = document.getElementById('topicsList');
+        topics.forEach(topic => {
+            const item = document.createElement('div');
+            item.className = 'topic-item';
+            item.textContent = topic.title;
+            item.onclick = () => selectTopic(topic.id, item);
+            topicsList.appendChild(item);
+        });
+
+        function selectTopic(id, element) {
+            document.querySelectorAll('.topic-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+            const topic = topics.find(t => t.id === id);
+            document.getElementById('contentArea').innerHTML = `<a href="java_master_index.html" class="back-link">← Back to Master Index</a>${topic.content}`;
+        }
+    </script>
+</body>
+</html>
+

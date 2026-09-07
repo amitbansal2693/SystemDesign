@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Inheritance - Complete Guide</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI'; background: #1a1a2e; color: #e0e0e0; height: 100vh; overflow: hidden; }
+        .container { display: flex; height: 100vh; }
+        .sidebar { width: 280px; background: #0f1419; border-right: 1px solid #2563eb; overflow-y: auto; padding: 20px 0; }
+        .sidebar-header { padding: 0 20px 20px 20px; border-bottom: 2px solid #2563eb; margin-bottom: 20px; }
+        .sidebar-header h1 { font-size: 1.4em; color: #2563eb; }
+        .topic-item { padding: 12px 20px; cursor: pointer; border-left: 3px solid transparent; transition: all 0.3s; color: #a0a0a0; font-size: 0.9em; }
+        .topic-item:hover { background: #1e293b; color: #2563eb; border-left-color: #2563eb; padding-left: 24px; }
+        .topic-item.active { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; }
+        .content-area { flex: 1; background: #1a1a2e; overflow-y: auto; padding: 30px; }
+        .content-header h2 { font-size: 1.8em; color: #2563eb; margin-bottom: 10px; }
+        .content-header p { color: #90caf9; font-style: italic; margin-bottom: 20px; border-bottom: 1px solid #2563eb; padding-bottom: 15px; }
+        .content-body p { margin-bottom: 15px; line-height: 1.8; }
+        .content-body ul { margin-left: 30px; margin-bottom: 15px; }
+        .content-body li { margin-bottom: 8px; }
+        .content-body strong { color: #2563eb; }
+        .code-block { background: #0f1419; padding: 15px; border-radius: 6px; border-left: 3px solid #2563eb; color: #90caf9; font-family: 'Courier New'; font-size: 0.85em; margin: 15px 0; overflow-x: auto; white-space: pre-wrap; word-break: break-all; line-height: 1.6; }
+        .tip { background: #1e3a5f; border-left: 4px solid #2563eb; padding: 15px; margin: 15px 0; border-radius: 6px; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f1419; }
+        ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header"><h1>🔗 Inheritance</h1></div>
+            <div id="topicsList"></div>
+        </div>
+        <div class="content-area">
+            <a href="java_master_index.html" class="back-link">← Back to Master Index</a>
+            <div id="contentArea" style="text-align:center; color: #a0a0a0; padding: 50px;">Click on a topic →</div>
+        </div>
+    </div>
+
+    <script>
+        const topics = [
+            {
+                id: 1,
+                title: "Basics of Inheritance",
+                content: `<div class="content-header"><h2>1. Basics of Inheritance</h2><p>Implementing relationships between classes</p></div>
+                <div class="content-body"><p><strong>Inheritance:</strong> A mechanism to acquire properties of a parent class into child class.</p>
+                <p><strong>Benefits:</strong></p><ul><li>Code reusability</li><li>Method overriding for runtime polymorphism</li><li>Establishing relationships</li></ul>
+                <div class="code-block">class Parent {
+    void display() {
+        System.out.println("Parent");
+    }
+}
+
+class Child extends Parent {
+    // Inherits display() from Parent
+}</div></div>`
+            },
+            {
+                id: 2,
+                title: "is-a vs has-a",
+                content: `<div class="content-header"><h2>2. is-a vs has-a Relationship</h2><p>Understanding composition vs inheritance</p></div>
+                <div class="content-body"><p><strong>is-a (Inheritance):</strong> "Child IS-A Parent"</p>
+                <div class="code-block">class Dog extends Animal {  // Dog IS-A Animal
+    // Inherits properties
+}</div>
+                <p><strong>has-a (Composition):</strong> "Car HAS-A Engine"</p>
+                <div class="code-block">class Car {
+    private Engine engine;  // Car HAS-A Engine
+}</div>
+                <p><strong>When to use:</strong></p><ul><li>Use is-a for true parent-child relationships</li><li>Use has-a for component relationships</li></ul></div>`
+            },
+            {
+                id: 3,
+                title: "Access Modifiers",
+                content: `<div class="content-header"><h2>3. Access Modifiers in Inheritance</h2><p>Controlling access to inherited members</p></div>
+                <div class="content-body"><ul><li><strong>public:</strong> Accessible anywhere</li><li><strong>protected:</strong> Accessible within package and by subclasses</li><li><strong>default:</strong> Accessible within package only</li><li><strong>private:</strong> NOT inherited, accessible only in class</li></ul>
+                <div class="code-block">class Parent {
+    public void method1() {}       // Inherited
+    protected void method2() {}    // Inherited
+    void method3() {}              // Inherited
+    private void method4() {}      // NOT inherited
+}</div></div>`
+            },
+            {
+                id: 4,
+                title: "super Keyword",
+                content: `<div class="content-header"><h2>4. super Keyword</h2><p>Referring to parent class methods and constructors</p></div>
+                <div class="content-body"><p><strong>super():</strong> Calls parent constructor</p>
+                <div class="code-block">class Parent {
+    Parent() { System.out.println("Parent"); }
+}
+
+class Child extends Parent {
+    Child() {
+        super();  // Calls Parent constructor
+    }
+}</div>
+                <p><strong>super.method():</strong> Calls parent method</p>
+                <div class="code-block">class Child extends Parent {
+    @Override
+    void show() {
+        super.show();  // Call parent's show()
+        System.out.println("Child");
+    }
+}</div></div>`
+            },
+            {
+                id: 5,
+                title: "Method Overriding",
+                content: `<div class="content-header"><h2>5. Method Overriding</h2><p>Providing child-specific implementation</p></div>
+                <div class="content-body"><p><strong>Rules:</strong></p><ul><li>Same method name, parameters, return type</li><li>Must be instance method (not static)</li><li>Return type must be same or covariant</li><li>Cannot throw new checked exceptions</li></ul>
+                <div class="code-block">class Parent {
+    void display() { }
+}
+
+class Child extends Parent {
+    @Override
+    void display() {  // Exactly same signature
+        System.out.println("Child display");
+    }
+}</div></div>`
+            },
+            {
+                id: 6,
+                title: "Types of Inheritance",
+                content: `<div class="content-header"><h2>6. Types of Inheritance</h2><p>Different inheritance patterns supported</p></div>
+                <div class="content-body"><p><strong>1. Single Inheritance:</strong> Child extends one parent</p>
+                <div class="code-block">class Child extends Parent { }</div>
+                <p><strong>2. Multilevel Inheritance:</strong> Chain of inheritance</p>
+                <div class="code-block">class A { }
+class B extends A { }
+class C extends B { }</div>
+                <p><strong>3. NOT Supported - Multiple Inheritance:</strong></p>
+                <div class="code-block">class C extends A, B { }  // ❌ NOT allowed</div>
+                <p><strong>Alternative - Interfaces:</strong></p>
+                <div class="code-block">class C implements I1, I2 { }  // ✓ Allowed</div></div>`
+            }
+        ];
+
+        const topicsList = document.getElementById('topicsList');
+        topics.forEach(topic => {
+            const item = document.createElement('div');
+            item.className = 'topic-item';
+            item.textContent = topic.title;
+            item.onclick = () => selectTopic(topic.id, item);
+            topicsList.appendChild(item);
+        });
+
+        function selectTopic(id, element) {
+            document.querySelectorAll('.topic-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+            const topic = topics.find(t => t.id === id);
+            document.getElementById('contentArea').innerHTML = topic.content;
+        }
+    </script>
+</body>
+</html>
+

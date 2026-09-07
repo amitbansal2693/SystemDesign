@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Threads & Concurrency - System Design</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            gap: 0;
+        }
+
+        /* ── LEFT SIDEBAR ── */
+        .sidebar {
+            width: 300px;
+            background: #0f1419;
+            border-right: 1px solid #2563eb;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px 20px;
+            border-bottom: 2px solid #2563eb;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5em;
+            color: #2563eb;
+            text-shadow: 0 2px 10px rgba(37, 99, 235, 0.3);
+        }
+
+        .topic-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+            color: #a0a0a0;
+        }
+
+        .topic-item:hover {
+            background: #1e293b;
+            color: #2563eb;
+            border-left-color: #2563eb;
+            padding-left: 24px;
+        }
+
+        .topic-item.active {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white;
+            border-left-color: #2563eb;
+        }
+
+        /* ── MAIN CONTENT ── */
+        .content-area {
+            flex: 1;
+            background: #1a1a2e;
+            overflow-y: auto;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-header {
+            margin-bottom: 30px;
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 20px;
+        }
+
+        .content-header h2 {
+            font-size: 2em;
+            color: #2563eb;
+            margin-bottom: 5px;
+        }
+
+        .content-header p {
+            color: #90caf9;
+            font-style: italic;
+        }
+
+        .content-body {
+            flex: 1;
+            line-height: 1.8;
+        }
+
+        .content-body p {
+            margin-bottom: 15px;
+            color: #d0d0d0;
+        }
+
+        .content-body pre {
+            background: #0f1419;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            border-left: 3px solid #2563eb;
+            color: #90caf9;
+            font-size: 0.9em;
+        }
+
+        .content-body ul, .content-body ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+
+        .content-body li {
+            margin-bottom: 8px;
+            color: #d0d0d0;
+        }
+
+        .content-body strong {
+            color: #2563eb;
+        }
+
+        .diagram {
+            background: #0f1419;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 3px solid #2563eb;
+            color: #90caf9;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            white-space: pre;
+            overflow-x: auto;
+        }
+
+        .tip {
+            background: #1e3a5f;
+            border-left: 4px solid #2563eb;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+            color: #90caf9;
+        }
+
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f1419;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #2563eb;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #1e40af;
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 30vh;
+                border-right: none;
+                border-bottom: 1px solid #2563eb;
+            }
+
+            .content-area {
+                padding: 20px;
+            }
+
+            .content-header h2 {
+                font-size: 1.5em;
+            }
+        }
+
+        .welcome-message {
+            text-align: center;
+            color: #a0a0a0;
+            padding: 50px 20px;
+        }
+
+        .welcome-message p {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- LEFT SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>🔄 Threads & Concurrency</h1>
+            </div>
+            <div id="topicsList"></div>
+        </div>
+
+        <!-- RIGHT CONTENT -->
+        <div class="content-area">
+            <div id="contentArea">
+                <div class="welcome-message">
+                    <p>👈 Click on a topic to begin</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const topics = [
+            {
+                id: 1,
+                title: "What is a Process?",
+                content: `
+                    <div class="content-header">
+                        <h2>1. What is a Process?</h2>
+                        <p>Understanding the foundation of concurrent execution</p>
+                    </div>
+                    <div class="content-body">
+                        <p>Imagine you open Chrome. Your operating system starts a process for Chrome.</p>
+                        <p><strong>A process is basically:</strong></p>
+                        <ul>
+                            <li>A running instance of a program, with its own memory and resources</li>
+                        </ul>
+                        <p>For example:</p>
+                        <div class="diagram">Your computer
+│
+├── Chrome Process
+├── IntelliJ Process
+├── Spotify Process
+└── Java Application Process</div>
+                        <p>Your Java application is also a process when it is running. For example:</p>
+                        <div class="diagram">java MyApplication
+↓
+PROCESS</div>
+                        <p>The process gets its own memory and operates independently from other processes on the system.</p>
+                    </div>
+                `
+            },
+            {
+                id: 2,
+                title: "What is inside a Process?",
+                content: `
+                    <div class="content-header">
+                        <h2>2. What is inside a Process?</h2>
+                        <p>The building blocks of concurrent execution</p>
+                    </div>
+                    <div class="content-body">
+                        <p>A process can contain multiple threads. This is the most important relationship:</p>
+                        <div class="diagram">PROCESS
+│
+├── Thread 1
+├── Thread 2
+├── Thread 3
+└── Thread 4</div>
+                        <p><strong>Key concepts:</strong></p>
+                        <ul>
+                            <li><strong>Process</strong> = container</li>
+                            <li><strong>Thread</strong> = worker inside that container</li>
+                        </ul>
+                        <p>This is a simplified but very useful mental model for understanding concurrency in Java applications.</p>
+                    </div>
+                `
+            },
+            {
+                id: 3,
+                title: "Why do we need Threads?",
+                content: `
+                    <div class="content-header">
+                        <h2>3. Why do we need Threads?</h2>
+                        <p>The motivation for multi-threaded execution</p>
+                    </div>
+                    <div class="content-body">
+                        <p>Imagine your Java application has to do this:</p>
+                        <ol>
+                            <li>Download a file</li>
+                            <li>Send an email</li>
+                            <li>Process an order</li>
+                        </ol>
+                        <p><strong>With only one thread:</strong></p>
+                        <div class="diagram">Thread 1
+├── Download file
+├── wait
+├── Send email
+├── wait
+└── Process order</div>
+                        <p>Everything happens through that one worker. But suppose downloading takes 10 seconds. During those 10 seconds, the worker may be waiting for the network. So another task has to wait.</p>
+                        <div class="tip">
+                            <strong>Key Insight:</strong> Threads allow one process to work on multiple tasks concurrently while one task is blocked waiting for I/O.
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 4,
+                title: "Multiple Threads",
+                content: `
+                    <div class="content-header">
+                        <h2>4. Multiple Threads</h2>
+                        <p>Concurrent execution in action</p>
+                    </div>
+                    <div class="content-body">
+                        <p>Now give the process 3 workers:</p>
+                        <div class="diagram">Java Process
+│
+├── Thread 1 → Download file
+├── Thread 2 → Send email
+└── Thread 3 → Process order</div>
+                        <p>Now different tasks can make progress concurrently. That's the fundamental reason threads exist.</p>
+                        <p><strong>Benefits:</strong></p>
+                        <ul>
+                            <li>Multiple tasks can progress simultaneously</li>
+                            <li>Better utilization of CPU time</li>
+                            <li>Responsive applications (UI doesn't freeze)</li>
+                            <li>Better handling of I/O-bound operations</li>
+                        </ul>
+                    </div>
+                `
+            },
+            {
+                id: 5,
+                title: "Spring Boot Application with Threads",
+                content: `
+                    <div class="content-header">
+                        <h2>5. Spring Boot Application with Threads</h2>
+                        <p>Real-world example: Your web application</p>
+                    </div>
+                    <div class="content-body">
+                        <p>When you deploy your Spring Boot application:</p>
+                        <div class="diagram">my-springboot.jar
+↓
+Java Process
+│
+├── Main Thread
+├── HTTP Thread
+├── HTTP Thread
+├── HTTP Thread
+├── HTTP Thread
+├── Garbage Collector Thread
+├── Kafka Thread
+└── ...</div>
+                        <p><strong>Important correction:</strong></p>
+                        <ul>
+                            <li>"1 Pod = 1 app instance = 1 main thread" is NOT correct</li>
+                            <li>Correct understanding: <strong>1 Pod → 1 application process → many threads</strong></li>
+                            <li>The main thread is just one of those threads</li>
+                        </ul>
+                        <p>Your Spring Boot application has many threads working together to handle requests, perform background tasks, and manage the JVM.</p>
+                    </div>
+                `
+            },
+            {
+                id: 6,
+                title: "What is the Main Thread?",
+                content: `
+                    <div class="content-header">
+                        <h2>6. What is the Main Thread?</h2>
+                        <p>The starting point of your Java application</p>
+                    </div>
+                    <div class="content-body">
+                        <p>When Java starts:</p>
+                        <div class="diagram">public static void main(String[] args) {
+}</div>
+                        <p>Java creates a thread to execute main(). That's called the <strong>Main Thread</strong>.</p>
+                        <div class="diagram">Java Process
+│
+└── Main Thread
+    ↓
+    main()</div>
+                        <p><strong>When you create another thread:</strong></p>
+                        <div class="diagram">Thread t = new Thread(...);
+t.start();</div>
+                        <p>You now have:</p>
+                        <div class="diagram">Java Process
+│
+├── Main Thread
+│
+└── Thread 2</div>
+                        <p>Both threads are now running concurrently within the same process.</p>
+                    </div>
+                `
+            },
+            {
+                id: 7,
+                title: "Thread is NOT a Task",
+                content: `
+                    <div class="content-header">
+                        <h2>7. Very Important: Thread is NOT a Task</h2>
+                        <p>A critical distinction that eliminates confusion</p>
+                    </div>
+                    <div class="content-body">
+                        <p>This distinction will solve a lot of your confusion.</p>
+                        <p><strong>Suppose you have:</strong></p>
+                        <ul>
+                            <li>Task A = calculate salary</li>
+                            <li>Task B = send email</li>
+                            <li>Task C = save database record</li>
+                        </ul>
+                        <p><strong>Key relationship:</strong></p>
+                        <div class="diagram">Thread = worker
+Task = work
+
+So:
+Worker 1 → Task A
+Worker 2 → Task B
+Worker 3 → Task C</div>
+                        <p><strong>After Worker 1 finishes Task A:</strong></p>
+                        <div class="diagram">Worker 1 → available
+
+It can then do Task D</div>
+                        <p>A thread is reusable. After completing one task, it becomes available for another task. This is fundamentally different from saying a thread IS a task.</p>
+                    </div>
+                `
+            },
+            {
+                id: 8,
+                title: "Understanding Thread Pool",
+                content: `
+                    <div class="content-header">
+                        <h2>8. Now we can understand Thread Pool</h2>
+                        <p>Efficient reuse of threads</p>
+                    </div>
+                    <div class="content-body">
+                        <p>Suppose you have 20 workers. Instead of creating/destroying workers constantly, you keep them available:</p>
+                        <div class="diagram">Thread Pool
+│
+T1
+T2
+T3
+...
+T20</div>
+                        <p><strong>Tasks arrive:</strong></p>
+                        <div class="diagram">Task A
+Task B
+Task C
+Task D
+Task E
+...</div>
+                        <p><strong>Available workers take tasks:</strong></p>
+                        <div class="diagram">T1 → Task A
+T2 → Task B
+T3 → Task C
+T4 → Task D</div>
+                        <p><strong>When T1 finishes:</strong></p>
+                        <div class="diagram">T1 → available
+
+Then:
+T1 → Task E</div>
+                        <p>This is <strong>thread reuse</strong>. Creating threads is expensive, so we maintain a pool of threads that are reused across multiple tasks.</p>
+                    </div>
+                `
+            },
+            {
+                id: 9,
+                title: "The Queue Concept",
+                content: `
+                    <div class="content-header">
+                        <h2>9. Now the word "Queue"</h2>
+                        <p>What happens when all threads are busy?</p>
+                    </div>
+                    <div class="content-body">
+                        <p>Suppose all 20 threads are busy:</p>
+                        <div class="diagram">T1 → busy
+T2 → busy
+...
+T20 → busy</div>
+                        <p>Then another task arrives. The task can't immediately get a worker. So it waits in a queue:</p>
+                        <div class="diagram">Thread Pool
+│
+├── T1  BUSY
+├── T2  BUSY
+├── ...
+└── T20 BUSY
+
+Queue:
+├── Task 21
+├── Task 22
+├── Task 23
+└── Task 24</div>
+                        <p><strong>When T5 finishes:</strong></p>
+                        <div class="diagram">T5 → available
+
+It takes the next task:
+Task 21 → T5</div>
+                        <p>Without a queue, you would either reject tasks or have unlimited waiting. A bounded queue provides predictable behavior.</p>
+                    </div>
+                `
+            },
+            {
+                id: 10,
+                title: "APIs and Threads",
+                content: `
+                    <div class="content-header">
+                        <h2>10. Connecting this to your APIs</h2>
+                        <p>How threads handle HTTP requests</p>
+                    </div>
+                    <div class="content-body">
+                        <p>Suppose your Spring Boot application has:</p>
+                        <div class="diagram">GET /orders
+GET /products
+GET /users
+POST /payment</div>
+                        <p><strong>Requests come in:</strong></p>
+                        <div class="diagram">Request 1 → /orders
+Request 2 → /products
+Request 3 → /users
+Request 4 → /payment</div>
+                        <p><strong>Threads can process them:</strong></p>
+                        <div class="diagram">T1 → /orders
+T2 → /products
+T3 → /users
+T4 → /payment</div>
+                        <p><strong>When /products finishes:</strong></p>
+                        <div class="diagram">T2 → available
+
+A new request comes:
+GET /orders
+
+T2 → /orders</div>
+                        <p><strong>Critical insight:</strong> T2 isn't permanently associated with /products. Each request gets a thread from the pool, and when done, the thread becomes available for another request.</p>
+                    </div>
+                `
+            },
+            {
+                id: 11,
+                title: "CPU and Threads",
+                content: `
+                    <div class="content-header">
+                        <h2>11. Where does CPU come into this?</h2>
+                        <p>Threads vs actual execution</p>
+                    </div>
+                    <div class="content-body">
+                        <p>Now we introduce another important term. The CPU actually executes instructions.</p>
+                        <p><strong>Think:</strong></p>
+                        <div class="diagram">Thread → asks CPU to execute its instructions</div>
+                        <p>Suppose your machine has: <strong>4 CPU cores</strong></p>
+                        <p>You could have: <strong>20 Threads</strong></p>
+                        <p>The OS schedules those threads onto the CPU cores.</p>
+                        <div class="diagram">20 Threads
+↓
+Operating System Scheduler
+↓
+4 CPU Cores</div>
+                        <p><strong>At a particular instant:</strong></p>
+                        <ul>
+                            <li>Up to 4 threads can actually execute simultaneously (on 4 cores)</li>
+                            <li>The other 16 threads wait for CPU time</li>
+                        </ul>
+                        <p>This is why having more threads than CPU cores is normal—threads often wait for I/O, and while one thread waits, another can use the CPU.</p>
+                    </div>
+                `
+            },
+            {
+                id: 12,
+                title: "Learning Path",
+                content: `
+                    <div class="content-header">
+                        <h2>12. Learn these terms in this order</h2>
+                        <p>Building your understanding progressively</p>
+                    </div>
+                    <div class="content-body">
+                        <p>Don't try to understand everything at once. Progress through these levels:</p>
+
+                        <h3 style="color: #2563eb; margin-top: 20px;">Level 1 — Process</h3>
+                        <p>What is it? A running program with its own resources/memory.</p>
+                        <div class="diagram">Java Application
+↓
+Process</div>
+
+                        <h3 style="color: #2563eb; margin-top: 20px;">Level 2 — Thread</h3>
+                        <p>What is it? A unit of execution inside a process.</p>
+                        <div class="diagram">Process
+├── Thread
+├── Thread
+└── Thread</div>
+
+                        <h3 style="color: #2563eb; margin-top: 20px;">Level 3 — Task</h3>
+                        <p>What is it? The actual work that a thread performs.</p>
+                        <div class="diagram">Thread → executes → Task</div>
+
+                        <h3 style="color: #2563eb; margin-top: 20px;">Level 4 — CPU</h3>
+                        <p>What executes the instructions? CPU cores.</p>
+                        <div class="diagram">Thread → CPU</div>
+
+                        <h3 style="color: #2563eb; margin-top: 20px;">Level 5 — Concurrency</h3>
+                        <p>Multiple tasks are making progress during the same period.</p>
+                        <div class="diagram">Task A ───────────
+Task B ────────
+Task C ─────────────</div>
+
+                        <h3 style="color: #2563eb; margin-top: 20px;">Level 6 — Parallelism</h3>
+                        <p>Tasks literally executing at the same time on different CPU cores.</p>
+                        <div class="diagram">Core 1 → Task A
+Core 2 → Task B
+Core 3 → Task C
+Core 4 → Task D</div>
+
+                        <h3 style="color: #2563eb; margin-top: 20px;">Level 7 — Thread Pool</h3>
+                        <p>A reusable collection of threads that execute submitted tasks.</p>
+                        <div class="diagram">Tasks
+↓
+Queue
+↓
+Thread Pool
+↓
+Threads
+↓
+CPU</div>
+                    </div>
+                `
+            },
+            {
+                id: 13,
+                title: "The Complete Picture",
+                content: `
+                    <div class="content-header">
+                        <h2>13. The complete picture</h2>
+                        <p>Putting it all together</p>
+                    </div>
+                    <div class="content-body">
+                        <p>This is the picture you need to remember:</p>
+                        <div class="diagram">POD
+│
+↓
+Java Process
+│
+┌────────────┼────────────┐
+↓            ↓            ↓
+Thread       Thread       Thread
+│            │            │
+└────────────┼────────────┘
+↓
+CPU</div>
+
+                        <p style="margin-top: 30px;"><strong>When a thread pool is involved:</strong></p>
+                        <div class="diagram">Java Process
+│
+Thread Pool
+│
+┌──────────┼──────────┐
+↓          ↓          ↓
+T1         T2         T3
+↑          ↑          ↑
+└──────────┼──────────┘
+│
+Tasks
+↑
+Queue</div>
+
+                        <div class="tip" style="margin-top: 30px;">
+                            <strong>Remember:</strong>
+                            <ul style="margin-top: 10px;">
+                                <li>1 Pod = 1 Java Process = Many Threads</li>
+                                <li>Threads enable concurrency within a single process</li>
+                                <li>Thread Pool reuses threads rather than creating/destroying them</li>
+                                <li>Queue holds pending tasks when all threads are busy</li>
+                                <li>CPU cores actually execute the thread instructions</li>
+                            </ul>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 14,
+                title: "Memory: Process vs Thread",
+                content: `
+                    <div class="content-header">
+                        <h2>14. Memory: Process vs Thread</h2>
+                        <p>Understanding memory allocation and sharing</p>
+                    </div>
+                    <div class="content-body">
+                        <p><strong>Process creation:</strong> The process gets its overall memory and resources.</p>
+                        <p><strong>Thread creation:</strong> The thread gets its own stack + thread-specific execution state.</p>
+                        <div class="diagram">PROCESS
+│
+┌───────────┴───────────┐
+│                       │
+Process-level      Threads
+memory             │
+│      ┌────────┼────────┐
+Heap   ↓        ↓        ↓
+SHARED T1       T2       T3
+│      │        │
+Stack  Stack    Stack
+PRIVATE PRIVATE PRIVATE</div>
+                        <p style="margin-top: 20px;"><strong>Key differences:</strong></p>
+                        <ul>
+                            <li><strong>Heap:</strong> Shared across all threads within the process</li>
+                            <li><strong>Stack:</strong> Each thread has its own private stack for local variables</li>
+                            <li><strong>Static fields:</strong> Shared across all threads</li>
+                            <li><strong>Instance variables:</strong> Part of objects on the heap (shared if objects are shared)</li>
+                        </ul>
+                        <p style="margin-top: 20px;">This shared heap is why synchronization and thread safety are important. Multiple threads can access the same objects simultaneously.</p>
+                    </div>
+                `
+            },
+            {
+                id: 15,
+                title: "JVM Internal Threads",
+                content: `
+                    <div class="content-header">
+                        <h2>15. When an application runs, Java creates internal threads</h2>
+                        <p>Beyond user-created threads</p>
+                    </div>
+                    <div class="content-body">
+                        <p>When your Java application starts, the JVM automatically creates several internal threads:</p>
+                        <div class="diagram">Java Process
+│
+├── Main Thread          ← your application code
+│
+├── GC Threads            ← JVM
+├── JIT Compiler Threads  ← JVM
+└── Other JVM threads     ← JVM</div>
+                        <p style="margin-top: 20px;"><strong>Examples of JVM-created threads:</strong></p>
+                        <ul>
+                            <li><strong>GC (Garbage Collector) threads:</strong> Clean up unused objects from the heap</li>
+                            <li><strong>JIT Compiler threads:</strong> Optimize frequently executed Java code at runtime</li>
+                            <li><strong>Reference/Finalizer-related threads:</strong> Handle certain JVM reference and cleanup tasks</li>
+                            <li><strong>Monitor threads:</strong> Handle internal JVM monitoring</li>
+                        </ul>
+                        <p style="margin-top: 20px;">These threads are managed by the JVM and you don't directly control them. However, they consume CPU and memory just like any other thread.</p>
+                        <div class="tip">
+                            <strong>Important:</strong> When you see "Thread Count" in monitoring tools, it includes these JVM threads, not just your application threads!
+                        </div>
+                    </div>
+                `
+            },
+            {
+                id: 16,
+                title: "Thread Pool vs Connection Pool",
+                content: `
+                    <div class="content-header">
+                        <h2>16. Thread Pool vs Connection Pool</h2>
+                        <p>Two different but complementary concepts</p>
+                    </div>
+                    <div class="content-body">
+                        <h3 style="color: #2563eb; margin-top: 20px;">Thread Pool</h3>
+                        <ul>
+                            <li><strong>What it manages:</strong> Workers inside your application</li>
+                            <li><strong>Purpose:</strong> Execute multiple tasks concurrently</li>
+                            <li><strong>Scope:</strong> Within the application</li>
+                            <li><strong>Key question:</strong> How many tasks can my application execute concurrently?</li>
+                        </ul>
+
+                        <h3 style="color: #2563eb; margin-top: 20px;">Connection Pool</h3>
+                        <ul>
+                            <li><strong>What it manages:</strong> Reusable connections to external resources (database, API)</li>
+                            <li><strong>Purpose:</strong> Manage communication between your application and external systems</li>
+                            <li><strong>Scope:</strong> Communication between applications</li>
+                            <li><strong>Key question:</strong> How many concurrent connections can I maintain with an external resource?</li>
+                        </ul>
+
+                        <h3 style="color: #2563eb; margin-top: 20px;">The Important Difference</h3>
+                        <div class="diagram">Thread Pool: "Who is going to do the work?"
+Connection Pool: "What communication channel will the worker use?"</div>
+
+                        <p style="margin-top: 20px;">For a typical Spring Boot request:</p>
+                        <div class="diagram">User Request
+↓
+Thread Pool
+↓
+Thread (worker)
+↓
+Connection Pool
+↓
+Database</div>
+
+                        <h3 style="color: #2563eb; margin-top: 20px;">Real-World Examples</h3>
+
+                        <p><strong>🍽️ Restaurant Example:</strong></p>
+                        <ul>
+                            <li>Restaurant has 10 tables</li>
+                            <li>100 customers arrive</li>
+                            <li>First 10 groups get tables</li>
+                            <li>When one group finishes, that table becomes available for the next group</li>
+                            <li>Tables = connections, Customers = requests</li>
+                        </ul>
+
+                        <p style="margin-top: 15px;"><strong>🚕 Taxi Example:</strong></p>
+                        <ul>
+                            <li>City has 100 taxis (not 10,000)</li>
+                            <li>1,000 people request rides</li>
+                            <li>Each taxi takes a passenger and becomes available for the next one</li>
+                            <li>Maintaining 10,000 taxis would be expensive and unnecessary</li>
+                            <li>Similarly, 10,000 database connections would overload the database</li>
+                        </ul>
+
+                        <p style="margin-top: 15px;"><strong>🏦 Bank Counter Example:</strong></p>
+                        <ul>
+                            <li>Bank has 5 service counters</li>
+                            <li>50 customers arrive</li>
+                            <li>First 5 use counters, rest wait in queue</li>
+                            <li>Counters = connections, reused for each customer</li>
+                        </ul>
+
+                        <h3 style="color: #2563eb; margin-top: 20px;">Why Do We Need Pools?</h3>
+                        <p><strong>Problem 1: Creating resources repeatedly is expensive</strong></p>
+                        <p>Creating a brand-new database connection for every request is expensive. Instead, create a limited number and reuse them.</p>
+
+                        <p style="margin-top: 15px;"><strong>Problem 2: Limiting resource consumption</strong></p>
+                        <p>Without pools, you could run out of resources (file descriptors, memory, database connections).</p>
+
+                        <div class="tip" style="margin-top: 20px;">
+                            <strong>📚 Library Analogy:</strong> A library has 100 books and 1,000 people want them. Rather than buying 1,000 books, the same 100 books are borrowed, returned, and reused by different people. This is exactly how connection pools work.
+                        </div>
+                    </div>
+                `
+            }
+        ];
+
+        // Populate sidebar
+        const topicsList = document.getElementById('topicsList');
+        topics.forEach(topic => {
+            const item = document.createElement('div');
+            item.className = 'topic-item';
+            item.textContent = topic.title;
+            item.onclick = () => selectTopic(topic.id, item);
+            item.id = `topic-${topic.id}`;
+            topicsList.appendChild(item);
+        });
+
+        // Select topic
+        function selectTopic(id, element) {
+            // Remove active class from all items
+            document.querySelectorAll('.topic-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Add active class to clicked item
+            element.classList.add('active');
+
+            // Show content
+            const topic = topics.find(t => t.id === id);
+            document.getElementById('contentArea').innerHTML = topic.content;
+        }
+    </script>
+</body>
+</html>
+

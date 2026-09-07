@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Final - Complete Guide</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI'; background: #1a1a2e; color: #e0e0e0; height: 100vh; overflow: hidden; }
+        .container { display: flex; height: 100vh; }
+        .sidebar { width: 280px; background: #0f1419; border-right: 1px solid #2563eb; overflow-y: auto; padding: 20px 0; }
+        .sidebar-header { padding: 0 20px 20px 20px; border-bottom: 2px solid #2563eb; margin-bottom: 20px; }
+        .sidebar-header h1 { font-size: 1.4em; color: #2563eb; }
+        .topic-item { padding: 12px 20px; cursor: pointer; border-left: 3px solid transparent; transition: all 0.3s; color: #a0a0a0; font-size: 0.9em; }
+        .topic-item:hover { background: #1e293b; color: #2563eb; border-left-color: #2563eb; padding-left: 24px; }
+        .topic-item.active { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; }
+        .content-area { flex: 1; background: #1a1a2e; overflow-y: auto; padding: 30px; }
+        .content-header h2 { font-size: 1.8em; color: #2563eb; margin-bottom: 10px; }
+        .content-header p { color: #90caf9; font-style: italic; margin-bottom: 20px; border-bottom: 1px solid #2563eb; padding-bottom: 15px; }
+        .content-body p { margin-bottom: 15px; line-height: 1.8; }
+        .content-body ul, .content-body ol { margin-left: 30px; margin-bottom: 15px; }
+        .content-body li { margin-bottom: 8px; }
+        .content-body strong { color: #2563eb; }
+        .code-block { background: #0f1419; padding: 15px; border-radius: 6px; border-left: 3px solid #2563eb; color: #90caf9; font-family: 'Courier New'; font-size: 0.85em; margin: 15px 0; overflow-x: auto; }
+        .tip { background: #1e3a5f; border-left: 4px solid #2563eb; padding: 15px; margin: 15px 0; border-radius: 6px; }
+        .back-link { color: #2563eb; text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 20px; display: inline-block; font-size: 0.95em; }
+        .back-link:hover { text-decoration: underline; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f1419; }
+        ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header"><h1>🔒 Final</h1></div>
+            <div id="topicsList"></div>
+        </div>
+        <div class="content-area">
+            <a href="java_keywords_index.html" class="back-link">← Back to Keywords</a>
+            <div id="contentArea" style="text-align:center; color: #a0a0a0; padding: 50px;">Click on a topic →</div>
+        </div>
+    </div>
+
+    <script>
+        const topics = [
+            {
+                id: 1,
+                title: "Final with Variables",
+                content: `<div class="content-header"><h2>1. Final Variables</h2><p>Immutable variable values</p></div>
+                <div class="content-body"><p><strong>Definition:</strong> Once a final variable is initialized, its value cannot be changed.</p>
+                <p><strong>Characteristics:</strong></p><ul><li>Must be initialized before use</li><li>Can be initialized in declaration or constructor</li><li>After assignment, cannot be modified</li><li>Used for constants</li></ul>
+                <p><strong>Example:</strong></p>
+                <div class="code-block">final int maxSize = 100;  // Initialize at declaration
+// maxSize = 200;  // ❌ Compile error!
+
+final String name;
+name = "Java";  // Initialize in constructor
+// name = "Python";  // ❌ Compile error!</div>
+                <p><strong>Common Usage:</strong></p>
+                <div class="code-block">public static final double PI = 3.14159;
+public static final String APP_NAME = "MyApp";</div></div>`
+            },
+            {
+                id: 2,
+                title: "Final Methods",
+                content: `<div class="content-header"><h2>2. Final Methods</h2><p>Methods that cannot be overridden</p></div>
+                <div class="content-body"><p><strong>Definition:</strong> Final methods cannot be overridden in subclasses.</p>
+                <p><strong>Purpose:</strong> Prevent critical methods from being modified</p>
+                <p><strong>Example:</strong></p>
+                <div class="code-block">class Parent {
+    final void criticalOperation() {
+        System.out.println("Critical");
+    }
+}
+
+class Child extends Parent {
+    // ❌ Cannot override final method
+    void criticalOperation() { }  // Compile error!
+}</div>
+                <p><strong>When to Use:</strong></p><ul><li>Security-sensitive methods</li><li>Performance-critical methods</li><li>API stability requirements</li></ul></div>`
+            },
+            {
+                id: 3,
+                title: "Final Classes",
+                content: `<div class="content-header"><h2>3. Final Classes</h2><p>Classes that cannot be extended</p></div>
+                <div class="content-body"><p><strong>Definition:</strong> Final classes cannot have subclasses.</p>
+                <p><strong>Example:</strong></p>
+                <div class="code-block">final class ImmutableClass {
+    // Cannot be extended
+}
+
+class Child extends ImmutableClass { }  // ❌ Compile error!</div>
+                <p><strong>Real-world Examples:</strong></p><ul><li>String - final class for immutability</li><li>Integer, Double, Boolean wrappers</li></ul>
+                <p><strong>Benefits:</strong></p><ul><li>Ensures immutability</li><li>Prevents modification</li><li>Performance optimization (inlining)</li></ul></div>`
+            },
+            {
+                id: 4,
+                title: "Final Parameters & Local Variables",
+                content: `<div class="content-header"><h2>4. Final Parameters & Local Variables</h2><p>Immutable method parameters and local variables</p></div>
+                <div class="content-body"><p><strong>Final Parameters:</strong> Cannot modify parameter inside method</p>
+                <div class="code-block">void process(final String data) {
+    // data = "new value";  // ❌ Compile error!
+}</div>
+                <p><strong>Final Local Variables:</strong> Cannot reassign local variables</p>
+                <div class="code-block">void calculate() {
+    final int x = 10;
+    // x = 20;  // ❌ Compile error!
+}</div>
+                <p><strong>Use Cases:</strong></p><ul><li>Prevent accidental modifications</li><li>Improve code clarity</li><li>Anonymous inner classes requirement</li></ul></div>`
+            },
+            {
+                id: 5,
+                title: "Final with Collections",
+                content: `<div class="content-header"><h2>5. Final with Collections</h2><p>Important distinction about collection contents</p></div>
+                <div class="content-body"><p><strong>Important:</strong> Final collection is immutable reference, NOT contents!</p>
+                <div class="code-block">final List<String> list = new ArrayList<>();
+list.add("Java");  // ✅ ALLOWED! Content can change
+// list = new ArrayList<>();  // ❌ Reference cannot change</div>
+                <div class="tip">Final applies to the reference, not the object's contents. You can modify collection contents, but cannot reassign the reference.</div>
+                <p><strong>For Truly Immutable Collections:</strong></p>
+                <div class="code-block">final List<String> list = Collections.unmodifiableList(...);
+// list.add("Java");  // ❌ Now throws UnsupportedOperationException</div></div>`
+            },
+            {
+                id: 6,
+                title: "Interview Key Points",
+                content: `<div class="content-header"><h2>6. Interview Key Points</h2><p>Important facts about final keyword</p></div>
+                <div class="content-body"><p><strong>Key Facts:</strong></p><ul><li>Final variables must be initialized</li><li>Final methods cannot be overridden</li><li>Final classes cannot be extended</li><li>String class is final for security/optimization</li><li>Final parameters prevent accidental modification</li><li>Final with collections affects reference, not contents</li><li>Used for constants, security, and performance</li></ul>
+                <p><strong>Performance Note:</strong> Compiler & JVM can inline final methods = faster execution</p></div>`
+            }
+        ];
+
+        const topicsList = document.getElementById('topicsList');
+        topics.forEach(topic => {
+            const item = document.createElement('div');
+            item.className = 'topic-item';
+            item.textContent = topic.title;
+            item.onclick = () => selectTopic(topic.id, item);
+            topicsList.appendChild(item);
+        });
+
+        function selectTopic(id, element) {
+            document.querySelectorAll('.topic-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+            const topic = topics.find(t => t.id === id);
+            document.getElementById('contentArea').innerHTML = topic.content;
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Singleton Issues - Complete Guide</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI'; background: #1a1a2e; color: #e0e0e0; height: 100vh; overflow: hidden; }
+        .container { display: flex; height: 100vh; }
+        .sidebar { width: 280px; background: #0f1419; border-right: 1px solid #2563eb; overflow-y: auto; padding: 20px 0; }
+        .sidebar-header { padding: 0 20px 20px 20px; border-bottom: 2px solid #2563eb; margin-bottom: 20px; }
+        .sidebar-header h1 { font-size: 1.3em; color: #2563eb; }
+        .topic-item { padding: 12px 20px; cursor: pointer; border-left: 3px solid transparent; transition: all 0.3s; color: #a0a0a0; font-size: 0.9em; }
+        .topic-item:hover { background: #1e293b; color: #2563eb; border-left-color: #2563eb; padding-left: 24px; }
+        .topic-item.active { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; }
+        .content-area { flex: 1; background: #1a1a2e; overflow-y: auto; padding: 30px; }
+        .content-header h2 { font-size: 1.8em; color: #2563eb; margin-bottom: 10px; }
+        .content-header p { color: #90caf9; font-style: italic; margin-bottom: 20px; border-bottom: 1px solid #2563eb; padding-bottom: 15px; }
+        .content-body p { margin-bottom: 15px; line-height: 1.8; }
+        .content-body ul { margin-left: 30px; margin-bottom: 15px; }
+        .content-body li { margin-bottom: 8px; }
+        .content-body strong { color: #2563eb; }
+        .code-block { background: #0f1419; padding: 15px; border-radius: 6px; border-left: 3px solid #2563eb; color: #90caf9; font-family: 'Courier New'; font-size: 0.85em; margin: 15px 0; overflow-x: auto; }
+        .tip { background: #1e3a5f; border-left: 4px solid #2563eb; padding: 15px; margin: 15px 0; border-radius: 6px; }
+        .back-link { color: #2563eb; text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 20px; display: inline-block; font-size: 0.95em; }
+        .back-link:hover { text-decoration: underline; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f1419; }
+        ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header"><h1>⚠️ Singleton Issues</h1></div>
+            <div id="topicsList"></div>
+        </div>
+        <div class="content-area">
+            <a href="java_singleton_immutable_index.html" class="back-link">← Back to Singleton & Immutable</a>
+            <div id="contentArea" style="text-align:center; color: #a0a0a0; padding: 50px;">Click on a topic →</div>
+        </div>
+    </div>
+
+    <script>
+        const topics = [
+            {
+                id: 1,
+                title: "Serialization Problem",
+                content: `<div class="content-header"><h2>1. Serialization Problem</h2><p>Deserialization creates new instances</p></div>
+                <div class="content-body"><p><strong>Issue:</strong> When deserializing a singleton, a new instance is created, breaking singleton property!</p>
+                <div class="code-block">Singleton s1 = Singleton.getInstance();
+
+// Serialize to file
+FileOutputStream fos = new FileOutputStream("singleton.ser");
+ObjectOutputStream oos = new ObjectOutputStream(fos);
+oos.writeObject(s1);
+
+// Deserialize from file
+FileInputStream fis = new FileInputStream("singleton.ser");
+ObjectInputStream ois = new ObjectInputStream(fis);
+Singleton s2 = (Singleton) ois.readObject();
+
+// ❌ Problem: s1 != s2 (different instances!)</div>
+                <p><strong>Solution:</strong> Override readResolve() method</p>
+                <div class="code-block">protected Object readResolve() {
+    return getInstance();  // Return existing instance
+}</div></div>`
+            },
+            {
+                id: 2,
+                title: "Reflection Attack",
+                content: `<div class="content-header"><h2>2. Reflection Attack</h2><p>Bypassing private constructor</p></div>
+                <div class="content-body"><p><strong>Issue:</strong> Reflection can access private constructor and create new instance!</p>
+                <div class="code-block">// Get the private constructor
+Constructor<Singleton> constructor =
+    Singleton.class.getDeclaredConstructor();
+constructor.setAccessible(true);  // Bypass private
+
+// Create new instance through reflection
+Singleton s2 = constructor.newInstance();
+
+// ❌ Now we have two instances!
+Singleton s1 = Singleton.getInstance();
+System.out.println(s1 == s2);  // false</div>
+                <p><strong>Solution:</strong> Check in constructor</p>
+                <div class="code-block">private Singleton() {
+    if (instance != null) {
+        throw new RuntimeException("Use getInstance()");
+    }
+}</div></div>`
+            },
+            {
+                id: 3,
+                title: "Cloning Problem",
+                content: `<div class="content-header"><h2>3. Cloning Problem</h2><p>Clone creates another instance</p></div>
+                <div class="content-body"><p><strong>Issue:</strong> If class implements Cloneable, clone() creates new instance</p>
+                <div class="code-block">Singleton s1 = Singleton.getInstance();
+Singleton s2 = (Singleton) s1.clone();
+
+// ❌ Now s1 != s2 (different instances!)</div>
+                <p><strong>Solution:</strong> Override clone() method</p>
+                <div class="code-block">@Override
+public Object clone() throws CloneNotSupportedException {
+    return getInstance();  // Return existing instance
+}</div></div>`
+            },
+            {
+                id: 4,
+                title: "Testing Challenges",
+                content: `<div class="content-header"><h2>4. Testing Challenges</h2><p>Singletons complicate unit testing</p></div>
+                <div class="content-body"><p><strong>Problem:</strong> Singletons hold global state, making tests interdependent</p>
+                <div class="code-block">// Test 1: Modifies singleton state
+Singleton.getInstance().setValue(10);
+
+// Test 2: Gets affected by Test 1's state
+// (If tests run in parallel, unpredictable!)</div>
+                <p><strong>Solution:</strong> Use Dependency Injection instead of Singleton</p>
+                <ul><li>Makes code more testable</li><li>Dependencies can be mocked</li><li>Each test gets clean instance</li></ul></div>`
+            },
+            {
+                id: 5,
+                title: "Multi-ClassLoader Issue",
+                content: `<div class="content-header"><h2>5. Multi-ClassLoader Problem</h2><p>Multiple singletons in complex apps</p></div>
+                <div class="content-body"><p><strong>Issue:</strong> If custom classloaders load same class, multiple instances created</p>
+                <p><strong>Scenario:</strong> Different modules using different classloaders</p>
+                <div class="code-block">ClassLoader cl1 = ...;
+ClassLoader cl2 = ...;
+
+Singleton s1 = cl1.loadClass("Singleton");
+Singleton s2 = cl2.loadClass("Singleton");
+
+// ❌ Two Singleton instances! (from different classloaders)</div>
+                <p><strong>When It Happens:</strong></p><ul><li>Application servers with multiple modules</li><li>OSGi framework</li><li>Complex plugin systems</li></ul></div>`
+            },
+            {
+                id: 6,
+                title: "Alternatives to Singleton",
+                content: `<div class="content-header"><h2>6. Alternatives & Best Practices</h2><p>When NOT to use Singleton</p></div>
+                <div class="content-body"><p><strong>Better Alternatives:</strong></p><ul><li><strong>Dependency Injection:</strong> Pass instances where needed (more testable)</li><li><strong>Static Utility Class:</strong> If no state needed</li><li><strong>Service Locator:</strong> Factory pattern</li><li><strong>Enum Singleton:</strong> Even simpler than Bill Pugh</li></ul>
+                <p><strong>Enum Singleton (Best):</strong></p>
+                <div class="code-block">public enum Singleton {
+    INSTANCE;
+
+    public void doSomething() { }
+}
+
+// Usage
+Singleton.INSTANCE.doSomething();</div>
+                <div class="tip">Enums are automatically thread-safe, serialization-safe, reflection-safe!</div></div>`
+            }
+        ];
+
+        const topicsList = document.getElementById('topicsList');
+        topics.forEach(topic => {
+            const item = document.createElement('div');
+            item.className = 'topic-item';
+            item.textContent = topic.title;
+            item.onclick = () => selectTopic(topic.id, item);
+            topicsList.appendChild(item);
+        });
+
+        function selectTopic(id, element) {
+            document.querySelectorAll('.topic-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+            const topic = topics.find(t => t.id === id);
+            document.getElementById('contentArea').innerHTML = topic.content;
+        }
+    </script>
+</body>
+</html>
+

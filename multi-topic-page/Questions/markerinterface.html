@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Marker Interfaces - Complete Guide</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI'; background: #1a1a2e; color: #e0e0e0; height: 100vh; overflow: hidden; }
+        .container { display: flex; height: 100vh; }
+        .sidebar { width: 280px; background: #0f1419; border-right: 1px solid #2563eb; overflow-y: auto; padding: 20px 0; }
+        .sidebar-header { padding: 0 20px 20px 20px; border-bottom: 2px solid #2563eb; margin-bottom: 20px; }
+        .sidebar-header h1 { font-size: 1.4em; color: #2563eb; }
+        .topic-item { padding: 12px 20px; cursor: pointer; border-left: 3px solid transparent; transition: all 0.3s; color: #a0a0a0; font-size: 0.9em; }
+        .topic-item:hover { background: #1e293b; color: #2563eb; border-left-color: #2563eb; padding-left: 24px; }
+        .topic-item.active { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; }
+        .content-area { flex: 1; background: #1a1a2e; overflow-y: auto; padding: 30px; }
+        .content-header h2 { font-size: 1.8em; color: #2563eb; margin-bottom: 10px; }
+        .content-header p { color: #90caf9; font-style: italic; margin-bottom: 20px; border-bottom: 1px solid #2563eb; padding-bottom: 15px; }
+        .content-body p { margin-bottom: 15px; line-height: 1.8; }
+        .content-body ul { margin-left: 30px; margin-bottom: 15px; }
+        .content-body li { margin-bottom: 8px; }
+        .content-body strong { color: #2563eb; }
+        .code-block { background: #0f1419; padding: 15px; border-radius: 6px; border-left: 3px solid #2563eb; color: #90caf9; font-family: 'Courier New'; font-size: 0.85em; margin: 15px 0; overflow-x: auto; white-space: pre-wrap; word-break: break-all; line-height: 1.6; }
+        .tip { background: #1e3a5f; border-left: 4px solid #2563eb; padding: 15px; margin: 15px 0; border-radius: 6px; }
+        .back-link { color: #2563eb; text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 20px; display: inline-block; font-size: 0.95em; }
+        .back-link:hover { text-decoration: underline; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f1419; }
+        ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header"><h1>🏷️ Marker Interfaces</h1></div>
+            <div id="topicsList"></div>
+        </div>
+        <div class="content-area">
+            <a href="java_master_index.html" class="back-link">← Back to Master Index</a>
+            <div id="contentArea" style="text-align:center; color: #a0a0a0; padding: 50px;">Click on a topic →</div>
+        </div>
+    </div>
+
+    <script>
+        const topics = [
+            {
+                id: 1,
+                title: "What is a Marker Interface?",
+                content: `<div class="content-header"><h2>1. What is a Marker Interface?</h2><p>An interface with no methods</p></div>
+                <div class="content-body"><p><strong>Marker Interface:</strong> An empty interface that signals capabilities to the JVM or framework.</p>
+                <div class="code-block">public interface Serializable {
+    // No methods - just a marker!
+}</div>
+                <p><strong>Purpose:</strong> To provide metadata that tells JVM or frameworks how to handle the class</p>
+                <p><strong>Common Marker Interfaces:</strong></p><ul><li>Serializable - Object can be serialized</li><li>Cloneable - Object can be cloned</li><li>Runnable - Object can run as a thread</li></ul></div>`
+            },
+            {
+                id: 2,
+                title: "Serializable Interface",
+                content: `<div class="content-header"><h2>2. Serializable Interface</h2><p>Marking objects for serialization</p></div>
+                <div class="content-body"><p><strong>Purpose:</strong> Signals that an object can be serialized (converted to byte stream)</p>
+                <div class="code-block">public class Person implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private String name;
+    private int age;
+}</div>
+                <p><strong>Without Serializable:</strong> NotSerializableException</p>
+                <p><strong>Usage:</strong></p><ul><li>Saving objects to file</li><li>Network transmission</li><li>Session storage</li></ul></div>`
+            },
+            {
+                id: 3,
+                title: "Cloneable Interface",
+                content: `<div class="content-header"><h2>3. Cloneable Interface</h2><p>Marking objects for cloning</p></div>
+                <div class="content-body"><p><strong>Purpose:</strong> Signals that an object can be cloned</p>
+                <div class="code-block">public class Person implements Cloneable {
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+}</div>
+                <p><strong>Without Cloneable:</strong> CloneNotSupportedException</p>
+                <p><strong>Usage:</strong> Creating independent copies of objects</p></div>`
+            },
+            {
+                id: 4,
+                title: "Runnable Interface",
+                content: `<div class="content-header"><h2>4. Runnable Interface</h2><p>Marking code for execution in threads</p></div>
+                <div class="content-body"><p><strong>Purpose:</strong> Marks a task that can be executed by a thread</p>
+                <div class="code-block">public class MyTask implements Runnable {
+    @Override
+    public void run() {
+        System.out.println("Running in thread");
+    }
+}
+
+Thread t = new Thread(new MyTask());
+t.start();</div>
+                <p><strong>Note:</strong> Runnable actually has one method (run), so it's borderline marker interface</p></div>`
+            },
+            {
+                id: 5,
+                title: "Why Use Marker Interfaces?",
+                content: `<div class="content-header"><h2>5. Why Use Marker Interfaces?</h2><p>The benefits and trade-offs</p></div>
+                <div class="content-body"><p><strong>Benefits:</strong></p><ul><li>Provides type information to JVM</li><li>Enables compile-time type checking</li><li>Framework can detect capabilities via instanceof</li></ul>
+                <p><strong>Drawbacks:</strong></p><ul><li>No methods to implement</li><li>Interfaces are not inheritance hierarchy</li><li>Modern alternative: Annotations</li></ul>
+                <div class="tip"><strong>Modern Approach:</strong> Use annotations instead (@Serializable, @Cloneable). Annotations provide more metadata and flexibility.</div></div>`
+            },
+            {
+                id: 6,
+                title: "Marker Interface vs Annotation",
+                content: `<div class="content-header"><h2>6. Marker Interface vs Annotation</h2><p>Which should you use?</p></div>
+                <div class="content-body"><p><strong>Marker Interface (Old):</strong></p>
+                <div class="code-block">public class Person implements Serializable {}</div>
+                <p><strong>Annotation (Modern):</strong></p>
+                <div class="code-block">@Serializable
+public class Person {}</div>
+                <p><strong>Why Annotations are better:</strong></p><ul><li>More flexible metadata</li><li>Can have parameters</li><li>Can be applied at runtime</li><li>Don't force inheritance</li></ul>
+                <p><strong>Why we still see Marker Interfaces:</strong></p><ul><li>Backward compatibility</li><li>Existing code uses them</li><li>Type checking benefits</li></ul></div>`
+            }
+        ];
+
+        const topicsList = document.getElementById('topicsList');
+        topics.forEach(topic => {
+            const item = document.createElement('div');
+            item.className = 'topic-item';
+            item.textContent = topic.title;
+            item.onclick = () => selectTopic(topic.id, item);
+            topicsList.appendChild(item);
+        });
+
+        function selectTopic(id, element) {
+            document.querySelectorAll('.topic-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+            const topic = topics.find(t => t.id === id);
+            document.getElementById('contentArea').innerHTML = topic.content;
+        }
+    </script>
+</body>
+</html>
+

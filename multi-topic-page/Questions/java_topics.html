@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Topics - System Design Interview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #e0e0e0;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #1a1a2e;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid #2563eb;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #2563eb;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(37, 99, 235, 0.3);
+        }
+
+        .header p {
+            color: #a0a0a0;
+            font-size: 1.1em;
+        }
+
+        .topics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .topic-card {
+            background: linear-gradient(135deg, #1e293b 0%, #0f1419 100%);
+            border: 1px solid #2563eb;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .topic-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+            border-color: #1e40af;
+            background: linear-gradient(135deg, #1e40af 0%, #1e293b 100%);
+        }
+
+        .topic-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .topic-title {
+            font-size: 1.3em;
+            color: #2563eb;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .topic-description {
+            color: #a0a0a0;
+            font-size: 0.95em;
+            margin-bottom: 15px;
+            flex-grow: 1;
+        }
+
+        .topic-link {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .topic-link:hover {
+            background: #1e40af;
+            transform: translateX(5px);
+        }
+
+        .topic-link.disabled {
+            background: #666;
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: none;
+        }
+
+        .back-button {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: #1e40af;
+            transform: translateX(-5px);
+        }
+
+        .coming-soon {
+            position: relative;
+        }
+
+        .coming-soon::after {
+            content: "Coming Soon";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff6b6b;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .topics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-button">← Back to Home</a>
+
+        <div class="header">
+            <h1>☕ Java Topics</h1>
+            <p>Deep dive into Java concepts and best practices</p>
+        </div>
+
+        <div class="topics-grid">
+            <!-- Collections -->
+            <div class="topic-card">
+                <div>
+                    <div class="topic-icon">📦</div>
+                    <div class="topic-title">Collections</div>
+                    <div class="topic-description">
+                        Comprehensive guide to Java Collections Framework including Lists, Sets, Maps, and their implementations.
+                    </div>
+                </div>
+                <a href="java_collections_deep_dive.html" class="topic-link">View Details →</a>
+            </div>
+
+            <!-- JPA Deep Dive -->
+            <div class="topic-card coming-soon">
+                <div>
+                    <div class="topic-icon">🗄️</div>
+                    <div class="topic-title">JPA Deep Dive</div>
+                    <div class="topic-description">
+                        Java Persistence API fundamentals, entity relationships, query language, and best practices for ORM.
+                    </div>
+                </div>
+                <button class="topic-link disabled">View Details →</button>
+            </div>
+
+            <!-- Threads & Concurrency -->
+            <div class="topic-card">
+                <div>
+                    <div class="topic-icon">🔄</div>
+                    <div class="topic-title">Threads & Concurrency</div>
+                    <div class="topic-description">
+                        Thread management, synchronization, concurrent collections, and thread pools in Java.
+                    </div>
+                </div>
+                <a href="threads_and_concurrency.html" class="topic-link">View Details →</a>
+            </div>
+
+            <!-- Streams & Functional Programming -->
+            <div class="topic-card coming-soon">
+                <div>
+                    <div class="topic-icon">🌊</div>
+                    <div class="topic-title">Streams & Functional Programming</div>
+                    <div class="topic-description">
+                        Lambda expressions, functional interfaces, Stream API, and functional programming patterns in Java.
+                    </div>
+                </div>
+                <button class="topic-link disabled">View Details →</button>
+            </div>
+
+            <!-- Memory Management & GC -->
+            <div class="topic-card coming-soon">
+                <div>
+                    <div class="topic-icon">💾</div>
+                    <div class="topic-title">Memory Management & GC</div>
+                    <div class="topic-description">
+                        Garbage collection, heap/stack memory, memory leaks, and JVM tuning parameters.
+                    </div>
+                </div>
+                <button class="topic-link disabled">View Details →</button>
+            </div>
+
+            <!-- Spring Framework -->
+            <div class="topic-card coming-soon">
+                <div>
+                    <div class="topic-icon">🌿</div>
+                    <div class="topic-title">Spring Framework</div>
+                    <div class="topic-description">
+                        Spring Core, Dependency Injection, AOP, Spring Boot, and Spring best practices.
+                    </div>
+                </div>
+                <button class="topic-link disabled">View Details →</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

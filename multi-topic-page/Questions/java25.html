@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java 25 - Latest Features</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI'; background: #1a1a2e; color: #e0e0e0; height: 100vh; overflow: hidden; }
+        .container { display: flex; height: 100vh; }
+        .sidebar { width: 280px; background: #0f1419; border-right: 1px solid #2563eb; overflow-y: auto; padding: 20px 0; }
+        .sidebar-header { padding: 0 20px 20px 20px; border-bottom: 2px solid #2563eb; margin-bottom: 20px; }
+        .sidebar-header h1 { font-size: 1.4em; color: #2563eb; }
+        .topic-item { padding: 12px 20px; cursor: pointer; border-left: 3px solid transparent; transition: all 0.3s; color: #a0a0a0; font-size: 0.9em; }
+        .topic-item:hover { background: #1e293b; color: #2563eb; border-left-color: #2563eb; padding-left: 24px; }
+        .topic-item.active { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; }
+        .content-area { flex: 1; background: #1a1a2e; overflow-y: auto; padding: 30px; }
+        .content-header h2 { font-size: 1.8em; color: #2563eb; margin-bottom: 10px; }
+        .content-header p { color: #90caf9; font-style: italic; margin-bottom: 20px; border-bottom: 1px solid #2563eb; padding-bottom: 15px; }
+        .content-body p { margin-bottom: 15px; line-height: 1.8; }
+        .content-body ul { margin-left: 30px; margin-bottom: 15px; }
+        .content-body li { margin-bottom: 8px; }
+        .content-body strong { color: #2563eb; }
+        .code-block { background: #0f1419; padding: 15px; border-radius: 6px; border-left: 3px solid #2563eb; color: #90caf9; font-family: 'Courier New'; font-size: 0.85em; margin: 15px 0; overflow-x: auto; }
+        .tip { background: #1e3a5f; border-left: 4px solid #2563eb; padding: 15px; margin: 15px 0; border-radius: 6px; }
+        .back-link { color: #2563eb; text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 20px; display: inline-block; font-size: 0.95em; }
+        .back-link:hover { text-decoration: underline; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f1419; }
+        ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header"><h1>✨ Java 25</h1></div>
+            <div id="topicsList"></div>
+        </div>
+        <div class="content-area">
+            <a href="java_master_index.html" class="back-link">← Back to Master Index</a>
+            <div id="contentArea" style="text-align:center; color: #a0a0a0; padding: 50px;">Click on a topic →</div>
+        </div>
+    </div>
+
+    <script>
+        const topics = [
+            {
+                id: 1,
+                title: "Java 25 Release Highlights",
+                content: `<div class="content-header"><h2>1. Java 25 Release Highlights</h2><p>Latest features and improvements</p></div>
+                <div class="content-body"><p><strong>Release Date:</strong> September 2024</p>
+                <p><strong>Release Type:</strong> Short-term support release</p>
+                <p><strong>Java Release Cycle:</strong></p><ul><li>Major release every 3 months</li><li>LTS (Long-term support) every 2 years</li><li>Java 23 (Sept 2023), Java 24 (March 2024), Java 25 (Sept 2024)</li><li>Next LTS: Java 26 (2025) or later</li></ul>
+                <p><strong>Key Focus Areas:</strong></p><ul><li>Performance improvements</li><li>Virtual threads enhancements</li><li>Pattern matching improvements</li><li>Memory efficiency</li></ul></div>`
+            },
+            {
+                id: 2,
+                title: "Virtual Threads (Loom)",
+                content: `<div class="content-header"><h2>2. Virtual Threads - Project Loom</h2><p>Lightweight, user-mode threads</p></div>
+                <div class="content-body"><p><strong>What are Virtual Threads?</strong> Lightweight threads managed by the JVM, not OS</p>
+                <div class="code-block">// Traditional Thread
+new Thread(() -> {
+    System.out.println("Running");
+}).start();
+
+// Virtual Thread
+Thread.ofVirtual().start(() -> {
+    System.out.println("Virtual - lightweight!");
+});</div>
+                <p><strong>Benefits:</strong></p><ul><li>Create millions without overhead</li><li>Better scalability for I/O operations</li><li>Simpler concurrency model than reactive</li></ul>
+                <div class="tip">Virtual threads make it easier to write highly concurrent code without complex frameworks.</div></div>`
+            },
+            {
+                id: 3,
+                title: "Pattern Matching Enhancements",
+                content: `<div class="content-header"><h2>3. Pattern Matching</h2><p>More expressive instanceof and switch</p></div>
+                <div class="content-body"><p><strong>Record Patterns:</strong></p>
+                <div class="code-block">record Point(int x, int y) {}
+
+Point point = new Point(1, 2);
+
+// Pattern matching in if
+if (point instanceof Point(int x, int y)) {
+    System.out.println("x: " + x + ", y: " + y);
+}</div>
+                <p><strong>Enhanced switch:</strong></p>
+                <div class="code-block">Object obj = 42;
+switch (obj) {
+    case Integer i -> System.out.println("Int: " + i);
+    case String s -> System.out.println("String: " + s);
+    case Point(int x, int y) -> System.out.println("Point: " + x + "," + y);
+    default -> System.out.println("Unknown");
+}</div></div>`
+            },
+            {
+                id: 4,
+                title: "Records & Sealed Classes",
+                content: `<div class="content-header"><h2>4. Records & Sealed Classes</h2><p>Better data modeling</p></div>
+                <div class="content-body"><p><strong>Records (Data classes):</strong></p>
+                <div class="code-block">public record Person(String name, int age) {
+    // Auto-generates:
+    // - Constructor
+    // - equals(), hashCode()
+    // - toString()
+    // - getters
+}</div>
+                <p><strong>Sealed Classes:</strong> Control which classes can extend</p>
+                <div class="code-block">public sealed class Shape permits Circle, Rectangle {
+    // Only Circle and Rectangle can extend
+}
+
+public final class Circle extends Shape {}
+public final class Rectangle extends Shape {}</div>
+                <p><strong>Benefits:</strong> Type safety, pattern matching, cleaner hierarchies</p></div>`
+            },
+            {
+                id: 5,
+                title: "Performance Improvements",
+                content: `<div class="content-header"><h2>5. Performance Improvements</h2><p>Continuous optimization</p></div>
+                <div class="content-body"><p><strong>GC Enhancements:</strong></p><ul><li>G1GC optimizations for lower latency</li><li>Reduced GC pause times</li><li>Better memory efficiency</li></ul>
+                <p><strong>JIT Compiler:</strong></p><ul><li>Better code generation</li><li>Faster compilation</li><li>Reduced warmup time</li></ul>
+                <p><strong>Startup Performance:</strong></p><ul><li>Faster app startup</li><li>Reduced time to first request</li><li>Better for containerized deployments</li></ul>
+                <div class="tip">For production workloads, JVM performance gets faster with each release. Upgrading Java versions often gives free performance wins.</div></div>`
+            },
+            {
+                id: 6,
+                title: "Migration from Java 8 to 25",
+                content: `<div class="content-header"><h2>6. Migration Path</h2><p>Upgrading from older Java versions</p></div>
+                <div class="content-body"><p><strong>Why upgrade?</strong></p><ul><li>Security patches (Java 8 EOL)</li><li>Performance improvements</li><li>Modern language features</li><li>Better tooling</li></ul>
+                <p><strong>Recommended Path:</strong></p>
+                <div class="code-block">Java 8 → Java 11 (LTS) → Java 17 (LTS) → Java 25</div>
+                <p><strong>Breaking changes to watch:</strong></p><ul><li>Removed deprecated APIs</li><li>Module system (Optional in most apps)</li><li>Security manager removal</li></ul>
+                <p><strong>Testing is critical!</strong> Always test thoroughly after upgrading</p></div>`
+            }
+        ];
+
+        const topicsList = document.getElementById('topicsList');
+        topics.forEach(topic => {
+            const item = document.createElement('div');
+            item.className = 'topic-item';
+            item.textContent = topic.title;
+            item.onclick = () => selectTopic(topic.id, item);
+            topicsList.appendChild(item);
+        });
+
+        function selectTopic(id, element) {
+            document.querySelectorAll('.topic-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+            const topic = topics.find(t => t.id === id);
+            document.getElementById('contentArea').innerHTML = topic.content;
+        }
+    </script>
+</body>
+</html>
+

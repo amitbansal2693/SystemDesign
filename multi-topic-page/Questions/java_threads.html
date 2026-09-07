@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Threads - Complete Guide</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI'; background: #f5f5f5; color: #333333; height: 100vh; overflow: hidden; }
+        .container { display: flex; height: 100vh; }
+         .sidebar { width: 40%; background: #ffffff; border-right: 2px solid #ddd; overflow-y: auto; padding: 20px; }
+         .sidebar-header { padding: 0 0 20px 0; border-bottom: 2px solid #2563eb; margin-bottom: 20px; }
+        .sidebar-header h1 { font-size: 1.4em; color: #2563eb; }
+         .topic-item { padding: 12px 15px; cursor: pointer; border-left: 3px solid transparent; transition: all 0.3s; color: #666666; font-size: 0.85em; }
+         .topic-item:hover { background: #f0f0f0; color: #2563eb; border-left-color: #2563eb; padding-left: 18px; }
+        .topic-item.active { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; }
+         .content-area { width: 60%; background: #ffffff; overflow-y: auto; padding: 40px; text-align: left; }
+        .content-header h2 { font-size: 1.8em; color: #2563eb; margin-bottom: 10px; }
+        .content-header p { color: #0066cc; font-style: italic; margin-bottom: 20px; border-bottom: 1px solid #ddd; padding-bottom: 15px; }
+        .content-body p { margin-bottom: 15px; line-height: 1.8; color: #333333; }
+        .content-body ul, .content-body ol { margin-left: 30px; margin-bottom: 15px; }
+        .content-body li { margin-bottom: 8px; color: #333333; }
+        .content-body strong { color: #2563eb; }
+        .code-block { background: #f5f5f5; padding: 15px; border-radius: 6px; border-left: 3px solid #2563eb; color: #333333; font-family: 'Courier New'; font-size: 0.85em; margin: 15px 0; overflow-x: auto; white-space: pre-wrap; word-break: break-all; line-height: 1.6; }
+        .tip { background: #e8f0ff; border-left: 4px solid #2563eb; padding: 15px; margin: 15px 0; border-radius: 6px; color: #0066cc; }
+        .back-link { color: #2563eb; text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 20px; display: inline-block; font-size: 0.95em; }
+        .back-link:hover { text-decoration: underline; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        table td, table th { border: 1px solid #ddd; padding: 8px; text-align: left; color: #333333; }
+        table th { background: #f0f0f0; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f0f0f0; }
+        ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header"><h1>🧵 Java Threads</h1></div>
+            <div id="topicsList"></div>
+        </div>
+        <div class="content-area">
+            <a href="java_master_index.html" class="back-link">← Back to Master Index</a>
+            <div id="contentArea" style="text-align:center; color: #a0a0a0; padding: 50px;">Click on a topic →</div>
+        </div>
+    </div>
+
+    <script>
+        const topics = [
+            {
+                id: 1,
+                title: "What is a Process?",
+                content: `<div class="content-header"><h2>1. What is a Process?</h2><p>Running instance of a program</p></div>
+                <div class="content-body">
+                <p><strong>Definition:</strong> A process is a running instance of a program.</p>
+                <p>When a Java application is executed, the operating system starts a Java process.</p>
+                <p><strong>Relationship:</strong></p>
+                <div class="code-block">Program
+   ↓
+Running Program
+   ↓
+Process</div>
+                <p>A process gets its own memory space and runtime resources.</p>
+                <p><strong>Important Distinction:</strong></p>
+                <div class="code-block">Process = Running application / container
+Thread  = Unit of execution inside the process</div></div>`
+            },
+            {
+                id: 2,
+                title: "What is a Thread?",
+                content: `<div class="content-header"><h2>2. What is a Thread?</h2><p>Unit of execution inside a process</p></div>
+                <div class="content-body">
+                <p><strong>Definition:</strong> A thread is a unit of execution inside a process.</p>
+                <p><strong>Analogy - Restaurant Model:</strong></p>
+                <div class="code-block">Process = Restaurant
+Thread 1 = Worker
+Thread 2 = Worker
+Thread 3 = Worker</div>
+                <p><strong>Key Relationship:</strong></p>
+                <div class="code-block">Process
+   ↓
+contains
+   ↓
+Threads</div>
+                <p>A Java process can have many threads executing different tasks concurrently.</p></div>`
+            },
+            {
+                id: 3,
+                title: "Why Do We Need Threads?",
+                content: `<div class="content-header"><h2>3. Why Do We Need Threads?</h2><p>Enabling concurrent task execution</p></div>
+                <div class="content-body">
+                <p><strong>Problem - Sequential Execution:</strong></p>
+                <div class="code-block">1. Download a file
+2. Send an email
+3. Process an order
+
+Without threads (sequential):
+Download file
+     ↓
+Wait
+     ↓
+Send email
+     ↓
+Wait
+     ↓
+Process order</div>
+                <p>Tasks block each other. If one task waits for I/O, others are blocked.</p>
+                <p><strong>Solution - Concurrent Execution with Threads:</strong></p>
+                <div class="code-block">Thread 1 → Download file
+Thread 2 → Send email
+Thread 3 → Process order</div>
+                <p>Multiple tasks make progress concurrently.</p>
+                <p><strong>Core Problem Solved:</strong></p>
+                <p>Threads allow one process to execute multiple tasks concurrently.</p></div>`
+            },
+            {
+                id: 4,
+                title: "Simple Java Example",
+                content: `<div class="content-header"><h2>4. Simple Java Thread Example</h2><p>Creating and starting threads</p></div>
+                <div class="content-body">
+                <div class="code-block">public class Main {
+
+    public static void main(String[] args) {
+        Thread thread = new Thread(() -> {
+            System.out.println("Task is running...");
+        });
+
+        thread.start();
+
+        System.out.println("Main thread is running...");
+    }
+}</div>
+                <p><strong>What Happens:</strong></p>
+                <div class="code-block">1. Java application starts with the main thread
+2. new Thread() creates another thread object
+3. thread.start() starts that thread for execution
+4. Both main thread and new thread execute concurrently</div>
+                <p><strong>Conceptual View:</strong></p>
+                <div class="code-block">Java Process
+│
+├── Main Thread
+│
+└── Thread 2
+       ↓
+   Task is running</div></div>`
+            },
+            {
+                id: 5,
+                title: "Main Thread",
+                content: `<div class="content-header"><h2>5. Main Thread</h2><p>Entry point of Java application</p></div>
+                <div class="content-body">
+                <p><strong>Definition:</strong> When Java starts a normal application, the JVM creates the main thread which executes the main() method.</p>
+                <p><strong>Execution Flow:</strong></p>
+                <div class="code-block">Java Process
+     ↓
+Main Thread
+     ↓
+main()
+     ↓
+Application code</div>
+                <p><strong>Example - Hello World:</strong></p>
+                <div class="code-block">public class HelloWorld {
+
+    public static void main(String[] args) {
+        System.out.println("Hello World");
+    }
+}</div>
+                <p><strong>Conceptual Flow:</strong></p>
+                <div class="code-block">Java Process
+└── Main Thread
+      ↓
+   main()
+      ↓
+Hello World
+      ↓
+Program exits</div>
+                <p><strong>Important:</strong> For learning purposes, when Java starts → Java process + main thread → main() executes application code.</p></div>`
+            },
+            {
+                id: 6,
+                title: "JVM Internal Threads",
+                content: `<div class="content-header"><h2>6. JVM Internal Threads</h2><p>Background threads created by the JVM</p></div>
+                <div class="content-body">
+                <p><strong>Definition:</strong> The JVM can create additional internal/background threads that you do not explicitly create.</p>
+                <p><strong>Examples of Internal Threads:</strong></p>
+                <ul>
+                <li><strong>GC Threads:</strong> Garbage Collector threads clean unused objects from the heap</li>
+                <li><strong>JIT Compiler Threads:</strong> JIT compiler threads optimize frequently executed Java code</li>
+                <li><strong>Other JVM Threads:</strong> Threads for internal runtime and reference/cleanup-related work</li>
+                </ul>
+                <p><strong>Conceptual View:</strong></p>
+                <div class="code-block">Java Process
+│
+├── Main Thread              ← Application code
+├── GC Threads               ← JVM
+├── JIT Compiler Threads     ← JVM
+└── Other JVM Threads        ← JVM</div>
+                <p><strong>How to Inspect:</strong> Use JDK tools to inspect JVM threads:</p>
+                <div class="code-block">jps
+jstack <PID></div>
+                <p>Or tools like JConsole / VisualVM.</p></div>`
+            },
+            {
+                id: 7,
+                title: "Process vs Thread",
+                content: `<div class="content-header"><h2>7. Process vs Thread</h2><p>Understanding the relationship</p></div>
+                <div class="content-body">
+                <p><strong>Relationship Structure:</strong></p>
+                <div class="code-block">PROCESS
+│
+├── Main Thread
+├── Thread 2
+├── Thread 3
+└── Thread 4</div>
+                <p><strong>Definitions:</strong></p>
+                <ul>
+                <li><strong>Process:</strong> A running application with its memory/resources</li>
+                <li><strong>Thread:</strong> A unit of execution inside the process</li>
+                </ul>
+                <p><strong>Mental Model:</strong></p>
+                <div class="code-block">Process = Container
+Thread  = Worker inside the container</div></div>`
+            },
+            {
+                id: 8,
+                title: "Thread vs Task",
+                content: `<div class="content-header"><h2>8. Thread vs Task - Critical Distinction</h2><p>Two different concepts often confused</p></div>
+                <div class="content-body">
+                <p><strong>Definitions:</strong></p>
+                <ul>
+                <li><strong>Task:</strong> The work that needs to be performed</li>
+                <li><strong>Thread:</strong> The worker that executes the work</li>
+                </ul>
+                <p><strong>Example:</strong></p>
+                <div class="code-block">Task A = Calculate salary
+Task B = Send email
+Task C = Save database record</div>
+                <p><strong>Threads execute those tasks:</strong></p>
+                <div class="code-block">Thread 1 → Task A
+Thread 2 → Task B
+Thread 3 → Task C</div>
+                <p><strong>Critical Insight:</strong></p>
+                <p>Do NOT memorize: Task = Thread</p>
+                <p>Instead remember: A thread executes a task.</p>
+                <p>A thread can execute one task and then be reused for another task.</p></div>`
+            },
+            {
+                id: 9,
+                title: "Memory - Each Thread",
+                content: `<div class="content-header"><h2>9. Does Each Thread Have Its Own Memory?</h2><p>Partial isolation within shared process</p></div>
+                <div class="content-body">
+                <p><strong>Short Answer:</strong> Partially.</p>
+                <p><strong>Reality:</strong> Threads in the same Java process have:</p>
+                <ul>
+                <li>Their own <strong>stack</strong></li>
+                <li>Shared <strong>heap</strong></li>
+                </ul>
+                <p><strong>Conceptual Structure:</strong></p>
+                <div class="code-block">Java Process
+│
+├── Shared Heap
+│
+├── Thread 1
+│    └── Stack 1
+│
+├── Thread 2
+│    └── Stack 2
+│
+└── Thread 3
+     └── Stack 3</div>
+                <p><strong>Critical Concept:</strong> This is one of the most important concepts in Java concurrency.</p></div>`
+            },
+            {
+                id: 10,
+                title: "Thread Stack",
+                content: `<div class="content-header"><h2>10. Thread Stack - Private Execution Space</h2><p>Each thread's independent execution memory</p></div>
+                <div class="content-body">
+                <p><strong>Definition:</strong> Each thread has its own stack containing information about its current execution.</p>
+                <p><strong>Stack Contains:</strong></p>
+                <ul>
+                <li>Method call frames</li>
+                <li>Local variables</li>
+                <li>Method parameters</li>
+                <li>Execution state</li>
+                </ul>
+                <p><strong>Example - Same Method, Different Threads:</strong></p>
+                <div class="code-block">public void calculate() {
+    int x = 10;
+    int y = 20;
+    int result = x + y;
+}</div>
+                <p><strong>Thread 1 Stack:</strong></p>
+                <div class="code-block">Thread 1 Stack
+┌─────────────────┐
+│ calculate()     │
+│ x = 10          │
+│ y = 20          │
+│ result = 30     │
+└─────────────────┘</div>
+                <p><strong>Thread 2 Stack:</strong></p>
+                <div class="code-block">Thread 2 Stack
+┌─────────────────┐
+│ calculate()     │
+│ x = 50          │
+│ y = 70          │
+│ result = 120    │
+└─────────────────┘</div>
+                <p><strong>Key Idea:</strong> Each thread has its own stack. Local variables are separate because each thread has its own stack.</p></div>`
+            },
+            {
+                id: 11,
+                title: "Shared Heap",
+                content: `<div class="content-header"><h2>11. Shared Heap - Shared Objects</h2><p>Common memory for all threads</p></div>
+                <div class="content-body">
+                <p><strong>Definition:</strong> Java objects normally live in the heap, which is shared between threads in the same Java process.</p>
+                <p><strong>Example:</strong></p>
+                <div class="code-block">class Account {
+    int balance = 1000;
+}
+
+// Create object
+Account account = new Account();</div>
+                <p><strong>Shared Access:</strong> Multiple threads can access the same object:</p>
+                <div class="code-block">                 HEAP
+                  │
+            Account object
+            balance = 1000
+              ↑       ↑
+              │       │
+             T1       T2</div>
+                <p><strong>Key Idea:</strong> Threads have separate stacks but can share objects in the heap.</p></div>`
+            },
+            {
+                id: 12,
+                title: "Reference vs Object",
+                content: `<div class="content-header"><h2>12. Reference vs Object - Critical Distinction</h2><p>Understanding Java object model</p></div>
+                <div class="content-body">
+                <p><strong>Components:</strong></p>
+                <div class="code-block">Account account = new Account();</div>
+                <p><strong>Two Concepts:</strong></p>
+                <ul>
+                <li><strong>account</strong> - reference variable (in thread stack)</li>
+                <li><strong>new Account()</strong> - object (in heap)</li>
+                </ul>
+                <p><strong>Conceptual View:</strong></p>
+                <div class="code-block">Thread 1 Stack
+      │
+      │ account reference
+      ↓
+     HEAP
+      │
+      ↓
+ Account Object</div>
+                <p><strong>Multiple Threads Sharing:</strong></p>
+                <div class="code-block">Thread 1 Stack ──┐
+                 ├──→ Account Object in Heap
+Thread 2 Stack ──┘</div>
+                <p><strong>How Data Sharing Works:</strong> This is how threads can share data - through shared heap objects.</p></div>`
+            },
+            {
+                id: 13,
+                title: "Thread Isolation vs Sharing",
+                content: `<div class="content-header"><h2>13. Are Threads Isolated?</h2><p>Partial isolation with shared access</p></div>
+                <div class="content-body">
+                <p><strong>Answer:</strong> Partially.</p>
+                <p><strong>Threads are isolated in:</strong></p>
+                <ul>
+                <li>Their own execution state</li>
+                <li>Their own stack</li>
+                </ul>
+                <p><strong>But NOT completely isolated:</strong></p>
+                <p>They can access shared heap objects.</p>
+                <div class="code-block">Thread 1
+   │
+   └──────┐
+          ↓
+      Shared Object
+          ↑
+   ┌──────┘
+   │
+Thread 2</div>
+                <p><strong>Summary:</strong></p>
+                <div class="code-block">Private:
+├─ Thread stack
+├─ Local variables
+└─ Current execution state
+
+Shared:
+├─ Heap objects
+├─ Shared mutable state
+├─ Static state
+└─ Other shared resources</div></div>`
+            },
+            {
+                id: 14,
+                title: "Race Condition Problem",
+                content: `<div class="content-header"><h2>14. Why Does Shared Memory Create Problems?</h2><p>Understanding race conditions</p></div>
+                <div class="content-body">
+                <p><strong>Problem Scenario:</strong> Two threads modify the same object.</p>
+                <div class="code-block">class BankAccount {
+    int balance = 1000;
+
+    void withdraw(int amount) {
+        balance -= amount;
+    }
+}</div>
+                <p><strong>Operations:</strong></p>
+                <div class="code-block">Thread 1 → withdraw(100)
+Thread 2 → withdraw(100)</div>
+                <p><strong>Expected Result:</strong></p>
+                <div class="code-block">1000 → 900 → 800</div>
+                <p><strong>The Problem:</strong> balance -= 100; is NOT an atomic operation:</p>
+                <div class="code-block">READ balance
+CALCULATE balance - 100
+WRITE balance</div>
+                <p><strong>Possible Interleaved Execution:</strong></p>
+                <div class="code-block">T1 → READ 1000
+T2 → READ 1000
+
+T1 → calculate 900
+T2 → calculate 900
+
+T1 → WRITE 900
+T2 → WRITE 900</div>
+                <p><strong>Final Value:</strong> 900 (WRONG!)</p>
+                <p><strong>Expected:</strong> 800</p>
+                <p><strong>This is a RACE CONDITION:</strong> Result depends on timing/order of concurrent access.</p></div>`
+            },
+            {
+                id: 15,
+                title: "Synchronization & Locking",
+                content: `<div class="content-header"><h2>15. Synchronization / Locking</h2><p>Controlling concurrent access</p></div>
+                <div class="content-body">
+                <p><strong>Problem:</strong> Multiple threads accessing and modifying shared resource.</p>
+                <p><strong>Solution:</strong> Control access so only appropriate thread can modify critical section at a time.</p>
+                <p><strong>Example:</strong></p>
+                <div class="code-block">class BankAccount {
+    private int balance = 1000;
+
+    synchronized void withdraw(int amount) {
+        balance -= amount;
+    }
+}</div>
+                <p><strong>Execution Flow:</strong></p>
+                <div class="code-block">             BankAccount
+                  │
+                LOCK
+                  │
+        ┌─────────┴────────���┐
+        ↓                   ↓
+       T1                   T2
+    enters lock          waits
+        │
+    modifies
+        │
+     unlock
+                            ↓
+                       T2 gets lock
+                            │
+                         modifies</div>
+                <p><strong>Important Note:</strong> Not every shared resource requires locking. If multiple threads only read immutable/shared-safe data, concurrent access is fine. Main danger is: Shared data + Multiple threads + Modification = Race condition</p></div>`
+            },
+            {
+                id: 16,
+                title: "Thread Communication",
+                content: `<div class="content-header"><h2>16. Thread Communication</h2><p>Coordinating work between threads</p></div>
+                <div class="content-body">
+                <p><strong>Definition:</strong> Threads can communicate with each other.</p>
+                <p><strong>Common Approach - BlockingQueue:</strong></p>
+                <div class="code-block">BlockingQueue<String> queue = new LinkedBlockingQueue<>();</div>
+                <p><strong>Producer Thread:</strong></p>
+                <div class="code-block">queue.put("Order-123");</div>
+                <p><strong>Consumer Thread:</strong></p>
+                <div class="code-block">String order = queue.take();</div>
+                <p><strong>Conceptual Flow:</strong></p>
+                <div class="code-block">Thread 1
+   │
+   │ puts Order-123
+   ↓
+BlockingQueue
+   │
+   │ takes Order-123
+   ↓
+Thread 2</div>
+                <p><strong>Other Java Concurrency Mechanisms:</strong></p>
+                <ul>
+                <li>BlockingQueue</li>
+                <li>wait() / notify()</li>
+                <li>CountDownLatch</li>
+                <li>Semaphore</li>
+                <li>Future</li>
+                <li>CompletableFuture</li>
+                </ul></div>`
+            },
+            {
+                id: 17,
+                title: "CPU and Threads",
+                content: `<div class="content-header"><h2>17. CPU and Threads - Who Executes?</h2><p>CPU cores execute thread instructions</p></div>
+                <div class="content-body">
+                <p><strong>Question:</strong> If we have many threads, who actually executes them?</p>
+                <p><strong>Answer:</strong> The CPU cores execute instructions.</p>
+                <p><strong>Flow:</strong></p>
+                <div class="code-block">Thread
+  ↓
+CPU executes thread's instructions</div>
+                <p><strong>Example Scenario:</strong></p>
+                <div class="code-block">4 CPU cores
+20 threads</div>
+                <p><strong>How it Works:</strong> The operating system/JVM scheduler decides which threads get CPU time.</p>
+                <div class="code-block">20 Threads
+     ↓
+Scheduler
+     ↓
+4 CPU Cores</div>
+                <p><strong>At any instant:</strong> Up to ~4 threads can execute simultaneously on 4 cores. Remaining threads wait for CPU time or may be blocked/waiting.</p></div>`
+            },
+            {
+                id: 18,
+                title: "Parallelism",
+                content: `<div class="content-header"><h2>18. Parallelism</h2><p>Multiple tasks executing simultaneously</p></div>
+                <div class="content-body">
+                <p><strong>Problem:</strong> We want multiple tasks to execute literally at the same time.</p>
+                <p><strong>Solution:</strong> Multiple CPU cores allow multiple threads to execute simultaneously.</p>
+                <p><strong>Example:</strong></p>
+                <div class="code-block">Core 1 → Thread A
+Core 2 → Thread B
+Core 3 → Thread C
+Core 4 → Thread D</div>
+                <p><strong>This is Parallelism.</strong></p>
+                <p><strong>Key Idea:</strong> CPU cores enable true parallel execution of multiple threads.</p></div>`
+            },
+            {
+                id: 19,
+                title: "Concurrency vs Parallelism",
+                content: `<div class="content-header"><h2>19. Concurrency vs Parallelism</h2><p>Related but different concepts</p></div>
+                <div class="content-body">
+                <p><strong>Concurrency:</strong> Multiple tasks making progress during the same period.</p>
+                <div class="code-block">Task A ───────────────
+Task B ───────────
+Task C ────────────────</div>
+                <p>They may be taking turns on CPU time.</p>
+                <p><strong>Parallelism:</strong> Multiple tasks literally executing at the same time on different CPU cores.</p>
+                <div class="code-block">Core 1 → Task A
+Core 2 → Task B
+Core 3 → Task C
+Core 4 → Task D</div>
+                <p><strong>Easy Memory Trick:</strong></p>
+                <div class="code-block">Concurrency  = dealing with multiple tasks
+Parallelism  = executing multiple tasks simultaneously</div></div>`
+            },
+            {
+                id: 20,
+                title: "Thread Pool - Why?",
+                content: `<div class="content-header"><h2>20. Thread Pool - The Problem</h2><p>Why we need thread pools</p></div>
+                <div class="content-body">
+                <p><strong>Problem:</strong> Creating new thread for every task/request is expensive.</p>
+                <div class="code-block">10 requests   → 10 threads
+1,000 requests → 1,000 threads
+100,000 requests → 100,000 threads</div>
+                <p><strong>Issues:</strong></p>
+                <ul>
+                <li>Too many threads consume memory</li>
+                <li>Excessive CPU usage</li>
+                <li>Significant scheduling overhead</li>
+                <li>Resource exhaustion</li>
+                </ul>
+                <p><strong>Solution:</strong> Use a Thread Pool - a collection of reusable worker threads.</p>
+                <div class="code-block">Thread Pool
+┌─────────────────────┐
+│ T1 T2 T3 ... T20   │
+└─────────────────────┘
+
+Tasks
+  ↓
+Queue
+  ↓
+Thread Pool
+  ↓
+T1 T2 T3 ... T20</div></div>`
+            },
+            {
+                id: 21,
+                title: "Reusable Threads",
+                content: `<div class="content-header"><h2>21. What Does 'Reusable Thread' Mean?</h2><p>Threads execute multiple tasks over lifetime</p></div>
+                <div class="content-body">
+                <p><strong>Example:</strong></p>
+                <div class="code-block">Task A → T1
+T1 executes Task A
+     ↓
+finished
+     ↓
+T1 → available
+     ↓
+Task B → T1
+T1 executes Task B</div>
+                <p><strong>Thread Lifecycle:</strong></p>
+                <div class="code-block">T1:
+Task A
+  ↓
+finished
+  ↓
+available
+  ↓
+Task B
+  ↓
+finished
+  ↓
+available
+  ↓
+Task C</div>
+                <p><strong>Key Idea:</strong> Thread reuse means the same worker thread executes multiple tasks over its lifetime. Thread does not disappear after one task finishes.</p></div>`
+            },
+            {
+                id: 22,
+                title: "Thread Pool + Queue",
+                content: `<div class="content-header"><h2>22. Thread Pool + Queue - Complete Picture</h2><p>How thread pool manages tasks</p></div>
+                <div class="content-body">
+                <p><strong>Setup - 4 Worker Threads:</strong></p>
+                <div class="code-block">Thread Pool
+┌─────────────────┐
+│ T1 T2 T3 T4    │
+└─────────────────┘</div>
+                <p><strong>Task Execution:</strong></p>
+                <div class="code-block">Task A → T1
+Task B → T2
+Task C → T3
+Task D → T4</div>
+                <p><strong>When All Threads Are Busy:</strong></p>
+                <div class="code-block">Task E arrives
+If all threads are busy:
+T1 → busy
+T2 → busy
+T3 → busy
+T4 → busy
+
+Queue:
+Task E</div>
+                <p><strong>When Thread Becomes Available:</strong></p>
+                <div class="code-block">T2 finishes
+T2 → available
+T2 takes next queued task
+Task E → T2</div>
+                <p><strong>Complete Flow:</strong></p>
+                <div class="code-block">Task arrives
+     ↓
+Task Queue
+     ↓
+Available Thread
+     ↓
+Execute Task
+     ↓
+Thread becomes available
+     ↓
+Take next Task</div></div>`
+            },
+            {
+                id: 23,
+                title: "Thread Pool vs Semaphore",
+                content: `<div class="content-header"><h2>23. Thread Pool Is Not the Same as Semaphore</h2><p>Different purposes</p></div>
+                <div class="content-body">
+                <p><strong>Semaphore:</strong> Primarily controls how many operations can access a resource concurrently.</p>
+                <div class="code-block">Semaphore(20)
+     ↓
+20 permits</div>
+                <p>Controls access.</p>
+                <p><strong>Thread Pool:</strong> Provides reusable worker threads that execute submitted tasks.</p>
+                <div class="code-block">Task
+ ↓
+Queue
+ ↓
+Worker Thread
+ ↓
+Execute</div>
+                <p><strong>Key Difference:</strong></p>
+                <div class="code-block">Semaphore  → controls access
+Thread Pool → provides workers + usually manages task queue</div></div>`
+            },
+            {
+                id: 24,
+                title: "Thread Assignment to APIs",
+                content: `<div class="content-header"><h2>24. Are Threads Permanently Assigned to APIs?</h2><p>Threads are reusable resources</p></div>
+                <div class="content-body">
+                <p><strong>Answer:</strong> No.</p>
+                <p><strong>Scenario - Spring Boot Application:</strong></p>
+                <div class="code-block">GET /orders
+GET /products
+GET /users
+POST /payment
+
+Thread Pool:
+T1 T2 T3 T4</div>
+                <p><strong>Request Handling:</strong></p>
+                <div class="code-block">/orders  → T1
+/products → T2
+/users   → T3
+/payment → T4</div>
+                <p><strong>When /products Finishes:</strong></p>
+                <div class="code-block">T2 → available
+A new /orders request can use T2
+/orders → T2</div>
+                <p><strong>Thread does NOT permanently belong to /products.</strong></p>
+                <p><strong>Important Rule:</strong> Threads are reusable workers; APIs/tasks use whichever worker becomes available.</p></div>`
+            },
+            {
+                id: 25,
+                title: "All Threads Busy",
+                content: `<div class="content-header"><h2>25. What Happens When All Threads Are Busy?</h2><p>Queue and rejection handling</p></div>
+                <div class="content-body">
+                <p><strong>Scenario - All 4 Threads Busy:</strong></p>
+                <div class="code-block">Thread Pool
+┌──────────────────────┐
+│ T1 → BUSY            │
+│ T2 → BUSY            │
+│ T3 → BUSY            │
+│ T4 → BUSY            │
+└──────────────────────┘</div>
+                <p><strong>New Request Arrives:</strong></p>
+                <div class="code-block">GET /orders</div>
+                <p><strong>Depending on Configuration:</strong></p>
+                <ul>
+                <li>Work waits in a queue</li>
+                <li>System applies rejection/overload behavior</li>
+                </ul>
+                <p><strong>Queue Conceptually:</strong></p>
+                <div class="code-block">Thread Pool
+┌──────────────────────┐
+│ T1 → BUSY            │
+│ T2 → BUSY            │
+│ T3 → BUSY            │
+│ T4 → BUSY            │
+└──────────────────────┘
+
+Waiting Queue
+┌──────────────────────┐
+│ /orders              │
+│ /products            │
+└──────────────────────┘</div>
+                <p><strong>When Worker Becomes Available:</strong></p>
+                <div class="code-block">T2 → free
+ ↓
+takes next waiting task</div></div>`
+            },
+            {
+                id: 26,
+                title: "Shared Pool Across APIs",
+                content: `<div class="content-header"><h2>26. Thread Pool Is Usually Shared Across APIs</h2><p>One pool serves all endpoints</p></div>
+                <div class="content-body">
+                <p><strong>WRONG Assumption:</strong></p>
+                <div class="code-block">API 1 → Thread 1
+API 2 → Thread 2
+API 3 → Thread 3</div>
+                <p><strong>CORRECT Reality:</strong></p>
+                <div class="code-block">                  Thread Pool
+          ┌───────────────────────┐
+          │ T1 T2 T3 ... T20      │
+          └───────────────────────┘
+             ↑  ↑  ↑  ↑
+             │  │  │  │
+          Requests from different APIs
+             │  │  │  │
+       /orders /users /cart /payment</div>
+                <p><strong>Key Point:</strong> Threads are shared resources shared across all API endpoints.</p></div>`
+            },
+            {
+                id: 27,
+                title: "Spring Boot & Thread Pools",
+                content: `<div class="content-header"><h2>27. Spring Boot and Thread Pools</h2><p>How web framework uses threads</p></div>
+                <div class="content-body">
+                <p><strong>Typical Spring MVC Application:</strong></p>
+                <div class="code-block">Client
+  ↓
+HTTP Request
+  ↓
+Spring Boot Application
+  ↓
+HTTP Server Thread Pool
+  ↓
+Worker Thread
+  ↓
+Controller
+  ↓
+Service
+  ↓
+Database / Other Services</div>
+                <p><strong>Important Note:</strong> A Spring Boot application may have DIFFERENT pools for different purposes:</p>
+                <div class="code-block">HTTP request threads
+@Async executor
+Scheduled task threads
+Kafka consumer threads</div>
+                <p>They do NOT necessarily use the same pool.</p></div>`
+            },
+            {
+                id: 28,
+                title: "Pod + Thread Pool",
+                content: `<div class="content-header"><h2>28. Pod + Thread Pool</h2><p>Kubernetes deployment perspective</p></div>
+                <div class="content-body">
+                <p><strong>Single Pod Setup:</strong></p>
+                <div class="code-block">1 Pod
+1 Java application
+20 HTTP worker threads
+
+Conceptually:
+Pod 1
+└── Java Process
+    └── HTTP Thread Pool
+        ├── T1
+        ├── T2
+        ├── ...
+        └── T20</div>
+                <p><strong>Kubernetes Scaling:</strong></p>
+                <div class="code-block">Pod 1 → 20 threads
+Pod 2 → 20 threads
+Pod 3 → 20 threads
+
+Potentially:
+3 × 20 = 60 HTTP worker threads</div>
+                <p><strong>Critical Misconception:</strong></p>
+                <p>Do NOT conclude: 20 threads = 20 users</p>
+                <p><strong>Why Not:</strong> Thread capacity depends on:</p>
+                <ul>
+                <li>Workload characteristics</li>
+                <li>CPU availability</li>
+                <li>I/O waiting patterns</li>
+                <li>Request latency</li>
+                <li>Database connections</li>
+                <li>Downstream services</li>
+                <li>Available memory</li>
+                <li>Other system factors</li>
+                </ul></div>`
+            },
+            {
+                id: 29,
+                title: "Thread Pool vs DB Connection Pool",
+                content: `<div class="content-header"><h2>29. Thread Pool vs Database Connection Pool</h2><p>Different resource types</p></div>
+                <div class="content-body">
+                <p><strong>These Are Different Resources:</strong></p>
+                <div class="code-block">HTTP Thread Pool
+       ↓
+Database Connection Pool
+       ↓
+Database</div>
+                <p><strong>Example Configuration:</strong></p>
+                <div class="code-block">HTTP Threads = 50
+DB Connections = 10</div>
+                <p>This can be perfectly valid depending on workload.</p>
+                <p><strong>Important Principle:</strong> Having 50 request threads does NOT mean you need 50 database connections.</p>
+                <p><strong>Remember Distinction:</strong></p>
+                <div class="code-block">Thread Pool
+→ workers that execute application tasks
+
+Connection Pool
+→ reusable connections to a database/service</div></div>`
+            },
+            {
+                id: 30,
+                title: "Complete Picture",
+                content: `<div class="content-header"><h2>30. The Complete Picture</h2><p>All concepts integrated</p></div>
+                <div class="content-body">
+                <p><strong>Single-Threaded Process:</strong></p>
+                <div class="code-block">                     POD
+                      │
+                      ↓
+                Java Process
+                      │
+         ┌────────────┴────────────┐
+         │                         │
+    Shared Heap                Threads
+         │                         │
+   Java Objects          ┌─────────┼─────────┐
+                         ↓         ↓         ↓
+                        T1        T2        T3
+                         │         │         │
+                       Stack     Stack     Stack
+                         │         │         │
+                         └─────────┼─────────┘
+                                   ↓
+                                  CPU</div>
+                <p><strong>With Thread Pool Managing Tasks:</strong></p>
+                <div class="code-block">                Java Process
+                     │
+                Thread Pool
+                     │
+      ┌──────────────┼──────────────┐
+      ↓              ↓              ↓
+     T1             T2             T3
+      ↑              ↑              ↑
+      └──────────────┼──────────────┘
+                     │
+                   Tasks
+                     ↑
+                   Queue</div></div>`
+            },
+            {
+                id: 31,
+                title: "Important Terms Summary",
+                content: `<div class="content-header"><h2>31. The Most Important Terms</h2><p>Key terminology reference</p></div>
+                <div class="content-body">
+                <table>
+                <tr><td><strong>Process</strong></td><td>Running application with its own resources/memory space</td></tr>
+                <tr><td><strong>Thread</strong></td><td>Unit of execution inside a process</td></tr>
+                <tr><td><strong>Main Thread</strong></td><td>Thread that starts normal Java application execution</td></tr>
+                <tr><td><strong>Task</strong></td><td>Work that needs to be performed</td></tr>
+                <tr><td><strong>Stack</strong></td><td>Private execution memory for each thread</td></tr>
+                <tr><td><strong>Heap</strong></td><td>Shared memory where Java objects live</td></tr>
+                <tr><td><strong>Shared State</strong></td><td>Data accessible by multiple threads</td></tr>
+                <tr><td><strong>Race Condition</strong></td><td>Result depends on timing/order of concurrent access</td></tr>
+                <tr><td><strong>Synchronization</strong></td><td>Controlling concurrent access to shared state</td></tr>
+                <tr><td><strong>Lock</strong></td><td>Mechanism allowing controlled exclusive access</td></tr>
+                <tr><td><strong>CPU Core</strong></td><td>Executes instructions</td></tr>
+                <tr><td><strong>Concurrency</strong></td><td>Multiple tasks making progress</td></tr>
+                <tr><td><strong>Parallelism</strong></td><td>Multiple tasks executing simultaneously</td></tr>
+                <tr><td><strong>Thread Pool</strong></td><td>Reusable worker threads</td></tr>
+                <tr><td><strong>Queue</strong></td><td>Waiting tasks</td></tr>
+                <tr><td><strong>Semaphore</strong></td><td>Controls concurrent access using permits</td></tr>
+                </table></div>`
+            },
+            {
+                id: 32,
+                title: "Quick Mental Model",
+                content: `<div class="content-header"><h2>32. Quick Mental Model</h2><p>Easy-to-remember structure</p></div>
+                <div class="content-body">
+                <p><strong>Basic Structure:</strong></p>
+                <div class="code-block">PROCESS
+   │
+   ├── Shared HEAP
+   │      └── Objects
+   │
+   ├── Thread 1
+   │      └── Own STACK
+   │
+   ├── Thread 2
+   │      └── Own STACK
+   │
+   └── Thread 3
+          └── Own STACK</div>
+                <p><strong>Execution Model:</strong></p>
+                <div class="code-block">Task
+  ↓
+Thread
+  ↓
+CPU</div>
+                <p><strong>Thread Pool Model:</strong></p>
+                <div class="code-block">Many Tasks
+    ↓
+Queue
+    ↓
+Thread Pool
+    ↓
+Reusable Threads
+    ↓
+CPU Cores</div></div>`
+            },
+            {
+                id: 33,
+                title: "Interview Summary",
+                content: `<div class="content-header"><h2>33. Final Interview Summary</h2><p>Complete answer to "What is a thread?"</p></div>
+                <div class="content-body">
+                <p><strong>If Interviewer Asks: "What is a thread in Java?"</strong></p>
+                <p><strong>Answer:</strong></p>
+                <p>A thread is an independent unit of execution within a Java process. Multiple threads allow an application to execute multiple tasks concurrently. Each thread has its own stack and execution state, while threads within the same process can share objects in the heap. Because shared mutable data can lead to race conditions, synchronization or other concurrency mechanisms may be required. In production applications, thread pools are commonly used to manage and reuse a limited number of worker threads instead of creating a new thread for every task.</p></div>`
+            },
+            {
+                id: 34,
+                title: "Quick Revision Flow",
+                content: `<div class="content-header"><h2>34. Quick Revision Flow</h2><p>Learning progression overview</p></div>
+                <div class="content-body">
+                <div class="code-block">Java Application
+       ↓
+    Process
+       ↓
+   Main Thread
+       ↓
+Additional Threads
+       ↓
+Each Thread Has Own Stack
+       ↓
+Threads Share Heap
+       ↓
+Shared Mutable Data
+       ↓
+Potential Race Condition
+       ↓
+Synchronization / Locking
+       ↓
+Multiple Threads
+       ↓
+Concurrency
+       ↓
+Multiple CPU Cores
+       ↓
+Parallelism
+       ↓
+Too Many Threads?
+       ↓
+Thread Pool
+       ↓
+Tasks → Queue → Reusable Threads</div>
+                <p><strong>One-Line Memory Aid:</strong></p>
+                <p>Process = container, Thread = worker, Task = work, Stack = worker's private workspace, Heap = shared workspace, CPU Core = where work executes, Thread Pool = reusable workers.</p></div>`
+            }
+        ];
+
+        const topicsList = document.getElementById('topicsList');
+        topics.forEach(topic => {
+            const item = document.createElement('div');
+            item.className = 'topic-item';
+            item.textContent = topic.title;
+            item.onclick = () => selectTopic(topic.id, item);
+            topicsList.appendChild(item);
+        });
+
+        function selectTopic(id, element) {
+            document.querySelectorAll('.topic-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+            const topic = topics.find(t => t.id === id);
+            document.getElementById('contentArea').innerHTML = topic.content;
+        }
+    </script>
+</body>
+</html>
+

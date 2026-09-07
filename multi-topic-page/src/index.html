@@ -321,6 +321,10 @@
         <div class="section-title collapsed" onclick="toggleSection(this)"><span>🎯</span> Interview Q&A <span class="chevron">▼</span></div>
         <div class="cards-grid collapsed" id="questionsGrid"></div>
 
+        <!-- JAVA SECTION -->
+        <div class="section-title collapsed" onclick="toggleSection(this)"><span>☕</span> Java Topics <span class="chevron">▼</span></div>
+        <div class="cards-grid collapsed" id="javaGrid"></div>
+
         <!-- PRACTICE PROBLEMS SECTION -->
         <div class="section-title collapsed" onclick="toggleSection(this)"><span>🔧</span> Practice Problems <span class="chevron">▼</span></div>
         <div class="cards-grid collapsed" id="problemsGrid"></div>
@@ -340,6 +344,7 @@
         <!-- VIEW CHARTS SECTION -->
         <div class="section-title collapsed" onclick="toggleSection(this)"><span>📊</span> View Charts <span class="chevron">▼</span></div>
         <div class="cards-grid collapsed" id="chartsGrid"></div>
+
 
         <div class="footer">📚 My Learning Hub · Keep adding topics!</div>
     </div>
@@ -367,14 +372,6 @@
                 icon: "🐌",
                 badge: "badge-purple",
                 badgeText: "ORIGINAL"
-            },
-            {
-                file: "../Questions/java_collections_deep_dive.html",
-                title: "Java Collections Deep Dive",
-                desc: "Internals, resizing, collisions, comparisons, code",
-                icon: "☕",
-                badge: "badge-green",
-                badgeText: "12 TOPICS"
             },
             {
                 file: "../Questions/interactive_qa.html",
@@ -512,38 +509,14 @@
             }
         ];
 
-        const technology = [
+        const java = [
             {
-                file: "../Questions/Microservices.html",
-                title: "Microservices Deep Dive",
-                desc: "12 topics: Architecture, Communication, API Gateway, Resilience, Data, Events, Security, Observability, Deployment, Patterns",
-                icon: "🔗",
+                file: "../Questions/java_master_index.html",
+                title: "☕ Java Master Index",
+                desc: "Complete Java learning hub with all topics: Threads, Java 8, Keywords, Singleton, Collections, Memory Management",
+                icon: "☕",
                 badge: "badge-green",
-                badgeText: "12 TOPICS"
-            },
-            {
-                file: "../Resource/advanced_spring_spring_boot_cheat_sheet.html",
-                title: "Advanced Spring & Spring Boot",
-                desc: "Spring framework cheat sheet",
-                icon: "🍃",
-                badge: "badge-blue",
-                badgeText: "SPRING"
-            },
-            {
-                file: "../Resource/spring_security_cheat_sheet.html",
-                title: "Spring Security Cheat Sheet",
-                desc: "Auth, JWT, OAuth2, CORS, CSRF",
-                icon: "🔐",
-                badge: "badge-orange",
-                badgeText: "SECURITY"
-            },
-            {
-                file: "../Questions/JPA.html",
-                title: "JPA Deep Dive",
-                desc: "JPA, Hibernate, ORM, entities, relationships, queries",
-                icon: "🗄️",
-                badge: "badge-purple",
-                badgeText: "JPA"
+                badgeText: "20+ TOPICS"
             }
         ];
 
@@ -624,6 +597,41 @@
                 icon: "📊",
                 badge: "badge-blue",
                 badgeText: "12 CONCEPTS"
+            }
+        ];
+
+        const technology = [
+            {
+                file: "../Questions/Microservices.html",
+                title: "Microservices Deep Dive",
+                desc: "12 topics: Architecture, Communication, API Gateway, Resilience, Data, Events, Security, Observability, Deployment, Patterns",
+                icon: "🔗",
+                badge: "badge-green",
+                badgeText: "12 TOPICS"
+            },
+            {
+                file: "../Resource/advanced_spring_spring_boot_cheat_sheet.html",
+                title: "Advanced Spring & Spring Boot",
+                desc: "Spring framework cheat sheet",
+                icon: "🍃",
+                badge: "badge-blue",
+                badgeText: "SPRING"
+            },
+            {
+                file: "../Resource/spring_security_cheat_sheet.html",
+                title: "Spring Security Cheat Sheet",
+                desc: "Auth, JWT, OAuth2, CORS, CSRF",
+                icon: "🔐",
+                badge: "badge-orange",
+                badgeText: "SECURITY"
+            },
+            {
+                file: "../Questions/JPA.html",
+                title: "JPA Deep Dive",
+                desc: "JPA, Hibernate, ORM, entities, relationships, queries",
+                icon: "🗄️",
+                badge: "badge-purple",
+                badgeText: "JPA"
             }
         ];
 
@@ -724,8 +732,9 @@
         renderCards(keepNotes, 'keepNotesGrid');
         renderCards(resources, 'resourcesGrid', 'badge-purple');
         renderCards(charts, 'chartsGrid', 'badge-blue');
+        renderCards(java, 'javaGrid', 'badge-green');
 
-        document.getElementById('totalCount').textContent = questions.length + problems.length + technology.length + keepNotes.length + resources.length + charts.length;
+        document.getElementById('totalCount').textContent = questions.length + problems.length + technology.length + keepNotes.length + resources.length + charts.length + java.length;
         document.getElementById('resourceCount').textContent = resources.length;
         document.getElementById('questionCount').textContent = questions.length;
         document.getElementById('techCount').textContent = technology.length;

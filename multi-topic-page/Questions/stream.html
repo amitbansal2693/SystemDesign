@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java 8 Stream - Complete Guide</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI'; background: #1a1a2e; color: #e0e0e0; height: 100vh; overflow: hidden; }
+        .container { display: flex; height: 100vh; }
+        .sidebar { width: 280px; background: #0f1419; border-right: 1px solid #2563eb; overflow-y: auto; padding: 20px 0; }
+        .sidebar-header { padding: 0 20px 20px 20px; border-bottom: 2px solid #2563eb; margin-bottom: 20px; }
+        .sidebar-header h1 { font-size: 1.4em; color: #2563eb; }
+        .topic-item { padding: 12px 20px; cursor: pointer; border-left: 3px solid transparent; transition: all 0.3s; color: #a0a0a0; font-size: 0.9em; }
+        .topic-item:hover { background: #1e293b; color: #2563eb; border-left-color: #2563eb; padding-left: 24px; }
+        .topic-item.active { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; }
+        .content-area { flex: 1; background: #1a1a2e; overflow-y: auto; padding: 30px; }
+        .content-header h2 { font-size: 1.8em; color: #2563eb; margin-bottom: 10px; }
+        .content-header p { color: #90caf9; font-style: italic; margin-bottom: 20px; border-bottom: 1px solid #2563eb; padding-bottom: 15px; }
+        .content-body p { margin-bottom: 15px; line-height: 1.8; }
+        .content-body ul { margin-left: 30px; margin-bottom: 15px; }
+        .content-body li { margin-bottom: 8px; }
+        .content-body strong { color: #2563eb; }
+        .code-block { background: #0f1419; padding: 15px; border-radius: 6px; border-left: 3px solid #2563eb; color: #90caf9; font-family: 'Courier New'; font-size: 0.85em; margin: 15px 0; overflow-x: auto; }
+        .tip { background: #1e3a5f; border-left: 4px solid #2563eb; padding: 15px; margin: 15px 0; border-radius: 6px; }
+        .back-link { color: #2563eb; text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 20px; display: inline-block; font-size: 0.95em; }
+        .back-link:hover { text-decoration: underline; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f1419; }
+        ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header"><h1>🏞️ Streams</h1></div>
+            <div id="topicsList"></div>
+        </div>
+        <div class="content-area">
+            <a href="java8_topics_index.html" class="back-link">← Back to Java 8</a>
+            <div id="contentArea" style="text-align:center; color: #a0a0a0; padding: 50px;">Click on a topic →</div>
+        </div>
+    </div>
+
+    <script>
+        const topics = [
+            {
+                id: 1,
+                title: "What is Stream API?",
+                content: `<div class="content-header"><h2>1. What is Stream API?</h2><p>Functional processing of sequences</p></div>
+                <div class="content-body"><p><strong>Definition:</strong> A sequence of elements from a source that supports aggregate operations.</p>
+                <p><strong>Key Characteristics:</strong></p><ul><li>NOT a data structure (doesn't store data)</li><li>Lazy evaluation (operations deferred until terminal op)</li><li>Can be parallel (multi-threaded processing)</li><li>One-time consumption (once consumed, can't reuse)</li></ul>
+                <div class="tip">Think of Stream as a pipeline that processes data functionally.</div></div>`
+            },
+            {
+                id: 2,
+                title: "Creating Streams",
+                content: `<div class="content-header"><h2>2. Creating Streams</h2><p>Different ways to get streams</p></div>
+                <div class="content-body"><div class="code-block">// From collection
+List<String> list = Arrays.asList("a","b","c");
+Stream<String> s1 = list.stream();
+
+// From array
+int[] nums = {1, 2, 3};
+IntStream s2 = Arrays.stream(nums);
+
+// Static methods
+Stream<Integer> s3 = Stream.of(1, 2, 3);
+Stream<String> s4 = Stream.generate(() -> "Hi").limit(3);
+Stream<Integer> s5 = Stream.iterate(0, n -> n + 1).limit(5);</div></div>`
+            },
+            {
+                id: 3,
+                title: "Intermediate Operations",
+                content: `<div class="content-header"><h2>3. Intermediate Operations</h2><p>Transform stream elements</p></div>
+                <div class="content-body"><p><strong>Filter:</strong> Keep matching elements</p>
+                <div class="code-block">list.stream()
+   .filter(x -> x > 5)
+   .forEach(System.out::println);</div>
+                <p><strong>Map:</strong> Transform elements</p>
+                <div class="code-block">list.stream()
+   .map(x -> x * 2)
+   .forEach(System.out::println);</div>
+                <p><strong>Limit/Skip:</strong> Slice stream</p>
+                <div class="code-block">list.stream()
+   .skip(2)
+   .limit(3)</div></div>`
+            },
+            {
+                id: 4,
+                title: "Terminal Operations",
+                content: `<div class="content-header"><h2>4. Terminal Operations</h2><p>Produce final result</p></div>
+                <div class="content-body"><p><strong>Collect:</strong> Gather into collection</p>
+                <div class="code-block">List<Integer> result = list.stream()
+    .filter(x -> x > 5)
+    .collect(Collectors.toList());</div>
+                <p><strong>ForEach:</strong> Iterate elements</p>
+                <div class="code-block">list.stream().forEach(System.out::println);</div>
+                <p><strong>Reduce:</strong> Combine to single value</p>
+                <div class="code-block">int sum = list.stream().reduce(0, (a,b) -> a + b);</div></div>`
+            },
+            {
+                id: 5,
+                title: "Stream Pipeline",
+                content: `<div class="content-header"><h2>5. Stream Pipeline</h2><p>Complete processing flow</p></div>
+                <div class="content-body"><p><strong>Structure:</strong> Source → Intermediate Ops → Terminal Op</p>
+                <div class="code-block">List<Integer> result = list.stream()       // Source
+    .filter(x -> x % 2 == 0)             // Intermediate
+    .map(x -> x * x)                      // Intermediate
+    .collect(Collectors.toList());        // Terminal</div>
+                <p><strong>Lazy Evaluation:</strong> Nothing happens until terminal operation runs!</p>
+                <div class="tip">Stream operations are lazy - only computed when needed.</div></div>`
+            },
+            {
+                id: 6,
+                title: "Performance & Best Practices",
+                content: `<div class="content-header"><h2>6. Performance & Best Practices</h2><p>Efficient stream usage</p></div>
+                <div class="content-body"><p><strong>Use Parallel When:</strong></p><ul><li>Large datasets (thousands of elements)</li><li>Expensive operations (complex calculations)</li><li>Running on multi-core CPUs</li></ul>
+                <div class="code-block">list.parallelStream()  // Multi-threaded processing
+   .filter(x -> x > 5)
+   .collect(Collectors.toList());</div>
+                <p><strong>Best Practices:</strong></p><ul><li>Prefer stream over loops for collection processing</li><li>Use collect() for terminal operation</li><li>Avoid side effects in stream operations</li><li>Be careful with parallel streams and thread safety</li></ul></div>`
+            }
+        ];
+
+        const topicsList = document.getElementById('topicsList');
+        topics.forEach(topic => {
+            const item = document.createElement('div');
+            item.className = 'topic-item';
+            item.textContent = topic.title;
+            item.onclick = () => selectTopic(topic.id, item);
+            topicsList.appendChild(item);
+        });
+
+        function selectTopic(id, element) {
+            document.querySelectorAll('.topic-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+            const topic = topics.find(t => t.id === id);
+            document.getElementById('contentArea').innerHTML = topic.content;
+        }
+    </script>
+</body>
+</html>
+

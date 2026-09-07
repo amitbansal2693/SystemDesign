@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Memory Leaks - Complete Guide</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI'; background: #1a1a2e; color: #e0e0e0; height: 100vh; overflow: hidden; }
+        .container { display: flex; height: 100vh; }
+        .sidebar { width: 280px; background: #0f1419; border-right: 1px solid #2563eb; overflow-y: auto; padding: 20px 0; }
+        .sidebar-header { padding: 0 20px 20px 20px; border-bottom: 2px solid #2563eb; margin-bottom: 20px; }
+        .sidebar-header h1 { font-size: 1.4em; color: #2563eb; }
+        .topic-item { padding: 12px 20px; cursor: pointer; border-left: 3px solid transparent; transition: all 0.3s; color: #a0a0a0; font-size: 0.9em; }
+        .topic-item:hover { background: #1e293b; color: #2563eb; border-left-color: #2563eb; padding-left: 24px; }
+        .topic-item.active { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; }
+        .content-area { flex: 1; background: #1a1a2e; overflow-y: auto; padding: 30px; }
+        .content-header h2 { font-size: 1.8em; color: #2563eb; margin-bottom: 10px; }
+        .content-header p { color: #90caf9; font-style: italic; margin-bottom: 20px; border-bottom: 1px solid #2563eb; padding-bottom: 15px; }
+        .content-body p { margin-bottom: 15px; line-height: 1.8; }
+        .content-body ul { margin-left: 30px; margin-bottom: 15px; }
+        .content-body li { margin-bottom: 8px; }
+        .content-body strong { color: #2563eb; }
+        .code-block { background: #0f1419; padding: 15px; border-radius: 6px; border-left: 3px solid #2563eb; color: #90caf9; font-family: 'Courier New'; font-size: 0.85em; margin: 15px 0; overflow-x: auto; white-space: pre-wrap; word-break: break-all; line-height: 1.6; }
+        .tip { background: #1e3a5f; border-left: 4px solid #2563eb; padding: 15px; margin: 15px 0; border-radius: 6px; }
+        .back-link { color: #2563eb; text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 20px; display: inline-block; font-size: 0.95em; }
+        .back-link:hover { text-decoration: underline; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f1419; }
+        ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header"><h1>⚡ Memory Leaks</h1></div>
+            <div id="topicsList"></div>
+        </div>
+        <div class="content-area">
+            <a href="java_master_index.html" class="back-link">← Back to Master Index</a>
+            <div id="contentArea" style="text-align:center; color: #a0a0a0; padding: 50px;">Click on a topic →</div>
+        </div>
+    </div>
+
+    <script>
+        const topics = [
+            {
+                id: 1,
+                title: "What is a Memory Leak?",
+                content: `<div class="content-header"><h2>1. What is a Memory Leak?</h2><p>Objects that should be garbage collected aren't</p></div>
+                <div class="content-body"><p><strong>Memory Leak:</strong> Objects are no longer used but still held in memory, preventing garbage collection.</p>
+                <p><strong>Result:</strong> Heap memory gradually fills up, causing OutOfMemoryError</p>
+                <p><strong>Different from other languages:</strong> Java has GC, but unreachable-but-referenced objects aren't collected</p>
+                <div class="tip">In Java, memory leaks don't come from forgotten deallocations (like C/C++), but from unintended object references.</div></div>`
+            },
+            {
+                id: 2,
+                title: "Static Collections",
+                content: `<div class="content-header"><h2>2. Static Collections - Common Leak</h2><p>Static references holding objects forever</p></div>
+                <div class="content-body"><p><strong>Problem:</strong> Static collections never get cleared</p>
+                <div class="code-block">public class Cache {
+    // Static collection - lives for app lifetime
+    private static List&lt;Data&gt; cache = new ArrayList&lt;&gt;();
+
+    public static void addToCache(Data data) {
+        cache.add(data);  // Objects never removed!
+    }
+}</div>
+                <p><strong>Solution:</strong> Use bounded cache or clear periodically</p>
+                <div class="code-block">public static void clearCache() {
+    cache.clear();  // Remove stale data
+}</div></div>`
+            },
+            {
+                id: 3,
+                title: "Unclosed Streams/Resources",
+                content: `<div class="content-header"><h2>3. Unclosed Streams & Resources</h2><p>File handles and connections not released</p></div>
+                <div class="content-body"><p><strong>Problem:</strong></p>
+                <div class="code-block">public void readFile(String filename) throws Exception {
+    FileInputStream fis = new FileInputStream(filename);
+    // Process file...
+    // ❌ FileInputStream never closed - resource leak!
+}</div>
+                <p><strong>Solution 1: Try-finally</strong></p>
+                <div class="code-block">FileInputStream fis = null;
+try {
+    fis = new FileInputStream(filename);
+    // Process
+} finally {
+    if (fis != null) fis.close();  // Always close
+}</div>
+                <p><strong>Solution 2: Try-with-resources (Java 7+)</strong></p>
+                <div class="code-block">try (FileInputStream fis = new FileInputStream(filename)) {
+    // Process file
+}  // Auto-closes</div></div>`
+            },
+            {
+                id: 4,
+                title: "Inner Class References",
+                content: `<div class="content-header"><h2>4. Inner Class References</h2><p>Anonymous/inner classes holding outer class reference</p></div>
+                <div class="content-body"><p><strong>Problem:</strong></p>
+                <div class="code-block">public class Activity {
+    private Data data = new Data();
+
+    private void startAsyncTask() {
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // Inner class implicitly holds reference to Activity
+                System.out.println(data);
+            }
+        });
+        t.start();  // Thread keeps Activity alive!
+    }
+}</div>
+                <p><strong>Solution:</strong> Use static inner class or break reference when done</p></div>`
+            },
+            {
+                id: 5,
+                title: "Event Listeners Not Unregistered",
+                content: `<div class="content-header"><h2>5. Event Listeners - Common Leak</h2><p>Listeners registered but never unregistered</p></div>
+                <div class="content-body"><p><strong>Problem:</strong></p>
+                <div class="code-block">button.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onClick(View v) {
+        // Activity reference held here
+    }
+});
+// ❌ Listener never removed - Activity leaks when destroyed!</div>
+                <p><strong>Solution:</strong> Always unregister listeners in onDestroy()  or cleanup methods</p>
+                <div class="code-block">@Override
+protected void onDestroy() {
+    button.setOnClickListener(null);  // Unregister
+    super.onDestroy();
+}</div></div>`
+            },
+            {
+                id: 6,
+                title: "Detection & Prevention",
+                content: `<div class="content-header"><h2>6. Detection & Prevention</h2><p>Tools and strategies</p></div>
+                <div class="content-body"><p><strong>Detection Tools:</strong></p><ul><li>JProfiler - Heap analysis</li><li>YourKit - Memory profiling</li><li>JConsole - Built-in monitoring</li><li>Eclipse MAT - Memory Analyzer Tool</li></ul>
+                <p><strong>Prevention Best Practices:</strong></p><ul><li>Always close resources (use try-with-resources)</li><li>Unregister listeners in cleanup methods</li><li>Avoid static collections without size limits</li><li>Be careful with inner classes and anonymous classes</li><li>Use WeakReferences for caches</li><li>Profile your app regularly</li></ul>
+                <div class="tip">The key to avoiding memory leaks: Always match resource acquisition with resource release.</div></div>`
+            }
+        ];
+
+        const topicsList = document.getElementById('topicsList');
+        topics.forEach(topic => {
+            const item = document.createElement('div');
+            item.className = 'topic-item';
+            item.textContent = topic.title;
+            item.onclick = () => selectTopic(topic.id, item);
+            topicsList.appendChild(item);
+        });
+
+        function selectTopic(id, element) {
+            document.querySelectorAll('.topic-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+            const topic = topics.find(t => t.id === id);
+            document.getElementById('contentArea').innerHTML = topic.content;
+        }
+    </script>
+</body>
+</html>
+

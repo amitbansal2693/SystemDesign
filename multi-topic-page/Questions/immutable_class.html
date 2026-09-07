@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Immutable Class - Complete Guide</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI'; background: #1a1a2e; color: #e0e0e0; height: 100vh; overflow: hidden; }
+        .container { display: flex; height: 100vh; }
+        .sidebar { width: 280px; background: #0f1419; border-right: 1px solid #2563eb; overflow-y: auto; padding: 20px 0; }
+        .sidebar-header { padding: 0 20px 20px 20px; border-bottom: 2px solid #2563eb; margin-bottom: 20px; }
+        .sidebar-header h1 { font-size: 1.3em; color: #2563eb; }
+        .topic-item { padding: 12px 20px; cursor: pointer; border-left: 3px solid transparent; transition: all 0.3s; color: #a0a0a0; font-size: 0.9em; }
+        .topic-item:hover { background: #1e293b; color: #2563eb; border-left-color: #2563eb; padding-left: 24px; }
+        .topic-item.active { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; }
+        .content-area { flex: 1; background: #1a1a2e; overflow-y: auto; padding: 30px; }
+        .content-header h2 { font-size: 1.8em; color: #2563eb; margin-bottom: 10px; }
+        .content-header p { color: #90caf9; font-style: italic; margin-bottom: 20px; border-bottom: 1px solid #2563eb; padding-bottom: 15px; }
+        .content-body p { margin-bottom: 15px; line-height: 1.8; }
+        .content-body ul { margin-left: 30px; margin-bottom: 15px; }
+        .content-body li { margin-bottom: 8px; }
+        .content-body strong { color: #2563eb; }
+        .code-block { background: #0f1419; padding: 15px; border-radius: 6px; border-left: 3px solid #2563eb; color: #90caf9; font-family: 'Courier New'; font-size: 0.85em; margin: 15px 0; overflow-x: auto; }
+        .tip { background: #1e3a5f; border-left: 4px solid #2563eb; padding: 15px; margin: 15px 0; border-radius: 6px; }
+        .back-link { color: #2563eb; text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 20px; display: inline-block; font-size: 0.95em; }
+        .back-link:hover { text-decoration: underline; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f1419; }
+        ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header"><h1>🔐 Immutable Class</h1></div>
+            <div id="topicsList"></div>
+        </div>
+        <div class="content-area">
+            <a href="java_singleton_immutable_index.html" class="back-link">← Back to Singleton & Immutable</a>
+            <div id="contentArea" style="text-align:center; color: #a0a0a0; padding: 50px;">Click on a topic →</div>
+        </div>
+    </div>
+
+    <script>
+        const topics = [
+            {
+                id: 1,
+                title: "What is Immutability?",
+                content: `<div class="content-header"><h2>1. What is Immutability?</h2><p>Objects that cannot be modified after creation</p></div>
+                <div class="content-body"><p><strong>Definition:</strong> Once created, an immutable object's state cannot change.</p>
+                <p><strong>Examples of Immutable Classes:</strong></p><ul><li>String</li><li>Integer, Long, Double (wrappers)</li><li>BigInteger, BigDecimal</li><li>LocalDate, LocalTime</li><li>Collections.unmodifiableList()</li></ul>
+                <p><strong>Benefits:</strong></p><ul><li>Thread-safe (no synchronization needed)</li><li>Can be shared freely</li><li>Cache-friendly</li><li>Predictable behavior</li></ul></div>`
+            },
+            {
+                id: 2,
+                title: "6 Rules to Create Immutable Class",
+                content: `<div class="content-header"><h2>2. 6 Rules to Create Immutable Class</h2><p>Step-by-step implementation guide</p></div>
+                <div class="content-body">
+                <p><strong>✅ Rule 1: Make class final</strong></p>
+                <p>Prevent inheritance/subclassing</p>
+                <div class="code-block">public final class User {
+    // ...
+}</div>
+                <p><strong>✅ Rule 2: Make fields private and final</strong></p>
+                <div class="code-block">private final String name;
+private final int age;
+private final List<String> items;</div>
+                <p><strong>✅ Rule 3: No setters</strong></p>
+                <p>Don't allow modification after creation - this is the core principle!</p>
+                <p><strong>✅ Rule 4: Initialize via constructor</strong></p>
+                <div class="code-block">public User(String name, int age) {
+    this.name = name;
+    this.age = age;
+}</div>
+                <p><strong>✅ Rule 5: Only getters (no setters)</strong></p>
+                <div class="code-block">public String getName() {
+    return name;
+}</div>
+                <p><strong>✅ Rule 6: Handle mutable fields carefully - DEFENSIVE COPY</strong></p>
+                <p>If you have objects like Date, List, etc., return copies not references!</p></div>`
+            },
+            {
+                id: 3,
+                title: "Complete Example",
+                content: `<div class="content-header"><h2>3. Complete Example</h2><p>Implementation pattern</p></div>
+                <div class="content-body"><div class="code-block">public final class Person {
+    private final String name;
+    private final int age;
+    private final Address address;
+
+    public Person(String name, int age, Address address) {
+        this.name = name;
+        this.age = age;
+        // Deep copy mutable objects
+        this.address = new Address(address.getCity(), address.getZip());
+    }
+
+    public String getName() { return name; }
+    public int getAge() { return age; }
+    public Address getAddress() {
+        return new Address(address.getCity(), address.getZip());
+    }
+
+    // NO setters!
+}</div></div>`
+            },
+            {
+                id: 4,
+                title: "Deep Copy Importance",
+                content: `<div class="content-header"><h2>4. Deep Copy - Defensive Copying</h2><p>Protecting mutable fields is CRITICAL!</p></div>
+                <div class="content-body">
+                <p><strong>⚠️ WRONG WAY - Direct Reference (NOT immutable!):</strong></p>
+                <div class="code-block">public List<String> getItems() {
+    return items;  // ❌ DANGEROUS! External code can modify
+}</div>
+                <p><strong>External code can break immutability:</strong></p>
+                <div class="code-block">ImmutableList list1 = new ImmutableList(Arrays.asList("Apple"));
+List<String> items = list1.getItems();
+items.add("Banana");  // ❌ Modified the "immutable" object!
+System.out.println(list1.getItems());  // Now contains Banana too!</div>
+                <p><strong>✅ CORRECT WAY - Defensive Copy:</strong></p>
+                <div class="code-block">// In Constructor - make a copy
+public ImmutableList(List<String> items) {
+    this.items = new ArrayList<>(items);  // Copy created
+}
+
+// In Getter - return a copy
+public List<String> getItems() {
+    return new ArrayList<>(items);  // Return copy, not reference
+}</div>
+                <p><strong>Even Better:</strong></p>
+                <div class="code-block">public List<String> getItems() {
+    return Collections.unmodifiableList(new ArrayList<>(items));
+}</div>
+                <p><strong>Same Risk Exists With:</strong> Date, StringBuilder, arrays, and other mutable objects</p></div>`
+            },
+            {
+                id: 5,
+                title: "Thread Safety & Benefits",
+                content: `<div class="content-header"><h2>5. Thread Safety & Benefits</h2><p>Why immutability matters</p></div>
+                <div class="content-body"><p><strong>Thread Safety:</strong> Multiple threads can access same object safely - no locks needed!</p>
+                <p><strong>Real-World Benefit:</strong> String is immutable, so it's safe in multithreaded apps</p>
+                <div class="code-block">// This is inherently thread-safe
+String s = "Hello";  // Multiple threads can safely read
+// No one can modify it</div>
+                <p><strong>Performance:</strong></p><ul><li>No synchronization overhead</li><li>Can be cached and reused</li><li>Predictable behavior</li></ul>
+                <p><strong>Security:</strong> Immutable objects prevent accidental modifications</p></div>`
+            },
+            {
+                id: 6,
+                title: "Java Records (Modern Approach)",
+                content: `<div class="content-header"><h2>6. Java Records (Modern - Java 14+)</h2><p>Simpler immutable class creation</p></div>
+                <div class="content-body"><p><strong>Traditional Way:</strong> Lots of boilerplate</p>
+                <p><strong>Modern Way with Records:</strong></p>
+                <div class="code-block">public record Person(String name, int age) {
+    // Automatically generates:
+    // - Constructor
+    // - equals(), hashCode()
+    // - toString()
+    // - getters (name() and age())
+    // - All fields are final and immutable
+}</div>
+                <div class="tip">Records are the modern, recommended way to create immutable data classes in Java 14+</div></div>`
+            }
+        ];
+
+        const topicsList = document.getElementById('topicsList');
+        topics.forEach(topic => {
+            const item = document.createElement('div');
+            item.className = 'topic-item';
+            item.textContent = topic.title;
+            item.onclick = () => selectTopic(topic.id, item);
+            topicsList.appendChild(item);
+        });
+
+        function selectTopic(id, element) {
+            document.querySelectorAll('.topic-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+            const topic = topics.find(t => t.id === id);
+            document.getElementById('contentArea').innerHTML = topic.content;
+        }
+    </script>
+</body>
+</html>
+

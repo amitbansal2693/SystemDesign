@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Garbage Collection - Complete Guide</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI'; background: #1a1a2e; color: #e0e0e0; height: 100vh; overflow: hidden; }
+        .container { display: flex; height: 100vh; }
+        .sidebar { width: 280px; background: #0f1419; border-right: 1px solid #2563eb; overflow-y: auto; padding: 20px 0; }
+        .sidebar-header { padding: 0 20px 20px 20px; border-bottom: 2px solid #2563eb; margin-bottom: 20px; }
+        .sidebar-header h1 { font-size: 1.3em; color: #2563eb; }
+        .topic-item { padding: 12px 20px; cursor: pointer; border-left: 3px solid transparent; transition: all 0.3s; color: #a0a0a0; font-size: 0.9em; }
+        .topic-item:hover { background: #1e293b; color: #2563eb; border-left-color: #2563eb; padding-left: 24px; }
+        .topic-item.active { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; }
+        .content-area { flex: 1; background: #1a1a2e; overflow-y: auto; padding: 30px; }
+        .content-header h2 { font-size: 1.8em; color: #2563eb; margin-bottom: 10px; }
+        .content-header p { color: #90caf9; font-style: italic; margin-bottom: 20px; border-bottom: 1px solid #2563eb; padding-bottom: 15px; }
+        .content-body p { margin-bottom: 15px; line-height: 1.8; }
+        .content-body ul { margin-left: 30px; margin-bottom: 15px; }
+        .content-body li { margin-bottom: 8px; }
+        .content-body strong { color: #2563eb; }
+        .code-block { background: #0f1419; padding: 15px; border-radius: 6px; border-left: 3px solid #2563eb; color: #90caf9; font-family: 'Courier New'; font-size: 0.85em; margin: 15px 0; overflow-x: auto; }
+        .tip { background: #1e3a5f; border-left: 4px solid #2563eb; padding: 15px; margin: 15px 0; border-radius: 6px; }
+        .back-link { color: #2563eb; text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 20px; display: inline-block; font-size: 0.95em; }
+        .back-link:hover { text-decoration: underline; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f1419; }
+        ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header"><h1>♻️ Garbage Collection</h1></div>
+            <div id="topicsList"></div>
+        </div>
+        <div class="content-area">
+            <a href="java_keywords_index.html" class="back-link">← Back to Keywords</a>
+            <div id="contentArea" style="text-align:center; color: #a0a0a0; padding: 50px;">Click on a topic →</div>
+        </div>
+    </div>
+
+    <script>
+        const topics = [
+            {
+                id: 1,
+                title: "What is Garbage Collection?",
+                content: `<div class="content-header"><h2>1. What is Garbage Collection?</h2><p>Automatic memory management in Java</p></div>
+                <div class="content-body"><p><strong>Definition:</strong> GC automatically reclaims heap memory no longer in use.</p>
+                <p><strong>Key Benefit:</strong> No manual memory management (unlike C/C++)</p>
+                <div class="code-block">// C++ - Manual cleanup needed
+MyObject* obj = new MyObject();
+delete obj;  // Must manually deallocate
+
+// Java - Automatic cleanup
+MyObject obj = new MyObject();
+// No need to delete, GC handles it!</div>
+                <p><strong>Who Triggers GC?</strong> JVM automatically, not programmer control</p></div>`
+            },
+            {
+                id: 2,
+                title: "Reachability & Mark Phase",
+                content: `<div class="content-header"><h2>2. Reachability - Mark Phase</h2><p>How GC identifies unused objects</p></div>
+                <div class="content-body"><p><strong>GC Roots:</strong> Starting points for reachability analysis</p><ul><li>Stack frames (local variable references)</li><li>Static variables</li><li>JNI References</li><li>Monitor/Lock objects</li></ul>
+                <p><strong>Mark Process:</strong></p>
+                <div class="code-block">// Starting from GC roots
+Object obj1 = new Object();   // Reference from stack → REACHABLE
+Object obj2 = obj1.child;    // Referenced from reachable object → REACHABLE
+Object obj3;  // No reference → UNREACHABLE
+obj3 = null;  // Was referenced, now null → UNREACHABLE</div></div>`
+            },
+            {
+                id: 3,
+                title: "Sweep & Compaction",
+                content: `<div class="content-header"><h2>3. Sweep & Compaction</h2><p>Reclaiming and reorganizing memory</p></div>
+                <div class="content-body"><p><strong>Sweep Phase:</strong> Delete unreachable objects from heap</p>
+                <p><strong>Compaction Phase:</strong> Combine free blocks into larger chunks</p>
+                <div class="code-block">Before Compaction:
+[Object A] [Free] [Object B] [Free] [Object C]
+
+After Compaction:
+[Object A][Object B][Object C] [Free Space]</div>
+                <p><strong>Benefits:</strong> Reduces fragmentation, improves memory allocation speed</p></div>`
+            },
+            {
+                id: 4,
+                title: "GC Algorithms",
+                content: `<div class="content-header"><h2>4. GC Algorithms</h2><p>Different GC strategies</p></div>
+                <div class="content-body"><p><strong>Mark-Sweep:</strong> Mark reachable, sweep unreachable</p>
+                <ul><li>Simple, but causes fragmentation</li></ul>
+                <p><strong>Mark-Compact:</strong> Mark, then compact memory</p>
+                <ul><li>More complex, better memory layout</li></ul>
+                <p><strong>Copy Collector:</strong> Copy reachable objects to new area</p>
+                <ul><li>Good for young generation</li></ul>
+                <p><strong>G1GC (Generational):</strong> Divide heap into regions</p>
+                <ul><li>Most modern, balanced performance</li></ul></div>`
+            },
+            {
+                id: 5,
+                title: "Generational GC",
+                content: `<div class="content-header"><h2>5. Generational Garbage Collection</h2><p>Most objects die young</p></div>
+                <div class="content-body"><p><strong>Observation:</strong> Most objects become unreachable quickly (Weak Generational Hypothesis)</p>
+                <p><strong>Young Generation:</strong> Frequent, fast collections</p>
+                <ul><li>Eden: New objects</li><li>Survivor: Survived one GC</li></ul>
+                <p><strong>Old Generation:</strong> Infrequent, slower collections</p>
+                <ul><li>Objects that survived many GCs</li></ul>
+                <div class="tip">Young GC fast because it's small. Old GC slower but happens rarely.</div></div>`
+            },
+            {
+                id: 6,
+                title: "GC Tuning & Best Practices",
+                content: `<div class="content-header"><h2>6. GC Tuning & Best Practices</h2><p>Optimizing garbage collection</p></div>
+                <div class="content-body"><p><strong>Common GC Pauses Issues:</strong> "Stop-the-World" freezes application</p>
+                <p><strong>Best Practices:</strong></p><ul><li>Minimize object creation</li><li>Reuse objects where possible</li><li>Set appropriate heap size (-Xmx, -Xms)</li><li>Use object pools for expensive objects</li><li>Avoid creating large temporary objects</li></ul>
+                <p><strong>Monitoring:</strong></p>
+                <div class="code-block">java -Xmx1024m -Xms512m -XX:+PrintGCDetails MyApp</div>
+                <p><strong>Don't Call Explicitly:</strong> Calling System.gc() is NOT recommended</p></div>`
+            }
+        ];
+
+        const topicsList = document.getElementById('topicsList');
+        topics.forEach(topic => {
+            const item = document.createElement('div');
+            item.className = 'topic-item';
+            item.textContent = topic.title;
+            item.onclick = () => selectTopic(topic.id, item);
+            topicsList.appendChild(item);
+        });
+
+        function selectTopic(id, element) {
+            document.querySelectorAll('.topic-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+            const topic = topics.find(t => t.id === id);
+            document.getElementById('contentArea').innerHTML = topic.content;
+        }
+    </script>
+</body>
+</html>
+

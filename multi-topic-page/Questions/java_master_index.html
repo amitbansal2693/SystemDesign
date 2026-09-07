@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>☕ Java Topics - Master Index</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ddd;
+        }
+
+        .header {
+            text-align: left;
+            margin-bottom: 50px;
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #2563eb;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #666666;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .header-subtitle {
+            color: #999;
+            font-size: 0.95em;
+            margin-top: 10px;
+        }
+
+        .topics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .topic-card {
+            background: #ffffff;
+            border: 1.5px solid #ddd;
+            border-radius: 10px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .topic-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(37, 99, 235, 0.15);
+            border-color: #2563eb;
+            background: #f9fbff;
+        }
+
+        .topic-icon {
+            font-size: 2.8em;
+            margin-bottom: 15px;
+        }
+
+        .topic-title {
+            font-weight: 600;
+            font-size: 1.15em;
+            margin-bottom: 10px;
+            color: #2563eb;
+            text-align: left;
+        }
+
+        .topic-description {
+            font-size: 0.9em;
+            color: #666666;
+            margin-bottom: 15px;
+            flex-grow: 1;
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        .topic-link {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9em;
+            align-self: flex-start;
+        }
+
+        .topic-link:hover {
+            background: #1e40af;
+            transform: translateX(3px);
+        }
+
+        .category-label {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .category-label.folder {
+            background: #7c3aed;
+        }
+
+        .back-button {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: #1e40af;
+            transform: translateX(-5px);
+        }
+
+        .section-title {
+            font-size: 1.6em;
+            color: #2563eb;
+            margin-top: 50px;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #ddd;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 20px; }
+            .header h1 { font-size: 1.8em; }
+            .topics-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="java_topics.html" class="back-button">← Back to Java Topics</a>
+
+        <div class="header">
+            <h1>☕ Java Topics - Master Index</h1>
+            <p>Navigate through 20+ core Java topics · Click to explore complete guides · v2 — Improved formatting</p>
+            <div class="header-subtitle">Comprehensive learning resources organized by topic</div>
+        </div>
+
+        <!-- STANDALONE TOPICS -->
+        <div class="section-title">📚 Core Java Topics</div>
+        <div class="topics-grid" id="standaloneTopics"></div>
+
+        <!-- TOPIC FOLDERS -->
+        <div class="section-title">📁 Topic Collections</div>
+        <div class="topics-grid" id="folderTopics"></div>
+    </div>
+
+    <script>
+        const standaloneTopics = [
+            {
+                title: "🧵 Java Threads",
+                desc: "Process, threads, stack vs heap, synchronization, race conditions, thread pools, concurrency vs parallelism, JVM internal threads (34 comprehensive sections)",
+                icon: "🧵",
+                link: "java_threads.html",
+                type: "Comprehensive"
+            },
+            {
+                title: "🔤 Generics - Complete",
+                desc: "Parameterized types, bounded generics, wildcards, PECS, type erasure, limitations, real-world usage (30 comprehensive sections)",
+                icon: "🔤",
+                link: "java_generics_comprehensive.html",
+                type: "Comprehensive"
+            },
+            {
+                title: "🔄 Threads & Concurrency",
+                desc: "Memory models, JVM internal threads, thread pool vs connection pool, quick reference",
+                icon: "🔄",
+                link: "threads_and_concurrency.html",
+                type: "Quick Reference"
+            },
+            {
+                title: "📦 Exceptions",
+                desc: "Exception handling, try-catch-finally, custom exceptions, best practices",
+                icon: "⚠️",
+                link: "exceptions.html",
+                type: "Topic"
+            },
+            {
+                title: "🔤 Generics - Quick Ref",
+                desc: "Key concepts and examples",
+                icon: "🔤",
+                link: "generics.html",
+                type: "Quick Ref"
+            },
+            {
+                title: "🏛️ Inheritance",
+                desc: "Class hierarchy, super/this, method overriding, object composition, aggregation",
+                icon: "🏛️",
+                link: "inheritence.html",
+                type: "Topic"
+            },
+            {
+                title: "💾 JVM Memory Map",
+                desc: "Heap, stack, method area, JVM memory structure, memory management, heap vs thread dumps",
+                icon: "💾",
+                link: "jvmmemorymap.html",
+                type: "Topic"
+            },
+            {
+                title: "☕ Java 25",
+                desc: "Latest Java features and improvements in Java 25, virtual threads, pattern matching",
+                icon: "☕",
+                link: "java25.html",
+                type: "Latest"
+            },
+            {
+                title: "🎭 Polymorphism",
+                desc: "Method overloading, method overriding, compile-time and runtime polymorphism",
+                icon: "🎭",
+                link: "polymorphism.html",
+                type: "Topic"
+            },
+            {
+                title: "🏷️ Marker Interface",
+                desc: "Empty interfaces, Serializable, Cloneable, Runnable, design patterns",
+                icon: "🏷️",
+                link: "markerinterface.html",
+                type: "Topic"
+            },
+            {
+                title: "💥 Memory Leaks",
+                desc: "Common memory leak scenarios, detection, prevention, static collections",
+                icon: "💥",
+                link: "memoryleaks.html",
+                type: "Topic"
+            },
+            {
+                title: "🔐 Serialization",
+                desc: "Object serialization, marshalling, deserialization, serialVersionUID, JAXB",
+                icon: "🔐",
+                link: "serialization_marshalling.html",
+                type: "Topic"
+            },
+            {
+                title: "✂️ Clone Method",
+                desc: "Object cloning, shallow vs deep copy, Cloneable interface implementation",
+                icon: "✂️",
+                link: "clone.html",
+                type: "Topic"
+            }
+        ];
+
+        const folderTopics = [
+            {
+                title: "☕ Java 8 Features",
+                desc: "Lambda expressions, Streams, Functional interfaces, Collectors, parallel processing (10 topics)",
+                icon: "☕",
+                link: "java8_topics_index.html",
+                type: "10 Topics",
+                folder: true
+            },
+            {
+                title: "🔑 Keywords & Modifiers",
+                desc: "Static, final, volatile, transient, access modifiers, atomic programming (8 topics)",
+                icon: "🔑",
+                link: "java_keywords_index.html",
+                type: "8 Topics",
+                folder: true
+            },
+            {
+                title: "👤 Singleton & Immutable",
+                desc: "Bill Pugh singleton, Bill Pugh, immutable classes, issues & solutions (3 topics)",
+                icon: "👤",
+                link: "java_singleton_immutable_index.html",
+                type: "3 Topics",
+                folder: true
+            }
+        ];
+
+        // Render standalone topics
+        const standaloneContainer = document.getElementById('standaloneTopics');
+        standaloneTopics.forEach(topic => {
+            const card = document.createElement('div');
+            card.className = 'topic-card';
+            card.innerHTML = `
+                <div>
+                    <div class="topic-icon">${topic.icon}</div>
+                    <div class="topic-title">${topic.title}</div>
+                    <div class="topic-description">${topic.desc}</div>
+                    <span class="category-label">${topic.type}</span>
+                </div>
+                <a href="${topic.link}" class="topic-link">Explore →</a>
+            `;
+            standaloneContainer.appendChild(card);
+        });
+
+        // Render folder topics
+        const folderContainer = document.getElementById('folderTopics');
+        folderTopics.forEach(topic => {
+            const card = document.createElement('div');
+            card.className = 'topic-card';
+            card.innerHTML = `
+                <div>
+                    <div class="topic-icon">${topic.icon}</div>
+                    <div class="topic-title">${topic.title}</div>
+                    <div class="topic-description">${topic.desc}</div>
+                    <span class="category-label folder">${topic.type}</span>
+                </div>
+                <a href="${topic.link}" class="topic-link">Browse Topics →</a>
+            `;
+            folderContainer.appendChild(card);
+        });
+    </script>
+</body>
+</html>
+</head>
+<body>
+    <div class="container">
+        <a href="java_topics.html" class="back-button">← Back to Java Topics</a>
+
+        <div class="header">
+            <h1>☕ Java Topics - Master Index</h1>
+            <p>Complete Java learning resources organized by topic</p>
+        </div>
+
+        <!-- STANDALONE TOPICS -->
+        <div class="section-title">📚 Core Java Topics</div>
+        <div class="topics-grid" id="standaloneTopics"></div>
+
+        <!-- TOPIC FOLDERS -->
+        <div class="section-title">📁 Topic Collections</div>
+        <div class="topics-grid" id="folderTopics"></div>
+    </div>
+
+    <script>
+        const standaloneTopics = [
+            {
+                title: "🧵 Java Threads - Complete Guide",
+                desc: "Process, threads, stack vs heap, synchronization, race conditions, thread pools, concurrency vs parallelism, JVM internal threads (34 comprehensive sections)",
+                icon: "🧵",
+                link: "java_threads.html",
+                type: "Comprehensive"
+            },
+            {
+                title: "🔄 Threads & Concurrency",
+                desc: "Memory models, JVM internal threads, thread pool vs connection pool, quick reference",
+                icon: "🔄",
+                link: "threads_and_concurrency.html",
+                type: "Quick Reference"
+            },
+            {
+                title: "📦 Exceptions",
+                desc: "Exception handling, try-catch-finally, custom exceptions, best practices",
+                icon: "⚠️",
+                link: "exceptions.html",
+                type: "Topic"
+            },
+            {
+                title: "🔤 Generics - Complete Comprehensive Guide",
+                desc: "Why generics, parameterized types, bounded generics, wildcards, PECS, type erasure, limitations, real-world usage (30 comprehensive sections)",
+                icon: "🔤",
+                link: "java_generics_comprehensive.html",
+                type: "Comprehensive"
+            },
+            {
+                title: "🔤 Generics - Quick Reference",
+                desc: "Key concepts and examples",
+                icon: "🔤",
+                link: "generics.html",
+                type: "Quick Ref"
+            },
+            {
+                title: "🏛️ Inheritance",
+                desc: "Class hierarchy, super/this, method overriding, object composition",
+                icon: "🏛️",
+                link: "inheritence.html",
+                type: "Topic"
+            },
+            {
+                title: "💾 JVM Memory Map",
+                desc: "Heap, stack, method area, JVM memory structure, memory management",
+                icon: "💾",
+                link: "jvmmemorymap.html",
+                type: "Topic"
+            },
+            {
+                title: "☕ Java 25",
+                desc: "Latest Java features and improvements in Java 25",
+                icon: "☕",
+                link: "java25.html",
+                type: "Topic"
+            },
+            {
+                title: "🏷️ Keywords",
+                desc: "Complete guide to Java keywords and their usage",
+                icon: "🏷️",
+                link: "java_keywords_index.html",
+                type: "Collection"
+            },
+            {
+                title: "🎭 Marker Interface",
+                desc: "Empty interfaces, Serializable, Cloneable, design patterns",
+                icon: "🎭",
+                link: "markerinterface.html",
+                type: "Topic"
+            },
+            {
+                title: "💥 Memory Leaks",
+                desc: "Common memory leak scenarios, detection, and prevention",
+                icon: "💥",
+                link: "memoryleaks.html",
+                type: "Topic"
+            },
+            {
+                title: "🔀 Polymorphism",
+                desc: "Method overloading, method overriding, runtime polymorphism",
+                icon: "🔀",
+                link: "polymorphism.html",
+                type: "Topic"
+            },
+            {
+                title: "🔐 Serialization",
+                desc: "Object serialization, marshalling, deserialization techniques",
+                icon: "🔐",
+                link: "serialization_marshalling.html",
+                type: "Topic"
+            },
+            {
+                title: "👤 Singleton & Immutable",
+                desc: "Singleton patterns, immutable objects, thread-safety",
+                icon: "👤",
+                link: "java_singleton_immutable_index.html",
+                type: "Collection"
+            },
+            {
+                title: "✂️ Clone Method",
+                desc: "Object cloning, shallow vs deep copy, Cloneable interface",
+                icon: "✂️",
+                link: "clone.html",
+                type: "Topic"
+            }
+        ];
+
+        const folderTopics = [
+            {
+                title: "☕ Java 8 Features",
+                desc: "Lambda expressions, Streams, Functional interfaces, Collectors, parallel processing",
+                icon: "☕",
+                link: "java8_topics_index.html",
+                type: "10 Topics",
+                folder: true
+            },
+            {
+                title: "📦 Collections Framework",
+                desc: "Lists, Sets, Maps, and their implementations, hashCode & Equals",
+                icon: "📦",
+                link: "#",
+                type: "1 Topic",
+                folder: true
+            },
+            {
+                title: "🔑 Keywords & Modifiers",
+                desc: "Static, final, volatile, transient, access modifiers, atomic programming",
+                icon: "🔑",
+                link: "java_keywords_index.html",
+                type: "8 Topics",
+                folder: true
+            },
+            {
+                title: "👤 Singleton & Immutable Patterns",
+                desc: "Various singleton implementations, Bill Pugh singleton, immutable classes, issues & solutions",
+                icon: "👤",
+                link: "java_singleton_immutable_index.html",
+                type: "3 Topics",
+                folder: true
+            }
+        ];
+
+        // Render standalone topics
+        const standaloneContainer = document.getElementById('standaloneTopics');
+        standaloneTopics.forEach(topic => {
+            const card = document.createElement('div');
+            card.className = 'topic-card';
+            card.innerHTML = `
+                <div>
+                    <div class="topic-icon">${topic.icon}</div>
+                    <div class="topic-title">${topic.title}</div>
+                    <div class="topic-description">${topic.desc}</div>
+                    <span class="category-label">${topic.type}</span>
+                </div>
+                <a href="${topic.link}" class="topic-link">View Details →</a>
+            `;
+            standaloneContainer.appendChild(card);
+        });
+
+        // Render folder topics
+        const folderContainer = document.getElementById('folderTopics');
+        folderTopics.forEach(topic => {
+            const card = document.createElement('div');
+            card.className = 'topic-card';
+            card.innerHTML = `
+                <div>
+                    <div class="topic-icon">${topic.icon}</div>
+                    <div class="topic-title">${topic.title}</div>
+                    <div class="topic-description">${topic.desc}</div>
+                    <span class="category-label folder">${topic.type}</span>
+                </div>
+                <a href="${topic.link}" class="topic-link">Browse Topics →</a>
+            `;
+            folderContainer.appendChild(card);
+        });
+    </script>
+</body>
+</html>
+
