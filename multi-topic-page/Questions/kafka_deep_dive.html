@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kafka Deep Dive - Event Streaming System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI'; background: #f5f5f5; color: #333333; height: 100vh; overflow: hidden; }
+        .container { display: flex; height: 100vh; }
+        .sidebar { width: 40%; background: #ffffff; border-right: 1px solid #e0e0e0; overflow-y: auto; padding: 20px 0; }
+        .sidebar-header { padding: 0 20px 20px 20px; border-bottom: 2px solid #2563eb; margin-bottom: 20px; }
+        .sidebar-header h1 { font-size: 1.4em; color: #2563eb; }
+        .topic-item { padding: 12px 20px; cursor: pointer; border-left: 3px solid transparent; transition: all 0.3s; color: #666666; font-size: 0.9em; }
+        .topic-item:hover { background: #f0f0f0; color: #2563eb; border-left-color: #2563eb; padding-left: 24px; }
+        .topic-item.active { background: #e3f2fd; color: #2563eb; border-left-color: #2563eb; font-weight: 600; }
+        .topic-category { padding: 12px 20px 6px; font-size: 0.75em; text-transform: uppercase; color: #999999; font-weight: 700; }
+        .content-area { width: 60%; background: #ffffff; overflow-y: auto; padding: 40px; min-height: 100%; }
+        .content-header h2 { font-size: 1.8em; color: #2563eb; margin-bottom: 10px; }
+        .content-header p { color: #666666; font-style: italic; margin-bottom: 20px; border-bottom: 1px solid #e0e0e0; padding-bottom: 15px; }
+        .content-body p { margin-bottom: 15px; line-height: 1.8; color: #333333; }
+        .content-body ul { margin-left: 30px; margin-bottom: 15px; }
+        .content-body li { margin-bottom: 8px; color: #333333; }
+        .content-body strong { color: #2563eb; }
+        .content-body h3 { font-size: 1.3em; color: #2563eb; margin-top: 25px; margin-bottom: 15px; }
+        .content-body h4 { font-size: 1.1em; color: #555555; margin-top: 15px; margin-bottom: 10px; }
+        .code-block { background: #f5f5f5; padding: 15px; border-radius: 6px; border-left: 3px solid #2563eb; color: #333333; font-family: 'Courier New'; font-size: 0.85em; margin: 15px 0; overflow-x: auto; white-space: pre-wrap; word-break: break-word; line-height: 1.6; }
+        .tip { background: #e3f2fd; border-left: 4px solid #2563eb; padding: 15px; margin: 15px 0; border-radius: 6px; color: #333333; }
+        .back-link { color: #2563eb; text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 20px; display: inline-block; font-size: 0.95em; }
+        .back-link:hover { text-decoration: underline; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        table th, table td { padding: 12px; text-align: left; border-bottom: 1px solid #e0e0e0; color: #333333; }
+        table th { background: #f0f0f0; color: #2563eb; font-weight: 600; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f5f5f5; }
+        ::-webkit-scrollbar-thumb { background: #cccccc; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2563eb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header"><h1>📨 Kafka Deep Dive</h1></div>
+            <div id="topicsList"></div>
+        </div>
+        <div class="content-area">
+            <a href="../src/index.html" class="back-link">← Back to Learning Hub</a>
+            <div id="contentArea" style="margin-top: 20px;"></div>
+        </div>
+    </div>
+
+    <script>
+        const topics = [
+            // TIER 1: Fundamentals
+            { id: 1, tier: "TIER 1: Fundamentals", title: "1. What is Apache Kafka", category: "TIER 1: Fundamentals" },
+            { id: 2, tier: "TIER 1: Fundamentals", title: "2. Core Architecture", category: "TIER 1: Fundamentals" },
+            { id: 3, tier: "TIER 1: Fundamentals", title: "3. Message Flow (End-to-End)", category: "TIER 1: Fundamentals" },
+
+            // TIER 2: Core Concepts
+            { id: 4, tier: "TIER 2: Core Concepts", title: "4. Topics & Partitions", category: "TIER 2: Core Concepts" },
+            { id: 5, tier: "TIER 2: Core Concepts", title: "5. Offsets & Commits", category: "TIER 2: Core Concepts" },
+            { id: 6, tier: "TIER 2: Core Concepts", title: "6. Consumers & Consumer Groups", category: "TIER 2: Core Concepts" },
+            { id: 7, tier: "TIER 2: Core Concepts", title: "7. Message Retention", category: "TIER 2: Core Concepts" },
+
+            // TIER 3: Advanced Concepts
+            { id: 8, tier: "TIER 3: Advanced Concepts", title: "8. Delivery Semantics", category: "TIER 3: Advanced Concepts" },
+            { id: 9, tier: "TIER 3: Advanced Concepts", title: "9. Failure Handling & Rebalancing", category: "TIER 3: Advanced Concepts" },
+            { id: 10, tier: "TIER 3: Advanced Concepts", title: "10. Replication & Durability", category: "TIER 3: Advanced Concepts" },
+            { id: 11, tier: "TIER 3: Advanced Concepts", title: "11. Pull Model vs Push Model", category: "TIER 3: Advanced Concepts" },
+
+            // TIER 4: Architecture Deep Dive
+            { id: 12, tier: "TIER 4: Architecture", title: "12. Segments & Log Storage", category: "TIER 4: Architecture" },
+            { id: 13, tier: "TIER 4: Architecture", title: "13. Partitioner & Data Distribution", category: "TIER 4: Architecture" },
+            { id: 14, tier: "TIER 4: Architecture", title: "14. Sticky Partitioner Behavior", category: "TIER 4: Architecture" },
+            { id: 15, tier: "TIER 4: Architecture", title: "15. Data Types: Byte Arrays", category: "TIER 4: Architecture" },
+
+            // TIER 5: Operations
+            { id: 16, tier: "TIER 5: Operations", title: "16. Create Topic", category: "TIER 5: Operations" },
+            { id: 17, tier: "TIER 5: Operations", title: "17. Delete Topic & Partitions", category: "TIER 5: Operations" },
+            { id: 18, tier: "TIER 5: Operations", title: "18. Segment Rolling Strategy", category: "TIER 5: Operations" },
+
+            // TIER 6: Production
+            { id: 19, tier: "TIER 6: Production", title: "19. Scaling & Performance", category: "TIER 6: Production" },
+            { id: 20, tier: "TIER 6: Production", title: "20. Kafka Streams & Advanced Features", category: "TIER 6: Production" }
+        ];
+
+        const topicsData = {
+            1: {
+                title: "What is Apache Kafka",
+                content: `<div class="content-header"><h2>Kafka: Distributed Event Streaming System</h2><p>Understanding Kafka's role in modern data architecture</p></div>
+                <div class="content-body"><h3>Core Idea</h3><p><strong>Kafka is NOT just a message queue</strong> → it's a distributed event streaming system used for:</p>
+                <ul><li>Real-time data pipelines</li><li>Log aggregation</li><li>Analytics and monitoring</li><li>Data replay</li></ul>
+                <h3>Key Mindset Shift</h3><div class="code-block">Traditional Queue:
+Send message → Deliver to consumer → Delete
+
+Kafka:
+Write event → Store it permanently → Consumers read whenever they want</div>
+                <h3>Why Kafka?</h3><table>
+<tr><th>Feature</th><th>Benefit</th></tr>
+<tr><td>Messages stored indefinitely</td><td>Replay any data anytime</td></tr>
+<tr><td>High throughput</td><td>Handles billions of events/day</td></tr>
+<tr><td>Distributed architecture</td><td>Scales horizontally</td></tr>
+<tr><td>Fault tolerant</td><td>No data loss with replication</td></tr>
+</table>
+                <h3>Mental Model</h3><div class="tip">Think of Kafka like a continuous stream of events (like a log file that keeps growing forever, and multiple consumers can read from different positions in it)</div></div>`
+            },
+            2: {
+                title: "Core Architecture",
+                content: `<div class="content-header"><h2>Kafka Core Components</h2><p>The building blocks of Kafka system</p></div>
+                <div class="content-body"><h3>Key Components</h3><table>
+<tr><th>Component</th><th>Purpose</th></tr>
+<tr><td><strong>Broker</strong></td><td>Kafka server that stores data and handles requests</td></tr>
+<tr><td><strong>Topic</strong></td><td>Category/stream of messages (like a channel)</td></tr>
+<tr><td><strong>Partition</strong></td><td>Unit of parallelism - splits topic for scalability</td></tr>
+<tr><td><strong>Producer</strong></td><td>Sends data/events to Kafka</td></tr>
+<tr><td><strong>Consumer</strong></td><td>Reads/processes data from Kafka</td></tr>
+<tr><td><strong>Consumer Group</strong></td><td>Group of consumers sharing workload</td></tr>
+<tr><td><strong>Offset</strong></td><td>Position/index of message in partition</td></tr>
+</table>
+                <h3>Architecture Flow</h3><div class="code-block">Producer
+  ↓
+Topic (Logical container)
+  ├── Partition 0 (Log file)
+  ├── Partition 1 (Log file)
+  └── Partition 2 (Log file)
+  ↓
+Broker (Kafka Server)
+  ↓
+Consumer Group
+  ├── Consumer 1 reads Partition 0
+  ├── Consumer 2 reads Partition 1
+  └── Consumer 3 reads Partition 2</div>
+                <h3>Most Important Concept</h3><div class="tip"><strong>Kafka = Topic → Partition → Offset</strong><br/>This hierarchy defines how data is organized and processed</div></div>`
+            },
+            3: {
+                title: "Message Flow (End-to-End)",
+                content: `<div class="content-header"><h2>How Messages Flow Through Kafka</h2><p>Step-by-step message journey</p></div>
+                <div class="content-body"><h3>Complete Flow</h3><div class="code-block">1. Producer sends message to topic
+2. Serializer converts data to bytes
+3. Partitioner decides which partition
+4. Message appended to partition
+5. Kafka assigns offset
+6. Message stored on broker/disk
+7. Consumer polls for messages
+8. Consumer receives message
+9. Consumer processes data
+10. Consumer commits offset
+11. Kafka tracks consumer progress
+12. Next poll gets new messages</div>
+                <h3>Key Differences from RabbitMQ</h3><table>
+<tr><th>Aspect</th><th>Kafka</th><th>RabbitMQ</th></tr>
+<tr><td>Storage</td><td>Stores all messages (immutable log)</td><td>Deletes after consumption</td></tr>
+<tr><td>Replay</td><td>✅ Yes, unlimited replays</td><td>❌ No, messages deleted</td></tr>
+<tr><td>Model</td><td>Pull-based (consumer requests)</td><td>Push-based (server sends)</td></tr>
+<tr><td>Ordering</td><td>Per partition guaranteed</td><td>Per queue guaranteed</td></tr>
+</table>
+                <h3>Core Mindset</h3><div class="tip"><strong>Kafka = Store First, Consume Later</strong><br/>Messages persist independently of consumer consumption</div></div>`
+            },
+            4: {
+                title: "Topics & Partitions",
+                content: `<div class="content-header"><h2>Topics and Partitions Deep Dive</h2><p>How Kafka scales and orders data</p></div>
+                <div class="content-body"><h3>Topic vs Partition</h3><div class="code-block">Topic = Logical stream of events
+├── Can have multiple topics
+├── Example: orders, payments, users
+
+Partition = Physical unit of parallelism
+├── One topic has multiple partitions
+├── Example: orders topic has 3 partitions
+├── Each partition is ordered independently</div>
+                <h3>Critical Rules</h3><ul><li><strong>Ordering guarantee:</strong> Within ONE partition only</li><li><strong>Multiple partitions:</strong> Enable high scalability</li><li><strong>Parallelism:</strong> Multiple consumers can read different partitions simultaneously</li><li><strong>Rebalancing:</strong> When consumers join/leave, partitions auto-reassigned</li></ul>
+                <h3>Example Scenario</h3><div class="code-block">Topic: orders
+├── Partition 0
+│     ├── Offset 0 → Order A
+│     ├── Offset 1 → Order B
+│     └── Offset 2 → Order C  (ordered)
+│
+├── Partition 1
+│     ├── Offset 0 → Order D
+│     └── Offset 1 → Order E  (ordered separately)
+│
+└── Partition 2
+      └── Offset 0 → Order F</div>
+                <h3>Why Partitions Matter</h3><table>
+<tr><th>Benefit</th><th>Impact</th></tr>
+<tr><td>Scalability</td><td>Add more partitions for higher throughput</td></tr>
+<tr><td>Parallelism</td><td>Multiple consumers process simultaneously</td></tr>
+<tr><td>Fault Tolerance</td><td>Replicas across brokers</td></tr>
+<tr><td>Performance</td><td>Smaller log files per partition (faster)</td></tr>
+</table></div>`
+            },
+            5: {
+                title: "Offsets & Commits",
+                content: `<div class="content-header"><h2>Offsets and Consumer Commits</h2><p>Tracking position and progress in Kafka</p></div>
+                <div class="content-body"><h3>What is an Offset?</h3><div class="code-block">Offset = position of message inside a partition
+        = like array index for log file
+
+Example:
+Partition 0:
+  Offset 0 → Message A
+  Offset 1 → Message B
+  Offset 2 → Message C
+  ↑
+  Consumer is here (at offset 2)</div>
+                <h3>Consumer Commits Explained</h3><p><strong>Commit = Consumer tells Kafka: "I've processed up to this offset"</strong></p>
+                <ul><li>Kafka tracks committed offset per consumer</li><li>Next poll() starts from committed offset + 1</li><li>If consumer dies, recovery starts from committed offset</li><li>Protects against message reprocessing</li></ul>
+                <h3>Offset Management</h3><div class="code-block">Consumer Poll Cycle:
+1. poll() → gets messages
+2. process messages
+3. commit offset
+   ↓
+   Kafka stores: "Consumer processed up to offset 42"
+   ↓
+4. Next poll() starts at offset 43</div>
+                <h3>Critical Difference from RabbitMQ</h3><div class="tip"><strong>RabbitMQ:</strong> Server tracks ACK, deletes message<br/><strong>Kafka:</strong> Consumer responsibility to track offset, message never deleted</div>
+                <h3>Commit Strategies</h3><table>
+<tr><th>Strategy</th><th>Risk</th><th>Use Case</th></tr>
+<tr><td>Auto-commit (default)</td><td>Duplicate processing if crash</td><td>At-least-once semantics</td></tr>
+<tr><td>Manual commit</td><td>Loss if crash after processing</td><td>Exactly-once semantics</td></tr>
+<tr><td>Async commit</td><td>Delayed offset update</td><td>High throughput</td></tr>
+</table></div>`
+            },
+            6: {
+                title: "Consumers & Consumer Groups",
+                content: `<div class="content-header"><h2>Consumers and Consumer Groups</h2><p>How multiple consumers process data in parallel</p></div>
+                <div class="content-body"><h3>Consumer Concept</h3><p>A consumer is an application/process that:</p>
+                <ul><li>Subscribes to one or more topics</li><li>Polls for messages at intervals</li><li>Processes data</li><li>Commits offset</li></ul>
+                <h3>Consumer Groups (Most Important)</h3><div class="code-block">Consumer Group = group of consumers sharing topic's work
+
+Key Rule:
+ONE partition is read by ONLY ONE consumer in a group
+
+Example:
+Topic: orders (3 partitions)
+Consumer Group: payment-processors
+
+Group assignment:
+  Consumer 1 → Partition 0
+  Consumer 2 → Partition 1
+  Consumer 3 → Partition 2
+
+Result: 3x parallelism, each message processed once</div>
+                <h3>Rebalancing</h3><p><strong>Rebalancing = Automatic partition reassignment when consumers join/leave</strong></p>
+                <div class="code-block">Scenario: Consumer 2 crashes
+
+Before:
+  C1 → P0, C2 → P1, C3 → P2
+
+Rebalancing triggers automatically...
+
+After:
+  C1 → P0, C3 → P1 + P2  (C3 gets extra)
+
+Recovery:
+  New consumer joins → rebalance again</div>
+                <h3>Benefits of Consumer Groups</h3><ul><li>✅ Horizontal scaling (add more consumers)</li><li>✅ Automatic failover (rebalancing)</li><li>✅ Load distribution (each partition handled once)</li><li>✅ No duplicate processing (across group)</li></ul></div>`
+            },
+            7: {
+                title: "Message Retention",
+                content: `<div class="content-header"><h2>Message Retention Policy</h2><p>How Kafka stores data permanently</p></div>
+                <div class="content-body"><h3>Core Concept</h3><p><strong>Messages are NOT deleted after consumption. Kafka keeps data based on:</strong></p>
+                <ul><li><strong>Time:</strong> retention.ms (default: 7 days)</li><li><strong>Size:</strong> retention.bytes (default: unlimited)</li><li><strong>Compaction:</strong> Keep latest value per key</li></ul>
+                <h3>Huge Difference from Traditional Queues</h3><table>
+<tr><th>System</th><th>After Consumption</th><th>Use Case</th></tr>
+<tr><td>RabbitMQ</td><td>❌ Deleted immediately</td><td>Point-to-point messaging</td></tr>
+<tr><td>Kafka</td><td>✅ Kept forever (or by policy)</td><td>Event sourcing, audit logs</td></tr>
+</table>
+                <h3>Retention Benefits</h3><ul><li>Replay data: Rewind to any point in time</li><li>New consumers: Can process from offset 0 (entire history)</li><li>Backup: Natural disaster recovery</li><li>Analytics: Historical data analysis</li></ul>
+                <h3>Retention Configuration Example</h3><div class="code-block">Topic: financial-transactions
+
+retention.ms = 90 days
+retention.bytes = 100GB
+
+Result:
+- Keep 90 days OR 100GB of data (whichever comes first)
+- Older data automatically deleted
+- But within retention period: full replay capability</div></div>`
+            },
+            8: {
+                title: "Delivery Semantics",
+                content: `<div class="content-header"><h2>Message Delivery Guarantees</h2><p>Understanding reliability vs speed tradeoffs</p></div>
+                <div class="content-body"><h3>Three Delivery Semantics</h3><table>
+<tr><th>Semantic</th><th>Guarantee</th><th>Trade-off</th><th>Use Case</th></tr>
+<tr><td><strong>At Most Once</strong></td><td>Message may be lost</td><td>Fastest, no retries</td><td>Metrics, logs</td></tr>
+<tr><td><strong>At Least Once</strong></td><td>Message may duplicate</td><td>Balanced, some retries</td><td>Most systems (DEFAULT)</td></tr>
+<tr><td><strong>Exactly Once</strong></td><td>Message processed once</td><td>Slowest, complex logic</td><td>Financial, critical data</td></tr>
+</table>
+                <h3>At Least Once (Most Common)</h3><div class="code-block">Flow:
+1. Consumer polls message
+2. Processes it
+3. Commits offset
+
+Issue: Crash between step 2-3
+→ Message reprocessed (duplicate)
+
+Solution: Make consumer idempotent
+→ Process same message twice = same result</div>
+                <h3>Exactly Once Challenges</h3><ul><li>Requires distributed transactions</li><li>Higher latency (more coordination)</li><li>Only use when absolutely necessary</li><li>Example: Financial transactions</li></ul>
+                <h3>Recommendation</h3><div class="tip">Use <strong>At Least Once</strong> + <strong>Idempotent Consumer</strong><br/>This is cost-effective and reliable for 99% of use cases</div></div>`
+            },
+            9: {
+                title: "Failure Handling & Rebalancing",
+                content: `<div class="content-header"><h2>Failure Scenarios and Recovery</h2><p>How Kafka handles crashes gracefully</p></div>
+                <div class="content-body"><h3>Broker Failure</h3><div class="code-block">If Broker with leader partition crashes:
+
+1. Followers detect leader is dead
+2. Election process starts
+3. One follower becomes new leader
+4. Producers switch to new leader
+5. System continues (no data loss with replication)</div>
+                <h3>Consumer Failure</h3><div class="code-block">If Consumer crashes:
+
+1. Heartbeat stops (no more ping to coordinator)
+2. Coordinator detects failure (timeout)
+3. Rebalancing triggered
+4. Partition reassigned to healthy consumers
+5. New consumer starts from committed offset
+6. No message loss (offset tracked in broker)</div>
+                <h3>Rebalancing Process</h3><ul><li>Consumer joins group → rebalance</li><li>Consumer leaves → rebalance</li><li>Consumer crash (detected via heartbeat) → rebalance</li><li>Duration: typically 5-30 seconds (configurable)</li></ul>
+                <h3>Best Practices</h3><ul><li>✅ Enable heartbeat (detect failures quickly)</li><li>✅ Commit offset after processing (recovery point)</li><li>✅ Make consumers idempotent (handle duplicates)</li><li>✅ Monitor rebalancing (performance impact)</li></ul></div>`
+            },
+            10: {
+                title: "Replication & Durability",
+                content: `<div class="content-header"><h2>Replication and Data Durability</h2><p>How Kafka ensures no data loss</p></div>
+                <div class="content-body"><h3>Replication Architecture</h3><div class="code-block">Topic: orders, Partition 0
+
+Replica Set: [Leader, Follower1, Follower2]
+         ↓         ↓          ↓
+      Broker 1  Broker 2   Broker 3
+
+Producer writes to LEADER
+Followers replicate asynchronously
+All store exact same data</div>
+                <h3>Replication Factor</h3><table>
+<tr><th>Factor</th><th>Replicas</th><th>Tolerance</th><th>Cost</th></tr>
+<tr><td>1</td><td>1 (no replica)</td><td>0 failures</td><td>1x storage</td></tr>
+<tr><td>2</td><td>1 leader + 1 follower</td><td>1 failure</td><td>2x storage</td></tr>
+<tr><td>3</td><td>1 leader + 2 followers</td><td>2 failures</td><td>3x storage</td></tr>
+</table>
+                <h3>Leader Election</h3><p><strong>If leader dies, one follower becomes leader:</strong></p>
+                <ul><li>Automatic (no manual intervention)</li><li>Causes brief unavailability (seconds)</li><li>Data not lost if at least 1 replica alive</li></ul>
+                <h3>Durability Guarantee</h3><div class="tip">With replication-factor=3:<br/>System survives 2 broker failures without data loss</div></div>`
+            },
+            11: {
+                title: "Pull Model vs Push Model",
+                content: `<div class="content-header"><h2>Why Kafka Uses Pull Model</h2><p>Understanding consumer-driven consumption</p></div>
+                <div class="content-body"><h3>Pull Model (Kafka's Approach)</h3><div class="code-block">Consumer actively requests data:
+
+while (true) {
+    records = consumer.poll(1000);  // Ask Kafka: "Any new data?"
+    for (record : records) {
+        process(record);
+    }
+}</div>
+                <h3>Push Model (Traditional Approach)</h3><div class="code-block">Server pushes data to consumer:
+
+onMessage(record) {
+    process(record);
+}</div>
+                <h3>Comparison</h3><table>
+<tr><th>Aspect</th><th>Pull Model (Kafka)</th><th>Push Model</th></tr>
+<tr><td>Consumer Control</td><td>Consumer controls speed</td><td>Server controls speed</td></tr>
+<tr><td>Back-pressure</td><td>✅ Handle easily</td><td>❌ Hard to handle</td></tr>
+<tr><td>Speed</td><td>⚠️ Slower (polling overhead)</td><td>✅ Faster (immediate)</td></tr>
+<tr><td>Scalability</td><td>✅ Better (consumer-driven)</td><td>⚠️ Hard (server manages all)</td></tr>
+<tr><td>Processing Control</td><td>✅ Consumer decides rate</td><td>❌ Server dictates</td></tr>
+</table>
+                <h3>Why Pull is Better for Kafka</h3><ul><li>Consumer can process at own pace</li><li>Prevents consumer overload (back-pressure)</li><li>Consumer requests only what it can handle</li><li>Natural rate limiting</li></ul>
+                <h3>Back-pressure Example</h3><div class="code-block">Scenario: CPU-heavy processing
+
+Pull model:
+→ Consumer polls fewer records per cycle
+→ Self-regulates speed
+
+Push model:
+→ Server keeps pushing
+→ Consumer queue overflows
+→ System crashes</div></div>`
+            },
+            12: {
+                title: "Segments & Log Storage",
+                content: `<div class="content-header"><h2>Segments: The Real Files</h2><p>Understanding Kafka's physical storage layer</p></div>
+                <div class="content-body"><h3>What is a Segment?</h3><p><strong>A segment is the actual file on disk where Kafka stores messages.</strong></p>
+                <div class="code-block">Topic: orders
+Partition 0:
+  /var/kafka/orders-0/
+    ├── 000000000000.log   (Segment 1)
+    ├── 000000000000.index (Index for segment 1)
+    ├── 000000001000.log   (Segment 2)
+    ├── 000000001000.index (Index for segment 2)
+    └── 000000002000.log   (Active segment)
+
+Each file contains sequence of messages with offsets</div>
+                <h3>Why Segments Exist?</h3><p>Instead of one huge file of 1TB+, split into smaller chunks:</p>
+                <ul><li>❌ One huge file: slow, hard to manage</li><li>✅ Many segments: fast, easy cleanup</li></ul>
+                <h3>Segment Rollover</h3><p>New segment created when:</p>
+                <ul><li><strong>Size threshold:</strong> log.segment.bytes (default: 1GB)</li><li><strong>Time threshold:</strong> log.roll.ms (default: 7 days)</li></ul>
+                <div class="code-block">Example: Size = 1GB, Time = 7 days
+
+Message arrives
+  ↓
+Segment has space? ✅ Append
+  ↓
+Segment full? → Create new segment (rollover)
+  ↓
+Next messages go to new segment</div>
+                <h3>Index Files</h3><p>Each segment has two files:</p>
+                <ul><li><strong>.log file:</strong> Actual messages (bytes)</li><li><strong>.index file:</strong> Maps offsets to file positions (for fast lookup)</li></ul>
+                <h3>Benefits of Segments</h3><table>
+<tr><th>Benefit</th><th>Impact</th></tr>
+<tr><td>Fast deletion</td><td>Delete entire segment file (not individual messages)</td></tr>
+<tr><td>Efficient storage</td><td>Sequential writes (OS optimizations)</td></tr>
+<tr><td>Replay support</td><td>Consumers read any offset across segments</td></tr>
+<tr><td>Retention management</td><td>Delete old segments by time/size policy</td></tr>
+</table></div>`
+            },
+            13: {
+                title: "Partitioner & Data Distribution",
+                content: `<div class="content-header"><h2>Message Partitioning Strategy</h2><p>How producers decide which partition gets data</p></div>
+                <div class="content-body"><h3>Three Ways to Partition</h3><h4>1. Manual Partition Specification</h4><div class="code-block">ProducerRecord<String, String> record =
+  new ProducerRecord<>(
+    topic = "orders",
+    partition = 2,        ← Explicit partition
+    key = null,
+    value = "data"
+  );
+
+producer.send(record);</div>
+                <h4>2. Key-Based Partitioning (Most Common)</h4><div class="code-block">ProducerRecord<String, String> record =
+  new ProducerRecord<>(
+    topic = "orders",
+    key = "user123",      ← Hash of key decides partition
+    value = "{...}"
+  );
+
+Kafka does:
+partition = hash(key) % numPartitions
+
+Result:
+All messages for user123 go to SAME partition (ordering guaranteed)</div>
+                <h4>3. Sticky Partitioning (No Key)</h4><div class="code-block">ProducerRecord<String, String> record =
+  new ProducerRecord<>(
+    topic = "orders",
+    key = null,           ← No key
+    value = "{...}"
+  );
+
+Kafka does:
+→ Picks one partition
+→ Sends batch of messages
+→ Then switches to different partition
+
+Why: Improves batching efficiency and throughput</div>
+                <h3>Key Distribution Example</h3><div class="code-block">Topic: orders (3 partitions)
+
+User123:  partition = hash("user123") % 3 = 0
+User456:  partition = hash("user456") % 3 = 1
+User789:  partition = hash("user789") % 3 = 2
+User123:  partition = hash("user123") % 3 = 0 (same as first)
+
+Result:
+Partition 0: [User123, User123, User123, ...]
+Partition 1: [User456, ...]
+Partition 2: [User789, ...]
+
+→ Same user always on same partition (ordering preserved)</div>
+                <h3>Partitioner Responsibility</h3><ul><li>Decide partition based on key/no-key</li><li>Enable parallelism</li><li>Customize via custom partitioner if needed</li></ul></div>`
+            },
+            14: {
+                title: "Sticky Partitioner Behavior",
+                content: `<div class="content-header"><h2>Sticky Partitioner Strategy</h2><p>Optimizing throughput without message keys</p></div>
+                <div class="content-body"><h3>What is Sticky Partitioning?</h3><p><strong>When no key is provided, producer picks ONE partition and sends batch of messages to it, then switches.</strong></p>
+                <div class="code-block">Without Sticky:
+Message 1 → Partition 0
+Message 2 → Partition 1 (useless switch)
+Message 3 → Partition 2
+Message 4 → Partition 0
+
+With Sticky:
+Batch 1: [Msg1, Msg2, Msg3, Msg4] → Partition 0
+Batch 2: [Msg5, Msg6, Msg7] → Partition 1
+Batch 3: [Msg8, Msg9] → Partition 2
+
+↑ Fewer network round-trips, better batching</div>
+                <h3>Benefits</h3><table>
+<tr><th>Metric</th><th>Impact</th></tr>
+<tr><td>Batching efficiency</td><td>✅ More messages per batch</td></tr>
+<tr><td>Throughput</td><td>✅ Higher messages/sec</td></tr>
+<tr><td>Network calls</td><td>✅ Fewer requests to broker</td></tr>
+<tr><td>CPU usage</td><td>✅ Lower overhead</td></tr>
+</table>
+                <h3>Trade-off</h3><ul><li>✅ Better throughput</li><li>❌ Less balanced partition load (some partitions get more data per batch)</li><li>❌ Ordering NOT guaranteed (different batches to different partitions)</li></ul>
+                <h3>When to Use</h3><div class="tip"><strong>No key (sticky):</strong> When ordering doesn't matter<br/><strong>With key:</strong> When ordering within a group matters (e.g., user transactions)</div></div>`
+            },
+            15: {
+                title: "Data Types: Byte Arrays",
+                content: `<div class="content-header"><h2>Kafka's Data Type Coverage</h2><p>Understanding serialization in Kafka</p></div>
+                <div class="content-body"><h3>Core Concept</h3><p><strong>Everything in Kafka = byte arrays. Kafka doesn't care about data type.</strong></p>
+                <div class="code-block">Kafka internal representation:
+Key   → byte[]
+Value → byte[]
+
+It treats everything as raw binary data
+Doesn't know if it's: JSON, String, Image, Video, etc.</div>
+                <h3>Message Structure</h3><div class="code-block">Message {
+  key:   byte[]
+  value: byte[]
+  timestamp: long
+  partition: int
+  offset: long
+}</div>
+                <h3>Producer Serialization</h3><div class="code-block">Your code:
+Order obj = new Order(id=123, amount=500);
+
+Producer job:
+Order obj → Serializer → byte[] → Send to Kafka
+
+Choice of format:
+- JSON (most common)
+- String
+- Avro (compact + schema)
+- Protobuf (Google's format)
+- Custom binary</div>
+                <h3>Consumer Deserialization</h3><div class="code-block">Kafka gives:
+byte[]
+
+Consumer job:
+byte[] → Deserializer → Order obj
+
+Choose matching deserializer for format</div>
+                <h3>Common Formats</h3><table>
+<tr><th>Format</th><th>Pros</th><th>Cons</th></tr>
+<tr><td>JSON</td><td>Easy, human-readable</td><td>Larger size</td></tr>
+<tr><td>String</td><td>Simple</td><td>Space inefficient</td></tr>
+<tr><td>Avro</td><td>Compact, schema support</td><td>Learning curve</td></tr>
+<tr><td>Protobuf</td><td>Very compact, type-safe</td><td>Code generation</td></tr>
+</table>
+                <h3>Key Takeaway</h3><div class="tip">Serialization/deserialization is <strong>producer/consumer responsibility</strong>, not Kafka's concern</div></div>`
+            },
+            16: {
+                title: "Create Topic",
+                content: `<div class="content-header"><h2>Creating Kafka Topics</h2><p>Multiple methods to create topics</p></div>
+                <div class="content-body"><h3>Method 1: CLI (Most Common)</h3><div class="code-block">docker exec kafka-kraft kafka-topics.sh \
+  --create \
+  --topic demo-topic \
+  --bootstrap-server localhost:9092 \
+  --partitions 3 \
+  --replication-factor 1</div>
+                <h3>Method 2: Java AdminClient</h3><div class="code-block">AdminClient admin = AdminClient.create(props);
+
+NewTopic topic = new NewTopic(
+    "demo-topic-april",
+    3,      // partitions
+    (short) 1  // replication-factor
+);
+
+admin.createTopics(
+    Collections.singleton(topic)
+);</div>
+                <h3>Method 3: Auto-Create on Producer Send</h3><div class="code-block">producer.send(
+    new ProducerRecord<>(
+        "demo-topic-april",  // Topic auto-created!
+        "message"
+    )
+);
+
+⚠️ Result: Topic created with default:
+- auto.create.topics.enable = true
+- num.partitions = 1 (NOT recommended)</div>
+                <h3>Method 4: Docker Compose / Config</h3><p>Predefine topics when Kafka starts (advanced, less common)</p>
+                <h3>Best Practices</h3><ul><li>✅ Use CLI for manual creation</li><li>✅ Use AdminClient in code</li><li>❌ Avoid auto-create (unpredictable partition count)</li><li>✅ Set replication-factor >= 2 for production</li></ul></div>`
+            },
+            17: {
+                title: "Delete Topic & Partitions",
+                content: `<div class="content-header"><h2>Deleting Topics and Partitions</h2><p>Understanding topic lifecycle management</p></div>
+                <div class="content-body"><h3>Topic Structure</h3><div class="code-block">Topic = Logical container
+  └── Partition = Physical storage unit
+        └── Segment files (actual data)</div>
+                <h3>Deleting a Topic</h3><div class="code-block">kafka-topics.sh --delete --topic demo-topic --bootstrap-server localhost:9092
+
+Result:
+DELETE TOPIC → removes:
+✅ All partitions
+✅ All messages
+✅ All offsets
+✅ All metadata
+
+= Total data destruction</div>
+                <h3>Can You Delete Only Partitions?</h3><p><strong>No. Partitions are inherent to topic.</strong></p>
+                <p>Reason: Partitions define data layout. Removing one would break:</p>
+                <ul><li>Offsets (partition-specific)</li><li>Ordering guarantees</li><li>Replication consistency</li></ul>
+                <h3>Reducing Partitions</h3><p>To go from 5 partitions to 2:</p>
+                <div class="code-block">Step 1: Delete topic
+kafka-topics.sh --delete --topic orders ...
+
+Step 2: Recreate with fewer partitions
+kafka-topics.sh --create --topic orders \
+  --partitions 2 \
+  --replication-factor 3 ...</div>
+                <h3>Important Note</h3><div class="tip">In Kafka, you can ONLY increase partitions, never decrease (without recreating)<br/>→ Partitions = physical storage layout cannot be reduced</div></div>`
+            },
+            18: {
+                title: "Segment Rolling Strategy",
+                content: `<div class="content-header"><h2>When Segments Roll Over</h2><p>Managing segment lifecycle</p></div>
+                <div class="content-body"><h3>Segment Rollover Triggers</h3><p>New segment created when EITHER:</p>
+                <ul><li><strong>Size threshold:</strong> log.segment.bytes (default: 1GB)</li><li><strong>Time threshold:</strong> log.roll.ms (default: 7 days)</li></ul>
+                <h3>Example Configuration</h3><div class="code-block">log.segment.bytes = 1073741824  (1GB)
+log.roll.ms = 604800000         (7 days)
+
+Scenario 1: 1GB reached in 2 days
+→ Rollover immediately (size wins)
+
+Scenario 2: 500MB never reached by day 7
+→ Rollover by time (time wins)</div>
+                <h3>Segment Lifecycle</h3><div class="code-block">Message arrives
+  ↓
+Active segment has space? → YES → Append
+  ↓
+Active segment full OR too old? → NO → Rollover
+  ↓
+Create new segment
+  ↓
+New segment becomes active</div>
+                <h3>File Naming</h3><div class="code-block">Partition 0:
+  000000000000.log   (offsets 0-999)
+  000000001000.log   (offsets 1000-1999)
+  000000002000.log   (offsets 2000-2999)
+
+Filename = starting offset of segment</div>
+                <h3>Deletion By Retention</h3><p>Old segments deleted based on retention policy:</p>
+                <ul><li>Time-based: retention.ms</li><li>Size-based: retention.bytes</li><li>Whichever limit hit first</li></ul></div>`
+            },
+            19: {
+                title: "Scaling & Performance",
+                content: `<div class="content-header"><h2>Kafka Scaling and Performance</h2><p>Building high-throughput systems</p></div>
+                <div class="content-body"><h3>Horizontal Scaling</h3><div class="code-block">Scaling method: Add more PARTITIONS
+
+Original: 1 partition → 1 consumer
+After:    3 partitions → 3 consumers (3x throughput)
+
+Each consumer handles 1 partition
+Total parallelism = number of partitions</div>
+                <h3>Scaling Limits</h3><table>
+<tr><th>Resource</th><th>Limit</th><th>Approach</th></tr>
+<tr><td>Single Partition throughput</td><td>~1Mbps</td><td>Add partitions</td></tr>
+<tr><td>Consumer lag</td><td>Growing?</td><td>Add consumers (up to partition count)</td></tr>
+<tr><td>Broker CPU/Memory</td><td>High?</td><td>Add more brokers</td></tr>
+<tr><td>Disk space</td><td>Full?</td><td>Increase retention or add brokers</td></tr>
+</table>
+                <h3>Performance Optimization</h3><ul><li>✅ Batch messages on producer (manual batching)</li><li>✅ Use async sends (don't wait for ACK)</li><li>✅ Tune network buffers (send.buffer.bytes)</li><li>✅ Compress data (compression.type=snappy)</li><li>✅ Parallel consumers (one per partition)</li></ul>
+                <h3>Kafka Throughput</h3><div class="code-block">Single partition: ~1Mbps (network-bound)
+3 partitions: ~3Mbps
+10 partitions: ~10Mbps
+
+Linear scaling with partitions
+Limited by partition count + broker resources</div>
+                <h3>Built for Big Data</h3><p>Kafka handles:</p>
+                <ul><li>Billions of events/day</li><li>100+ Mbps throughput</li><li>Terabytes of data</li><li>Horizontal scaling out of the box</li></ul></div>`
+            },
+            20: {
+                title: "Kafka Streams & Advanced Features",
+                content: `<div class="content-header"><h2>Advanced Kafka Ecosystem</h2><p>Beyond basic producer/consumer</p></div>
+                <div class="content-body"><h3>Kafka Streams</h3><p>Real-time stream processing library built on Kafka.</p>
+                <div class="code-block">Example:
+Input topic: orders (stream of orders)
+
+KStream<UserId, Order> orders =
+    builder.stream("orders");
+
+KStream<UserId, Double> totals = orders
+    .mapValues(order → order.amount)
+    .print();
+
+Output: Real-time running totals</div>
+                <h3>Kafka Connect</h3><p>Integrate Kafka with external systems (DBs, APIs, files).</p>
+                <ul><li>Source Connector: External system → Kafka</li><li>Sink Connector: Kafka → External system</li></ul>
+                <h3>Schema Registry</h3><p>Centralized schema management (Avro, Protobuf, JSON-Schema).</p>
+                <ul><li>Ensures evolving schemas are compatible</li><li>Tracks schema versions</li><li>Prevents mismatches</li></ul>
+                <h3>Confluent Ecosystem (Commercial)</h3><ul><li>Confluent Cloud (managed Kafka)</li><li>Control Center (monitoring)</li><li>Replicator (multi-cluster)</li></ul>
+                <h3>Key Takeaways</h3><div class="tip">Kafka is not just a queue → it's an entire event streaming platform with:</div>
+                <ul><li>✅ Storage (topics, partitions, segments)</li><li>✅ Processing (Kafka Streams)</li><li>✅ Integration (Kafka Connect)</li><li>✅ Schema Management (Schema Registry)</li><li>✅ Monitoring (control center)</li></ul></div>`
+            }
+        };
+
+        const topicsList = document.getElementById('topicsList');
+        let currentCategory = '';
+        let firstTopicElement = null;
+        let firstTopicId = null;
+
+        topics.forEach((topic, index) => {
+            if (topic.category !== currentCategory) {
+                currentCategory = topic.category;
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'topic-category';
+                categoryDiv.textContent = topic.tier;
+                topicsList.appendChild(categoryDiv);
+            }
+
+            const item = document.createElement('div');
+            item.className = 'topic-item';
+            item.textContent = topic.title;
+            item.onclick = () => selectTopic(topic.id, item);
+            topicsList.appendChild(item);
+
+            if (index === 0) {
+                firstTopicElement = item;
+                firstTopicId = topic.id;
+            }
+        });
+
+        function selectTopic(id, element) {
+            const contentArea = document.getElementById('contentArea');
+            document.querySelectorAll('.topic-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+
+            if (topicsData && topicsData[id] && topicsData[id].content && contentArea) {
+                contentArea.innerHTML = topicsData[id].content;
+            }
+        }
+
+        if (firstTopicElement && firstTopicId && topicsData && topicsData[firstTopicId]) {
+            selectTopic(firstTopicId, firstTopicElement);
+        } else if (topicsData && topicsData[1]) {
+            const firstItem = document.querySelector('.topic-item');
+            if (firstItem) {
+                selectTopic(1, firstItem);
+            }
+        }
+
+        setTimeout(() => {
+            if (firstTopicElement && firstTopicId) {
+                selectTopic(firstTopicId, firstTopicElement);
+            }
+        }, 200);
+    </script>
+</body>
+</html>
+

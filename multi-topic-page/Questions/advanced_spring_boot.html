@@ -1,0 +1,3303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Spring & Spring Boot - Complete Guide</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI'; background: #f5f5f5; color: #333333; height: 100vh; overflow: hidden; }
+        .container { display: flex; height: 100vh; }
+        .sidebar { width: 40%; background: #ffffff; border-right: 1px solid #e0e0e0; overflow-y: auto; padding: 20px 0; }
+        .sidebar-header { padding: 0 20px 20px 20px; border-bottom: 2px solid #2563eb; margin-bottom: 20px; }
+        .sidebar-header h1 { font-size: 1.4em; color: #2563eb; }
+        .topic-item { padding: 12px 20px; cursor: pointer; border-left: 3px solid transparent; transition: all 0.3s; color: #666666; font-size: 0.9em; }
+        .topic-item:hover { background: #f0f0f0; color: #2563eb; border-left-color: #2563eb; padding-left: 24px; }
+        .topic-item.active { background: #e3f2fd; color: #2563eb; border-left-color: #2563eb; font-weight: 600; }
+        .topic-category { padding: 12px 20px 6px; font-size: 0.75em; text-transform: uppercase; color: #999999; font-weight: 700; }
+        .content-area { width: 60%; background: #ffffff; overflow-y: auto; padding: 40px; min-height: 100%; }
+        .content-header h2 { font-size: 1.8em; color: #2563eb; margin-bottom: 10px; }
+        .content-header p { color: #666666; font-style: italic; margin-bottom: 20px; border-bottom: 1px solid #e0e0e0; padding-bottom: 15px; }
+        .content-body p { margin-bottom: 15px; line-height: 1.8; color: #333333; }
+        .content-body ul { margin-left: 30px; margin-bottom: 15px; }
+        .content-body li { margin-bottom: 8px; color: #333333; }
+        .content-body strong { color: #2563eb; }
+        .content-body h3 { font-size: 1.3em; color: #2563eb; margin-top: 25px; margin-bottom: 15px; }
+        .content-body h4 { font-size: 1.1em; color: #555555; margin-top: 15px; margin-bottom: 10px; }
+        .code-block { background: #f5f5f5; padding: 15px; border-radius: 6px; border-left: 3px solid #2563eb; color: #333333; font-family: 'Courier New'; font-size: 0.85em; margin: 15px 0; overflow-x: auto; white-space: pre-wrap; word-break: break-word; line-height: 1.6; }
+        .tip { background: #e3f2fd; border-left: 4px solid #2563eb; padding: 15px; margin: 15px 0; border-radius: 6px; color: #333333; }
+        .back-link { color: #2563eb; text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 20px; display: inline-block; font-size: 0.95em; }
+        .back-link:hover { text-decoration: underline; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        table th, table td { padding: 12px; text-align: left; border-bottom: 1px solid #e0e0e0; color: #333333; }
+        table th { background: #f0f0f0; color: #2563eb; font-weight: 600; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f5f5f5; }
+        ::-webkit-scrollbar-thumb { background: #cccccc; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #2563eb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-header"><h1>🚀 Advanced Spring Boot</h1></div>
+            <div id="topicsList"></div>
+        </div>
+        <div class="content-area">
+            <a href="../src/index.html" class="back-link">← Back to Learning Hub</a>
+            <div id="contentArea" style="margin-top: 20px;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Define topics and data FIRST
+        const topics = [
+            // TIER 1
+            { id: 1, tier: "TIER 1: Fundamentals", title: "1. Spring vs Spring Framework", category: "TIER 1: Fundamentals" },
+            { id: 2, tier: "TIER 1: Fundamentals", title: "2. What is an Annotation?", category: "TIER 1: Fundamentals" },
+            { id: 3, tier: "TIER 1: Fundamentals", title: "3. Spring Bean Basics", category: "TIER 1: Fundamentals" },
+            { id: 4, tier: "TIER 1: Fundamentals", title: "4. @Component, @Service, @Repository, @Controller", category: "TIER 1: Fundamentals" },
+
+            // TIER 2
+            { id: 5, tier: "TIER 2: Core Concepts", title: "5. Bean Lifecycle - Complete Flow", category: "TIER 2: Core Concepts" },
+            { id: 6, tier: "TIER 2: Core Concepts", title: "6. Dependency Injection Methods", category: "TIER 2: Core Concepts" },
+            { id: 7, tier: "TIER 2: Core Concepts", title: "7. Bean Scopes (5 Types)", category: "TIER 2: Core Concepts" },
+            { id: 8, tier: "TIER 2: Core Concepts", title: "8. BeanFactory vs ApplicationContext", category: "TIER 2: Core Concepts" },
+
+            // TIER 3
+            { id: 9, tier: "TIER 3: Advanced Patterns", title: "9. Spring AOP & Proxy-Based Annotations", category: "TIER 3: Advanced Patterns" },
+            { id: 10, tier: "TIER 3: Advanced Patterns", title: "10. @Transactional - How It Works", category: "TIER 3: Advanced Patterns" },
+            { id: 11, tier: "TIER 3: Advanced Patterns", title: "11. @Cacheable - Problems & Solutions", category: "TIER 3: Advanced Patterns" },
+            { id: 12, tier: "TIER 3: Advanced Patterns", title: "12. Circular Dependencies", category: "TIER 3: Advanced Patterns" },
+            { id: 13, tier: "TIER 3: Advanced Patterns", title: "13. Self-Invocation Problem", category: "TIER 3: Advanced Patterns" },
+
+            // TIER 4
+            { id: 14, tier: "TIER 4: Production Challenges", title: "14. @Retryable - Automatic Retry", category: "TIER 4: Production Challenges" },
+            { id: 15, tier: "TIER 4: Production Challenges", title: "15. Memory Leaks in Spring Boot", category: "TIER 4: Production Challenges" },
+            { id: 16, tier: "TIER 4: Production Challenges", title: "16. Thread Pool vs Connection Pool", category: "TIER 4: Production Challenges" },
+            { id: 17, tier: "TIER 4: Production Challenges", title: "17. Debugging REST API 500 Errors", category: "TIER 4: Production Challenges" },
+            { id: 18, tier: "TIER 4: Production Challenges", title: "18. Scheduled Tasks Not Running", category: "TIER 4: Production Challenges" },
+
+            // TIER 5
+            { id: 19, tier: "TIER 5: Configuration", title: "19. Spring Boot Auto Configuration", category: "TIER 5: Configuration" },
+            { id: 20, tier: "TIER 5: Configuration", title: "20. Starter Dependencies", category: "TIER 5: Configuration" },
+            { id: 21, tier: "TIER 5: Configuration", title: "21. Profiles (Dev, Test, Prod)", category: "TIER 5: Configuration" },
+            { id: 22, tier: "TIER 5: Configuration", title: "22. External Configuration", category: "TIER 5: Configuration" },
+            { id: 23, tier: "TIER 5: Configuration", title: "23. @ConfigurationProperties", category: "TIER 5: Configuration" },
+
+            // TIER 6
+            { id: 24, tier: "TIER 6: Advanced Features", title: "24. Spring Events & Async", category: "TIER 6: Advanced Features" },
+            { id: 25, tier: "TIER 6: Advanced Features", title: "25. Resource Loading", category: "TIER 6: Advanced Features" },
+            { id: 26, tier: "TIER 6: Advanced Features", title: "26. Exception Handling", category: "TIER 6: Advanced Features" },
+            { id: 27, tier: "TIER 6: Advanced Features", title: "27. Validation with @Valid", category: "TIER 6: Advanced Features" },
+            { id: 28, tier: "TIER 6: Advanced Features", title: "28. Spring Boot Actuator", category: "TIER 6: Advanced Features" },
+            { id: 29, tier: "TIER 6: Advanced Features", title: "29. Logging & Log Levels", category: "TIER 6: Advanced Features" },
+
+            // TIER 7
+            { id: 30, tier: "TIER 7: Real-World", title: "30. Microservices Best Practices", category: "TIER 7: Real-World" },
+            { id: 31, tier: "TIER 7: Real-World", title: "31. Cloud-Native Applications", category: "TIER 7: Real-World" },
+
+            // TIER 8 - Production Debugging
+            { id: 32, tier: "TIER 8: Production Debugging", title: "32. Debugging Memory Leaks with Heap Dumps", category: "TIER 8: Production Debugging" },
+            { id: 33, tier: "TIER 8: Production Debugging", title: "33. Understanding @Transactional Call Chain", category: "TIER 8: Production Debugging" },
+            { id: 34, tier: "TIER 8: Production Debugging", title: "34. Why @Cacheable Stops Working", category: "TIER 8: Production Debugging" },
+            { id: 35, tier: "TIER 8: Production Debugging", title: "35. Resolving Circular Dependencies", category: "TIER 8: Production Debugging" },
+            { id: 36, tier: "TIER 8: Production Debugging", title: "36. Debugging Intermittent 500 Errors", category: "TIER 8: Production Debugging" },
+            { id: 37, tier: "TIER 8: Production Debugging", title: "37. Scheduled Tasks Not Running", category: "TIER 8: Production Debugging" },
+            { id: 38, tier: "TIER 8: Production Debugging", title: "38. @Autowired vs Constructor vs Setter", category: "TIER 8: Production Debugging" },
+
+            // TIER 9 - Advanced Spring Boot Internals
+            { id: 39, tier: "TIER 9: Advanced Internals", title: "39. Spring Boot Auto-Configuration Decision Tree", category: "TIER 9: Advanced Internals" },
+            { id: 40, tier: "TIER 9: Advanced Internals", title: "40. What Happens When Adding spring-boot-starter-web", category: "TIER 9: Advanced Internals" },
+            { id: 41, tier: "TIER 9: Advanced Internals", title: "41. Convention Over Configuration Philosophy", category: "TIER 9: Advanced Internals" },
+            { id: 42, tier: "TIER 9: Advanced Internals", title: "42. How application.properties Is Loaded", category: "TIER 9: Advanced Internals" },
+            { id: 43, tier: "TIER 9: Advanced Internals", title: "43. Complete Spring Boot Startup Flow", category: "TIER 9: Advanced Internals" },
+            { id: 44, tier: "TIER 9: Advanced Internals", title: "44. @ComponentScan vs @SpringBootApplication", category: "TIER 9: Advanced Internals" },
+            { id: 45, tier: "TIER 9: Advanced Internals", title: "45. Embedded Tomcat Auto-Detection", category: "TIER 9: Advanced Internals" },
+            { id: 46, tier: "TIER 9: Advanced Internals", title: "46. Multiple Beans of Same Type Without @Qualifier", category: "TIER 9: Advanced Internals" },
+            { id: 47, tier: "TIER 9: Advanced Internals", title: "47. Profile-Specific Configuration Loading", category: "TIER 9: Advanced Internals" },
+            { id: 48, tier: "TIER 9: Advanced Internals", title: "48. SpringFactoriesLoader Deep Dive", category: "TIER 9: Advanced Internals" },
+            { id: 49, tier: "TIER 9: Advanced Internals", title: "49. XML Configuration Elimination Strategy", category: "TIER 9: Advanced Internals" },
+            { id: 50, tier: "TIER 9: Advanced Internals", title: "50. @RestController vs @Controller Internals", category: "TIER 9: Advanced Internals" },
+            { id: 51, tier: "TIER 9: Advanced Internals", title: "51. Dependency Version Management in Spring Boot", category: "TIER 9: Advanced Internals" },
+            { id: 52, tier: "TIER 9: Advanced Internals", title: "52. Complete Spring Bean Lifecycle (Deep)", category: "TIER 9: Advanced Internals" },
+            { id: 53, tier: "TIER 9: Advanced Internals", title: "53. Externalized Configuration Hierarchy", category: "TIER 9: Advanced Internals" },
+            { id: 54, tier: "TIER 9: Advanced Internals", title: "54. application.yml vs application.properties Priority", category: "TIER 9: Advanced Internals" },
+            { id: 55, tier: "TIER 9: Advanced Internals", title: "55. Spring Boot Actuator Integration", category: "TIER 9: Advanced Internals" },
+            { id: 56, tier: "TIER 9: Advanced Internals", title: "56. @Configuration vs Plain Class Difference", category: "TIER 9: Advanced Internals" },
+            { id: 57, tier: "TIER 9: Advanced Internals", title: "57. Auto-Creating DataSource (HikariCP)", category: "TIER 9: Advanced Internals" },
+            { id: 58, tier: "TIER 9: Advanced Internals", title: "58. CommandLineRunner vs ApplicationRunner", category: "TIER 9: Advanced Internals" },
+            { id: 59, tier: "TIER 9: Advanced Internals", title: "59. Exception Translation in Spring Data", category: "TIER 9: Advanced Internals" },
+            { id: 60, tier: "TIER 9: Advanced Internals", title: "60. @EnableAutoConfiguration vs @Import", category: "TIER 9: Advanced Internals" },
+            { id: 61, tier: "TIER 9: Advanced Internals", title: "61. Excluding Auto-Configuration Classes", category: "TIER 9: Advanced Internals" },
+            { id: 62, tier: "TIER 9: Advanced Internals", title: "62. Spring Boot for Microservices Architecture", category: "TIER 9: Advanced Internals" },
+            { id: 63, tier: "TIER 9: Advanced Internals", title: "63. Fat JAR vs Thin JAR Comparison", category: "TIER 9: Advanced Internals" },
+            { id: 64, tier: "TIER 9: Advanced Internals", title: "64. Logging Strategy in Spring Boot", category: "TIER 9: Advanced Internals" },
+            { id: 65, tier: "TIER 9: Advanced Internals", title: "65. Server Port Priority and Resolution", category: "TIER 9: Advanced Internals" },
+            { id: 66, tier: "TIER 9: Advanced Internals", title: "66. REST Endpoint Request Flow (Complete)", category: "TIER 9: Advanced Internals" },
+            { id: 67, tier: "TIER 9: Advanced Internals", title: "67. Cloud-Native Application Requirements", category: "TIER 9: Advanced Internals" },
+            { id: 68, tier: "TIER 9: Advanced Internals", title: "68. Common Spring Boot Performance Mistakes", category: "TIER 9: Advanced Internals" },
+            { id: 69, tier: "TIER 9: Advanced Internals", title: "69. Spring Boot Testing Best Practices", category: "TIER 9: Advanced Internals" }
+        ];
+
+        const topicsData = {
+            1: {
+                title: "Spring vs Spring Framework",
+                content: `<div class="content-header"><h2>Spring vs Spring Framework</h2><p>Understanding the relationship between Spring Framework and Spring Boot</p></div>
+                <div class="content-body"><h3>Problem</h3><p>Java development is complex with lot of boilerplate code. Manual object creation and dependency management is tedious.</p>
+                <h3>Solution - Spring Framework</h3><ul><li>Provides Dependency Injection (IoC Container)</li><li>Manages object lifecycle</li><li>Adds AOP (Aspect-Oriented Programming)</li><li>Provides MVC for web applications</li><li>Transaction management</li><li>Security framework</li></ul>
+                <h3>Problem with Old Spring</h3><p>Requires XML configuration (very verbose), too much manual setup, steep learning curve.</p>
+                <h3>Solution - Spring Boot</h3><ul><li>Auto-configuration based on classpath</li><li>Minimal configuration required</li><li>Embedded server (no external Tomcat needed)</li><li>Starter dependencies</li><li>Production-ready in minutes</li></ul>
+                <h3>Key Difference</h3>
+                <div class="code-block">Spring Framework = Full-featured framework (requires lots of config)
+Spring Boot = Simplified Spring (minimal config + auto-setup)</div>
+                <div class="tip"><strong>Remember:</strong> Spring Boot is built on top of Spring Framework to make it easier to use.</div></div>`
+            },
+            2: {
+                title: "What is an Annotation?",
+                content: `<div class="content-header"><h2>What is an Annotation?</h2><p>Metadata attached to code that frameworks process</p></div>
+                <div class="content-body"><h3>Problem</h3><p>How does Spring know which class to manage? How to add metadata to code without changing logic?</p>
+                <h3>Solution - Annotations</h3><p>Annotations are metadata (information) attached to code.</p>
+                <h3>Key Points</h3><ul><li>They do NOT change code behavior directly</li><li>They provide information to: Compiler, JVM Runtime, Frameworks</li><li>Frameworks read annotations and take action</li></ul>
+                <h3>Examples</h3>
+                <div class="code-block">@Component                    // Spring creates bean
+@Override                     // Compiler verifies
+@Deprecated                   // Compiler warns
+@FunctionalInterface          // Compiler checks</div>
+                <h3>How Spring Uses Annotations</h3>
+                <div class="code-block">@Service annotation on class
+    ↓
+Spring scans during startup
+    ↓
+Creates instance automatically
+    ↓
+Manages object lifecycle</div></div>`
+            },
+            3: {
+                title: "Spring Bean Basics",
+                content: `<div class="content-header"><h2>Spring Bean Basics</h2><p>Core concept of Spring IoC container</p></div>
+                <div class="content-body"><h3>Problem</h3><p>How to create objects in enterprise applications? Who manages object lifecycle? How to manage thousands of objects?</p>
+                <h3>Solution - Spring Beans</h3><p>A Spring Bean is an object managed by Spring's IoC container.</p>
+                <h3>How Beans Work</h3>
+                <div class="code-block">1. Class marked with @Component (or @Service, @Controller, etc.)
+2. Spring scans classpath at startup
+3. Creates instance automatically
+4. Stores in container
+5. Returns when requested via @Autowired</div>
+                <h3>Benefits</h3><ul><li>Centralized object management</li><li>Automatic lifecycle handling</li><li>Easy dependency injection</li><li>Singleton by default (single instance)</li></ul></div>`
+            },
+            4: {
+                title: "@Component, @Service, @Repository, @Controller",
+                content: `<div class="content-header"><h2>Stereotype Annotations</h2><p>Different types of Spring beans for different layers</p></div>
+                <div class="content-body"><h3>Problem</h3><p>All beans work the same way. How to distinguish different types of beans?</p>
+                <h3>@Component - Generic Component</h3>
+                <div class="code-block">@Component
+public class MyComponent { }</div>
+                <h3>@Service - Business Logic Layer</h3>
+                <div class="code-block">@Service
+public class UserService {
+    // business logic
+}</div>
+                <h3>@Repository - Data Access Layer</h3>
+                <div class="code-block">@Repository
+public class UserRepository {
+    // database operations
+}</div>
+                <h3>@Controller - Web Layer (Returns Views)</h3>
+                <div class="code-block">@Controller
+public class UserController {
+    @GetMapping("/users")
+    public String getUsers() {
+        return "users";  // returns view
+    }
+}</div>
+                <h3>@RestController - Web Layer (Returns JSON)</h3>
+                <div class="code-block">@RestController
+public class UserAPIController {
+    @GetMapping("/users")
+    public List<User> getUsers() {
+        return users;  // returns JSON
+    }
+}</div>
+                <h3>Key Difference</h3><ul><li>All extend @Component</li><li>Each adds type-specific behavior</li><li>@Service = business logic marker</li><li>@Repository = DAO with exception translation</li><li>@Controller = web handler (view rendering)</li><li>@RestController = API handler (JSON response)</li></ul></div>`
+            },
+            5: {
+                title: "Bean Lifecycle - Complete Flow",
+                content: `<div class="content-header"><h2>Bean Lifecycle - 8 Steps</h2><p>From creation to destruction</p></div>
+                <div class="content-body"><h3>Problem</h3><p>When is bean created? When are dependencies injected? When can bean be used? How is bean destroyed?</p>
+                <h3>STEP 1: Bean Instantiation (Constructor)</h3>
+                <div class="code-block">@Component
+public class Battery {
+    public Battery() {
+        System.out.println("Battery created");
+    }
+}
+
+// Output: Battery created</div>
+                <h3>STEP 2: Dependency Injection</h3>
+                <div class="code-block">@Component
+public class Car {
+    private Battery battery;
+
+    @Autowired
+    public Car(Battery battery) {
+        this.battery = battery;  // Injected here
+    }
+}</div>
+                <h3>STEPS 3-4: Aware Interfaces & BeanPostProcessor (Before)</h3><p>Spring provides beans with framework references and internal pre-processing.</p>
+                <h3>STEP 5: Bean Initialization (3 Ways)</h3>
+                <div class="code-block">// Method 1: @PostConstruct (PREFERRED)
+@PostConstruct
+public void init() {
+    System.out.println("Battery initialized");
+}
+
+// Method 2: InitializingBean Interface
+public class Car implements InitializingBean {
+    @Override
+    public void afterPropertiesSet() {
+        System.out.println("Car initialized");
+    }
+}</div>
+                <h3>STEP 6: BeanPostProcessor (After Init)</h3><p>Proxy creation and AOP enhancement happens here. This is where @Transactional and @Cacheable get their interceptors.</p>
+                <h3>STEP 7: Bean Ready to Use</h3><p>Bean is now available for injection and use throughout application.</p>
+                <h3>STEP 8: Bean Destruction</h3>
+                <div class="code-block">// Method 1: @PreDestroy
+@PreDestroy
+public void cleanup() {
+    System.out.println("Cleaning up resources");
+    connection.close();
+}</div>
+                <h3>Complete Flow Visualization</h3>
+                <div class="code-block">Constructor Called
+    ↓
+Dependencies Injected
+    ↓
+Aware Interfaces Methods
+    ↓
+BeanPostProcessor.beforeInit()
+    ↓
+@PostConstruct / afterPropertiesSet()
+    ↓
+BeanPostProcessor.afterInit()
+    ↓
+Bean Ready to Use
+    ↓
+(Application Runs)
+    ↓
+@PreDestroy / destroy()
+    ↓
+Bean Destroyed</div></div>`
+            },
+            6: {
+                title: "Dependency Injection Methods",
+                content: `<div class="content-header"><h2>Three Ways to Inject Dependencies</h2><p>Constructor, Setter, and Field Injection</p></div>
+                <div class="content-body"><h3>METHOD 1: Field Injection (NOT RECOMMENDED)</h3>
+                <div class="code-block">@Service
+public class UserService {
+    @Autowired
+    private UserRepository repository;
+}</div>
+                <h3>Problems</h3><ul><li>Hard to test (need Spring context)</li><li>Cannot create objects in constructor</li><li>Hidden dependencies</li><li>Mutable (can be set anytime)</li><li>NullPointerException risk</li></ul>
+                <h3>METHOD 2: Setter Injection (SOMETIMES)</h3>
+                <div class="code-block">@Service
+public class UserService {
+    private UserRepository repository;
+
+    @Autowired
+    public void setRepository(UserRepository repository) {
+        this.repository = repository;
+    }
+}</div>
+                <h3>Pros & Cons</h3><ul><li>✅ Can test without Spring</li><li>✅ Useful for optional dependencies</li><li>❌ Mutable state</li><li>❌ Not all dependencies visible</li></ul>
+                <h3>METHOD 3: Constructor Injection (PREFERRED)</h3>
+                <div class="code-block">@Service
+public class UserService {
+    private final UserRepository repository;
+
+    public UserService(UserRepository repository) {
+        this.repository = repository;
+    }
+}</div>
+                <h3>Why Constructor Injection is Best</h3><ul><li>✅ Dependencies visible in constructor signature</li><li>✅ Immutable (final keyword)</li><li>✅ Easy to test</li><li>✅ All dependencies required at creation time</li><li>✅ Thread-safe</li><li>✅ Clear dependency contract</li></ul>
+                <h3>Spring Recommendation</h3>
+                <div class="code-block">Constructor Injection > Setter Injection > Field Injection</div></div>`
+            },
+            7: {
+                title: "Bean Scopes - 5 Types",
+                content: `<div class="content-header"><h2>Bean Scopes</h2><p>How many instances and how long they live</p></div>
+                <div class="content-body"><h3>SCOPE 1: Singleton (DEFAULT)</h3>
+                <div class="code-block">@Component
+@Scope("singleton")  // optional, default
+public class MyService { }</div>
+                <ul><li>Only ONE instance for entire application</li><li>Shared across all requests</li><li>Lives until application shuts down</li><li>Must be thread-safe</li><li>Use for stateless services</li></ul>
+                <h3>SCOPE 2: Prototype</h3>
+                <div class="code-block">@Component
+@Scope("prototype")
+public class MyService { }</div>
+                <ul><li>NEW instance for every request</li><li>Each client gets own instance</li><li>Developer responsible for cleanup</li><li>Use for stateful beans</li><li>⚠️ @PreDestroy NOT called for prototype beans!</li></ul>
+                <h3>SCOPE 3: Request (Web Only)</h3>
+                <div class="code-block">@Component
+@Scope("request")
+public class RequestLogger { }</div>
+                <ul><li>NEW instance per HTTP request</li><li>Dies when request completes</li><li>Use for request tracking</li></ul>
+                <h3>SCOPE 4: Session (Web Only)</h3>
+                <div class="code-block">@Component
+@Scope("session")
+public class UserSession { }</div>
+                <ul><li>NEW instance per user session</li><li>Survives multiple requests from same user</li><li>Dies when session expires</li><li>Use for shopping carts, user preferences</li></ul>
+                <h3>SCOPE 5: Application (Web Only)</h3>
+                <div class="code-block">@Component
+@Scope("application")
+public class GlobalCounter { }</div>
+                <ul><li>ONE instance per ServletContext</li><li>Similar to singleton but ServletContext-specific</li></ul>
+                <h3>Scope Comparison Table</h3>
+                <table>
+                <tr><th>Scope</th><th>Instances</th><th>Lifespan</th><th>Use Case</th></tr>
+                <tr><td>Singleton</td><td>1</td><td>App lifetime</td><td>Services</td></tr>
+                <tr><td>Prototype</td><td>Many</td><td>Variable</td><td>Stateful</td></tr>
+                <tr><td>Request</td><td>Many</td><td>1 request</td><td>Per-request</td></tr>
+                <tr><td>Session</td><td>Many</td><td>User session</td><td>User data</td></tr>
+                <tr><td>Application</td><td>1</td><td>App + context</td><td>Global state</td></tr>
+                </table></div>`
+            },
+            8: {
+                title: "BeanFactory vs ApplicationContext",
+                content: `<div class="content-header"><h2>BeanFactory vs ApplicationContext</h2><p>Two container implementations</p></div>
+                <div class="content-body"><h3>BeanFactory - The Simple Container</h3>
+                <div class="code-block">Creates beans
+Injects dependencies
+Manages lifecycle
+Returns beans when requested</div>
+                <h3>Key Features of BeanFactory</h3><ul><li>Root interface of Spring IoC</li><li>Stores bean definitions</li><li>Lazy initialization (beans created only when requested)</li><li>Basic bean management</li></ul>
+                <h3>ApplicationContext - The Enterprise Container</h3>
+                <div class="code-block">Everything BeanFactory does +
+AOP support
+Event publishing
+Internationalization
+Resource loading
+Transaction support
+Bean post-processing</div>
+                <h3>Key Features of ApplicationContext</h3><ul><li>Built on top of BeanFactory</li><li>Eager initialization (beans created at startup)</li><li>Full enterprise features</li><li>Most commonly used</li></ul>
+                <h3>Lazy vs Eager Initialization</h3>
+                <div class="code-block">BeanFactory (Lazy):
+- Startup takes less time
+- Beans not created yet
+- First request creates bean (slower)
+
+ApplicationContext (Eager):
+- Startup takes longer
+- All beans created immediately
+- Instant response on first request
+- Catch errors early</div>
+                <h3>Comparison Table</h3>
+                <table>
+                <tr><th>Feature</th><th>BeanFactory</th><th>ApplicationContext</th></tr>
+                <tr><td>Bean creation</td><td>Lazy</td><td>Eager</td></tr>
+                <tr><td>AOP</td><td>❌ Limited</td><td>✅ Full</td></tr>
+                <tr><td>Events</td><td>❌ No</td><td>✅ Yes</td></tr>
+                <tr><td>i18n</td><td>❌ No</td><td>✅ Yes</td></tr>
+                <tr><td>Resource loading</td><td>❌ Basic</td><td>✅ Advanced</td></tr>
+                <tr><td>Usage</td><td>Rare</td><td>Common</td></tr>
+                </table></div>`
+            },
+            9: {
+                title: "Spring AOP & Proxy-Based Annotations",
+                content: `<div class="content-header"><h2>Spring AOP & Proxies</h2><p>How annotations like @Transactional work behind the scenes</p></div>
+                <div class="content-body"><h3>Problem</h3><p>How does @Transactional work? How does @Cacheable work? Why does self-invocation break these annotations?</p>
+                <h3>Solution - Understanding Proxies</h3>
+                <div class="code-block">Client → Proxy → Actual Bean
+
+The proxy intercepts calls and adds behavior</div>
+                <h3>How @Transactional Works</h3>
+                <div class="code-block">@Service
+public class UserService {
+    @Transactional
+    public void saveUser(User user) {
+        // This is wrapped by proxy
+    }
+}
+
+// What actually happens:
+UserServiceProxy.saveUser(user) {
+    transaction.begin();
+    try {
+        userService.saveUser(user);   // Actual method
+        transaction.commit();
+    } catch (Exception e) {
+        transaction.rollback();
+        throw e;
+    }
+}</div>
+                <h3>The Rule for Proxy-Based Annotations</h3>
+                <div class="code-block">Method must be called through Spring proxy
+(from external bean)
+
+NOT from within same bean</div>
+                <h3>Which Annotations Use Proxies?</h3><ul><li>@Transactional</li><li>@Cacheable</li><li>@Retryable</li><li>@Async</li><li>@Secured</li><li>@PreAuthorize</li></ul>
+                <div class="tip"><strong>Critical:</strong> For proxy-based annotations to work, the method must be called from outside the class (through Spring proxy), not internally.</div></div>`
+            },
+            10: {
+                title: "@Transactional - How It Works",
+                content: `<div class="content-header"><h2>@Transactional Annotation</h2><p>Database transaction management</p></div>
+                <div class="content-body"><h3>Problem</h3><p>How to manage database transactions? What happens if error occurs mid-transaction? What is rollback?</p>
+                <h3>Basic Usage</h3>
+                <div class="code-block">@Service
+public class UserService {
+    @Transactional
+    public void saveUser(User user) {
+        repository.save(user);
+        // Automatically committed when method ends
+    }
+}</div>
+                <h3>What Happens - Success Case</h3>
+                <div class="code-block">Method starts
+    ↓
+Transaction begins
+    ↓
+Database operations
+    ↓
+Method succeeds
+    ↓
+Transaction committed
+    ↓
+Data persisted</div>
+                <h3>What Happens - Error Case</h3>
+                <div class="code-block">Method starts
+    ↓
+Transaction begins
+    ↓
+Database operations
+    ↓
+Exception thrown
+    ↓
+Transaction rolled back
+    ↓
+Data reverted to original state</div>
+                <h3>Advanced: Rollback on Specific Exceptions</h3>
+                <div class="code-block">@Transactional(rollbackFor = IOException.class)
+public void processFile() throws IOException {
+    // Rollsback on IOException too
+}</div>
+                <h3>Advanced: Nested Transactions</h3>
+                <div class="code-block">@Transactional
+public void outer() {
+    inner();  // ❌ Won't create new transaction
+}
+
+@Transactional(propagation = Propagation.REQUIRES_NEW)
+public void inner() {
+    // ✅ Now creates separate transaction
+}</div></div>`
+            },
+            11: {
+                title: "@Cacheable - Problems & Solutions",
+                content: `<div class="content-header"><h2>@Cacheable Annotation</h2><p>Caching method results</p></div>
+                <div class="content-body"><h3>Problem</h3><p>Database queries are slow. Same data requested repeatedly. How to cache results?</p>
+                <h3>Basic Usage</h3>
+                <div class="code-block">@Service
+public class UserService {
+    @Cacheable("users")
+    public User getUser(Long id) {
+        return database.fetch(id);  // Called once, result cached
+    }
+}</div>
+                <h3>How Caching Works</h3>
+                <div class="code-block">Request 1: getUser(5)
+    ↓
+Database hit
+    ↓
+Result cached
+    ↓
+Request 2: getUser(5)
+    ↓
+Cache hit (no database call)
+    ↓
+Return cached result</div>
+                <h3>PROBLEM 1: Self-Invocation</h3>
+                <div class="code-block">// ❌ WRONG: Cache not used (self-invocation)
+@Service
+public class UserService {
+    @Cacheable("users")
+    public User getUser(Long id) {
+        return database.fetch(id);
+    }
+
+    public void process() {
+        getUser(5);  // Calls directly, bypasses proxy
+    }
+}</div>
+                <h3>Solution: Inject Self</h3>
+                <div class="code-block">@Service
+public class UserService {
+    @Autowired
+    private UserService self;
+
+    @Cacheable("users")
+    public User getUser(Long id) {
+        return database.fetch(id);
+    }
+
+    public void process() {
+        self.getUser(5);  // ✅ Now goes through proxy
+    }
+}</div>
+                <h3>PROBLEM 2: Empty Optional Cached</h3>
+                <div class="code-block">@Cacheable("users")
+public Optional<User> getUserOptional(Long id) {
+    return database.findOptional(id);
+}
+
+// Temporary error → returns Optional.empty()
+// Problem: Empty is cached → never recovers</div>
+                <h3>Solution: Don't Cache Empty Results</h3>
+                <div class="code-block">@Cacheable(
+    value = "users",
+    unless = "#result == null || #result.isEmpty()"
+)
+public Optional<User> getUserOptional(Long id) {
+    return database.findOptional(id);
+}</div>
+                <h3>PROBLEM 3: No Cache Provider</h3>
+                <div class="code-block">@Cacheable("users")
+public User getUser(Long id) {
+    return database.fetch(id);
+}
+
+// ❌ UnsupportedOperationException
+// Why? No Cache Provider configured</div>
+                <h3>Solution: Add Cache Provider</h3>
+                <div class="code-block">Add dependency:
+- spring-boot-starter-cache
+- caffeine
+- redis
+
+Enable in config:
+@EnableCaching or application.properties
+
+Configure cache:
+spring.cache.type=caffeine</div></div>`
+            },
+            12: {
+                title: "Circular Dependencies",
+                content: `<div class="content-header"><h2>Circular Dependencies</h2><p>When beans depend on each other</p></div>
+                <div class="content-body"><h3>Problem</h3>
+                <div class="code-block">@Service
+public class ServiceA {
+    @Autowired
+    private ServiceB serviceB;  // Needs ServiceB
+}
+
+@Service
+public class ServiceB {
+    @Autowired
+    private ServiceA serviceA;  // Needs ServiceA
+}</div>
+                <h3>What Happens</h3>
+                <div class="code-block">Spring tries to create ServiceA
+    ↓
+Needs ServiceB
+    ↓
+Spring tries to create ServiceB
+    ↓
+Needs ServiceA
+    ↓
+ServiceA not ready yet
+    ↓
+CircularDependencyException thrown</div>
+                <h3>SOLUTION 1: Setter Injection</h3>
+                <div class="code-block">@Service
+public class ServiceA {
+    private ServiceB serviceB;
+
+    @Autowired
+    public void setServiceB(ServiceB serviceB) {
+        this.serviceB = serviceB;
+    }
+}
+
+@Service
+public class ServiceB {
+    private ServiceA serviceA;
+
+    @Autowired
+    public void setServiceA(ServiceA serviceA) {
+        this.serviceA = serviceA;
+    }
+}</div>
+                <h3>Why It Works</h3>
+                <div class="code-block">Spring creates ServiceA (constructor only)
+Spring creates ServiceB (constructor only)
+Spring calls setServiceB on A
+Spring calls setServiceA on B
+Both beans now have references
+Circular dependency resolved!</div>
+                <h3>SOLUTION 2: @Lazy Annotation</h3>
+                <div class="code-block">@Service
+public class ServiceA {
+    @Autowired
+    @Lazy
+    private ServiceB serviceB;  // Proxy created, not actual bean
+}
+
+@Service
+public class ServiceB {
+    @Autowired
+    private ServiceA serviceA;
+}</div>
+                <h3>SOLUTION 3: Refactor Design</h3>
+                <div class="code-block">Instead of circular dependency:
+ServiceA → ServiceC ← ServiceB
+
+No circular dependency!</div></div>`
+            },
+            13: {
+                title: "Self-Invocation Problem",
+                content: `<div class="content-header"><h2>Self-Invocation Problem</h2><p>When internal method calls bypass proxies</p></div>
+                <div class="content-body"><h3>Problem</h3><p>Spring proxies only work for external calls. Internal method calls bypass proxy.</p>
+                <h3>Affected Annotations</h3><ul><li>@Transactional</li><li>@Cacheable</li><li>@Retryable</li><li>@Async</li><li>@Scheduled</li></ul>
+                <h3>Example - @Transactional Self-Invocation</h3>
+                <div class="code-block">@Service
+public class UserService {
+    @Transactional
+    public void updateUser(User user) {
+        repository.save(user);
+    }
+
+    public void moveUser() {
+        updateUser(user);  // ❌ No transaction!
+    }
+}</div>
+                <h3>Example - @Async Self-Invocation</h3>
+                <div class="code-block">@Service
+public class TaskService {
+    @Async
+    public void runAsync() {
+        Thread.sleep(5000);  // Long operation
+    }
+
+    public void process() {
+        runAsync();  // ❌ Runs synchronously!
+    }
+}</div>
+                <h3>SOLUTION 1: Inject ApplicationContext</h3>
+                <div class="code-block">@Service
+public class UserService {
+    @Autowired
+    private ApplicationContext context;
+
+    @Transactional
+    public void updateUser(User user) {
+        repository.save(user);
+    }
+
+    public void moveUser() {
+        UserService proxy = context.getBean(UserService.class);
+        proxy.updateUser(user);  // ✅ Goes through proxy
+    }
+}</div>
+                <h3>SOLUTION 2: Inject Self</h3>
+                <div class="code-block">@Service
+public class UserService {
+    @Autowired
+    private UserService self;
+
+    @Transactional
+    public void updateUser(User user) {
+        repository.save(user);
+    }
+
+    public void moveUser() {
+        self.updateUser(user);  // ✅ Goes through proxy
+    }
+}</div>
+                <h3>SOLUTION 3: Refactor (BEST)</h3>
+                <div class="code-block">@Service
+public class UserService {
+    @Autowired
+    private UserHelper helper;
+
+    public void moveUser() {
+        helper.updateUser(user);  // ✅ External call
+    }
+}
+
+@Service
+public class UserHelper {
+    @Transactional
+    public void updateUser(User user) {
+        repository.save(user);
+    }
+}</div>
+                <h3>Why Refactoring is Best</h3><ul><li>✅ No circular dependency</li><li>✅ Clear separation of concerns</li><li>✅ Follows SRP (Single Responsibility)</li><li>✅ No need for ApplicationContext injection</li></ul></div>`
+            },
+            14: {
+                title: "@Retryable - Automatic Retry",
+                content: `<div class="content-header"><h2>@Retryable Annotation</h2><p>Automatic retry mechanism for transient failures</p></div>
+                <div class="content-body"><h3>Problem</h3><p>External API sometimes fails temporarily. Database connections sometimes drop. Should retry automatically.</p>
+                <h3>Dependencies</h3>
+                <div class="code-block">spring-retry
+spring-aspects</div>
+                <h3>Enable Retry</h3>
+                <div class="code-block">@Configuration
+@EnableRetry
+public class RetryConfig { }</div>
+                <h3>Basic Usage</h3>
+                <div class="code-block">@Service
+public class APIClient {
+    @Retryable(
+        retryFor = HttpServerErrorException.class,
+        maxAttempts = 3
+    )
+    public Response fetchData(String id) {
+        return restTemplate.getForObject("/api/data/" + id, Response.class);
+    }
+}</div>
+                <h3>What Happens</h3>
+                <div class="code-block">Attempt 1: Call API
+    ↓
+Fails with HTTP 503
+    ↓
+Attempt 2: Retry
+    ↓
+Fails with HTTP 503
+    ↓
+Attempt 3: Retry
+    ↓
+Succeeds
+    ↓
+Return response</div>
+                <h3>Advanced: Backoff Strategy</h3>
+                <div class="code-block">@Retryable(
+    retryFor = HttpServerErrorException.class,
+    maxAttempts = 3,
+    backoff = @Backoff(
+        delay = 1000,      // 1 second
+        multiplier = 2.0   // 2x multiplier
+    )
+)
+public Response fetchData(String id) {
+    return restTemplate.getForObject("/api/data/" + id, Response.class);
+}
+
+Retry Timing:
+Attempt 1: Immediate
+Attempt 2: After 1 second
+Attempt 3: After 2 seconds</div>
+                <h3>Advanced: Fallback with @Recover</h3>
+                <div class="code-block">@Recover
+public Response recover(HttpServerErrorException ex, String id) {
+    log.error("All retries failed for id: " + id, ex);
+    return new Response();  // Default response
+}
+
+Flow:
+Attempt 1: Fails
+Attempt 2: Fails
+Attempt 3: Fails
+    ↓
+@Recover executes
+    ↓
+Returns default response</div>
+                <h3>CRITICAL: Exception Must Escape Method</h3>
+                <div class="code-block">// ❌ WRONG: Exception swallowed, no retry
+@Retryable(...)
+public Response call() {
+    try {
+        return api.call();
+    } catch (Exception e) {
+        return null;
+    }
+}
+
+// ✅ CORRECT: Exception escapes, retry happens
+@Retryable(...)
+public Response call() {
+    return api.call();
+}</div>
+                <h3>When to Retry</h3>
+                <div class="code-block">Good Exceptions (Transient):
+- HTTP 503 Service Unavailable
+- HTTP 504 Gateway Timeout
+- Socket timeout
+- Connection reset
+
+Bad Exceptions (Permanent):
+- HTTP 400 Bad Request
+- HTTP 401 Unauthorized
+- Validation errors
+- Business logic errors</div></div>`
+            },
+            15: {
+                title: "Memory Leaks in Spring Boot",
+                content: `<div class="content-header"><h2>Memory Leaks in Spring Boot</h2><p>Detecting and fixing memory leak issues</p></div>
+                <div class="content-body"><h3>Problem</h3><p>Memory usage keeps increasing. OutOfMemoryError after running for days. How to debug?</p>
+                <h3>CAUSE 1: Static Collections Never Cleared</h3>
+                <div class="code-block">// ❌ WRONG: Static!
+@Service
+public class CacheService {
+    private static List<User> users = new ArrayList<>();
+
+    public void addUser(User user) {
+        users.add(user);  // Adding forever, never removed
+    }
+}
+
+// ✅ FIX: Use Spring's cache
+@Service
+public class CacheService {
+    @Cacheable("users")
+    public List<User> getUsers() {
+        return repository.findAll();
+    }
+}</div>
+                <h3>CAUSE 2: Unclosed Resource</h3>
+                <div class="code-block">// ❌ WRONG: Never closed! Leak!
+@Service
+public class FileService {
+    public String readFile(String path) throws IOException {
+        FileInputStream fis = new FileInputStream(path);
+        return new String();
+    }
+}
+
+// ✅ FIX: Try-with-resources
+@Service
+public class FileService {
+    public String readFile(String path) throws IOException {
+        try (FileInputStream fis = new FileInputStream(path)) {
+            return new String(fis.readAllBytes());
+        }
+    }
+}</div>
+                <h3>CAUSE 3: Database Connection Not Returned</h3>
+                <div class="code-block">// ❌ WRONG: Never closed! Connection pool depleted
+@Service
+public class UserService {
+    public User getUser(Long id) {
+        Connection con = dataSource.getConnection();
+        return null;
+    }
+}
+
+// ✅ FIX: Try-with-resources
+@Service
+public class UserService {
+    public User getUser(Long id) {
+        try (Connection con = dataSource.getConnection()) {
+            return queryDatabase(con, id);
+        }
+    }
+}</div>
+                <h3>CAUSE 4: Listeners Never Unregistered</h3>
+                <div class="code-block">// ❌ WRONG: Never unsubscribed
+@Service
+public class EventService {
+    @PostConstruct
+    public void register() {
+        eventPublisher.subscribe(this);
+    }
+}
+
+// ✅ FIX: Clean up
+@Service
+public class EventService {
+    @PostConstruct
+    public void register() {
+        eventPublisher.subscribe(this);
+    }
+
+    @PreDestroy
+    public void unregister() {
+        eventPublisher.unsubscribe(this);
+    }
+}</div>
+                <h3>How to Debug Memory Leaks</h3>
+                <div class="code-block">Step 1: Monitor Memory
+jps                     # List Java processes
+jstat -gc <PID> 1000    # Monitor garbage collection
+
+Step 2: Capture Heap Dump
+jmap -dump:live,format=b,file=heap.bin <PID>
+
+Step 3: Analyze with Tools
+- Eclipse Memory Analyzer (MAT)
+- JProfiler
+- VisualVM
+
+Step 4: Look for:
+- Growing collections
+- Unreleased resources
+- Circular references
+- Static references</div></div>`
+            },
+            16: {
+                title: "Thread Pool vs Connection Pool",
+                content: `<div class="content-header"><h2>Thread Pool vs Connection Pool</h2><p>Two different resource pools</p></div>
+                <div class="content-body"><h3>Problem</h3><p>Spring Boot handles concurrent requests. Need to understand threading vs database connections. Two different resource pools!</p>
+                <h3>THREAD POOL</h3>
+                <div class="code-block">Manages worker threads
+Executes HTTP requests
+Default size: 10-200 threads
+
+50 HTTP Requests
+    ↓
+20 Threads in Pool
+    ↓
+Each thread handles one request
+    ↓
+40 requests wait in queue</div>
+                <h3>Thread Pool Configuration</h3>
+                <div class="code-block">server.tomcat.threads.max=200      # Max threads
+server.tomcat.threads.min-spare=10 # Min threads
+server.tomcat.accept-count=100     # Queue size</div>
+                <h3>CONNECTION POOL</h3>
+                <div class="code-block">Manages database connections
+Reuses connections instead of creating new
+Default pool size: 10-20 connections
+
+20 Threads processing requests
+    ↓
+DB Connection Pool (10 connections)
+    ↓
+Multiple threads share connections
+    ↓
+If all busy, thread waits</div>
+                <h3>Connection Pool Configuration</h3>
+                <div class="code-block">spring.datasource.hikari.maximum-pool-size=20  # Max
+spring.datasource.hikari.minimum-idle=5        # Min
+spring.datasource.hikari.connection-timeout=30000  # Wait</div>
+                <h3>Key Differences</h3>
+                <table>
+                <tr><th>Resource</th><th>Threads</th><th>Connections</th></tr>
+                <tr><td>Purpose</td><td>Process requests</td><td>Database access</td></tr>
+                <tr><td>Count</td><td>10-200</td><td>5-20</td></tr>
+                <tr><td>Bottleneck</td><td>CPU</td><td>Database</td></tr>
+                <tr><td>Config</td><td>server.tomcat</td><td>spring.datasource</td></tr>
+                </table>
+                <h3>Example Scenario</h3>
+                <div class="code-block">20 HTTP threads
+10 DB connections
+50 requests arrive
+    ↓
+All 20 threads start
+    ↓
+All 10 connections used
+    ↓
+10 threads waiting for connections
+    ↓
+Other 30 requests wait in thread queue
+    ↓
+As connections return, waiting threads get them</div></div>`
+            },
+            17: {
+                title: "Debugging REST API 500 Errors",
+                content: `<div class="content-header"><h2>Debugging REST API 500 Errors</h2><p>Systematic approach to finding 500 errors</p></div>
+                <div class="content-body"><h3>Problem</h3><p>REST API intermittently returns 500 errors. Works sometimes, fails other times.</p>
+                <h3>Step 1: Check Application Logs</h3>
+                <div class="code-block">logging.level.root=DEBUG
+logging.level.com.yourcompany=DEBUG
+
+Look for:
+- Exception stack traces
+- Database errors
+- Timeout errors
+- Memory errors</div>
+                <h3>Step 2: Thread Dump Analysis</h3>
+                <div class="code-block">jstack <PID> > thread_dump.txt
+
+Look for:
+- Deadlocked threads
+- Threads waiting forever
+- High number of threads
+- Blocking operations</div>
+                <h3>Step 3: Check Resource Limits</h3>
+                <div class="code-block">Thread Pool Exhausted:
+All threads busy
+New request arrives
+No thread available
+Request timeout
+500 error
+
+Fix: server.tomcat.threads.max=500
+
+Connection Pool Exhausted:
+All connections busy
+Thread needs connection
+Waits timeout
+500 error
+
+Fix: spring.datasource.hikari.maximum-pool-size=50</div>
+                <h3>Step 4: Monitor Database</h3>
+                <div class="code-block">Slow Queries:
+Database query takes 30 seconds
+Request timeout is 10 seconds
+Request times out → 500 error
+
+Missing Indexes:
+SELECT * FROM users WHERE email = ?;  -- ❌ Slow
+CREATE INDEX idx_email ON users(email);  -- ✅ Fast</div>
+                <h3>Step 5: Check External Service Calls</h3>
+                <div class="code-block">Timeout on External API:
+REST API call to payment service
+Timeout
+500 error returned to client
+
+Fix:
+spring.http.client.connectTimeout=5000
+spring.http.client.readTimeout=10000
+
+Add @Retryable for resilience</div>
+                <h3>Step 6: Create Reproduction Case</h3>
+                <div class="code-block">Load Test:
+ab -n 1000 -c 100 http://api.example.com/endpoint
+
+Look for:
+- At what load does it fail?
+- How many errors?
+- Response time pattern?</div></div>`
+            },
+            18: {
+                title: "Scheduled Tasks Not Running",
+                content: `<div class="content-header"><h2>Scheduled Tasks Not Running</h2><p>Common issues with @Scheduled</p></div>
+                <div class="content-body"><h3>Problem</h3><p>Created @Scheduled method but task never runs. No error message.</p>
+                <h3>CAUSE 1: Missing @EnableScheduling</h3>
+                <div class="code-block">// ❌ WRONG: Missing annotation
+@SpringBootApplication
+public class Application { }
+
+// ✅ FIX: Add @EnableScheduling
+@SpringBootApplication
+@EnableScheduling
+public class Application { }</div>
+                <h3>CAUSE 2: Method Not in Bean</h3>
+                <div class="code-block">// ❌ WRONG: Not a Spring bean
+public class MyScheduler {
+    @Scheduled(fixedRate = 5000)
+    public void run() { }
+}
+
+// ✅ FIX: Must be a bean
+@Component
+public class MyScheduler {
+    @Scheduled(fixedRate = 5000)
+    public void run() { }
+}</div>
+                <h3>CAUSE 3: Method is Private</h3>
+                <div class="code-block">// ❌ WRONG: Private (proxy can't access)
+@Scheduled(fixedRate = 5000)
+private void run() { }
+
+// ✅ FIX: Must be public
+@Scheduled(fixedRate = 5000)
+public void run() { }</div>
+                <h3>CAUSE 4: Wrong Cron Expression</h3>
+                <div class="code-block">// ❌ WRONG: Extra field
+@Scheduled(cron = "* * * * * * *")
+
+// ✅ CORRECT: 5 fields
+@Scheduled(cron = "0 * * * * *")  // Every minute
+
+Cron Format:
+Second  Minute  Hour  DayOfMonth  Month  DayOfWeek
+  0       0      9       *         *       *       (9 AM)
+  0       0      9       *         *     MON-FRI   (9 AM weekdays)</div>
+                <h3>CAUSE 5: Uncaught Exception</h3>
+                <div class="code-block">// ❌ WRONG: Exception kills scheduler
+@Scheduled(fixedRate = 5000)
+public void run() {
+    throw new RuntimeException();
+}
+
+// ✅ FIX: Catch and log
+@Scheduled(fixedRate = 5000)
+public void run() {
+    try {
+        // Business logic
+    } catch (Exception e) {
+        log.error("Scheduler failed", e);
+    }
+}</div>
+                <h3>DEBUGGING</h3>
+                <div class="code-block">logging.level.org.springframework.scheduling=DEBUG
+
+Enable Logs:
+[main] Starting ScheduledTaskRegistrar
+[main] Trigger 'run' in class 'MyScheduler'
+
+Test Method:
+@Scheduled(initialDelay = 1000, fixedRate = 5000)
+public void run() {
+    System.out.println("Task running at " + LocalDateTime.now());
+}</div></div>`
+            },
+            19: {
+                title: "Spring Boot Auto Configuration",
+                content: `<div class="content-header"><h2>Spring Boot Auto Configuration</h2><p>How Spring Boot configures itself automatically</p></div>
+                <div class="content-body"><h3>Problem</h3><p>Spring requires lots of configuration. Developers waste time on setup. Different configs for different features.</p>
+                <h3>Solution - Auto Configuration</h3>
+                <div class="code-block">@SpringBootApplication
+public class Application { }
+
+// Spring does:
+// 1. Scans classpath for dependencies
+// 2. Finds auto-configuration classes
+// 3. Applies matching configurations
+// 4. Creates beans automatically</div>
+                <h3>Example: Adding spring-boot-starter-data-jpa</h3>
+                <div class="code-block">Dependency added to classpath
+    ↓
+Spring detects Hibernate dependencies
+    ↓
+DataSource configuration found
+    ↓
+Auto-configuration:
+- Creates DataSource bean
+- Creates EntityManagerFactory
+- Creates TransactionManager
+- Creates JpaRepository support</div>
+                <h3>How to Verify Auto-Configuration</h3>
+                <div class="code-block">java -jar app.jar --debug | grep "AUTO-CONFIGURATION"
+
+Output:
+MatchedAutoConfiguration:
+- DataSourceAutoConfiguration
+- JpaAutoConfiguration
+- HibernateJpaAutoConfiguration
+
+DidNotMatchAutoConfiguration:
+- SecurityAutoConfiguration (not in classpath)</div>
+                <h3>Disable Auto Configuration</h3>
+                <div class="code-block">@SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
+public class Application { }
+
+Or in properties:
+spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration</div></div>`
+            },
+            20: {
+                title: "Starter Dependencies",
+                content: `<div class="content-header"><h2>Starter Dependencies</h2><p>Pre-packaged dependency bundles</p></div>
+                <div class="content-body"><h3>Problem</h3><p>Manual dependency management is complex. Easy to miss required libraries. Version conflicts.</p>
+                <h3>Old Way (Before Spring Boot)</h3>
+                <div class="code-block">Many dependencies:
+- spring-web
+- spring-webmvc
+- jackson-databind
+- validation library
+And many more with version conflicts...</div>
+                <h3>New Way (Spring Boot Starter)</h3>
+                <div class="code-block">spring-boot-starter-web
+
+What It Brings:
+- Spring Web MVC
+- Spring Core
+- Jackson JSON
+- Tomcat embedded server
+- Validation
+- Logging
+All with compatible versions!</div>
+                <h3>Common Starters</h3>
+                <table>
+                <tr><th>Starter</th><th>What It Adds</th></tr>
+                <tr><td>spring-boot-starter-web</td><td>Web + MVC + JSON</td></tr>
+                <tr><td>spring-boot-starter-data-jpa</td><td>JPA + Hibernate + SQL</td></tr>
+                <tr><td>spring-boot-starter-security</td><td>Spring Security</td></tr>
+                <tr><td>spring-boot-starter-cache</td><td>Caching framework</td></tr>
+                <tr><td>spring-boot-starter-actuator</td><td>Monitoring endpoints</td></tr>
+                <tr><td>spring-boot-starter-test</td><td>JUnit + Mockito</td></tr>
+                </table></div>`
+            },
+            21: {
+                title: "Profiles (Dev, Test, Prod)",
+                content: `<div class="content-header"><h2>Spring Profiles</h2><p>Different configuration per environment</p></div>
+                <div class="content-body"><h3>Problem</h3><p>Same application runs in different environments. Different database URLs, API endpoints, logging levels.</p>
+                <h3>Solution - Profiles</h3>
+                <div class="code-block">Create Profile-Specific Files:
+application.properties           (default)
+application-dev.properties       (development)
+application-test.properties      (testing)
+application-prod.properties      (production)</div>
+                <h3>Activate Profile</h3>
+                <div class="code-block">// Environment variable
+export SPRING_PROFILES_ACTIVE=prod
+
+// Command line
+java -jar app.jar --spring.profiles.active=prod
+
+// application.properties
+spring.profiles.active=dev
+
+// IDE (IntelliJ)
+Run → Edit Configurations → -Dspring.profiles.active=dev</div>
+                <h3>Example Configuration</h3>
+                <div class="code-block">application-dev.properties:
+spring.datasource.url=jdbc:mysql://localhost:3306/mydb
+spring.datasource.username=root
+spring.datasource.password=dev123
+logging.level.root=DEBUG
+server.port=8080
+
+application-prod.properties:
+spring.datasource.url=jdbc:mysql://prod.company.com:3306/mydb
+spring.datasource.username=prod_user
+spring.datasource.password=\${DB_PASSWORD}
+logging.level.root=WARN
+server.port=8443
+server.ssl.key-store=\${SSL_KEYSTORE}</div>
+                <h3>Use Profile in Code</h3>
+                <div class="code-block">@Component
+@Profile("dev")
+public class DevLogger {
+    // Only loaded in dev environment
+}
+
+@Component
+@Profile("prod")
+public class ProdLogger {
+    // Only loaded in prod environment
+}
+
+@Bean
+@Profile({"dev", "test"})
+public MockDatabaseService mockDB() {
+    return new MockDatabaseService();
+}</div></div>`
+            },
+            22: {
+                title: "External Configuration",
+                content: `<div class="content-header"><h2>External Configuration</h2><p>Keep configuration outside code</p></div>
+                <div class="content-body"><h3>Problem</h3><p>Hardcoding values in code is bad. Passwords in source code is dangerous. Can't change config without recompilation.</p>
+                <h3>Solution - External Configuration</h3>
+                <div class="code-block">Multiple Sources (in priority order):
+1. Environment variables
+2. System properties
+3. application.properties
+4. application.yml</div>
+                <h3>Using @Value Annotation</h3>
+                <div class="code-block">@Service
+public class DatabaseService {
+    @Value("\${spring.datasource.url}")
+    private String dbUrl;
+
+    @Value("\${spring.datasource.username}")
+    private String username;
+
+    @Value("\${spring.datasource.password}")
+    private String password;
+}</div>
+                <h3>Properties File</h3>
+                <div class="code-block">spring.datasource.url=jdbc:mysql://localhost:3306/mydb
+spring.datasource.username=root
+spring.datasource.password=\${DB_PASSWORD}</div>
+                <h3>YAML Format</h3>
+                <div class="code-block">spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/mydb
+    username: root
+    password: \${DB_PASSWORD}</div>
+                <h3>Environment Variables</h3>
+                <div class="code-block">export DB_PASSWORD=secretPassword123
+export SERVER_PORT=9000</div></div>`
+            },
+            23: {
+                title: "@ConfigurationProperties",
+                content: `<div class="content-header"><h2>@ConfigurationProperties</h2><p>Type-safe property binding</p></div>
+                <div class="content-body"><h3>Problem</h3><p>Multiple @Value annotations become messy. Related properties scattered in code. Type conversion not automatic.</p>
+                <h3>Solution - Group Related Properties</h3>
+                <div class="code-block">app.name=MyApp
+app.version=1.0.0
+app.maxUsers=100
+app.enableCache=true
+app.database.host=localhost
+app.database.port=3306
+app.database.username=root</div>
+                <h3>Create Configuration Class</h3>
+                <div class="code-block">@ConfigurationProperties(prefix = "app")
+@Component
+public class AppProperties {
+    private String name;
+    private String version;
+    private int maxUsers;
+    private boolean enableCache;
+    private Database database;
+
+    public static class Database {
+        private String host;
+        private int port;
+        private String username;
+    }
+}</div>
+                <h3>Use in Service</h3>
+                <div class="code-block">@Service
+public class UserService {
+    @Autowired
+    private AppProperties appProperties;
+
+    public void run() {
+        System.out.println("App: " + appProperties.getName());
+        System.out.println("Max users: " + appProperties.getMaxUsers());
+        System.out.println("DB: " + appProperties.getDatabase().getHost());
+    }
+}</div>
+                <h3>Benefits</h3><ul><li>✅ Type-safe (no string casting)</li><li>✅ Nested properties supported</li><li>✅ Automatic validation</li><li>✅ IDE completion support</li><li>✅ Easy to test</li></ul></div>`
+            },
+            24: {
+                title: "Spring Events & Async",
+                content: `<div class="content-header"><h2>Spring Events & Async Processing</h2><p>Decoupled asynchronous processing</p></div>
+                <div class="content-body"><h3>Problem</h3><p>After user registration need to send welcome email, create profile, award bonus, write audit log. All synchronously = slow response.</p>
+                <h3>Solution - Spring Events</h3>
+                <div class="code-block">@Service
+public class UserService {
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
+
+    public void register(User user) {
+        repository.save(user);
+        eventPublisher.publishEvent(new UserRegisteredEvent(this, user));
+    }
+}</div>
+                <h3>Create Listeners</h3>
+                <div class="code-block">@Component
+public class EmailListener {
+    @EventListener
+    public void sendWelcomeEmail(UserRegisteredEvent event) {
+        emailService.send(event.getUser().getEmail(), "Welcome!");
+    }
+}
+
+@Component
+public class ProfileListener {
+    @EventListener
+    public void createProfile(UserRegisteredEvent event) {
+        profileService.create(event.getUser());
+    }
+}</div>
+                <h3>Make Listeners Async</h3>
+                <div class="code-block">@Component
+public class EmailListener {
+    @EventListener
+    @Async  // ✅ Runs in separate thread
+    public void sendWelcomeEmail(UserRegisteredEvent event) {
+        emailService.send(event.getUser().getEmail(), "Welcome!");
+    }
+}
+
+Enable @Async:
+@Configuration
+@EnableAsync
+public class AsyncConfig { }</div>
+                <h3>Result</h3>
+                <div class="code-block">register() starts
+    ↓
+Save to database
+    ↓
+Publish event
+    ↓
+Immediately return to caller
+    ↓
+Meanwhile, in background threads:
+- Email sent
+- Profile created
+- Bonus awarded
+- All in parallel</div></div>`
+            },
+            25: {
+                title: "Resource Loading",
+                content: `<div class="content-header"><h2>Resource Loading</h2><p>Load files from different locations</p></div>
+                <div class="content-body"><h3>Problem</h3><p>Application needs to load files from different locations: classpath, file system, URL, cloud storage.</p>
+                <h3>Load from Classpath</h3>
+                <div class="code-block">@Service
+public class ConfigLoader {
+    @Autowired
+    private ResourceLoader resourceLoader;
+
+    public String loadConfig() throws IOException {
+        Resource resource = resourceLoader.getResource("classpath:config.properties");
+        return new String(Files.readAllBytes(resource.getFile().toPath()));
+    }
+}</div>
+                <h3>Load from File System</h3>
+                <div class="code-block">Resource resource = resourceLoader.getResource("file:/home/user/data.txt");</div>
+                <h3>Load from URL</h3>
+                <div class="code-block">Resource resource = resourceLoader.getResource("https://example.com/file.pdf");</div>
+                <h3>Using @Value</h3>
+                <div class="code-block">@Service
+public class TemplateService {
+    @Value("classpath:templates/email.html")
+    private Resource emailTemplate;
+
+    public String getTemplate() throws IOException {
+        return new String(Files.readAllBytes(emailTemplate.getFile().toPath()));
+    }
+}</div></div>`
+            },
+            26: {
+                title: "Exception Handling",
+                content: `<div class="content-header"><h2>Exception Handling with @RestControllerAdvice</h2><p>Centralized error handling</p></div>
+                <div class="content-body"><h3>Problem</h3><p>Each controller handles exceptions differently. Clients get inconsistent error responses. Logging scattered everywhere.</p>
+                <h3>Define Error Response</h3>
+                <div class="code-block">public class ErrorResponse {
+    private String message;
+    private int status;
+    private LocalDateTime timestamp;
+}</div>
+                <h3>Create Global Handler</h3>
+                <div class="code-block">@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFound(
+            UserNotFoundException ex) {
+        ErrorResponse error = new ErrorResponse(
+            "User not found", 404, LocalDateTime.now()
+        );
+        return ResponseEntity.status(404).body(error);
+    }
+
+    @ExceptionHandler(SQLException.class)
+    public ResponseEntity<ErrorResponse> handleDatabaseError(
+            SQLException ex) {
+        ErrorResponse error = new ErrorResponse(
+            "Database error", 500, LocalDateTime.now()
+        );
+        return ResponseEntity.status(500).body(error);
+    }
+
+    @ExceptionHandler(Exception.class)  // Catch-all
+    public ResponseEntity<ErrorResponse> handleGenericError(
+            Exception ex) {
+        ErrorResponse error = new ErrorResponse(
+            "Internal server error", 500, LocalDateTime.now()
+        );
+        return ResponseEntity.status(500).body(error);
+    }
+}</div>
+                <h3>Result</h3>
+                <div class="code-block">GET /users/999
+
+Response (404):
+{
+  "message": "User not found",
+  "status": 404,
+  "timestamp": "2024-01-15T10:30:45"
+}</div></div>`
+            },
+            27: {
+                title: "Validation with @Valid",
+                content: `<div class="content-header"><h2>Validation with @Valid</h2><p>Bean validation annotations</p></div>
+                <div class="content-body"><h3>Problem</h3><p>Invalid data saved to database. Inconsistent business logic. No feedback to client.</p>
+                <h3>Define DTO with Constraints</h3>
+                <div class="code-block">public class UserDTO {
+    @NotBlank(message = "Name is required")
+    private String name;
+
+    @Email(message = "Invalid email")
+    private String email;
+
+    @Min(value = 18, message = "Age must be 18+")
+    private int age;
+
+    @NotNull
+    @Size(min = 6, max = 20)
+    private String password;
+}</div>
+                <h3>Validate in Controller</h3>
+                <div class="code-block">@RestController
+public class UserController {
+    @PostMapping("/users")
+    public ResponseEntity<User> createUser(
+            @Valid @RequestBody UserDTO dto) {
+        // Only reached if validation passes
+        return ResponseEntity.ok(userService.create(dto));
+    }
+}</div>
+                <h3>If Validation Fails</h3>
+                <div class="code-block">{
+  "timestamp": "2024-01-15T10:30:45",
+  "status": 400,
+  "errors": [
+    {
+      "field": "email",
+      "message": "Invalid email"
+    },
+    {
+      "field": "age",
+      "message": "Age must be 18+"
+    }
+  ]
+}</div></div>`
+            },
+            28: {
+                title: "Spring Boot Actuator",
+                content: `<div class="content-header"><h2>Spring Boot Actuator</h2><p>Production monitoring and management</p></div>
+                <div class="content-body"><h3>Problem</h3><p>Production monitoring is critical. Need to check health status, performance metrics, application information.</p>
+                <h3>Add Dependency</h3>
+                <div class="code-block">spring-boot-starter-actuator</div>
+                <h3>Enable Endpoints</h3>
+                <div class="code-block">management.endpoints.web.exposure.include=health,metrics,info</div>
+                <h3>Health Endpoint</h3>
+                <div class="code-block">GET /actuator/health
+Response:
+{
+  "status": "UP"
+}</div>
+                <h3>Health with Details</h3>
+                <div class="code-block">GET /actuator/health/details
+{
+  "status": "UP",
+  "components": {
+    "db": {
+      "status": "UP",
+      "details": {
+        "database": "MySQL"
+      }
+    },
+    "redis": {
+      "status": "UP"
+    }
+  }
+}</div>
+                <h3>Metrics Endpoints</h3>
+                <div class="code-block">GET /actuator/metrics
+GET /actuator/metrics/jvm.memory.used
+GET /actuator/metrics/http.server.requests</div>
+                <h3>Info Endpoint</h3>
+                <div class="code-block">GET /actuator/info
+{
+  "app.name": "MyApp",
+  "app.version": "1.0.0"
+}</div></div>`
+            },
+            29: {
+                title: "Logging & Log Levels",
+                content: `<div class="content-header"><h2>Logging & Log Levels</h2><p>Proper application logging</p></div>
+                <div class="content-body"><h3>Problem</h3><p>Need to track application behavior. Too much logging = performance hit. No logging = can't debug.</p>
+                <h3>Log Levels (From Lowest to Highest Severity)</h3>
+                <div class="code-block">TRACE   (most verbose)
+DEBUG   (debugging information)
+INFO    (important events)
+WARN    (warning messages)
+ERROR   (errors)
+FATAL   (highest severity)</div>
+                <h3>Configure Logging</h3>
+                <div class="code-block">logging.level.root=INFO
+logging.level.com.yourcompany=DEBUG
+logging.level.org.springframework=WARN
+logging.level.org.hibernate=WARN</div>
+                <h3>Use Logger in Code</h3>
+                <div class="code-block">@Service
+public class UserService {
+    private static final Logger log =
+        LoggerFactory.getLogger(UserService.class);
+
+    public User getUser(Long id) {
+        log.debug("Fetching user: {}", id);
+        User user = repository.findById(id);
+
+        if (user == null) {
+            log.warn("User not found: {}", id);
+        }
+
+        log.info("User retrieved: {}", user.getName());
+        return user;
+    }
+}</div>
+                <h3>Or with Lombok</h3>
+                <div class="code-block">@Slf4j
+@Service
+public class UserService {
+    public User getUser(Long id) {
+        log.debug("Fetching user: {}", id);
+        log.info("User retrieved");
+        return user;
+    }
+}</div></div>`
+            },
+            30: {
+                title: "Microservices Best Practices",
+                content: `<div class="content-header"><h2>Microservices Best Practices</h2><p>Real-world microservices design</p></div>
+                <div class="content-body"><h3>Key Principles</h3><ul><li>One responsibility per service</li><li>Independent deployment</li><li>Loose coupling</li><li>High cohesion</li></ul>
+                <h3>Service-to-Service Communication</h3>
+                <div class="code-block">Synchronous:
+Service A → REST API Call → Service B
+
+Asynchronous:
+Service A → Message Queue → Service C</div>
+                <h3>Handle Network Failures</h3>
+                <div class="code-block">@Service
+public class PaymentClient {
+    @Retryable(
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 1000)
+    )
+    public PaymentResponse process(Order order) {
+        return restTemplate.postForObject(
+            "/payments", order, PaymentResponse.class
+        );
+    }
+
+    @Recover
+    public PaymentResponse recover(
+            HttpServerErrorException ex, Order order) {
+        log.error("Payment failed after retries", ex);
+        return new PaymentResponse(false, "Timeout");
+    }
+}</div>
+                <h3>Best Practices</h3><ul><li>✅ Implement circuit breaker pattern</li><li>✅ Use timeouts on all external calls</li><li>✅ Implement retry with backoff</li><li>✅ Log all service interactions</li><li>✅ Monitor service dependencies</li><li>✅ Use correlation IDs for tracing</li></ul></div>`
+            },
+            32: {
+                title: "Debugging Memory Leaks with Heap Dumps",
+                content: `<div class="content-header"><h2>Debugging Memory Leaks in Spring Boot</h2><p>Production memory leak analysis with tools</p></div>
+                <div class="content-body"><h3>Step 1: Identify Memory Leak Symptoms</h3><div class="code-block">jps -m                    # List Java processes
+jstat -gc <PID> 1000      # Monitor heap (every second)
+# Look for: Old generation constantly growing
+# Young generation collections increasing</div>
+                <h3>Step 2: Capture Heap Dump</h3><div class="code-block">jmap -dump:live,format=b,file=heap.bin <PID>
+# Or use jcmd for modern JDK
+jcmd <PID> GC.heap_dump heap.bin</div>
+                <h3>Step 3: Analyze with VisualVM</h3><ul><li>Open VisualVM → File → Open Heap Dump</li><li>Look for Object Classes with most memory (dominators)</li><li>Search for known problem patterns</li><li>Follow GC Roots to find refs</li></ul>
+                <h3>Common Patterns Found</h3><div class="code-block">// PATTERN 1: Static Collections
+private static List cache = new ArrayList();  // LEAK
+
+// PATTERN 2: Long-lived event listeners
+listeners.add(this);  // Never removed
+
+// PATTERN 3: Exception stack traces
+new Exception().printStackTrace();  // Kept in memory
+
+// PATTERN 4: Thread-local Variables
+ThreadLocal<User> user = ThreadLocal.withInitial(() -> ...);
+// Not cleaned up after request</div>
+                <h3>Fix: Memory Profiler Example</h3><div class="code-block">// Before: LEAK
+@Service
+public class ReportService {
+    private static List<Report> allReports = new ArrayList<>();
+
+    public void generateReport(String id) {
+        allReports.add(new Report(id));  // Never cleared!
+    }
+}
+
+// After: FIXED
+@Service
+public class ReportService {
+    @Cacheable("reports")
+    public Report generateReport(String id) {
+        return new Report(id);  // Spring manages lifecycle
+    }
+}</div></div>`
+            },
+            33: {
+                title: "Understanding @Transactional Call Chain",
+                content: `<div class="content-header"><h2>@Transactional Self-Invocation Issue</h2><p>Why the second @Transactional may be ignored</p></div>
+                <div class="content-body"><h3>The Problem</h3><div class="code-block">@Service
+public class OrderService {
+
+    @Transactional
+    public void processOrder(Order order) {
+        saveOrder(order);
+        notifyWarehouse(order);  // Calls another transactional method
+    }
+
+    @Transactional
+    public void notifyWarehouse(Order order) {
+        // This @Transactional is IGNORED!
+        // Because it's called via this.notifyWarehouse()
+        // NOT via proxy.notifyWarehouse()
+    }
+}</div>
+                <h3>Why This Happens</h3><div class="code-block">Spring creates proxy:
+OrderServiceProxy → OrderService
+
+processOrder() called:
+OrderServiceProxy.processOrder()
+  ├─ Create transaction (WORKS)
+  ├─ Call this.notifyWarehouse()  ← Direct call, NO proxy!
+  └─ No transaction created
+
+What should happen:
+OrderServiceProxy.notifyWarehouse()
+  ├─ Create new transaction
+  └─ Handle PROPAGATION setting</div>
+                <h3>Solution 1: Inject Self (Quick)</h3><div class="code-block">@Service
+public class OrderService {
+    @Autowired
+    private OrderService self;  // Inject the proxy
+
+    @Transactional
+    public void processOrder(Order order) {
+        saveOrder(order);
+        self.notifyWarehouse(order);  // Goes through proxy!
+    }
+}</div>
+                <h3>Solution 2: Refactor (Best)</h3><div class="code-block">@Service
+public class OrderService {
+    @Autowired
+    private WarehouseService warehouse;  // Separate bean
+
+    @Transactional
+    public void processOrder(Order order) {
+        saveOrder(order);
+        warehouse.notify(order);  // External call, uses proxy
+    }
+}
+
+@Service
+public class WarehouseService {
+    @Transactional
+    public void notify(Order order) {
+        // Real transaction created
+    }
+}</div></div>`
+            },
+            34: {
+                title: "Why @Cacheable Stops Working",
+                content: `<div class="content-header"><h2>@Cacheable Not Working - Common Issues</h2><p>Debug why caching fails in production</p></div>
+                <div class="content-body"><h3>Issue 1: Private Method (MOST COMMON)</h3><div class="code-block">@Service
+public class UserService {
+    @Cacheable("users")
+    private User getUser(Long id) {  // ❌ PRIVATE METHOD
+        return repo.findById(id);
+    }
+}
+
+// Why fails: Spring cannot create proxy for private methods
+// The bytecode is not accessible
+
+// Fix: Make it public or protected
+@Cacheable("users")
+public User getUser(Long id) {  // ✅ PUBLIC
+    return repo.findById(id);
+}</div>
+                <h3>Issue 2: Self-Invocation</h3><div class="code-block">@Service
+public class UserService {
+
+    public User getUserWithCache(Long id) {
+        return getUser(id);  // ❌ Direct call bypasses proxy
+    }
+
+    @Cacheable("users")
+    public User getUser(Long id) {
+        // Cache never used!
+        return repo.findById(id);
+    }
+}</div>
+                <h3>Issue 3: Wrong Return Type</h3><div class="code-block">// ❌ WRONG: Returns Optional
+@Cacheable("users")
+public Optional<User> getUser(Long id) {
+    return repo.findById(id);
+}
+
+// Problem: Same Optional obj with different content
+// causes cache confusion
+
+// ✅ CORRECT: Return actual type
+@Cacheable("users")
+public User getUser(Long id) {
+    return repo.findById(id).orElse(null);
+}</div>
+                <h3>Issue 4: Mutable Cache Key</h3><div class="code-block">// ❌ WRONG: User object as key (mutable)
+@Cacheable("userCache")
+public String process(User user) {
+    return user.getName();
+}
+
+// Problem: Cache key changes if User state changes
+
+// ✅ CORRECT: Use stable key
+@Cacheable("userCache")
+public String process(Long userId) {
+    User user = repo.findById(userId);
+    return user.getName();
+}</div>
+                <h3>Debugging Checklist</h3><ul><li>✓ Method is public/protected? (not private)</li><li>✓ Called from external code? (not self-invocation)</li><li>✓ CacheManager bean exists?</li><li>✓ @EnableCaching annotation on @Configuration?</li><li>✓ Spring profile has caching enabled?</li><li>✓ Cache backend (Redis, etc.) is running?</li></ul></div>`
+            },
+            35: {
+                title: "Resolving Circular Dependencies",
+                content: `<div class="content-header"><h2>Circular Dependencies in Spring</h2><p>Strategies to break dependency cycles</p></div>
+                <div class="content-body"><h3>The Problem</h3><div class="code-block">@Service
+public class UserService {
+    @Autowired
+    private OrderService orderService;  // A depends on B
+}
+
+@Service
+public class OrderService {
+    @Autowired
+    private UserService userService;    // B depends on A
+}
+
+// Result: BeanCurrentlyInCreationException</div>
+                <h3>Solution 1: Setter Injection + @Lazy</h3><div class="code-block">@Service
+public class UserService {
+    private OrderService orderService;
+
+    @Autowired
+    @Lazy  // Defer initialization
+    public void setOrderService(OrderService orderService) {
+        this.orderService = orderService;
+    }
+}</div>
+                <h3>Solution 2: Inject ApplicationContext</h3><div class="code-block">@Service
+public class UserService {
+    @Autowired
+    private ApplicationContext context;
+
+    public void processOrder() {
+        // Get bean only when needed
+        OrderService orderService = context.getBean(OrderService.class);
+        orderService.create();
+    }
+}</div>
+                <h3>Solution 3: Constructor + ObjectProvider</h3><div class="code-block">@Service
+public class UserService {
+    private final ObjectProvider<OrderService> orderServiceProvider;
+
+    public UserService(ObjectProvider<OrderService> provider) {
+        this.orderServiceProvider = provider;
+    }
+
+    public void processOrder() {
+        orderService = orderServiceProvider.getIfAvailable();
+    }
+}</div>
+                <h3>Solution 4: Refactor Design (BEST)</h3><div class="code-block">// Original dependency:
+UserService → OrderService → UserService
+
+// Refacto to introduce intermediate service:
+UserService → OrderFacade ← OrderService
+
+// OrderFacade breaks the cycle
+
+@Service
+public class OrderFacade {
+    @Autowired
+    private OrderService orderService;
+    // No dependency back to UserService
+}</div></div>`
+            },
+            36: {
+                title: "Debugging Intermittent 500 Errors",
+                content: `<div class="content-header"><h2>Production 500 Errors Under Load</h2><p>SRE approach to root cause analysis</p></div>
+                <div class="content-body"><h3>Step 1: Check Thread Pool Exhaustion</h3><div class="code-block">jstack <PID> | grep "tid" | wc -l
+# Shows current thread count
+
+# Compare with config:
+server.tomcat.threads.max=200
+server.tomcat.accept-count=100
+
+# If threads == max and queue filled = bottleneck</div>
+                <h3>Step 2: Check Connection Pool</h3><div class="code-block">// Enable HikariCP logging:
+logging.level.com.zaxxer.hikari=DEBUG
+
+// Look for:
+// "Timeout waiting for idle connection"
+// "Cannot get connection, pool error"
+
+// Fix: Increase pool size
+spring.datasource.hikari.maximum-pool-size=50</div>
+                <h3>Step 3: Find Blocking Code</h3><div class="code-block">jstack <PID> | grep -A 20 "BLOCKED"
+# Shows which threads are blocked
+
+// Example culprit (synchronous DB call in loop):
+for (User user : users) {
+    userDb.save(user);  // 1000 calls = 1000 DB roundtrips!
+}
+
+// Fix: Batch operation
+userDb.saveAll(users);  // 1 batch call</div>
+                <h3>Step 4: Load Testing</h3><div class="code-block">ab -n 10000 -c 100 http://localhost:8080/api/orders
+# -n total requests, -c concurrent
+
+# Output analysis:
+# Requests/sec: 5000 = healthy
+# Requests/sec: 10 = bottlenecked
+# Failed requests: > 0 = configuration too low</div>
+                <h3>Common Causes & Fixes</h3><table>
+<tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
+<tr><td>After 100 reqs</td><td>Connection pool exhausted</td><td>hikari.maximum-pool-size</td></tr>
+<tr><td>After 200 reqs</td><td>Thread pool exhausted</td><td>server.tomcat.threads.max</td></tr>
+<tr><td>Timeout errors</td><td>Slow DB queries</td><td>Add indexes, optimize queries</td></tr>
+<tr><td>Memory errors</td><td>Memory leak</td><td>Use heap dump analysis</td></tr>
+</table></div>`
+            },
+            37: {
+                title: "Scheduled Tasks Not Running",
+                content: `<div class="content-header"><h2>@Scheduled Tasks Troubleshooting</h2><p>Why scheduled methods don't execute</p></div>
+                <div class="content-body"><h3>Issue 1: Missing @EnableScheduling</h3><div class="code-block">// ❌ WRONG: No @EnableScheduling
+@Configuration
+public class AppConfig {
+}
+
+@Service
+public class TaskService {
+    @Scheduled(cron = "0 0 * * * *")
+    public void dailyJob() {
+        // Never runs!
+    }
+}
+
+// ✅ CORRECT:
+@Configuration
+@EnableScheduling
+public class AppConfig {
+}</div>
+                <h3>Issue 2: Method Not Public</h3><div class="code-block">// ❌ WRONG: Private method
+@Service
+public class TaskService {
+    @Scheduled(fixedRate = 5000)
+    private void backgroundJob() {  // Private!
+        // Never created as proxy
+    }
+}
+
+// ✅ CORRECT:
+@Scheduled(fixedRate = 5000)
+public void backgroundJob() {  // Public
+}</div>
+                <h3>Issue 3: Running in Test Profile</h3><div class="code-block">// Only enable in production
+@Scheduled(cron = "0 0 * * * *")
+@ConditionalOnProperty(name = "scheduling.enabled", havingValue = "true")
+public void jobThatShouldNotRunInTests() {
+}
+
+// In application-test.properties:
+scheduling.enabled=false
+
+// In application-prod.properties:
+scheduling.enabled=true</div>
+                <h3>Issue 4: Long Running Existing Task</h3><div class="code-block">// Problem: Task takes 10 seconds, scheduled every 5 seconds
+@Scheduled(fixedRate = 5000)
+public void job() {
+    Thread.sleep(10000);  // Takes too long!
+                // Next execution delayed
+}
+
+// Solution: Use async executor
+@EnableAsync
+@Service
+public class TaskService {
+    @Async
+    @Scheduled(fixedRate = 5000)
+    public void job() {
+        Thread.sleep(10000);  // Now runs asynchronously
+    }
+}</div>
+                <h3>Debugging</h3><div class="code-block">logging.level.org.springframework.scheduling=DEBUG
+# Shows task scheduling info
+
+// Expected output:
+// Scheduling @Scheduled method...
+// Running scheduled method...</div></div>`
+            },
+            38: {
+                title: "@Autowired vs Constructor vs Setter Injection",
+                content: `<div class="content-header"><h2>Dependency Injection Methods Compared</h2><p>Choose the right approach for your use case</p></div>
+                <div class="content-body"><h3>1. Field Injection (@Autowired on field)</h3><div class="code-block">@Service
+public class UserService {
+    @Autowired
+    private UserRepository repo;
+}
+
+Pros: ✓ Simple, less code
+Cons: ✗ Hard to test (need Spring context)
+      ✗ Mutable (can be set anytime)
+      ✗ Hidden dependencies
+      ✗ Cannot use final</div>
+                <h3>2. Constructor Injection (PREFERRED)</h3><div class="code-block">@Service
+public class UserService {
+    private final UserRepository repo;
+
+    public UserService(UserRepository repo) {
+        this.repo = repo;  // Guaranteed to be set
+    }
+}
+
+Pros: ✓ Immutable (final)
+      ✓ Easy to test (pass mock)
+      ✓ Required deps visible in signature
+      ✓ Thread-safe
+      ✓ Circular deps caught early
+
+Cons: ✗ Can't have too many deps ("constructor hell")
+
+// Auto-wired by Spring:
+@Service
+public class UserService {
+    private final UserRepository repo;
+
+    // @Autowired not needed (implied in Spring 4.3+)
+    public UserService(UserRepository repo) {
+        this.repo = repo;
+    }
+}</div>
+                <h3>3. Setter Injection</h3><div class="code-block">@Service
+public class UserService {
+    private UserRepository repo;
+
+    @Autowired
+    public void setRepository(UserRepository repo) {
+        this.repo = repo;
+    }
+}
+
+Pros: ✓ Optional dependencies
+      ✓ Can reconfigure after creation
+
+Cons: ✗ Mutable
+      ✗ Can be partially initialized
+      ✗ Not recommended for required deps</div>
+                <h3>Comparison Table</h3><table>
+<tr><th>Aspect</th><th>Field</th><th>Constructor</th><th>Setter</th></tr>
+<tr><td>Testability</td><td>❌ Hard</td><td>✅ Easy</td><td>⚠️ Medium</td></tr>
+<tr><td>Immutability</td><td>❌ No</td><td>✅ Yes</td><td>❌ No</td></tr>
+<tr><td>Required Deps</td><td>⚠️ Hidden</td><td>✅ Clear</td><td>❌ Hidden</td></tr>
+<tr><td>Circular Ref</td><td>✅ Works</td><td>❌ Fails early</td><td>✅ Works</td></tr>
+</table>
+                <h3>Best Practice Example</h3><div class="code-block">@Service
+public class OrderService {
+    private final UserRepository userRepo;
+    private final PaymentService payment;
+    private final Optional<AuditService> audit;  // Optional
+
+    // Constructor for required deps
+    public OrderService(
+            UserRepository userRepo,
+            PaymentService payment) {
+        this.userRepo = userRepo;
+        this.payment = payment;
+    }
+
+    // Setter for optional deps
+    @Autowired(required = false)
+    public void setAuditService(AuditService audit) {
+        this.audit = Optional.of(audit);
+    }
+}</div></div>`
+            },
+            39: {
+                title: "Spring Boot Auto-Configuration Decision Tree",
+                content: `<div class="content-header"><h2>How Spring Boot Decides Auto-Configurations</h2><p>Understanding the condition-based mechanism</p></div>
+                <div class="content-body"><h3>Boot Startup Sequence</h3><div class="code-block">1. Read @SpringBootApplication
+2. Scan @EnableAutoConfiguration (or @SpringBootApplication includes it)
+3. Load META-INF/spring.factories
+4. Evaluate @ConditionalOn annotations
+5. Load matching configurations
+6. Override with @Configuration classes
+7. Apply application.properties</div>
+                <h3>The Condition Evaluation</h3><div class="code-block">@Configuration
+@ConditionalOnClass(DataSource.class)  // If JDBC on classpath
+@ConditionalOnProperty(
+    name = "spring.datasource.url",
+    matchIfMissing = false)  // If property exists
+public class DataSourceAutoConfig {
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DataSource dataSource() {
+        // Only if no DataSource bean exists
+    }
+}</div>
+                <h3>META-INF/spring.factories Example</h3><div class="code-block"># This file is scanned on startup
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  org.springframework.boot.autoconfigure.data.DataSourceAutoConfiguration,\
+  org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration,\
+  org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration</div>
+                <h3>Common Conditions</h3><table>
+<tr><th>Condition</th><th>Meaning</th></tr>
+<tr><td>@ConditionalOnClass</td><td>If class in classpath</td></tr>
+<tr><td>@ConditionalOnMissingClass</td><td>If class NOT in classpath</td></tr>
+<tr><td>@ConditionalOnBean</td><td>If bean exists</td></tr>
+<tr><td>@ConditionalOnMissingBean</td><td>If bean doesn't exist</td></tr>
+<tr><td>@ConditionalOnProperty</td><td>If property set</td></tr>
+<tr><td>@ConditionalOnWebApplication</td><td>If web app</td></tr>
+</table>
+                <h3>Why It Matters</h3><div class="code-block">// spring-boot-starter-data-jpa includes:
+// - hibernate-core.jar
+// - spring-data-jpa.jar
+
+// Conditions trigger:
+@ConditionalOnClass(JpaRepository.class)  ✓ True
+@ConditionalOnClass(EntityManager.class)  ✓ True
+// → HibernateAutoConfiguration loads automatically
+
+// If you exclude it:
+// spring.autoconfigure.exclude=\
+//      org.springframework.boot.autoconfigure....HibernateJpaAutoConfiguration
+// → No JPA beans created</div></div>`
+            },
+            40: {
+                title: "What Happens When Adding spring-boot-starter-web",
+                content: `<div class="content-header"><h2>Dependency Chain: spring-boot-starter-web</h2><p>What gets automatically configured when you add one dependency</p></div>
+                <div class="content-body"><h3>The Dependency Tree</h3><div class="code-block">spring-boot-starter-web
+├── spring-boot
+├── spring-boot-starter (base)
+├── spring-boot-starter-tomcat  ← Embedded Tomcat!
+├── spring-web
+├── spring-webmvc  ← MVC framework
+└── jackson-databind  ← JSON serialization
+
+Result: 50+ JAR files added to your classpath</div>
+                <h3>Auto-Configurations Triggered</h3><div class="code-block">ClassLoader sees these JARs:
+✓ spring-web.jar        → ServletWebServerFactoryAutoConfiguration
+✓ jackson-databind.jar  → JacksonAutoConfiguration
+✓ tomcat-embed.jar      → TomcatServletWebServerFactoryConfiguration
+✓ spring-webmvc.jar     → DispatcherServletAutoConfiguration
+
+All evaluated together → 15+ beans auto-created!</div>
+                <h3>Beans Created Automatically</h3><table>
+<tr><th>Bean</th><th>Created By</th></tr>
+<tr><td>DispatcherServlet</td><td>DispatcherServletAutoConfiguration</td></tr>
+<tr><td>TomcatServletWebServerFactory</td><td>TomcatWebServerFactoryConfiguration</td></tr>
+<tr><td>ObjectMapper (JSON)</td><td>JacksonAutoConfiguration</td></tr>
+<tr><td>RequestMappingHandlerMapping</td><td>WebMvcAutoConfiguration</td></tr>
+<tr><td>ViewResolver</td><td>WebMvcAutoConfiguration</td></tr>
+</table>
+                <h3>What You Get Without Code</h3><div class="code-block">✓ Embedded Tomcat running on port 8080
+✓ DispatcherServlet configured
+✓ @RestController annotation available
+✓ @GetMapping, @PostMapping working
+✓ JSON serialization (Jackson) working
+✓ Static resources served from /static
+✓ Error handling with /error endpoint
+✓ Actuator endpoints ready (if included)
+
+// Minimal working app:
+@SpringBootApplication
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class);
+    }
+}
+
+@RestController
+public class HelloController {
+    @GetMapping("/hello")
+    public String hello() {
+        return "Hello, World!";
+    }
+}</div>
+                <h3>Excluding Tomcat (Using Jetty Instead)</h3><div class="code-block"><!-- pom.xml -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+    <exclusions>
+        <exclusion>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-jetty</artifactId>
+</dependency></div></div>`
+            },
+            41: {
+                title: "Convention Over Configuration Philosophy",
+                content: `<div class="content-header"><h2>Convention Over Configuration (CoC)</h2><p>How Spring Boot reduces boilerplate through intelligent defaults</p></div>
+                <div class="content-body"><h3>The Principle</h3><div class="code-block">Old Spring: Configuration Hell
+<bean id="userBean" class="com.example.UserService">
+    <property name="repository" ref="userRepository"/>
+</bean>
+
+Spring Boot: Convention
+@Service
+public class UserService { }  ← Auto-registered as userSerise bean
+
+Why? Spring ASSUMES:
+- Classes ending in Service → Service beans
+- Classes ending in Repository → Data access beans
+- Classes ending in Controller → REST handlers</div>
+                <h3>Conventions Applied</h3><table>
+<tr><th>Convention</th><th>Assumption</th><th>Result</th></tr>
+<tr><td>@Service class</td><td>Business logic</td><td>Bean registered, singleton</td></tr>
+<tr><td>@Repository class</td><td>Data access</td><td>Exception translation applied</td></tr>
+<tr><td>@Controller class</td><td>Web handler</td><td>Request routing applied</td></tr>
+<tr><td>application.properties</td><td>Config source</td><td>Properties injected automatically</td></tr>
+<tr><td>/static folder</td><td>Static assets</td><td>Served on root path</td></tr>
+<tr><td>database.sql file</td><td>DB schema</td><td>Applied on startup</td></tr>
+</table>
+                <h3>Configuration by Exception</h3><div class="code-block">// Convention: Spring Boot uses H2 in-memory DB by default
+// If  you add PostgreSQL to pom.xml:
+
+<dependency>
+    <groupId>org.postgresql</groupId>
+    <artifactId>postgresql</artifactId>
+</dependency>
+
+// Spring automatically detects it and switches:
+@ConditionalOnClass(PostgreSQL driver)  ✓ True
+// → PostgreSQL auto-configuration loads
+
+// Or configure explicitly:
+spring.datasource.url=jdbc:postgresql://localhost/mydb
+spring.datasource.username=user
+spring.datasource.password=pass</div>
+                <h3>Benefits</h3><ul><li>✅ Less XML/YAML boilerplate</li><li>✅ Get started in minutes</li><li>✅ Easy to override when needed</li><li>✅ Consistent across projects</li><li>✅ Intelligent defaults for production</li></ul></div>`
+            },
+            42: {
+                title: "How application.properties Is Loaded",
+                content: `<div class="content-header"><h2>Property Resolution Order</h2><p>Spring Boot's configuration hierarchy</p></div>
+                <div class="content-body"><h3>Complete Precedence (High to Low)</h3><div class="code-block">1. System properties (java -Dprop=value)
+2. Environment variables (exported VAR=value)
+3. application-{profile}.properties  ← Profile-specific
+4. application-{profile}.yml
+5. application.properties
+6. application.yml
+7. Built-in defaults (from Spring Boot)</div>
+                <h3>Example: Setting Server Port</h3><div class="code-block">// application.properties says:
+server.port=8080
+
+// But setting from command line:
+java -jar app.jar --server.port=9000
+// → Uses 9000 (system prop wins!)
+
+// Or from environment:
+export SERVER_PORT=9000
+java -jar app.jar
+// → Still uses 8080 (application.properties > env var)</div>
+                <h3>Profile-Specific Loading</h3><div class="code-block">spring.profiles.active=prod
+
+// Files loaded:
+1. application.properties (base)
+2. application-prod.properties (overrides)
+
+// Example:
+// application.properties:
+logging.level.root=INFO
+
+// application-prod.properties:
+logging.level.root=WARN  ← This wins
+
+// Result: WARN logs in prod, INFO in dev</div>
+                <h3>Type Conversion & Validation</h3><div class="code-block">@Configuration
+@ConfigurationProperties(prefix = "app")
+public class AppProperties {
+    private int maxRetries;  // Automatically converted from "5" string
+    private boolean debugMode;  // From "true"
+    private Duration timeout;  // From "30s" → 30 seconds
+    private List<String> allowedHosts;  // From comma-separated value
+}</div>
+                <h3>Loading Internals</h3><div class="code-block">// Spring Boot's PropertiesPropertySourceLoader:
+1. Find application.properties on classpath
+2. Find application-${profile}.properties
+3. Find application.yml / application-${profile}.yml
+4. Create PropertySource objects
+5. Add to Environment
+6. Inject into @Value, @ConfigurationProperties
+7. Validate constraints (@NotNull, @Min, etc.)</div></div>`
+            },
+            43: {
+                title: "Complete Spring Boot Startup Flow",
+                content: `<div class="content-header"><h2>Spring Boot Startup Sequence (Step by Step)</h2><p>What happens from main() to application ready</p></div>
+                <div class="content-body"><h3>The Flow</h3><div class="code-block">1. JVM starts and calls main()
+   SpringApplication.run(Application.class)
+
+2. SpringApplication constructor
+   - StdoutListener registered
+   - WebApplicationType detected (SERVLET/REACTIVE/NONE)
+
+3. SpringApplication.run() starts
+   - Compute startup time
+   - Prepare context (BootstrapContext)
+   - Load properties (application.properties)
+
+4. Create ApplicationContext
+   - AnnotationConfigServletWebServerApplicationContext created
+   - BeanFactory created
+
+5. Prepare ApplicationContext
+   - Set environment variables
+   - Apply BeanFactoryPostProcessor
+   - Register custom beans
+
+6. Refresh ApplicationContext
+   - ClassPathBeanDefinitionScanner scans for @Component/@Service
+   - Create all singleton beans
+   - BeanPostProcessors apply
+   - @Autowired dependencies injected
+
+7. CallApplicationRunner/CommandLineRunner
+   - These beans execute in order
+
+8. Application started
+   - Print startup time
+   - Application ready for requests
+
+9. Listen for:
+   - Request at port 8080
+   - Actuator health checks
+   - Scheduled tasks start</div>
+                <h3>Critical Moments</h3><div class="code-block">// Moment 1: @ComponentScan
+// Spring finds all @Component classes
+// List: UserService, OrderRepository, Controller...
+
+// Moment 2: Dependency Injection
+// UserService needs UserRepository
+// Spring finds it, injects the bean
+
+// Moment 3: Validation
+// @Autowired(required=true) validates existence
+// Missing bean → BeanCreationException
+
+// Moment 4: Proxy Creation
+// @Transactional/@Cacheable get proxies
+// AOP aspects wired in
+
+// Moment 5: Application Ready
+// ApplicationReadyEvent fires
+// Your app fully initialized</div>
+                <h3>Lifecycle Hooks</h3><div class="code-block">@Component
+public class Startup implements ApplicationListener<ApplicationReadyEvent> {
+
+    @Override
+    public void onApplicationEvent(ApplicationReadyEvent event) {
+        // Triggered when app fully ready
+        // Safe to start background jobs here
+    }
+}
+
+// Or simpler:
+@Component
+public class Init implements CommandLineRunner {
+    @Override
+    public void run(String... args) throws Exception {
+        // Runs before app starts listening
+    }
+}</div></div>`
+            },
+            44: {
+                title: "@ComponentScan vs @SpringBootApplication",
+                content: `<div class="content-header"><h2>Annotation Differences</h2><p>What each annotation does and when to use</p></div>
+                <div class="content-body"><h3>@ComponentScan</h3><div class="code-block">@Configuration
+@ComponentScan(basePackages = "com.example")
+public class AppConfig {
+    // Manually enable component scanning
+}
+
+What it does:
+1. Finds all classes with @Component, @Service, @Repository, @Controller
+2. In specified package (default: current package)
+3. Creates beans for each
+4. NOT auto-configuration
+5. Doesn't load application.properties</div>
+                <h3>@SpringBootApplication</h3><div class="code-block">@SpringBootApplication
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class);
+    }
+}
+
+// Equivalent to:
+@Configuration
+@ComponentScan  ← Auto-scanning enabled!
+@EnableAutoConfiguration  ← Auto-configurations loaded!
+public class Application { }
+
+What it does:
+1. Enables component scanning
+2. Loads auto-configurations
+3. Loads application.properties
+4. Converts JAR to executable
+5. Handles Spring Boot specifics</div>
+                <h3>Comparison</h3><table>
+<tr><th>Feature</th><th>@ComponentScan</th><th>@SpringBootApplication</th></tr>
+<tr><td>Component scanning</td><td>✓ Yes</td><td>✓ Yes</td></tr>
+<tr><td>Auto-configuration</td><td>✗ No</td><td>✓ Yes</td></tr>
+<tr><td>Load properties</td><td>✗ No</td><td>✓ Yes</td></tr>
+<tr><td>Tomcat auto-start</td><td>✗ No (manual)</td><td>✓ Yes</td></tr>
+<tr><td>Actuator ready</td><td>✗ No</td><td>✓ Yes</td></tr>
+</table>
+                <h3>Use Cases</h3><div class="code-block">// Use @ComponentScan only if:
+// - Not building Spring Boot application
+// - Building library or framework
+// - Want full manual control
+
+// Use @SpringBootApplication for:
+// - REST APIs
+// - Microservices
+// - Web applications
+// - 99% of projects!</div></div>`
+            },
+            45: {
+                title: "Embedded Tomcat Auto-Detection",
+                content: `<div class="content-header"><h2>How Spring Boot Finds & Starts Tomcat</h2><p>The magic behind embedded server</p></div>
+                <div class="content-body"><h3>Detection Mechanism</h3><div class="code-block">1. Spring Boot starts
+2. Checks classpath for web server libs
+3. org.apache.catalina.startup.Tomcat found?
+   → Tomcat detection triggers!
+4. TomcatServletWebServerFactoryConfiguration loads
+5. Tomcat bean created & started on port 8080
+
+// In pom.xml, spring-boot-starter-web includes:
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-tomcat</artifactId>
+    <!-- Tomcat JARs automatically included -->
+</dependency></div>
+                <h3>Auto-Configuration Detection</h3><div class="code-block">@Configuration
+@ConditionalOnClass(Tomcat.class)  ← Detects Tomcat!
+public class TomcatWebServerFactoryConfiguration {
+
+    @Bean
+    public TomcatServletWebServerFactory
+              tomcatServletWebServerFactory() {
+        // Creates embedded Tomcat instance
+        return new TomcatServletWebServerFactory();
+    }
+}</div>
+                <h3>Switching to Jetty</h3><div class="code-block">// Exclude Tomcat:
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+    <exclusions>
+        <exclusion>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+
+// Add Jetty:
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-jetty</artifactId>
+</dependency>
+
+// Spring Boot now:
+// 1. Doesn't find Tomcat class
+// 2. Finds Jetty class (org.eclipse.jetty)
+// 3. JettyServletWebServerFactoryConfiguration loads
+// 4. Jetty starts instead!</div>
+                <h3>Server Configuration</h3><div class="code-block">// application.properties:
+server.port=8080
+server.servlet.context-path=/api
+server.tomcat.threads.max=200
+server.tomcat.threads.min-spare=10
+
+// Results:
+✓ App listens on localhost:8080/api
+✓ Max 200 worker threads
+✓ Min 10 threads always active</div></div>`
+            },
+            46: {
+                title: "Multiple Beans of Same Type Without @Qualifier",
+                content: `<div class="content-header"><h2>Bean Collision Resolution</h2><p>What happens when Spring finds multiple matching beans</p></div>
+                <div class="content-body"><h3>The Problem</h3><div class="code-block">@Service
+public class UserService implements UserProvider { }
+
+@Service
+public class AdminService implements UserProvider { }
+
+// Now in another service:
+@Service
+public class OrderService {
+    @Autowired
+    private UserProvider provider;  // ✗ Which one??
+}
+
+// Result: NoUniqueBeanDefinitionException
+// Spring found 2 beans of type UserProvider!</div>
+                <h3>Solution 1: @Qualifier by Name</h3><div class="code-block">@Service("userService")
+public class UserService implements UserProvider { }
+
+@Service("adminService")
+public class AdminService implements UserProvider { }
+
+@Service
+public class OrderService {
+    @Autowired
+    @Qualifier("userService")  ← Explicitly pick one
+    private UserProvider provider;
+}</div>
+                <h3>Solution 2: @Primary</h3><div class="code-block">@Service
+@Primary  ← "Use me by default"
+public class UserService implements UserProvider { }
+
+@Service
+public class AdminService implements UserProvider { }
+
+@Service
+public class OrderService {
+    @Autowired
+    private UserProvider provider;  // Gets UserService
+}</div>
+                <h3>Solution 3: Inject List/Map</h3><div class="code-block">@Service
+public class OrderService {
+    @Autowired
+    private List<UserProvider> providers;  // Gets all 2!
+
+    public void process() {
+        providers.forEach(p -> p.process());
+    }
+}</div>
+                <h3>Solution 4: Constructor + ObjectProvider</h3><div class="code-block">@Service
+public class OrderService {
+    private final ObjectProvider<UserProvider> provider;
+
+    public OrderService(
+            @Qualifier("userService")
+            ObjectProvider<UserProvider> provider) {
+        this.provider = provider;
+    }
+
+    public void process() {
+        UserProvider p = provider.getIfAvailable();
+        p.process();
+    }
+}</div></div>`
+            },
+            47: {
+                title: "Profile-Specific Configuration Loading",
+                content: `<div class="content-header"><h2>Spring Profiles for Environment-Specific Config</h2><p>Managing dev/test/prod configurations</p></div>
+                <div class="content-body"><h3>File Structure</h3><div class="code-block">src/main/resources/
+├── application.properties         (shared)
+├── application-dev.properties     (development)
+├── application-test.properties    (testing)
+└── application-prod.properties    (production)</div>
+                <h3>Activate Profile</h3><div class="code-block">// Method 1: application.properties
+spring.profiles.active=prod
+
+// Method 2: Command line
+java -jar app.jar --spring.profiles.active=prod
+
+// Method 3: Environment variable
+export SPRING_PROFILES_ACTIVE=prod
+
+// Method 4: IDE (IntelliJ)
+Run → Edit Configurations → VM options
+-Dspring.profiles.active=dev</div>
+                <h3>Example Configuration</h3><div class="code-block">// application.properties (shared):
+spring.jpa.show-sql=false
+spring.h2.console.enabled=false
+
+// application-dev.properties:
+spring.datasource.url=jdbc:h2:mem:testdb
+logging.level.root=DEBUG
+spring.jpa.show-sql=true
+
+// application-prod.properties:
+spring.datasource.url=jdbc:postgresql://prod-db:5432/myapp
+logging.level.root=WARN
+spring.jpa.hibernate.ddl-auto=validate</div>
+                <h3>Profile-Specific Beans</h3><div class="code-block">@Configuration
+@Profile("dev")
+public class DevConfig {
+    @Bean
+    public DataSource dataSource() {
+        return new EmbeddedDatabaseBuilder()
+            .setType(H2).build();
+    }
+}
+
+@Configuration
+@Profile("prod")
+public class ProdConfig {
+    @Bean
+    public DataSource dataSource() {
+        // Real PostgreSQL connection
+    }
+}</div>
+                <h3>Nested Profiles</h3><div class="code-block">spring.profiles.active=prod,redis
+// Activates both prod AND redis
+
+// Load files:
+1. application.properties
+2. application-prod.properties
+3. application-redis.properties
+
+// Later configs override earlier</div></div>`
+            },
+            48: {
+                title: "SpringFactoriesLoader Deep Dive",
+                content: `<div class="content-header"><h2>SpringFactoriesLoader: The Mechanism</h2><p>How Spring Boot discovers auto-configurations</p></div>
+                <div class="content-body"><h3>The File: META-INF/spring.factories</h3><div class="code-block">// Location in JAR:
+mylib.jar/META-INF/spring.factories
+
+// Content example:
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.example.MyAutoConfiguration,\
+  org.springframework.boot.autoconfigure.DataSourceAutoConfiguration,\
+  org.springframework.boot.autoconfigure.data.RedisAutoConfiguration
+
+// Multiple configurations, backslash for line continuation</div>
+                <h3>Loading Process</h3><div class="code-block">1. Application starts
+2. @SpringBootApplication triggers @EnableAutoConfiguration
+3. SpringFactoriesLoader scans classpath
+4. Reads all META-INF/spring.factories files
+5. Finds org.springframework.boot.autoconfigure.EnableAutoConfiguration key
+6. Loads all listed configuration classes
+7. Applies @ConditionalOn annotations
+8. Creates matching beans</div>
+                <h3>Creating Custom Auto-Configuration</h3><div class="code-block">// Step 1: Create your configuration
+@Configuration
+@ConditionalOnClass(RedisTemplate.class)
+@ConditionalOnProperty(
+    name = "myapp.redis.enabled",
+    havingValue = "true")
+public class MyRedisAutoConfiguration {
+
+    @Bean
+    @ConditionalOnMissingBean
+    public RedisTemplate<String, Object> redisTemplate() {
+        return new RedisTemplate<>();
+    }
+}
+
+// Step 2: Register in spring.factories
+# META-INF/spring.factories
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.mycompany.MyRedisAutoConfiguration
+
+// Step 3: Package as JAR and add to classpath
+// Now consumers get Redis auto-configured!</div>
+                <h3>Ordering Auto-Configurations</h3><div class="code-block">@Configuration
+@AutoConfigureAfter(DatabaseAutoConfiguration.class)
+public class MyConfiguration {
+    // Ensure Database initializes first
+}
+
+@Configuration
+@AutoConfigureBefore(SecurityAutoConfiguration.class)
+public class MySecurityConfiguration {
+    // Ensure we run before Security config
+}</div>
+                <h3>Excluding Auto-Configuration</h3><div class="code-block">// Exclude at startup:
+@SpringBootApplication(exclude = {
+    DataSourceAutoConfiguration.class,
+    HibernateJpaAutoConfiguration.class
+})
+public class Application {}
+
+// Or in application.properties:
+spring.autoconfigure.exclude=\
+  org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration,\
+  org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration</div></div>`
+            },
+            49: {
+                title: "XML Configuration Elimination Strategy",
+                content: `<div class="content-header"><h2>From XML to Java-Based Configuration</h2><p>How Spring Boot removed the XML burden</p></div>
+                <div class="content-body"><h3>Old Spring Way (XML Hell)</h3><div class="code-block"><!-- applicationContext.xml -->
+<beans>
+    <bean id="userService" class="com.example.UserService">
+        <property name="repository" ref="userRepository"/>
+    </bean>
+
+    <bean id="userRepository"
+          class="com.example.UserRepository">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <bean id="dataSource"
+          class="com.zaxxer.hikari.HikariDataSource">
+        <property name="jdbcUrl" value="jdbc:mysql..."/>
+        <property name="username" value="user"/>
+        <property name="password" value="pass"/>
+    </bean>
+</beans>
+
+// In web.xml:
+<listener>
+    <listener-class>
+        org.springframework.web.context.ContextLoaderListener
+    </listener-class>
+</listener></div>
+                <h3>Spring Boot Way (Clean)</h3><div class="code-block">@Service
+public class UserService {
+    @Autowired
+    private UserRepository repository;
+}
+
+@Repository
+public class UserRepository {
+    @Autowired
+    private DataSource dataSource;
+}
+
+// DataSource auto-configured:
+// application.properties:
+spring.datasource.url=jdbc:mysql://localhost/mydb
+spring.datasource.username=user
+spring.datasource.password=pass
+
+// No XML needed!</div>
+                <h3>Why XML Was Eliminated</h3><table>
+<tr><th>Old</th><th>New</th></tr>
+<tr><td>XML files</td><td>Annotations</td></tr>
+<tr><td>Manual bean definition</td><td>Component scanning</td></tr>
+<tr><td>Property files</td><td>application.properties</td></tr>
+<tr><td>web.xml</td><td>Embedded Tomcat</td></tr>
+<tr><td>Application server</td><td>Standalone JAR</td></tr>
+</table>
+                <h3>Benefits</h3><ul><li>✅ Less boilerplate</li><li>✅ Type-safe (compile-time checking)</li><li>✅ IDE autocomplete</li><li>✅ Refactoring support</li><li>✅ Conditional configuration</li></ul></div>`
+            },
+            50: {
+                title: "@RestController vs @Controller Internals",
+                content: `<div class="content-header"><h2>The Difference Under the Hood</h2><p>What makes @RestController special</p></div>
+                <div class="content-body"><h3>@Controller</h3><div class="code-block">@Controller
+public class HomeController {
+
+    @GetMapping("/home")
+    public String home() {
+        return "home";  // Returns view name (String)
+    }
+}
+
+// What happens:
+1. Spring finds view name "home"
+2. Looks for home.html in /templates
+3. Renders HTML and returns to browser
+4. Response Content-Type: text/html</div>
+                <h3>@RestController</h3><div class="code-block">@RestController
+public class UserController {
+
+    @GetMapping("/users/{id}")
+    public User getUser(@PathVariable Long id) {
+        return new User(id);  // Returns object
+    }
+}
+
+// What happens:
+1. Spring sees object return, not String
+2. Serializes to JSON (Jackson)
+3. Sets Content-Type: application/json
+4. Sends JSON to client</div>
+                <h3>Equivalent Code</h3><div class="code-block">// @RestController is shorthand for:
+@Controller
+@ResponseBody  ← This is the key difference!
+public class UserController { }
+
+// @ResponseBody tells Spring:
+// "Don't render view template
+//  Serialize the return object to JSON"</div>
+                <h3>Detailed Flow</h3><table>
+<tr><th>Aspect</th><th>@Controller</th><th>@RestController</th></tr>
+<tr><td>Method return</td><td>String (view name)</td><td>Object</td></tr>
+<tr><td>@ResponseBody</td><td>✗ No</td><td>✓ Yes (implied)</td></tr>
+<tr><td>Content-Type</td><td>text/html</td><td>application/json</td></tr>
+<tr><td>Use case</td><td>Web pages (MVC)</td><td>REST APIs</td></tr>
+<tr><td>Serialization</td><td>Template engine</td><td>Jackson/Gson</td></tr>
+</table>
+                <h3>Mixed Approach</h3><div class="code-block">@Controller
+public class PageController {
+
+    @GetMapping("/page")
+    public String page() {
+        return "index";  // Serve HTML
+    }
+
+    @GetMapping("/api/data")
+    @ResponseBody  // Explicitly return JSON
+    public List<String> getData() {
+        return List.of("a", "b", "c");
+    }
+}</div></div>`
+            },
+            51: {
+                title: "Dependency Version Management in Spring Boot",
+                content: `<div class="content-header"><h2>Bill of Materials (BOM) Pattern</h2><p>How Spring Boot manages transitive dependencies</p></div>
+                <div class="content-body"><h3>The Problem</h3><div class="code-block">// Without Spring Boot:
+<dependency>
+    <groupId>org.hibernate</groupId>
+    <artifactId>hibernate-core</artifactId>
+    <version>5.4.25</version>
+</dependency>
+
+<dependency>
+    <groupId>org.hibernate</groupId>
+    <artifactId>hibernate-validator</artifactId>
+    <version>6.1.5</version>  ← Different version!
+</dependency>
+
+// Risk: Version conflict, incompatibility!</div>
+                <h3>Spring Boot Solution: BOM</h3><div class="code-block"><!-- pom.xml -->
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-dependencies</artifactId>
+            <version>2.7.0</version>
+            <type>pom</type>
+            <scope>import</scope>  ← Import all managed versions
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-jpa</artifactId>
+        <!-- No version needed! Spring Boot decides -->
+    </dependency>
+</dependencies></div>
+                <h3>What spring-boot-dependencies.pom Contains</h3><div class="code-block"><?xml version="1.0"?>
+<project>
+    <dependencyManagement>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>5.4.25.Final</version>  ← Single source of truth
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>6.1.5.Final</version>
+        </dependency>
+
+        <!-- 100+ dependencies managed here -->
+    </dependencyManagement>
+</project></div>
+                <h3>Benefits</h3><ul><li>✅ No version conflicts</li><li>✅ Tested compatibility</li><li>✅ Easy upgrades (bump Boot version)</li><li>✅ Smaller pom.xml</li><li>✅ Production-ready versions</li></ul>
+                <h3>Override if Needed</h3><div class="code-block"><!-- Override Hibernate version -->
+<dependency>
+    <groupId>org.hibernate</groupId>
+    <artifactId>hibernate-core</artifactId>
+    <version>6.0.0</version>  ← Explicit version used
+</dependency></div></div>`
+            },
+            52: {
+                title: "Complete Spring Bean Lifecycle (Deep)",
+                content: `<div class="content-header"><h2>12-Step Bean Lifecycle with Internals</h2><p>Every phase explained with code</p></div>
+                <div class="content-body"><h3>Complete Flow Diagram</h3><div class="code-block">STEP 1: Bean Definition Created
+   ↓
+STEP 2: Class Loaded & Reflected
+   ↓
+STEP 3: Constructor Called (Instantiation)
+   ↓
+STEP 4: setXXX() Methods Called (Setter Injection)
+   ↓
+STEP 5: BeanNameAware.setBeanName()
+   ↓
+STEP 6: BeanClassLoaderAware.setBeanClassLoader()
+   ↓
+STEP 7: ApplicationContextAware.setApplicationContext()
+   ↓
+STEP 8: BeanPostProcessor.postProcessBeforeInitialization()
+   ↓
+STEP 9: @PostConstruct or afterPropertiesSet()
+   ↓
+STEP 10: BeanPostProcessor.postProcessAfterInitialization()
+   ←────── PROXY CREATED HERE (for AOP)
+   ↓
+STEP 11: Bean Ready for Use
+   ↓
+(Application runs)
+   ↓
+STEP 12: @PreDestroy or destroy()
+   ↓
+Bean Removed from Container</div>
+                <h3>Detailed Example</h3><div class="code-block">@Component
+public class UserService implements
+    BeanNameAware,
+    ApplicationContextAware,
+    InitializingBean,
+    DisposableBean {
+
+    private String name;
+
+    // STEP 3
+    public UserService() {
+        System.out.println("1. Constructor");
+    }
+
+    // STEP 4
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    // STEP 5
+    @Override
+    public void setBeanName(String name) {
+        System.out.println("2. BeanNameAware: " + name);
+    }
+
+    // STEP 7
+    @Override
+    public void setApplicationContext
+            (ApplicationContext ctx) {
+        System.out.println("3. ApplicationContextAware");
+    }
+
+    // STEP 8+9+10 (combined)
+    @PostConstruct
+    public void initialize() {
+        System.out.println("4. @PostConstruct");
+    }
+
+    //STEP 11
+    public void doWork() {
+        System.out.println("5. Bean Ready");
+    }
+
+    // STEP 12
+    @PreDestroy
+    public void cleanup() {
+        System.out.println("6. @PreDestroy");
+    }
+}
+
+// OUTPUT:
+// 1. Constructor
+// 2. BeanNameAware: userService
+// 3. ApplicationContextAware
+// 4. @PostConstruct
+// 5. Bean Ready
+// 6. @PreDestroy (on shutdown)</div></div>`
+            },
+            53: {
+                title: "Externalized Configuration Hierarchy",
+                content: `<div class="content-header"><h2>Configuration Source Priority</h2><p>Complete ordering from highest to lowest</p></div>
+                <div class="content-body"><h3>Full Precedence List</h3><div class="code-block">PRIORITY (Highest wins):
+
+1. Command Line Arguments
+   java -jar app.jar --server.port=9000
+
+2. System Properties
+   java -Dserver.port=9000 -jar app.jar
+
+3. OS Environment Variables
+   export SERVER_PORT=9000
+
+4. application-{profile}.properties
+   application-prod.properties
+
+5. application-{profile}.yml
+   application-prod.yml
+
+6. application.properties
+
+7. application.yml
+
+8. Built-in defaults
+   (from Spring Boot)
+
+9. Property defaults in code
+   @Value("#{profiles.getCurrent() ?: 'dev'}")</div>
+                <h3>Example: Port Resolution</h3><div class="code-block">// application.properties:
+server.port=8080
+
+// Run with:
+java -jar app.jar --server.port=9000
+
+// Result: 9000 (command line wins!)
+// Because command line > application.properties</div>
+                <h3>Profile Override Example</h3><div class="code-block">// application.properties:
+logging.level=INFO
+database.url=localhost:3306
+
+// application-prod.properties:
+logging.level=WARN         ← Overrides
+database.url=prod-db:3306  ← Overrides
+
+// Run as: java -jar app.jar --spring.profiles.active=prod
+// Result:
+// logging.level = WARN (from prod)
+// database.url = prod-db:3306 (from prod)</div>
+                <h3>YAML vs Properties Priority</h3><div class="code-block">// If both exist:
+// application.yml
+logging:
+  level:
+    root: INFO
+
+// application.properties
+logging.level.root=DEBUG
+
+// Result: DEBUG wins (properties > yml)</div></div>`
+            },
+            54: {
+                title: "application.yml vs application.properties Priority",
+                content: `<div class="content-header"><h2>YAML vs Properties File Resolution</h2><p>Which format wins when both files exist</p></div>
+                <div class="content-body"><h3>Priority When Both Exist</h3><div class="code-block">✓ application.properties WINS
+✗ application.yml IGNORED
+
+This is counterintuitive but true!
+Properties files read AFTER YAML files,
+so they override.</div>
+                <h3>Format Comparison</h3><table>
+<tr><th>Feature</th><th>YAML</th><th>Properties</th></tr>
+<tr><td>Readability</td><td>✅ Better (hierarchical)</td><td>⚠️ Flat</td></tr>
+<tr><td>Nesting</td><td>✅ Natural indent</td><td>⚠️ Dot notation</td></tr>
+<tr><td>Comments</td><td>✅ Yes (#)</td><td>✅ Yes (#)</td></tr>
+<tr><td>Lists</td><td>✅ Easy</td><td>⚠️ Bracket notation</td></tr>
+<tr><td>Performance</td><td>✅ Same</td><td>✅ Same</td></tr>
+</table>
+                <h3>Example Comparison</h3><div class="code-block">// application.yml:
+spring:
+  datasource:
+    url: jdbc:mysql://localhost/db
+    username: root
+    password: secret
+  jpa:
+    hibernate:
+      ddl-auto: create
+
+// application.properties:
+spring.datasource.url=jdbc:mysql://localhost/db
+spring.datasource.username=root
+spring.datasource.password=secret
+spring.jpa.hibernate.ddl-auto=create</div>
+                <h3>Best Practice</h3><ul><li>✅ Use YAML for new projects (cleaner)</li><li>✅ Use Properties for system properties (simpler)</li><li>⚠️ Don't mix both in same project</li><li>✅ Profile-specific should match main format</li></ul></div>`
+            },
+            55: {
+                title: "Spring Boot Actuator Integration",
+                content: `<div class="content-header"><h2>Actuator Deep Dive</h2><p>Built-in production monitoring endpoints</p></div>
+                <div class="content-body"><h3>Add Dependency</h3><div class="code-block"><dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency></div>
+                <h3>Enable Endpoints</h3><div class="code-block">// application.properties:
+management.endpoints.web.exposure.include=\
+  health,metrics,info,env,configprops
+
+// Don't expose everything in prod:
+management.endpoints.web.exposure.include=\
+  health,metrics (safer)</div>
+                <h3>Key Endpoints</h3><table>
+<tr><th>Endpoint</th><th>URL</th><th>Purpose</th></tr>
+<tr><td>/health</td><td>GET /actuator/health</td><td>App health status</td></tr>
+<tr><td>/metrics</td><td>GET /actuator/metrics</td><td>Performance metrics</td></tr>
+<tr><td>/env</td><td>GET /actuator/env</td><td>Environment properties</td></tr>
+<tr><td>/info</td><td>GET /actuator/info</td><td>App information</td></tr>
+<tr><td>/threaddump</td><td>GET /actuator/threaddump</td><td>Thread dump</td></tr>
+</table>
+                <h3>Custom Health Indicator</h3><div class="code-block">@Component
+public class CustomHealthIndicator
+        implements HealthIndicator {
+
+    @Override
+    public Health health() {
+        boolean dbConnected = checkDatabase();
+
+        if (dbConnected) {
+            return Health.up()
+                .withDetail("database", "connected")
+                .build();
+        } else {
+            return Health.down()
+                .withDetail("database", "disconnected")
+                .build();
+        }
+    }
+}</div></div>`
+            },
+            56: {
+                title: "@Configuration vs Plain Class Difference",
+                content: `<div class="content-header"><h2>Why @Configuration Matters</h2><p>The CGLib proxy magic behind beans</p></div>
+                <div class="content-body"><h3>The Difference</h3><div class="code-block">// WRONG: Plain class
+public class AppConfig {
+
+    @Bean
+    public UserRepository userRepository() {
+        return new UserRepository();
+    }
+
+    @Bean
+    public UserService userService() {
+        return new UserService(userRepository());
+        //                      ^^^^^^^^
+        // Calls method directly, creates NEW instance!
+    }
+}
+
+// CORRECT: With @Configuration
+@Configuration
+public class AppConfig {
+
+    @Bean
+    public UserRepository userRepository() {
+        return new UserRepository();
+    }
+
+    @Bean
+    public UserService userService() {
+        return new UserService(userRepository());
+        //                      ^^^^^^^^
+        // Calls intercepted method, returns SAME instance!
+    }
+}</div>
+                <h3>What @Configuration Does</h3><div class="code-block">1. Spring creates CGLIB proxy of AppConfig
+2. Every @Bean method call intercepted
+3. Checks if bean already created
+4. Returns cached bean (singleton)
+5. NOT a new instance
+
+Result:
+- userService gets SAME userRepository bean
+- Both share same database connection
+- Proper singleton semantics!</div>
+                <h3>Without @Configuration (WRONG)</h3><div class="code-block">// Plain Java call:
+AppConfig config = new AppConfig();
+
+UserRepository repo1 = config.userRepository();
+UserRepository repo2 = config.userRepository();
+
+// repo1 != repo2 (different instances!)
+
+// Spring doesn't intercept:
+UserService svc = config.userService();
+// userService has its OWN userRepository instance
+// Different from the @Bean one!</div>
+                <h3>Use Cases</h3><div class="code-block">// Use @Configuration when:
+✓ Defining @Bean methods
+✓ Need singleton beans
+✓ Beans have dependencies on each other
+
+// Plain class is OK when:
+✓ Just marking as component
+✓ No @Bean methods
+✓ Using @Component, @Service, @Repository</div></div>`
+            },
+            57: {
+                title: "Auto-Creating DataSource (HikariCP)",
+                content: `<div class="content-header"><h2>DataSource Auto-Configuration</h2><p>How Spring Boot creates connection pool</p></div>
+                <div class="content-body"><h3>The Process</h3><div class="code-block">1. spring-boot-starter-data-jpa added
+   → Includes HikariCP JAR
+
+2. spring.datasource.url property set
+   → DataSourceAutoConfiguration detects it
+
+3. DataSourceAutoConfiguration conditions met:
+   @ConditionalOnClass(DataSource.class)  ✓
+   @ConditionalOnProperty("spring.datasource.url")  ✓
+
+4. HikariDataSource bean created automatically
+
+5. Properties applied:
+   spring.datasource.url
+   spring.datasource.username
+   spring.datasource.password
+   spring.datasource.hikari.maximum-pool-size</div>
+                <h3>Configuration Example</h3><div class="code-block">// application.properties:
+spring.datasource.url=jdbc:mysql://localhost:3306/mydb
+spring.datasource.username=root
+spring.datasource.password=secret
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+// Hikari specific:
+spring.datasource.hikari.maximum-pool-size=20
+spring.datasource.hikari.minimum-idle=5
+spring.datasource.hikari.connection-timeout=30000
+spring.datasource.hikari.idle-timeout=600000
+
+// Result:
+// HikariCP DataSource created with:
+✓ Connection pool: 20 max, 5 min
+✓ Connection timeout: 30 seconds
+✓ Idle timeout: 10 minutes</div>
+                <h3>Accessing DataSource</h3><div class="code-block">@Service
+public class UserRepository {
+    private final DataSource dataSource;
+
+    public UserRepository(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    public User findById(Long id) {
+        try (Connection conn = dataSource.getConnection();
+             Statement stmt = conn.createStatement()) {
+            // conn automatically returned to pool
+        }
+    }
+}</div>
+                <h3>Custom DataSource</h3><div class="code-block">// Override auto-config:
+@Configuration
+public class DataSourceConfig {
+
+    @Bean
+    public DataSource dataSource() {
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl("jdbc:postgresql://...");
+        config.setUsername("user");
+        config.setPassword("pass");
+        config.setMaximumPoolSize(30);
+        return new HikariDataSource(config);
+    }
+}</div></div>`
+            },
+            58: {
+                title: "CommandLineRunner vs ApplicationRunner",
+                content: `<div class="content-header"><h2>Running Code on Startup</h2><p>Differences between startup hooks</p></div>
+                <div class="content-body"><h3>CommandLineRunner</h3><div class="code-block">@Component
+public class DatabaseMigrator
+        implements CommandLineRunner {
+
+    @Override
+    public void run(String... args) throws Exception {
+        // args = command line arguments
+        // java -jar app.jar arg1 arg2
+        // args[0] = "arg1", args[1] = "arg2"
+
+        System.out.println("Running migrations...");
+        executeMigrations();
+    }
+}
+
+// Receives String... args (raw text)</div>
+                <h3>ApplicationRunner</h3><div class="code-block">@Component
+public class CacheWarmer implements ApplicationRunner {
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        List<String> names = args.getOptionNames();
+        // More structured argument parsing
+    }
+}</div></div>`
+            }
+        };
+
+        const topicsList = document.getElementById('topicsList');
+        let currentCategory = '';
+        let firstTopicElement = null;
+        let firstTopicId = null;
+
+        topics.forEach((topic, index) => {
+            if (topic.category !== currentCategory) {
+                currentCategory = topic.category;
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'topic-category';
+                categoryDiv.textContent = topic.tier;
+                topicsList.appendChild(categoryDiv);
+            }
+
+            const item = document.createElement('div');
+            item.className = 'topic-item';
+            item.textContent = topic.title;
+            item.onclick = () => selectTopic(topic.id, item);
+            topicsList.appendChild(item);
+
+            if (index === 0) {
+                firstTopicElement = item;
+                firstTopicId = topic.id;
+            }
+        });
+
+        function selectTopic(id, element) {
+            const contentArea = document.getElementById('contentArea');
+            document.querySelectorAll('.topic-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+
+            if (topicsData && topicsData[id] && topicsData[id].content && contentArea) {
+                contentArea.innerHTML = topicsData[id].content;
+            }
+        }
+
+        if (firstTopicElement && firstTopicId && topicsData && topicsData[firstTopicId]) {
+            selectTopic(firstTopicId, firstTopicElement);
+        } else if (topicsData && topicsData[1]) {
+            const firstItem = document.querySelector('.topic-item');
+            if (firstItem) {
+                selectTopic(1, firstItem);
+            }
+        }
+
+        setTimeout(() => {
+            if (firstTopicElement && firstTopicId) {
+                selectTopic(firstTopicId, firstTopicElement);
+            }
+        }, 200);
+    </script>
+</body>
+</html>
+

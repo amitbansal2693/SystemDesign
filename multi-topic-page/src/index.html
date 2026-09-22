@@ -396,6 +396,14 @@
                 icon: "⚙️",
                 badge: "badge-orange",
                 badgeText: "10 PROBLEMS"
+            },
+            {
+                file: "../Questions/delivery_track_interview_prep.html",
+                title: "💼 Delivery Track Interview Preparation",
+                desc: "12 interview Q&A: Why delivery track, stakeholder management, risk management, handling conflict, ownership examples, career transition",
+                icon: "💼",
+                badge: "badge-orange",
+                badgeText: "DELIVERY"
             }
         ];
 
@@ -517,6 +525,14 @@
                 icon: "☕",
                 badge: "badge-green",
                 badgeText: "20+ TOPICS"
+            },
+            {
+                file: "../Questions/java_collections_deep_dive.html",
+                title: "Collections Deep Dive",
+                desc: "ArrayList, HashMap, LinkedList, Set, Queue: internals, performance, use cases, thread safety",
+                icon: "📦",
+                badge: "badge-blue",
+                badgeText: "COLLECTIONS"
             }
         ];
 
@@ -601,39 +617,55 @@
         ];
 
         const technology = [
-            {
-                file: "../Questions/Microservices.html",
-                title: "Microservices Deep Dive",
-                desc: "12 topics: Architecture, Communication, API Gateway, Resilience, Data, Events, Security, Observability, Deployment, Patterns",
-                icon: "🔗",
-                badge: "badge-green",
-                badgeText: "12 TOPICS"
-            },
-            {
-                file: "../Resource/advanced_spring_spring_boot_cheat_sheet.html",
-                title: "Advanced Spring & Spring Boot",
-                desc: "Spring framework cheat sheet",
-                icon: "🍃",
-                badge: "badge-blue",
-                badgeText: "SPRING"
-            },
-            {
-                file: "../Resource/spring_security_cheat_sheet.html",
-                title: "Spring Security Cheat Sheet",
-                desc: "Auth, JWT, OAuth2, CORS, CSRF",
-                icon: "🔐",
-                badge: "badge-orange",
-                badgeText: "SECURITY"
-            },
-            {
-                file: "../Questions/JPA.html",
-                title: "JPA Deep Dive",
-                desc: "JPA, Hibernate, ORM, entities, relationships, queries",
-                icon: "🗄️",
-                badge: "badge-purple",
-                badgeText: "JPA"
-            }
-        ];
+             {
+                 file: "../Questions/Microservices.html",
+                 title: "Microservices Deep Dive",
+                 desc: "12 topics: Architecture, Communication, API Gateway, Resilience, Data, Events, Security, Observability, Deployment, Patterns",
+                 icon: "🔗",
+                 badge: "badge-green",
+                 badgeText: "12 TOPICS"
+             },
+             {
+                 file: "../Questions/advanced_spring_boot.html",
+                 title: "🍃 Technology Deep Dive v2: Spring & Spring Boot",
+                 desc: "15 production-focused deep dives: Bean lifecycle internals, AOP & proxies, @Transactional propagation, self-invocation problem, memory leaks, circular dependencies, debugging 500 errors, thread/connection pool tuning, auto-configuration, @ConfigurationProperties",
+                 icon: "🍃",
+                 badge: "badge-blue",
+                 badgeText: "SPRING v2"
+             },
+             {
+                 file: "../Questions/kafka_deep_dive.html",
+                 title: "📨 Kafka Deep Dive",
+                 desc: "20 comprehensive topics: Topics, Partitions, Segments, Offsets, Consumer Groups, Replication, Delivery Semantics, Log Storage, Data Distribution, Scaling & Performance",
+                 icon: "📨",
+                 badge: "badge-green",
+                 badgeText: "20 TOPICS"
+             },
+             {
+                 file: "../Resource/advanced_spring_spring_boot_cheat_sheet.html",
+                 title: "Advanced Spring & Spring Boot (Original)",
+                 desc: "Spring framework cheat sheet - original reference",
+                 icon: "🍃",
+                 badge: "badge-purple",
+                 badgeText: "CLASSIC"
+             },
+             {
+                 file: "../Resource/spring_security_cheat_sheet.html",
+                 title: "Spring Security Cheat Sheet",
+                 desc: "Auth, JWT, OAuth2, CORS, CSRF",
+                 icon: "🔐",
+                 badge: "badge-orange",
+                 badgeText: "SECURITY"
+             },
+             {
+                 file: "../Questions/JPA.html",
+                 title: "JPA Deep Dive",
+                 desc: "JPA, Hibernate, ORM, entities, relationships, queries",
+                 icon: "🗄️",
+                 badge: "badge-purple",
+                 badgeText: "JPA"
+             }
+         ];
 
         // ── RENDER CARDS ──
         function renderCards(items, containerId, badgeDefault) {
@@ -723,6 +755,13 @@
         // ── KEYBOARD: ESC to go home ──
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') goHome();
+        });
+
+        // ── MESSAGE FROM IFRAME ──
+        window.addEventListener('message', function (e) {
+            if (e.data.action === 'goHome') {
+                goHome();
+            }
         });
 
         // ── INIT ──

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delivery Track Interview Preparation</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f7f8fa;
+    color: #172033;
+  }
+  .topbar {
+    height: 64px;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    padding: 0 28px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .brand {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -.4px;
+  }
+  .brand span { color: #2563eb; }
+  .container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 28px 28px 60px;
+  }
+  .hero {
+    text-align: center;
+    padding: 22px 0 30px;
+  }
+  .hero h1 {
+    margin: 0 0 8px;
+    font-size: 34px;
+    letter-spacing: -1px;
+  }
+  .hero p {
+    margin: 0;
+    color: #667085;
+    font-size: 15px;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 360px minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+  .sidebar {
+    position: sticky;
+    top: 88px;
+    max-height: calc(100vh - 110px);
+    overflow: auto;
+    padding-right: 5px;
+  }
+  .section {
+    margin-bottom: 18px;
+  }
+  .section-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .09em;
+    color: #7b8495;
+    font-weight: 800;
+    margin: 0 0 8px 4px;
+  }
+  .question {
+    width: 100%;
+    text-align: left;
+    border: 1px solid #e4e7ec;
+    background: #fff;
+    border-radius: 10px;
+    padding: 13px 15px;
+    margin-bottom: 7px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #263247;
+    transition: .15s ease;
+  }
+  .question:hover {
+    border-color: #93b4ff;
+    transform: translateX(2px);
+  }
+  .question.active {
+    background: #eef4ff;
+    border-color: #3b82f6;
+    box-shadow: 0 2px 8px rgba(37,99,235,.08);
+  }
+  .question .num {
+    display: inline-flex;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #edf0f5;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    margin-right: 8px;
+    color: #536071;
+  }
+  .question.active .num {
+    background: #2563eb;
+    color: white;
+  }
+  .answer-panel {
+    background: #fff;
+    border: 1px solid #e3e6eb;
+    border-radius: 14px;
+    min-height: 620px;
+    box-shadow: 0 4px 18px rgba(16,24,40,.04);
+    overflow: hidden;
+  }
+  .answer-header {
+    padding: 24px 28px;
+    border-bottom: 1px solid #edf0f3;
+    background: #fbfcfe;
+  }
+  .tag {
+    display: inline-block;
+    background: #eaf2ff;
+    color: #2563eb;
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 10px;
+  }
+  .answer-header h2 {
+    margin: 0;
+    font-size: 25px;
+    letter-spacing: -.5px;
+  }
+  .answer-body {
+    padding: 28px;
+    font-size: 16px;
+    line-height: 1.75;
+    color: #344054;
+  }
+  .answer-body p { margin: 0 0 18px; }
+  .answer-body strong { color: #182230; }
+  .answer-body ul {
+    padding-left: 24px;
+    margin-top: 8px;
+  }
+  .tip {
+    border-left: 4px solid #2563eb;
+    background: #f5f8ff;
+    padding: 14px 17px;
+    margin-top: 24px;
+    border-radius: 0 8px 8px 0;
+    color: #344054;
+  }
+  .story {
+    background: #f8fafc;
+    border: 1px solid #e4e7ec;
+    border-radius: 10px;
+    padding: 17px 19px;
+    margin-top: 14px;
+  }
+  .story-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    font-weight: 800;
+    color: #667085;
+    margin-bottom: 7px;
+  }
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 28px;
+    border-top: 1px solid #edf0f3;
+    background: #fff;
+  }
+  .nav button {
+    border: 1px solid #d0d5dd;
+    background: white;
+    padding: 9px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    color: #344054;
+  }
+  .nav button:hover { background: #f9fafb; }
+  .progress {
+    height: 4px;
+    background: #eef0f3;
+  }
+  .progress div {
+    height: 100%;
+    background: #2563eb;
+    width: 0;
+    transition: width .2s;
+  }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { position: static; max-height: none; }
+    .answer-panel { min-height: 500px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <button onclick="goHome()" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 6px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; margin-right: 16px;">← Back</button>
+  <div class="brand">Delivery<span>Track</span> Interview Prep</div>
+</header>
+
+<main class="container">
+  <div class="hero">
+    <h1>Delivery Track Interview Preparation</h1>
+    <p>Click any question on the left to show the prepared answer on the right.</p>
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar" id="questionList"></aside>
+
+    <section class="answer-panel">
+      <div class="progress"><div id="progressBar"></div></div>
+      <div class="answer-header">
+        <div class="tag" id="category"></div>
+        <h2 id="answerTitle"></h2>
+      </div>
+      <div class="answer-body" id="answerBody"></div>
+      <div class="nav">
+        <button id="prevBtn">← Previous</button>
+        <button id="nextBtn">Next →</button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+const questions = [
+  {
+    category: "Delivery",
+    title: "Why do you want to move to the Delivery Track?",
+    answer: `<p>I've spent most of my career in hands-on engineering, and over time my responsibilities have expanded beyond implementation into technical design, production support, stakeholder collaboration, problem solving and helping teams deliver solutions.</p>
+    <p>I now want to move toward a role where I can take broader ownership of delivery, work more closely with stakeholders and clients, and connect technical decisions with business outcomes. I still want to use my technical background, but I want to contribute at a broader delivery level.</p>`
+  },
+  {
+    category: "Delivery",
+    title: "What does delivery mean to you?",
+    answer: `<p>For me, delivery means taking ownership of an outcome rather than just completing development tasks. It starts with understanding the business requirement, defining the right solution, planning the work, managing dependencies and risks, coordinating the team, ensuring quality, and ultimately delivering something that provides value to the client.</p>`
+  },
+  {
+    category: "Stakeholder Management",
+    title: "How do you handle a difficult stakeholder?",
+    answer: `<p>First I try to understand the stakeholder's underlying concern rather than immediately defending the technical solution. I clarify expectations, constraints and priorities.</p>
+    <p>Then I explain the available options, including technical and business trade-offs. If there's disagreement, I try to bring the discussion back to facts, impact, timeline and business objectives.</p>
+    <p>My goal is not to win an argument but to reach a decision that the team and stakeholder can commit to.</p>`
+  },
+  {
+    category: "Delivery",
+    title: "What if the project is behind schedule?",
+    answer: `<p>I would first establish why we are behind rather than immediately asking the team to work harder. I'd look at scope, dependencies, technical blockers, resource availability and estimation.</p>
+    <p>Then I'd identify the critical path and separate must-have scope from items that can move to a later phase. I'd communicate the situation early, along with options and their impact, rather than waiting until the deadline is missed.</p>`
+  },
+  {
+    category: "Risk Management",
+    title: "How do you manage risks?",
+    answer: `<p>I try to identify risks early and make them visible. For each significant risk, I look at probability, impact, mitigation and contingency.</p>
+    <p>For example, if an external integration is on the critical path, I wouldn't wait until development is finished to discover that the provider has an issue. I'd validate the integration early and track it as a dependency.</p>`
+  },
+  {
+    category: "Prioritization",
+    title: "How do you handle multiple priorities?",
+    answer: `<p>I prioritize based on business impact, urgency, dependencies and risk rather than simply working on whichever request comes first.</p>
+    <p>If everything is considered high priority, I make the trade-offs visible to the stakeholders and ask for a decision on what should take precedence.</p>`
+  },
+  {
+    category: "Leadership",
+    title: "How do you lead a team when you aren't the direct manager?",
+    answer: `<p>I lead through clarity, communication and ownership rather than authority. I make sure people understand the objective, their responsibilities, dependencies and deadlines.</p>
+    <p>I also try to remove blockers and give team members enough autonomy to make technical decisions. If something is going off track, I address it early rather than waiting until the end of the sprint or project.</p>`,
+    tip: "This situation is common in delivery roles."
+  },
+  {
+    category: "People",
+    title: "How do you handle conflict within a team?",
+    answer: `<p>I first understand both perspectives and separate the technical disagreement from the personal aspect. If it's a technical decision, I bring the discussion back to requirements, evidence, maintainability, cost and risk.</p>
+    <p>Once a decision is made, I expect the team to align behind it, even if everyone didn't initially prefer the same option.</p>`
+  },
+  {
+    category: "Ownership",
+    title: "Tell me about a time you took ownership.",
+    answer: `<p>We had a recurring payment issue involving transaction references across multiple systems. I investigated the problem end-to-end, traced the flow across the application and external systems, identified that the business Order ID was being reused for multiple financial transactions, and proposed a transaction-specific reference.</p>
+    <p>I worked through the different scenarios, implemented the solution and verified the behavior. For me, the important part was not just fixing the code but understanding the business problem, coordinating across the affected areas and making sure the solution worked across the complete flow.</p>
+    <div class="story"><div class="story-title">Interview focus</div>Keep the focus on ownership and the end-to-end delivery outcome rather than on the payment provider.</div>`
+  },
+  {
+    category: "Self Awareness",
+    title: "What is your weakness?",
+    answer: `<p><strong>Avoid:</strong> “I'm a perfectionist.”</p>
+    <p><strong>Use instead:</strong> “My background is heavily technical, so earlier in my career I sometimes went too deep into implementation details. As my responsibilities have grown, I've learned to step back and focus first on business impact, priorities, dependencies and delivery outcomes, and then go into technical detail where it adds value.”</p>
+    <div class="tip">This fits your transition particularly well.</div>`
+  },
+  {
+    category: "Communication",
+    title: "How do you communicate with senior management?",
+    answer: `<p>I keep the communication concise and outcome-oriented. I focus on status, business impact, risks, decisions required and next steps rather than going into unnecessary technical detail.</p>
+    <p>If technical detail is required for a decision, I provide it, but I first make sure the stakeholder understands what the issue means for scope, timeline, cost or quality.</p>`
+  },
+  {
+    category: "Career",
+    title: "Why should we move you to the Delivery Track?",
+    answer: `<p><strong>I bring a combination of strong technical depth and experience working across the delivery lifecycle.</strong> I've worked on design, development, integrations, production issues, architecture discussions, stakeholder collaboration and delivery of complex enterprise solutions.</p>
+    <p>I understand the technical details, but I also understand that successful delivery is not just about writing good code. It's about managing expectations, identifying risks early, making decisions, coordinating people and delivering business value.</p>
+    <p>I believe my next step is to take broader ownership of those responsibilities while continuing to use my technical background as a strength.</p>`,
+    tip: "This is likely one of the most important responses in the discussion."
+  }
+];
+
+const categories = [
+  ["Delivery", [0,1,3]],
+  ["Stakeholders & Leadership", [2,6,7]],
+  ["Risk & Priorities", [4,5]],
+  ["Experience & Communication", [8,9,10]],
+  ["Career", [11]]
+];
+
+let current = 0;
+
+function renderQuestions() {
+  const list = document.getElementById("questionList");
+  list.innerHTML = "";
+  categories.forEach(([name, indexes]) => {
+    const section = document.createElement("div");
+    section.className = "section";
+    section.innerHTML = `<div class="section-title">${name}</div>`;
+    indexes.forEach(i => {
+      const q = document.createElement("button");
+      q.className = "question";
+      q.dataset.index = i;
+      q.innerHTML = `<span class="num">${i + 1}</span>${questions[i].title}`;
+      q.onclick = () => showQuestion(i);
+      section.appendChild(q);
+    });
+    list.appendChild(section);
+  });
+}
+
+function showQuestion(index) {
+  current = index;
+  const q = questions[index];
+  document.getElementById("category").textContent = q.category;
+  document.getElementById("answerTitle").textContent = q.title;
+  document.getElementById("answerBody").innerHTML =
+    q.answer + (q.tip ? `<div class="tip"><strong>Interview note:</strong> ${q.tip}</div>` : "");
+
+  document.querySelectorAll(".question").forEach(btn => {
+    btn.classList.toggle("active", Number(btn.dataset.index) === index);
+  });
+
+  document.getElementById("progressBar").style.width =
+    ((index + 1) / questions.length * 100) + "%";
+
+  document.getElementById("prevBtn").disabled = index === 0;
+  document.getElementById("nextBtn").disabled = index === questions.length - 1;
+
+  document.getElementById("answerTitle").scrollIntoView({behavior:"smooth", block:"nearest"});
+}
+
+document.getElementById("prevBtn").onclick = () => {
+  if (current > 0) showQuestion(current - 1);
+};
+document.getElementById("nextBtn").onclick = () => {
+  if (current < questions.length - 1) showQuestion(current + 1);
+};
+
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowLeft" && current > 0) showQuestion(current - 1);
+  if (e.key === "ArrowRight" && current < questions.length - 1) showQuestion(current + 1);
+});
+
+function goHome() {
+  if (window.parent !== window) {
+    window.parent.postMessage({action: 'goHome'}, '*');
+  } else {
+    window.history.back();
+  }
+}
+
+renderQuestions();
+showQuestion(0);
+</script>
+</body>
+</html>
